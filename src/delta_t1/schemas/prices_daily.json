@@ -1,0 +1,112 @@
+{
+  "contract_format": "delta-table-contract",
+  "schema_version": "1.0.0",
+  "table": "prices_daily",
+  "primary_key": [
+    "security_id",
+    "trade_date"
+  ],
+  "fields": {
+    "security_id": {
+      "type": "string",
+      "nullable": false
+    },
+    "ticker": {
+      "type": "string",
+      "nullable": false
+    },
+    "exchange": {
+      "type": "string",
+      "nullable": false,
+      "enum": [
+        "HOSE",
+        "HNX"
+      ]
+    },
+    "trade_date": {
+      "type": "date",
+      "nullable": false
+    },
+    "raw_open": {
+      "type": "number",
+      "nullable": true,
+      "exclusive_min": 0
+    },
+    "raw_high": {
+      "type": "number",
+      "nullable": true,
+      "exclusive_min": 0
+    },
+    "raw_low": {
+      "type": "number",
+      "nullable": true,
+      "exclusive_min": 0
+    },
+    "raw_close": {
+      "type": "number",
+      "nullable": true,
+      "exclusive_min": 0
+    },
+    "adj_close": {
+      "type": "number",
+      "nullable": false,
+      "exclusive_min": 0
+    },
+    "adjustment_basis": {
+      "type": "string",
+      "nullable": false,
+      "enum": [
+        "split_adjusted",
+        "total_return",
+        "unknown",
+        "synthetic"
+      ]
+    },
+    "volume": {
+      "type": "number",
+      "nullable": false,
+      "min": 0
+    },
+    "traded_value": {
+      "type": "number",
+      "nullable": true,
+      "min": 0
+    },
+    "trading_status": {
+      "type": "string",
+      "nullable": false,
+      "enum": [
+        "normal",
+        "suspended",
+        "halted",
+        "unknown"
+      ]
+    },
+    "available_at": {
+      "type": "datetime",
+      "nullable": false
+    },
+    "source": {
+      "type": "string",
+      "nullable": false
+    },
+    "fetched_at": {
+      "type": "datetime",
+      "nullable": false
+    },
+    "data_version": {
+      "type": "string",
+      "nullable": false
+    }
+  },
+  "relations": [
+    {
+      "target": "securities",
+      "on": "security_id and valid_from <= trade_date < valid_to (null means infinity)"
+    },
+    {
+      "target": "trading_calendar",
+      "on": "exchange, trade_date; is_open = true"
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "contract_format": "delta-table-contract",
+  "schema_version": "1.0.0",
+  "table": "feature_snapshots",
+  "primary_key": [
+    "security_id",
+    "as_of_date"
+  ],
+  "fields": {
+    "security_id": {
+      "type": "string",
+      "nullable": false
+    },
+    "ticker": {
+      "type": "string",
+      "nullable": false
+    },
+    "as_of_date": {
+      "type": "date",
+      "nullable": false
+    },
+    "available_at": {
+      "type": "datetime",
+      "nullable": false
+    },
+    "feature_version": {
+      "type": "string",
+      "nullable": false
+    },
+    "data_version": {
+      "type": "string",
+      "nullable": false
+    },
+    "mom_21": {
+      "type": "number",
+      "nullable": true
+    },
+    "mom_63": {
+      "type": "number",
+      "nullable": true
+    },
+    "mom_126": {
+      "type": "number",
+      "nullable": true
+    },
+    "mom_252": {
+      "type": "number",
+      "nullable": true
+    },
+    "vol_63": {
+      "type": "number",
+      "nullable": true
+    },
+    "vol_126": {
+      "type": "number",
+      "nullable": true
+    },
+    "sharpe_63": {
+      "type": "number",
+      "nullable": true
+    },
+    "sharpe_126": {
+      "type": "number",
+      "nullable": true
+    },
+    "mdd_126": {
+      "type": "number",
+      "nullable": true
+    },
+    "beta_126": {
+      "type": "number",
+      "nullable": true
+    },
+    "liquidity_21": {
+      "type": "number",
+      "nullable": true
+    },
+    "na_reason": {
+      "type": "object",
+      "nullable": false
+    },
+    "eligibility": {
+      "type": "boolean",
+      "nullable": false
+    }
+  },
+  "relations": [
+    {
+      "target": "prices_daily",
+      "on": "security_id and trade_date <= as_of_date within same data_version"
+    }
+  ]
+}

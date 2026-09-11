@@ -1,0 +1,50 @@
+{
+  "contract_format": "delta-table-contract",
+  "schema_version": "1.0.0",
+  "table": "assignments",
+  "primary_key": [
+    "run_id",
+    "snapshot_date",
+    "security_id"
+  ],
+  "fields": {
+    "run_id": {
+      "type": "string",
+      "nullable": false
+    },
+    "snapshot_date": {
+      "type": "date",
+      "nullable": false
+    },
+    "security_id": {
+      "type": "string",
+      "nullable": false
+    },
+    "raw_cluster_id": {
+      "type": "integer",
+      "nullable": false
+    },
+    "aligned_cluster_id": {
+      "type": "integer",
+      "nullable": true
+    },
+    "pca_x": {
+      "type": "number",
+      "nullable": true
+    },
+    "pca_y": {
+      "type": "number",
+      "nullable": true
+    },
+    "data_version": {
+      "type": "string",
+      "nullable": false
+    }
+  },
+  "relations": [
+    {
+      "target": "feature_snapshots",
+      "on": "security_id, as_of_date = snapshot_date, data_version"
+    }
+  ]
+}

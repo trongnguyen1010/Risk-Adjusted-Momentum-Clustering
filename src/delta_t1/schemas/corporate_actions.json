@@ -1,0 +1,82 @@
+{
+  "contract_format": "delta-table-contract",
+  "schema_version": "1.0.0",
+  "table": "corporate_actions",
+  "primary_key": [
+    "event_id"
+  ],
+  "fields": {
+    "event_id": {
+      "type": "string",
+      "nullable": false
+    },
+    "security_id": {
+      "type": "string",
+      "nullable": false
+    },
+    "event_type": {
+      "type": "string",
+      "nullable": false,
+      "enum": [
+        "cash_dividend",
+        "stock_dividend",
+        "split",
+        "rights_issue",
+        "other"
+      ]
+    },
+    "announcement_date": {
+      "type": "date",
+      "nullable": false
+    },
+    "available_at": {
+      "type": "datetime",
+      "nullable": false
+    },
+    "ex_date": {
+      "type": "date",
+      "nullable": false
+    },
+    "record_date": {
+      "type": "date",
+      "nullable": true
+    },
+    "effective_date": {
+      "type": "date",
+      "nullable": false
+    },
+    "adjustment_factor": {
+      "type": "number",
+      "nullable": true,
+      "exclusive_min": 0
+    },
+    "cash_amount": {
+      "type": "number",
+      "nullable": true,
+      "min": 0
+    },
+    "ratio": {
+      "type": "number",
+      "nullable": true,
+      "exclusive_min": 0
+    },
+    "source": {
+      "type": "string",
+      "nullable": false
+    },
+    "fetched_at": {
+      "type": "datetime",
+      "nullable": false
+    },
+    "data_version": {
+      "type": "string",
+      "nullable": false
+    }
+  },
+  "relations": [
+    {
+      "target": "securities",
+      "on": "security_id"
+    }
+  ]
+}
