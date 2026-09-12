@@ -1,6 +1,6 @@
 """Validate field types, duplicate keys and temporal relationships before features."""
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from ..contracts import normalize, schema
 
 
@@ -11,7 +11,10 @@ def clean_tables(raw_tables, data_version):
         issues.append({"data_version": data_version, "rule_id": rule, "table": table,
                        "security_id": row.get("security_id"), "trade_date": row.get("trade_date"),
                        "severity": "error", "status": "open", "message": message})
-        quarantine.append({"table": table, "rule_id": rule, "row": row})
+        quarantine.append({"table": table, "rule_id": rule, "row": row,
+                           "error_code": rule, "error_message": message,
+                           "source": row.get("source"), "vendor_run_id": row.get("vendor_run_id"),
+                           "data_version": data_version, "detected_at": datetime.now(timezone.utc).isoformat()})
 
     for table, records in raw_tables.items():
         normalized = []
@@ -40,7 +43,7 @@ def clean_tables(raw_tables, data_version):
     valid_calendar = []
     for row in tables.get("trading_calendar", []):
         close, decision = datetime.fromisoformat(row["close_at"]), datetime.fromisoformat(row["decision_at"])
-        if decision < close or close.date().isoformat() != row["trade_date"] or (row["is_month_end"] and not row["is_open"]):
+        if decision < close or close.astimezone(timezone(timedelta(hours=7))).date().isoformat() != row["trade_date"] or (row["is_month_end"] and not row["is_open"]) or (row.get("open_at") and datetime.fromisoformat(row["open_at"]) >= close):
             reject("trading_calendar", row, "CALENDAR_TIME", "Invalid session date/decision time/month end")
         elif row["is_month_end"] and any(r["exchange"] == row["exchange"] and r["is_open"] and r["trade_date"][:7] == row["trade_date"][:7] and r["trade_date"] > row["trade_date"] for r in tables["trading_calendar"]):
             reject("trading_calendar", row, "MONTH_END", "Later open session exists in same month")
@@ -78,7 +81,10 @@ def clean_tables(raw_tables, data_version):
             reason = ("CALENDAR", "Missing calendar or closed exchange day")
         else:
             low, high = row["raw_low"], row["raw_high"]
-            if low is not None and high is not None and (low > high or any(v is not None and not low <= v <= high for v in (row["raw_open"], row["raw_close"]))):
+            middle = [v for v in (row["raw_open"], row["raw_close"]) if v is not None]
+            if ((low is not None and high is not None and low > high) or
+                (low is not None and any(v < low for v in middle)) or
+                (high is not None and any(v > high for v in middle))):
                 reason = ("OHLC", "Expected low <= open/close <= high")
             elif datetime.fromisoformat(row["available_at"]) < datetime.fromisoformat(calendar[(row["exchange"], day)]["close_at"]):
                 reason = ("AVAILABILITY", "Daily close cannot be available before session close")
@@ -87,11 +93,22 @@ def clean_tables(raw_tables, data_version):
         else:
             cleaned_prices.append(row)
     tables["prices_daily"] = cleaned_prices
+    benchmarks = []
+    for row in tables.get("benchmark_daily", []):
+        exchange = row.get("exchange") or ("HOSE" if row["index_id"] in ("VNINDEX", "VN30") else "HNX" if row["index_id"] == "HNXINDEX" else None)
+        session = calendar.get((exchange, row["trade_date"]))
+        if not session or not session["is_open"]:
+            reject("benchmark_daily", row, "BENCHMARK_CALENDAR", "Index needs an explicit open exchange session")
+        elif datetime.fromisoformat(row["available_at"]) < datetime.fromisoformat(session["close_at"]):
+            reject("benchmark_daily", row, "AVAILABILITY", "Index close available before session close")
+        else:
+            benchmarks.append(row)
+    tables["benchmark_daily"] = benchmarks
     actions = []
     for row in tables.get("corporate_actions", []):
         if row["security_id"] not in identities:
             reject("corporate_actions", row, "FOREIGN_KEY", "Unknown security_id")
-        elif (row["event_type"] == "cash_dividend" and row["cash_amount"] is None) or (row["event_type"] in ("split", "stock_dividend") and row["ratio"] is None):
+        elif (row["event_type"] == "cash_dividend" and row["cash_amount"] is None) or (row["event_type"] in ("split", "stock_dividend", "reverse_split", "bonus_share") and row["ratio"] is None):
             reject("corporate_actions", row, "ACTION_FIELDS", "Event is missing amount or ratio")
         else:
             actions.append(row)

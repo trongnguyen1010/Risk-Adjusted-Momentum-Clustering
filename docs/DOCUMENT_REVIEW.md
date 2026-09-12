@@ -2,7 +2,7 @@
 
 ## Kết luận
 
-**Phù hợp để bắt đầu triển khai nền tảng T1, chưa đủ để coi thiết kế nghiên cứu và nguồn dữ liệu đã được xác nhận.** Năm PDF thống nhất về pipeline dữ liệu → feature → phân cụm cổ phiếu → ổn định qua thời gian → backtest → dashboard. Không thấy mâu thuẫn lớn về mục tiêu hoặc ba mốc; điểm cần sửa chủ yếu là chuyển đề xuất thành contract, bằng chứng và quyết định có người chịu trách nhiệm.
+**Phù hợp để bắt đầu triển khai nền tảng T1, chưa đủ để coi thiết kế nghiên cứu và nguồn dữ liệu đã được xác nhận.** Năm PDF thống nhất về pipeline dữ liệu → đặc trưng → phân cụm cổ phiếu → ổn định qua thời gian → mô phỏng quá khứ → bảng điều khiển. Không thấy mâu thuẫn lớn về mục tiêu hoặc ba mốc; điểm cần sửa chủ yếu là chuyển đề xuất thành hợp đồng, bằng chứng và quyết định có người chịu trách nhiệm.
 
 Khi kiểm tra, `SourceCode` chưa có code ứng dụng. Do đó đây là đối chiếu giữa các tài liệu và việc thiết kế project mới, chưa phải audit một hệ thống đang chạy.
 
@@ -22,9 +22,9 @@ File `internship-2026-kickoff.pdf` được các PDF viện dẫn nhưng **khôn
 
 - M1 ưu tiên dữ liệu đúng và momentum, không dành phần lớn thời gian tinh chỉnh clustering.
 - Phân cụm theo mặt cắt cổ phiếu ở mỗi snapshot; không nhầm với phân cụm chế độ thị trường.
-- Tách raw/adjusted, cảnh báo survivorship bias, thiếu phiên, corporate actions và leakage.
+- Tách giá gốc/điều chỉnh, cảnh báo thiên lệch sống sót, thiếu phiên, sự kiện doanh nghiệp và rò rỉ dữ liệu.
 - M2 dùng ba thuật toán với PCA, so sánh cùng universe; ARI trên tập mã chung và tách entry/exit.
-- M3 có phí, benchmark VNINDEX, ledger, holdout và người khác chạy lại. Không hứa lợi nhuận.
+- M3 có phí, chỉ số tham chiếu VNINDEX, sổ giao dịch, tập kiểm định độc lập và người khác chạy lại. Không hứa lợi nhuận.
 
 ## Khoảng trống cần bổ sung
 
@@ -33,15 +33,15 @@ File `internship-2026-kickoff.pdf` được các PDF viện dẫn nhưng **khôn
 | PDF giả định có nguồn mentor cấp hoặc xác nhận | Không có API/CSV cụ thể để crawl | Người dùng xác nhận tự tìm nguồn; thêm khảo sát Vnstock và adapter CSV/HTTP độc lập |
 | Chưa rõ “300 mã/5 năm” | Không thể tự đặt kết luận đạt M1 | Xuất coverage theo mã/năm/sàn/snapshot; giữ `m1_accepted=false` |
 | Chưa có định danh lịch sử đáng tin cậy | Đổi ticker/chuyển sàn gây join sai | `security_id`, khoảng `[valid_from,valid_to)`, `identity_status`, `available_at`; QC temporal join |
-| Schema giá chưa có `available_at`/ý nghĩa adjusted | Có thể dùng dữ liệu chưa biết hoặc sai lợi suất | Bổ sung cả hai, giữ `fetched_at` riêng |
-| `raw_close` bắt buộc trong PDF nhưng nguồn có thể chỉ có chuỗi điều chỉnh | Dễ gán giả giá gốc | Cho nullable để thể hiện thiếu thật; backtest giao dịch phải yêu cầu raw riêng |
-| Không chốt lịch phiên/tháng chưa kết thúc | Snapshot sai khi dataset dừng giữa tháng | Calendar có `is_month_end`, `close_at`, `decision_at`; không lấy ngày cuối file làm cuối tháng |
-| Chưa chốt rf/holdout/khớp/phí/quyền lợi | Không thể coi kết quả M3 là xác nhận | Đưa vào decision log và protocol; demo rf=0 có nhãn |
-| Chưa có code/test/version thực tế | Plan chưa tái lập được | Tạo CLI, raw checkpoint, hash, schema thực thi và tests |
+| Schema giá chưa có `available_at`/ý nghĩa điều chỉnh | Có thể dùng dữ liệu chưa biết hoặc sai lợi suất | Bổ sung cả hai, giữ `fetched_at` riêng |
+| `raw_close` bắt buộc trong PDF nhưng nguồn có thể chỉ có chuỗi điều chỉnh | Dễ gán giả giá gốc | Cho phép `null` để thể hiện thiếu thật; mô phỏng giao dịch phải yêu cầu giá gốc riêng |
+| Không chốt lịch phiên/tháng chưa kết thúc | Ảnh chụp sai khi bộ dữ liệu dừng giữa tháng | Lịch có `is_month_end`, `close_at`, `decision_at`; không lấy ngày cuối file làm cuối tháng |
+| Chưa chốt rf/tập kiểm định độc lập/khớp/phí/quyền lợi | Không thể coi kết quả M3 là xác nhận | Đưa vào nhật ký quyết định và quy trình; demo rf=0 có nhãn |
+| Chưa có mã nguồn/kiểm thử/phiên bản thực tế | Kế hoạch chưa tái lập được | Tạo CLI, điểm kiểm tra dữ liệu gốc, mã băm, schema thực thi và kiểm thử |
 | Lịch 08–10/09 đã qua, nguồn thật chưa có | M1 ngày 19/09 có rủi ro tiến độ | Điều chỉnh plan bắt đầu 11/09; không đánh dấu task quá hạn là xong |
 
 ## Phạm vi chốt để viết code
 
-Core Python chạy local, một pipeline batch có module. JSONL làm định dạng trao đổi đầu tiên để inspect và test không cần dependency; Parquet là bước tối ưu sau đo tải thật. Đây là thay đổi triển khai so với Parquet đề xuất trong PDF, không thay đổi tên/ý nghĩa schema.
+Phần lõi Python chạy cục bộ, một pipeline xử lý lô có mô-đun. JSONL làm định dạng trao đổi đầu tiên để kiểm tra và chạy kiểm thử không cần phần phụ thuộc; Parquet là bước tối ưu sau khi đo tải thật. Đây là thay đổi triển khai so với Parquet đề xuất trong PDF, không thay đổi tên/ý nghĩa schema.
 
-Phiên bản này có ingestion và feature chạy được, không tuyên bố hoàn tất M1/M2/M3. Chưa có EDA nghiên cứu trên dữ liệu thật, ba mô hình, stability, engine backtest hay UI hoàn chỉnh. Không mở rộng intraday, giao dịch thật, T5 hoặc hệ thống phân tán.
+Phiên bản này có bước nhập dữ liệu và tính đặc trưng chạy được, không tuyên bố hoàn tất M1/M2/M3. Chưa có EDA nghiên cứu trên dữ liệu thật, ba mô hình, đánh giá độ ổn định, chương trình mô phỏng quá khứ hay UI hoàn chỉnh. Không mở rộng sang dữ liệu trong ngày, giao dịch thật, T5 hoặc hệ thống phân tán.

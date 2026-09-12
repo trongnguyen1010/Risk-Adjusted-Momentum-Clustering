@@ -1,6 +1,6 @@
 """Calendar-aligned windows. Missing sessions remain None, never forward filled."""
 import math
-from datetime import datetime
+from datetime import datetime, date
 from statistics import mean, stdev, variance, covariance
 from collections import defaultdict
 
@@ -52,11 +52,18 @@ def build_features(tables, config, data_version):
                 if meta["valid_from"] <= d < (meta["valid_to"] or "9999-12-31") and (not meta["listing_date"] or meta["listing_date"] <= d) and (not meta["delisting_date"] or d < meta["delisting_date"]):
                     day_map[d] = (session, meta)
         series, bseries, liquidity, price_records, session_days = [], [], [], [], []
+        previous_basis = None
         for day, (session, meta) in sorted(day_map.items()):
             row = prices.get((sid, day))
             cutoff = datetime.fromisoformat(session["decision_at"])
             usable = row and datetime.fromisoformat(row["available_at"]) <= cutoff and datetime.fromisoformat(meta["available_at"]) <= cutoff
             usable = usable and row["adjustment_basis"] in config["accepted_adjustments"]
+            usable = usable and (not session.get("available_at") or datetime.fromisoformat(session["available_at"]) <= cutoff)
+            if usable and previous_basis is not None and previous_basis != row["adjustment_basis"]:
+                # Never splice incompatible return conventions into a rolling window.
+                series, bseries, liquidity, price_records, session_days = [], [], [], [], []
+            if usable:
+                previous_basis = row["adjustment_basis"]
             series.append(row["adj_close"] if usable else None)
             price_records.append(row if usable else None)
             session_days.append(day)
@@ -66,7 +73,11 @@ def build_features(tables, config, data_version):
             if not session["is_month_end"]:
                 continue
             features = {"security_id": sid, "ticker": meta["ticker"], "as_of_date": day, "available_at": session["decision_at"],
-                        "feature_version": "1.0.0", "data_version": data_version}
+                        "feature_version": "1.1.0", "data_version": data_version,
+                        "lookback_observations": sum(v is not None for v in series[-253:]),
+                        "missing_count": sum(v is None for v in series[-253:]),
+                        "listing_age_days": (date.fromisoformat(day) - date.fromisoformat(meta["listing_date"])).days if meta["listing_date"] else None,
+                        "adjustment_basis": previous_basis}
             for window in (21, 63, 126, 252):
                 features[f"mom_{window}"] = momentum(series, window)
             rs = returns(series[-253:])
@@ -91,6 +102,9 @@ def build_features(tables, config, data_version):
             features["beta_126"] = covariance(stock, market) / variance(market) if stock and market and variance(market) > 1e-16 else None
             lt = full_window(liquidity, 21)
             features["liquidity_21"] = mean(lt) if lt else None
+            downside = full_window(rs, 63)
+            features["downside_vol_63"] = math.sqrt(mean(min(r, 0) ** 2 for r in downside) * 252) if downside else None
+            features["ram_63"] = features["mom_63"] / features["vol_63"] if features["mom_63"] is not None and features["vol_63"] and features["vol_63"] > 1e-12 else None
             reasons = {k: "insufficient_window_gap_unavailable_or_undefined" for k, v in features.items() if v is None}
             if not row or row["trading_status"] != "normal":
                 reasons["trading_status"] = "missing_or_not_normal"
@@ -98,6 +112,10 @@ def build_features(tables, config, data_version):
                 reasons["metadata"] = "not_available_as_of_snapshot"
             if meta["identity_status"] == "provisional":
                 reasons["metadata"] = "unverified_historical_identity"
+            if config.get("minimum_listing_age_days", 0) > 0 and (features["listing_age_days"] is None or features["listing_age_days"] < config["minimum_listing_age_days"]):
+                reasons["metadata"] = "minimum_listing_age"
+            if features["missing_count"] > config.get("maximum_missing_sessions", 253):
+                reasons["metadata"] = "missing_session_threshold"
             features["na_reason"] = reasons
             features["eligibility"] = not any(features[k] is None for k in config["required_features"]) and "trading_status" not in reasons and "metadata" not in reasons
             output.append(features)

@@ -1,14 +1,34 @@
-# Data contract, schema và quan hệ
+# Hợp đồng dữ liệu 1.1 và chuyển phiên bản
+
+Nguồn thực thi vẫn là `schemas/*.json`. Từ điển đầy đủ: `data_dictionary.md`.
+Phiên bản 1.1 hỗ trợ UPCOM; `adj_close`/`volume` cho phép `null`; bổ sung
+`unadjusted`; lịch có `open_at` và `available_at`; chỉ số tham chiếu có `exchange` và
+`index_basis`; sự kiện có `reverse_split`/`bonus_share`, `payment_date`/`currency`;
+lãi suất có `day_count_basis`. Đặc trưng 1.1 bổ sung `downside_vol_63`, `ram_63`,
+`lookback_observations`, `missing_count`, `listing_age_days` và `adjustment_basis`.
+Tuổi niêm yết không biết thì để `null`, không suy từ `valid_from`.
+
+Giữ khoảng `[valid_from,valid_to)` để tương thích. CSV giả lập cũ thiếu trường cho
+phép `null` vẫn đọc được; đầu ra phải đúng tập trường 1.1. Không viết lại lần chạy cũ:
+chạy lại đầu vào đã đóng băng thành lần chạy mới. Pipeline dữ liệu thật chặn khi thiếu
+thời điểm khả dụng của lịch hoặc cơ sở chỉ số; bảng lãi suất thật cần quy đổi theo quy
+ước rõ ràng. `assignments`/`transitions` được kiểm tra; `trades`/`nav` vẫn là hợp đồng
+dành cho chương trình dùng dữ liệu gốc trong tương lai. Báo cáo trong không gian lợi
+suất không giả làm giao dịch/số lượng theo schema đó.
+
+Nội dung dưới đây là contract **v0.1 lịch sử**; thay đổi 1.1 ở trên có hiệu lực.
+
+# Hợp đồng dữ liệu v0.1
 
 ## Nguồn chuẩn của schema
 
-Các file `src/delta_t1/schemas/*.json` là **định dạng table contract của project**, không giả làm JSON Schema Draft 2020-12. `contracts.py` trực tiếp đọc các file này để normalize/validate khi chạy. Mỗi file có `contract_format`, `schema_version`, `table`, `primary_key`, `fields`, `relations`.
+Các file `src/delta_t1/schemas/*.json` là **định dạng hợp đồng bảng của dự án**, không giả làm JSON Schema Draft 2020-12. `contracts.py` trực tiếp đọc các file này để chuẩn hóa/kiểm tra khi chạy. Mỗi file có `contract_format`, `schema_version`, `table`, `primary_key`, `fields`, `relations`.
 
-`fields` khai báo `type`, `nullable`, `enum`, `min` hoặc `exclusive_min`. Hỗ trợ string, number, integer, boolean, date, datetime, object, array. Number phải hữu hạn; date ISO `YYYY-MM-DD`; datetime bắt buộc offset. Chưa validate đệ quy nội dung object/array. Thay schema phải cập nhật tests và version, không có generator ngầm chạy ở production.
+`fields` khai báo `type`, `nullable`, `enum`, `min` hoặc `exclusive_min`. Hỗ trợ các kiểu chuỗi, số, số nguyên, luận lý, ngày, thời gian, đối tượng và mảng tương ứng với giá trị schema. Số phải hữu hạn; ngày theo ISO `YYYY-MM-DD`; thời gian bắt buộc có độ lệch múi giờ. Chưa kiểm tra đệ quy nội dung đối tượng/mảng. Thay schema phải cập nhật kiểm thử và phiên bản; không có trình sinh ngầm chạy trong môi trường vận hành.
 
-Mapping cấu hình là `canonical_field -> vendor_field`; multiplier áp dụng **sau ép kiểu**, theo từng field. Cột thừa ở provider chỉ lưu trong raw. Output canonical phải đúng tập cột schema. Khi nullable bị thiếu thì xuất `null`, không xuất NaN hoặc `""`.
+Ánh xạ cấu hình là `canonical_field -> vendor_field`; hệ số nhân áp dụng **sau ép kiểu**, theo từng trường. Cột thừa từ nhà cung cấp chỉ lưu trong dữ liệu gốc. Đầu ra chuẩn phải đúng tập cột schema. Khi trường cho phép `null` bị thiếu thì xuất `null`, không xuất NaN hoặc `""`.
 
-## Các bảng input
+## Các bảng đầu vào
 
 | Schema | Khóa trong một data_version | Trường quan trọng / nơi sử dụng |
 |---|---|---|
@@ -19,7 +39,7 @@ Mapping cấu hình là `canonical_field -> vendor_field`; multiplier áp dụng
 | `corporate_actions.json` | event_id | security_id, event_type, announcement/ex/record/effective dates, available_at, factor/amount/ratio; audit adjustment và engine M3 |
 | `risk_free_rate.json` | date, tenor, available_at | annual_rate dạng thập phân; Sharpe theo tenor đã cấu hình |
 
-Input có `source`, `fetched_at`, `data_version`. Pipeline gán provenance của lần tải, không tin version cũ trong CSV. Mọi bảng clean cùng run có cùng data_version. Khi hợp nhất nhiều version vào database sau này, phải đưa data_version vào khóa lưu trữ.
+Đầu vào có `source`, `fetched_at`, `data_version`. Pipeline gán thông tin truy vết của lần tải, không tin phiên bản cũ trong CSV. Mọi bảng sạch trong cùng lần chạy có chung `data_version`. Khi hợp nhất nhiều phiên bản vào cơ sở dữ liệu sau này, phải đưa `data_version` vào khóa lưu trữ.
 
 ## Quan hệ
 
@@ -33,11 +53,11 @@ erDiagram
   RISK_FREE_RATE ||--o{ FEATURE_SNAPSHOTS : "as-of annual rate"
   FEATURE_SNAPSHOTS ||--o{ ASSIGNMENTS : "security_id + snapshot"
   ASSIGNMENTS ||--o{ TRANSITIONS : "shared IDs across snapshots"
-  ASSIGNMENTS ||--o{ TRADES : "future strategy targets"
-  TRADES ||--o{ NAV : "future holdings and cash"
+  ASSIGNMENTS ||--o{ TRADES : "mục tiêu chiến lược tương lai"
+  TRADES ||--o{ NAV : "vị thế và tiền mặt tương lai"
 ```
 
-Đây là sơ đồ lineage; không phải mọi cạnh đều là SQL foreign key một cột. Giá → feature là tập nhiều phiên; trades → NAV qua kế toán vị thế và tiền. `relations` trong JSON là mô tả; kiểm tra thực thi hiện có ở `quality.py` gồm identity theo thời gian, ticker/sàn, listing lifetime, calendar và action.security_id. Contract M2/M3 chưa có validator quan hệ xuyên artifact vì chưa có engine.
+Đây là sơ đồ truy vết; không phải mọi cạnh đều là khóa ngoại SQL một cột. Giá → đặc trưng là tập nhiều phiên; giao dịch → NAV qua hạch toán vị thế và tiền. `relations` trong JSON là mô tả; kiểm tra thực thi hiện có ở `quality.py` gồm định danh theo thời gian, ticker/sàn, vòng đời niêm yết, lịch và `action.security_id`. Hợp đồng M2/M3 chưa có bộ kiểm tra quan hệ xuyên tệp kết quả vì chưa có chương trình đầy đủ.
 
 ## Định danh có thời gian
 
@@ -50,13 +70,13 @@ Ví dụ một security đổi mã: metadata cũ hiệu lực `[2024-01-01,2025-
 ## Đơn vị và giá
 
 - Canonical equity price là **VND/cổ phiếu**, volume là số cổ phiếu, traded_value là VND; index close là điểm chỉ số, không nhân 1.000 theo quy tắc giá cổ phiếu.
-- Ví dụ nguồn thực sự tính nghìn VND: cấu hình multiplier 1.000 riêng cho các field giá đã xác minh. Không tự nhân theo độ lớn giá.
-- `raw_close` được phép null để phản ánh nguồn thiếu; `adj_close` không được tạo bằng copy raw nếu chưa xác minh adjustment. Engine giao dịch sau này bắt buộc đủ giá gốc tương ứng.
+- Ví dụ nguồn thực sự tính nghìn VND: cấu hình hệ số 1.000 riêng cho các trường giá đã xác minh. Không tự nhân theo độ lớn giá.
+- `raw_close` được phép `null` để phản ánh nguồn thiếu; không được tạo `adj_close` bằng cách sao chép giá gốc nếu chưa xác minh cơ sở điều chỉnh. Chương trình giao dịch sau này bắt buộc đủ giá gốc tương ứng.
 - `adjustment_basis`: split_adjusted / total_return / unknown / synthetic. Feature chỉ dùng các basis được config chấp nhận; unknown không được accept.
-- V0.1 chỉ tính liquidity từ traded_value thật. Không dùng adjusted close × volume làm giá trị giao dịch. Nếu bổ sung proxy, thêm trường loại proxy và version schema trước.
+- V0.1 chỉ tính thanh khoản từ `traded_value` thật. Không dùng giá đóng cửa điều chỉnh × khối lượng làm giá trị giao dịch. Nếu bổ sung đại diện, phải thêm trường loại đại diện và tăng phiên bản schema trước.
 - Giữ `cash_amount`, `ratio`, `adjustment_factor` riêng: ratio dùng nghĩa số cổ phiếu mới trên một cổ phiếu cũ; factor dùng nghĩa cụ thể phải xác nhận với nguồn. Chưa có engine tự áp quyền.
 
-## Schema output
+## Schema đầu ra
 
 `vendor_snapshot.json` mô tả envelope staging SDK: job, fetched_at, version, source_routing, sdk_metadata, columns và records. Worker validate envelope trước ghi; records vẫn là columns của provider, chưa validate theo prices_daily. Worker chạy trong staging/work để các file onboarding do SDK tự sinh không nằm ở code root.
 
@@ -65,15 +85,15 @@ Ví dụ một security đổi mã: metadata cũ hiệu lực `[2024-01-01,2025-
 | `feature_snapshots.json` | security_id, as_of_date | Được normalize/validate thực tế trước xuất |
 | `assignments.json` | run_id, snapshot_date, security_id | Contract dự kiến M2: raw/aligned label, PCA x/y, data_version |
 | `transitions.json` | run_id, from_date, to_date, from_cluster, to_cluster | Contract dự kiến M2: count, denominator trên tập chung, rate |
-| `trades.json` | run_id, trade_id | Contract dự kiến M3: signal/execution time, side, qty, raw price, fees, rejection |
+| `trades.json` | run_id, trade_id | Hợp đồng dự kiến M3: thời điểm tín hiệu/khớp lệnh, chiều giao dịch, số lượng, giá gốc, phí, lý do từ chối |
 | `nav.json` | run_id, strategy_id, date | Contract dự kiến M3: cash, holdings, gross/net, benchmark, drawdown |
 
-`feature_snapshots.na_reason` là map field → lý do. `eligibility` yêu cầu đủ toàn bộ required_features, mã giao dịch normal, metadata đã biết và identity không provisional. Các metric thiếu không tự chuyển thành 0.
+`feature_snapshots.na_reason` ánh xạ trường → lý do. `eligibility` yêu cầu đủ toàn bộ `required_features`, mã có trạng thái giao dịch `normal`, metadata đã biết và định danh không phải `provisional`. Các chỉ tiêu thiếu không tự chuyển thành 0.
 
 Issues/quarantine/coverage và manifest là báo cáo JSON theo code hiện tại, chưa có table contract riêng. Chưa xem các báo cáo đó là public API ổn định. Khi FE bắt đầu tích hợp, bổ sung schema report/profile/model manifest trong cùng PR contract.
 
 ## Xử lý lỗi
 
-Lỗi kiểu/giá/khóa/OHLC/metadata/calendar được cách ly, có rule_id và row để đối chiếu. Bất kỳ lỗi nghiêm trọng nào đều chặn feature của run, mặc dù clean tạm vẫn được ghi để debug. Không silently drop duplicate. Sửa dữ liệu đầu vào/map rồi tạo run mới, giữ run lỗi để audit.
+Lỗi kiểu/giá/khóa/OHLC/metadata/lịch được cách ly, có `rule_id` và dòng để đối chiếu. Bất kỳ lỗi nghiêm trọng nào đều chặn đặc trưng của lần chạy, mặc dù dữ liệu sạch tạm vẫn được ghi để gỡ lỗi. Không âm thầm bỏ bản ghi trùng. Sửa dữ liệu đầu vào/ánh xạ rồi tạo lần chạy mới, giữ lần chạy lỗi để kiểm tra.
 
 Coverage liệt kê gap chưa phân loại. Không có dòng giá không tự đồng nghĩa thị trường nghỉ; có thể là đình chỉ hoặc lỗi tải. `is_month_end` phải lấy từ lịch đủ tháng đã xác minh, không từ ngày cuối response API.

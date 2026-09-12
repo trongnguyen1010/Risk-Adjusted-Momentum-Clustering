@@ -30,7 +30,7 @@ def crawl(config, root, resume=None):
             commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, stderr=subprocess.DEVNULL, text=True).strip()
         except (OSError, subprocess.CalledProcessError):
             commit = "unversioned"
-        manifest = {"run_id": run_id, "data_version": run_id, "schema_version": "1.0.0", "started_at": now(), "config_hash": config_hash, "config": config,
+        manifest = {"run_id": run_id, "data_version": run_id, "schema_version": "1.1.0", "started_at": now(), "config_hash": config_hash, "config": config,
                     "code_hash": code_hash(), "git_commit": commit, "python": sys.version, "platform": platform.platform(), "package_version": __version__,
                     "synthetic": config.get("synthetic", False), "jobs": {}, "status": "running"}
     manifest["status"] = "running"

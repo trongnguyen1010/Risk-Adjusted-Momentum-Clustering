@@ -49,8 +49,17 @@ def worker(job_path, output_path):
     write_json(output_path, document)
 
 
-def collect(root, start, end, symbols, resume=None, interval=5.0, timeout=90, attempts=3):
+def collect(root, start, end, symbols, resume=None, interval=5.0, timeout=90, attempts=3, pilot_experiment=None):
     import time
+    pilot_hash = None
+    if len(set(symbols)) > 10:
+        from .planning import pilot_report
+        if not pilot_experiment:
+            raise ValueError("more than 10 symbols requires a passing real pilot experiment")
+        report = pilot_report(Path(pilot_experiment))
+        if report["status"] != "PASS":
+            raise ValueError("real pilot failed; scale crawl blocked")
+        pilot_hash = report["experiment_manifest_hash"]
     if interval < 1 or timeout < 1 or not 1 <= attempts <= 5:
         raise ValueError("interval >= 1 second, timeout > 0, attempts between 1 and 5")
     try:
@@ -62,6 +71,8 @@ def collect(root, start, end, symbols, resume=None, interval=5.0, timeout=90, at
     if not symbols or any(not s.isalnum() or len(s) > 12 for s in symbols):
         raise ValueError("provide explicit alphanumeric symbols")
     config = dict(start=start, end=end, symbols=sorted(set(symbols)), interval=interval, timeout=timeout, attempts=attempts, vnstock_version=version, code_hash=code_hash())
+    if pilot_hash:
+        config["pilot_manifest_hash"] = pilot_hash
     config_hash = digest(encoded(config))
     run_id = resume or "vendor-" + uuid.uuid4().hex[:12]
     if not run_id.replace("-", "").isalnum():

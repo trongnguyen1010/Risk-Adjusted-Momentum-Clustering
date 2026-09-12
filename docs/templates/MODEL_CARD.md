@@ -1,7 +1,7 @@
-# Model card [run_id]
+# Phiếu thông tin mô hình [run_id]
 
 Trạng thái: chưa điền, không phải kết quả nghiên cứu.
 
-Dataset/hash/version; universe; snapshot/fit_as_of; feature version/set; preprocessing; PCA loadings/variance; algorithm/params/seed; development/holdout; metric space; silhouette/DBI; size/profile; convergence và failed runs; stability qua tháng/seed; lý do chọn/loại; hạn chế; lệnh tái lập và reviewer.
+Bộ dữ liệu/mã băm/phiên bản; tập chứng khoán; ảnh chụp/`fit_as_of`; phiên bản/tập đặc trưng; tiền xử lý; hệ số tải/phương sai PCA; thuật toán/tham số/seed; tập phát triển/kiểm định độc lập; không gian chỉ tiêu; silhouette/DBI; kích thước/hồ sơ; độ hội tụ và các lần chạy lỗi; độ ổn định qua tháng/seed; lý do chọn/loại; giới hạn; lệnh tái lập và người rà soát.
 
-Không gọi membership probability là xác suất sinh lời; không dùng scatter 2D để chứng minh hiệu suất.
+Không gọi xác suất thuộc cụm là xác suất sinh lời; không dùng biểu đồ phân tán 2D để chứng minh hiệu quả.

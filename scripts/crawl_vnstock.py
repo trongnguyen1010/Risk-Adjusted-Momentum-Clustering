@@ -14,12 +14,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--start", default="2026-08-01")
     parser.add_argument("--end", default="2026-08-31")
-    parser.add_argument("--symbols", nargs="+", default=["FPT","VNM","HPG","VCB","TCB","MBB","ACB","SHB","PVS","PVI","NTP","IDC"])
+    parser.add_argument("--symbols", nargs="+", default=["FPT", "VNM", "PVS"])
+    parser.add_argument("--pilot-experiment", help="Required for more than 10 symbols; synthetic never unlocks scale")
     parser.add_argument("--resume")
     parser.add_argument("--interval", type=float, default=5.0)
     args = parser.parse_args()
     try:
-        path, manifest = collect(root, args.start, args.end, args.symbols, args.resume, args.interval)
+        path, manifest = collect(root, args.start, args.end, args.symbols, args.resume, args.interval, pilot_experiment=args.pilot_experiment)
         print(f"{manifest['status']}: {path / 'manifest.json'}")
         raise SystemExit(0 if manifest["status"] == "complete" else 2)
     except (ValueError, OSError) as exc:

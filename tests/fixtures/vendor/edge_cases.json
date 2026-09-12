@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "description": "Hand-defined offline cases, not downloaded financial data",
+  "timestamps": [
+    {"input": "2024-01-01T20:00:00+00:00", "offset": 420, "expected": "2024-01-02"},
+    {"input": "2024-01-02T07:00:00.000", "offset": 420, "expected": "2024-01-02"}
+  ],
+  "identity": [
+    {"security_id": "SYN-ID", "ticker": "OLD", "exchange": "HOSE", "valid_from": "2024-01-01", "valid_to": "2025-01-01"},
+    {"security_id": "SYN-ID", "ticker": "NEW", "exchange": "UPCOM", "valid_from": "2025-01-01", "valid_to": null}
+  ],
+  "returns": {"prices": [100,110,99], "expected": [0.1,-0.1]},
+  "missing_day": {"prices": [100,null,110], "expected": [null,null]},
+  "invalid_ohlc": {"raw_open": 12, "raw_high": 11, "raw_low": 9, "raw_close": 10},
+  "corporate_action": {"event_type": "split", "ratio": 2, "before_price": 100, "after_price": 50}
+}
