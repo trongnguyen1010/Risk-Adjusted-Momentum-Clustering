@@ -103,7 +103,7 @@ def build_features(tables, config, data_version):
                 "ticker": meta["ticker"],
                 "as_of_date": day,
                 "available_at": session["decision_at"],
-                "feature_version": "1.3.0",
+                "feature_version": "1.4.0",
                 "data_version": data_version,
                 "data_mode": config.get("data_mode", "synthetic" if config["accepted_adjustments"] == ["synthetic"] else "real"),
                 "vendor_run_id": config.get("vendor_run_id"),
@@ -124,23 +124,6 @@ def build_features(tables, config, data_version):
                 tail = full_window(daily_returns, window)
                 deviation = stdev(tail) if tail else None
                 features[f"vol_{window}"] = deviation * math.sqrt(252) if deviation is not None else None
-                risk_free_values = []
-                for rate_day in session_days[-window:]:
-                    if config.get("rf_annual") is not None:
-                        annual = config["rf_annual"]
-                    else:
-                        candidates = [rate for rate in tables.get("risk_free_rate", [])
-                                      if rate["tenor"] == config.get("rf_tenor")
-                                      and rate["date"] <= rate_day
-                                      and datetime.fromisoformat(rate["available_at"])
-                                      <= datetime.fromisoformat(rate_day + "T00:00:00+07:00")]
-                        annual = max(candidates, key=lambda rate: (rate["date"], rate["available_at"]))["annual_rate"] if candidates else None
-                    risk_free_values.append((1 + annual) ** (1 / 252) - 1 if annual is not None else None)
-                excess = ([value - risk_free for value, risk_free in zip(tail, risk_free_values)]
-                          if tail and full_window(risk_free_values, window) else None)
-                excess_deviation = stdev(excess) if excess else None
-                features[f"sharpe_{window}"] = (math.sqrt(252) * mean(excess) / excess_deviation
-                                                 if excess_deviation and excess_deviation > 1e-12 else None)
             features["mdd_126"] = drawdown(series, 126)
             stock = full_window(daily_returns, 126)
             market = full_window(returns(benchmark_series[-127:]), 126)

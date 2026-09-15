@@ -1,3 +1,14 @@
+# Chưa phát hành — M1 readiness correction (2026-09-16)
+
+- Thay gate pilot cũ bằng `SOURCE_SMOKE`, `REPRESENTATIVE_PILOT`, `M1_SCALE`, `EXTENDED_SCALE`; synthetic không thể mở gate thật và extended planner không còn cap 350.
+- Đổi tên config thành `synthetic_smoke.example.json`, thêm `source_smoke.example.json` fail-closed không chứa endpoint giả và thêm hướng dẫn collection/handoff nhiều người.
+- Nâng market/feature contract lên 1.4: thêm reference/ceiling/floor theo VND/share và loại Sharpe khỏi active feature snapshot; giữ read-only legacy 1.3 compatibility.
+- Chuyển reconciliation sang field level với bảy trạng thái match/conflict, semantic financial report key, canonical report identity và decision records có raw hashes.
+- Thêm boundary `portfolio_evaluation.enabled`; M2 configs mặc định không sinh backtest/performance.
+- Viết lại Literature Matrix thành 22 row riêng với đúng năm cột; field chưa full-text review ghi `PENDING — FULL-TEXT REVIEW`, giữ rõ conflict lịch sử về Sharpe và nhóm F chưa approved.
+- Không thực hiện real crawl, storage migration, DBSCAN hoặc Dynamic Clustering.
+- Acceptance: baseline 70/70, sau thay đổi 83/83 tests pass; synthetic smoke `run-c10574e177a6` và M2 no-portfolio experiment `experiment-8ecc8caa6dd9` complete.
+
 # Chưa phát hành — refactor kiến trúc DELTA (2026-09-15)
 
 - Tái xác lập DELTA là project Research Core + Product Layer theo milestone M1/M2/M3.

@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 from delta_t1.contracts import coerce, normalize, schema, validate_rows
 from delta_t1.features.market import momentum, returns, drawdown, build_features
+from delta_t1.features.compatibility import project_legacy_snapshot, validate_legacy_feature_snapshots
 from delta_t1.ingestion.crawler import crawl
 from delta_t1.ingestion.quality import clean_tables
 from delta_t1.ingestion.sources.base import HttpClient, json_page
@@ -178,15 +179,36 @@ class PipelineTests(unittest.TestCase):
         result=build_features(tables,self.config['features'],self.manifest['data_version'])
         self.assertEqual(result,[r for r in self.features if r['security_id']==sid])
 
-    def test_constant_price_undefined_sharpe_does_not_control_eligibility(self):
+    def test_active_feature_snapshot_contains_no_sharpe(self):
         tables=copy.deepcopy(self.tables)
         for r in tables['prices_daily']:
             r['adj_close']=100
         result=build_features(tables,self.config['features'],'constant')
         last=result[-1]
         self.assertEqual(last['vol_63'],0)
-        self.assertIsNone(last['sharpe_63'])
+        self.assertNotIn('sharpe_63',last)
+        self.assertNotIn('sharpe_126',last)
         self.assertTrue(last['eligibility'])
+
+    def test_legacy_sharpe_snapshot_has_explicit_read_only_path(self):
+        legacy = dict(self.features[0], feature_version='1.3.0',
+                      sharpe_63=None, sharpe_126=None)
+        validate_legacy_feature_snapshots([legacy])
+        projected = project_legacy_snapshot(legacy)
+        self.assertNotIn('sharpe_63', projected)
+        self.assertIn('mom_63', projected)
+
+    def test_market_contract_has_exchange_price_fields_and_qc(self):
+        fields = schema('prices_daily')['fields']
+        for name in ('reference_price','ceiling_price','floor_price'):
+            self.assertEqual('VND/share', fields[name]['unit'])
+            self.assertTrue(fields[name]['nullable'])
+        self.assertTrue(all(row[name] is None for row in self.tables['prices_daily']
+                            for name in ('reference_price','ceiling_price','floor_price')))
+        tables=copy.deepcopy(self.tables)
+        tables['prices_daily'][0].update(floor_price=110,reference_price=100,ceiling_price=120)
+        _,issues,_=clean_tables(self.raw(tables),'v-price-band')
+        self.assertIn('PRICE_BAND',{row['rule_id'] for row in issues})
 
     def test_three_year_history_eligibility_uses_observed_data(self):
         tables=copy.deepcopy(self.tables)

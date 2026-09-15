@@ -18,6 +18,8 @@ So sánh bắt buộc gồm cluster strategy, VNINDEX, equal-weight universe và
 
 Không làm biến mất holding khi price thiếu; execution phải block/ghi reason theo contract. Return basis phải rõ raw/adjusted/total return và tránh cộng dividend hai lần.
 
+Experiment protocol phải khai báo `portfolio_evaluation.enabled`. Giá trị mặc định của M2 configs là `false`, nên runner không sinh targets, backtests, performance hoặc Sharpe. M3/frozen config mới được đặt `true` sau methodology freeze. Không xem portfolio output trong development để chọn cluster configuration.
+
 ## Báo cáo
 
 Cluster report và portfolio report tách bảng/section. Kết quả bất lợi vẫn là evidence và không được xóa nếu artifact hoàn chỉnh. Synthetic/legacy pilot phải có nhãn giới hạn rõ ràng và không được dùng làm investment claim.

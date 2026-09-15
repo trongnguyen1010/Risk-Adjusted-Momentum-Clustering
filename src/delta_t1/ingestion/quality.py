@@ -86,6 +86,12 @@ def clean_tables(raw_tables, data_version):
                 (low is not None and any(v < low for v in middle)) or
                 (high is not None and any(v > high for v in middle))):
                 reason = ("OHLC", "Expected low <= open/close <= high")
+            elif (row["floor_price"] is not None and row["reference_price"] is not None
+                  and row["floor_price"] > row["reference_price"]):
+                reason = ("PRICE_BAND", "Expected floor_price <= reference_price")
+            elif (row["reference_price"] is not None and row["ceiling_price"] is not None
+                  and row["reference_price"] > row["ceiling_price"]):
+                reason = ("PRICE_BAND", "Expected reference_price <= ceiling_price")
             elif datetime.fromisoformat(row["available_at"]) < datetime.fromisoformat(calendar[(row["exchange"], day)]["close_at"]):
                 reason = ("AVAILABILITY", "Daily close cannot be available before session close")
         if reason:

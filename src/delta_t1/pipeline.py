@@ -22,6 +22,9 @@ def load_config(path):
 def validate_config(config):
     if not isinstance(config.get("synthetic"), bool):
         raise ValueError("config.synthetic must explicitly be true or false")
+    guard = config.get("execution_guard")
+    if guard is not None and guard.get("approved") is not True:
+        raise ValueError("source smoke template is fail-closed pending semantics/rights approval")
     jobs = config.get("jobs", [])
     ids = [job["id"] for job in jobs]
     if len(ids) != len(set(ids)) or not jobs:
@@ -62,10 +65,6 @@ def validate_config(config):
         raise ValueError("accepted_adjustments must name understood price conventions")
     if not config["synthetic"] and "synthetic" in fc["accepted_adjustments"]:
         raise ValueError("real-data config cannot accept synthetic adjustment basis")
-    if fc.get("rf_annual") is None and not fc.get("rf_tenor"):
-        raise ValueError("rf_tenor required when using risk_free_rate table")
-    if fc.get("rf_annual") is not None and (not math.isfinite(fc["rf_annual"]) or fc["rf_annual"] <= -1):
-        raise ValueError("invalid rf_annual")
     return config
 
 
@@ -104,8 +103,6 @@ def process_raw(raw, config, run_dir, manifest):
         for table, field in (("trading_calendar", "available_at"), ("benchmark_daily", "index_basis")):
             if any(not r.get(field) or r.get(field) in ("unknown", "synthetic") for r in tables.get(table, [])):
                 issues.append(dict(rule_id="UNRESOLVED_REFERENCE", table=table, severity="error", message="Real data requires verified " + field))
-        if config["features"].get("rf_annual") is None and any(r.get("day_count_basis") != "trading/252" for r in tables.get("risk_free_rate", [])):
-            issues.append(dict(rule_id="RF_CONVENTION", table="risk_free_rate", severity="error", message="Normalize rates to effective annual under trading/252 before using feature spec 1.1"))
     for table, rows in tables.items():
         validate_rows(table, rows)
         write_rows(run_dir / "clean" / (table + ".jsonl"), rows)
@@ -166,6 +163,6 @@ def run_canonical(canonical_path, config_path, root):
                     vendor_run_id=source["vendor_run_id"], canonical_run_id=source["run_id"], methodology=source.get("methodology", {}), canonical_manifest_hash=digest((canonical_path / "manifest.json").read_bytes()),
                     canonical_path=str(canonical_path),
                     config=config, config_hash=digest(encoded(config)), synthetic=config["synthetic"], code_hash=code_hash(),
-                    schema_version="1.3.0", started_at=now(), data_hash=digest(encoded(source["artifacts"])), status="downloaded")
+                    schema_version="1.4.0", started_at=now(), data_hash=digest(encoded(source["artifacts"])), status="downloaded")
     write_json(directory / "manifest.json", manifest)
     return process_raw(raw, config, directory, manifest)

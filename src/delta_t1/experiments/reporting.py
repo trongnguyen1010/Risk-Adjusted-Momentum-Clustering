@@ -28,23 +28,24 @@ def plot_artifacts(directory: Path, backtests: dict, transitions: list[dict],
     import matplotlib.pyplot as plt
     directory.mkdir(parents=True, exist_ok=True)
     label = "data_mode=synthetic | " if synthetic else "PILOT DỮ LIỆU THẬT (data_mode=real) | "
-    fig, ax = plt.subplots(figsize=(9, 4.8), layout="constrained")
-    benchmark_drawn = False
-    for name, result in backtests.items():
-        rows = result["nav"]
-        ax.plot(range(len(rows)), [row["net_nav"] for row in rows], label=name)
-        if not benchmark_drawn:
-            level, curve = 1.0, []
-            for row in rows:
-                level *= 1 + row["benchmark_return"]
-                curve.append(level)
-            ax.plot(range(len(rows)), curve, label="benchmark", linestyle="--")
-            benchmark_drawn = True
-    ax.set(xlabel="Số phiên kể từ lần thực hiện đầu tiên", ylabel="NAV chuẩn hóa",
-           title=label + "Mô phỏng return-space")
-    ax.legend(fontsize=8)
-    fig.savefig(directory / "nav.png", dpi=150)
-    plt.close(fig)
+    if backtests:
+        fig, ax = plt.subplots(figsize=(9, 4.8), layout="constrained")
+        benchmark_drawn = False
+        for name, result in backtests.items():
+            rows = result["nav"]
+            ax.plot(range(len(rows)), [row["net_nav"] for row in rows], label=name)
+            if not benchmark_drawn:
+                level, curve = 1.0, []
+                for row in rows:
+                    level *= 1 + row["benchmark_return"]
+                    curve.append(level)
+                ax.plot(range(len(rows)), curve, label="benchmark", linestyle="--")
+                benchmark_drawn = True
+        ax.set(xlabel="Số phiên kể từ lần thực hiện đầu tiên", ylabel="NAV chuẩn hóa",
+               title=label + "Mô phỏng return-space")
+        ax.legend(fontsize=8)
+        fig.savefig(directory / "nav.png", dpi=150)
+        plt.close(fig)
     if transitions:
         k = max(row["from_cluster"] for row in transitions) + 1
         counts = [[sum(row["count"] for row in transitions
@@ -74,7 +75,8 @@ def plot_artifacts(directory: Path, backtests: dict, transitions: list[dict],
 
 
 def write_report(path: Path, run_id: str, data_mode: str, assumptions: dict,
-                 snapshot_count: int, skipped_count: int, assignment_count: int) -> None:
+                 snapshot_count: int, skipped_count: int, assignment_count: int,
+                 portfolio_enabled: bool) -> None:
     report = [
         "# Báo cáo thí nghiệm " + run_id,
         "",
@@ -84,26 +86,35 @@ def write_report(path: Path, run_id: str, data_mode: str, assumptions: dict,
          if data_mode == "synthetic" else
          "**KẾT QUẢ PILOT — KHÔNG PHẢI KẾT QUẢ CUỐI CÙNG CỦA LUẬN VĂN**"),
         "",
-        "Mô phỏng danh mục trên chuỗi lợi suất với tỷ trọng phân số, khớp tại giá đóng cửa phiên kế tiếp. Chưa mô phỏng sổ giao dịch theo số lượng cổ phiếu thực tế.",
+        ("Portfolio evaluation đã bật rõ ràng cho protocol này."
+         if portfolio_enabled else
+         "Portfolio evaluation đã tắt: đây là M2 clustering/diagnostic run, không sinh backtest hoặc performance metric."),
         "Không đánh giá trên tập kiểm định độc lập (holdout), không chọn mô hình dựa trên lợi nhuận.",
         "",
         f"Số thời điểm phân cụm: {snapshot_count}; số thời điểm bỏ qua: {skipped_count}; số bản ghi gán cụm: {assignment_count}.",
         "",
         "## Các tệp kết quả",
         "",
-        "- [Chỉ tiêu hiệu quả](performance.csv)",
         "- [Đặc trưng từng cụm](profiles.csv)",
         "- [Chỉ tiêu đánh giá số cụm](diagnostics.csv)",
         "- [Ma trận chuyển cụm](transitions.csv)",
         "- [Độ ổn định qua thời gian](stability.jsonl)",
         "",
-        "Khoảng tin cậy bootstrap được tính với chiến lược đã cố định; kết quả này không chứng minh ý nghĩa thống kê của chiến lược.",
+        ("Khoảng tin cậy bootstrap chỉ diễn giải chiến lược đã cố định; không chứng minh cluster quality."
+         if portfolio_enabled else
+         "Run này chỉ xuất cluster diagnostics và temporal diagnostics; không có Sharpe, ROI hoặc portfolio return."),
         "",
         "## Các giả định được khai báo",
         "",
     ]
+    if portfolio_enabled:
+        report.insert(report.index("- [Đặc trưng từng cụm](profiles.csv)"),
+                      "- [Chỉ tiêu hiệu quả](performance.csv)")
     labels = {"risk_free": "Lãi suất phi rủi ro", "costs": "Chi phí giao dịch và trượt giá",
               "cash_return": "Lợi suất tiền mặt", "return_semantics": "Quy ước lợi suất và mô phỏng",
               "k_rationale": "Cơ sở lựa chọn số cụm"}
-    report.extend(f"- **{labels.get(key, key)}:** {value}" for key, value in assumptions.items())
+    visible_assumptions = (assumptions if portfolio_enabled
+                           else {"k_rationale": assumptions["k_rationale"]})
+    report.extend(f"- **{labels.get(key, key)}:** {value}"
+                  for key, value in visible_assumptions.items())
     atomic_write(path, ("\n".join(report) + "\n").encode("utf-8"))

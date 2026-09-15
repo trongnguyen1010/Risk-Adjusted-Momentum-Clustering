@@ -38,9 +38,9 @@ def generate(root):
             writer.writeheader()
             writer.writerows(rows)
         jobs.append(dict(id=table,table=table,provider='csv',path='examples/synthetic/'+table+'.csv',source='synthetic_fixture',allow_empty=table=='corporate_actions'))
-    config=dict(synthetic=True,jobs=jobs,features=dict(benchmark_id='VNINDEX',rf_annual=0,minimum_history_years=0,accepted_adjustments=['synthetic'],required_features=['mom_21','mom_63','mom_126','mom_252','vol_63','mdd_126','beta_126','liquidity_21']))
+    config=dict(synthetic=True,jobs=jobs,features=dict(benchmark_id='VNINDEX',minimum_history_years=0,accepted_adjustments=['synthetic'],required_features=['mom_21','mom_63','mom_126','mom_252','vol_63','mdd_126','beta_126','liquidity_21']))
     (root/'configs/data').mkdir(parents=True,exist_ok=True)
-    path = root/'configs/data/smoke.example.json'
+    path = root/'configs/data/synthetic_smoke.example.json'
     path.write_text(json.dumps(config,indent=2)+'\n',encoding='utf-8')
     return path
 

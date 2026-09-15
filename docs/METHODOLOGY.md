@@ -29,3 +29,11 @@ Không forward-fill giá, không đổi missing thành zero và không splice ra
 Market feature nền gồm momentum 21/63/126/252 sessions, volatility, downside volatility, maximum drawdown, beta và liquidity. Risk-adjusted momentum là research hypothesis và phải có version. Financial feature chỉ được bật sau paper-backed definition và taxonomy/PIT approval.
 
 Sharpe và ROI không phải clustering feature hay cluster-quality metric. Sharpe chỉ được tính ở portfolio evaluation.
+
+## Boundary M2/M3
+
+M2 config mặc định `portfolio_evaluation.enabled=false`. M2 được phép chạy clustering, cluster diagnostics và temporal diagnostics nhưng không tạo backtest/performance artifact. Chỉ M3/frozen protocol bật portfolio evaluation; kết quả đó không quay lại chọn `k`, algorithm, PCA components hoặc feature set.
+
+## Technical debt cho variable-cluster method
+
+Common interface hiện giả định fixed `k`: bắt buộc `config["k"]`, quét `k_range`, profile IDs `0..k-1`, và temporal alignment yêu cầu cùng số cluster. DBSCAN không được triển khai bằng cách ép vào contract này. Một design được review phải hỗ trợ noise label, số cluster thay đổi theo snapshot, diagnostics phù hợp density method và temporal comparison khi cluster birth/death/noise xảy ra. Đây là preparation note, không phải approval DBSCAN hoặc Dynamic Clustering.

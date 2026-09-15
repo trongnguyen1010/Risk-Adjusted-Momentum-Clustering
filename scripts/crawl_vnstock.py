@@ -15,12 +15,12 @@ if __name__ == "__main__":
     parser.add_argument("--start", default="2026-08-01")
     parser.add_argument("--end", default="2026-08-31")
     parser.add_argument("--symbols", nargs="+", default=["FPT", "VNM", "PVS"])
-    parser.add_argument("--pilot-experiment", help="Required for more than 10 symbols; synthetic never unlocks scale")
+    parser.add_argument("--gate-report", help="PASS SOURCE_SMOKE for 6–60 symbols; PASS REPRESENTATIVE_PILOT above 60")
     parser.add_argument("--resume")
     parser.add_argument("--interval", type=float, default=5.0)
     args = parser.parse_args()
     try:
-        path, manifest = collect(root, args.start, args.end, args.symbols, args.resume, args.interval, pilot_experiment=args.pilot_experiment)
+        path, manifest = collect(root, args.start, args.end, args.symbols, args.resume, args.interval, gate_report_path=args.gate_report)
         print(f"{manifest['status']}: {path / 'manifest.json'}")
         raise SystemExit(0 if manifest["status"] == "complete" else 2)
     except (ValueError, OSError) as exc:

@@ -16,4 +16,4 @@ M3 thesis dashboard nằm trong scope. News, sentiment, authentication, watchlis
 
 ## Nguyên tắc kết luận
 
-Synthetic và legacy pilot chỉ chứng minh plumbing/reproducibility. M1 chưa hoàn thành cho tới khi source semantics/rights pass, representative pilot pass và target >=300 securities với >=5 năm đạt coverage. DELTA là công cụ nghiên cứu, không phải investment advice.
+Synthetic và legacy pilot chỉ chứng minh plumbing/reproducibility. `SOURCE_SMOKE` thật không tự mở scale; M1 chưa hoàn thành cho tới khi source semantics/rights pass, `REPRESENTATIVE_PILOT` 50–60 securities và >=5 năm PASS, rồi target >=300 đạt coverage. DELTA là công cụ nghiên cứu, không phải investment advice.

@@ -18,7 +18,7 @@ Thay đổi theo lát cắt nhỏ và giữ Research Core tách khỏi Product L
 ```powershell
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 .venv\Scripts\python.exe -m compileall -q src tests scripts run.py
-.venv\Scripts\python.exe run.py run --config configs/data/smoke.example.json
+.venv\Scripts\python.exe run.py run --config configs/data/synthetic_smoke.example.json
 node --check web/app.js
 git diff --check
 ```

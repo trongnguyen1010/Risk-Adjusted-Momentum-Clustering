@@ -11,7 +11,7 @@ DELTA là project research + product cho thị trường cổ phiếu Việt Nam
 
 | Milestone | Trạng thái hiện tại |
 |---|---|
-| **M1 — Data Foundation** | Đã có immutable ingestion, schema, QC và synthetic/legacy pilot evidence; chưa đạt universe >=300 mã và >=5 năm từ source đã xác minh. |
+| **M1 — Data Foundation** | Đã có immutable ingestion/schema/QC và gate code; `SOURCE_SMOKE` thật, `REPRESENTATIVE_PILOT` 50–60 mã và scale >=300 đều chưa PASS. |
 | **M2 — Clustering Research** | Static K-Means deterministic là baseline; temporal tracking hiện tại không phải Dynamic Clustering. PCA/comparator và methodology động còn phải hoàn thiện. |
 | **M3 — Backtest + Product** | Đã có return-space backtest, product bundle, read API và web shell; final backtest chờ freeze methodology và representative data. |
 
@@ -19,7 +19,7 @@ DELTA là project research + product cho thị trường cổ phiếu Việt Nam
 
 ```powershell
 .venv\Scripts\python.exe -m unittest discover -s tests -v
-.venv\Scripts\python.exe run.py run --config configs/data/smoke.example.json
+.venv\Scripts\python.exe run.py run --config configs/data/synthetic_smoke.example.json
 .\scripts\start_product.ps1
 ```
 
@@ -41,7 +41,7 @@ artifacts/      Versioned product projection được sinh từ experiment
 
 [docs/README.md](docs/README.md) → [Project Overview](docs/PROJECT_OVERVIEW.md) → [Project Map](docs/PROJECT_MAP.md) → [Roadmap](docs/ROADMAP.md).
 
-Xem thêm [Architecture](docs/ARCHITECTURE.md), [Data Contract](docs/DATA_CONTRACT.md), [Methodology](docs/METHODOLOGY.md), [Product](docs/PRODUCT.md), [Reproducibility](docs/REPRODUCIBILITY.md) và [Contributing](CONTRIBUTING.md).
+Xem thêm [Architecture](docs/ARCHITECTURE.md), [Data Contract](docs/DATA_CONTRACT.md), [Data Collection Guide](docs/DATA_COLLECTION_GUIDE.md), [Methodology](docs/METHODOLOGY.md), [Product](docs/PRODUCT.md), [Reproducibility](docs/REPRODUCIBILITY.md) và [Contributing](CONTRIBUTING.md).
 
 ## Disclaimer
 

@@ -5,13 +5,13 @@
 | Component | Directory/file | Milestone | Trạng thái | Dependency chính |
 |---|---|---|---|---|
 | IO + executable contracts | `src/delta_t1/io.py`, `contracts.py`, `schemas/` | M1 | Có, giữ nguyên behavior | JSON schema, immutable write policy |
-| Source acquisition | `ingestion/crawler.py`, `planning.py`, `recovery.py`, `calendar.py` | M1 | Có | source rights/semantics, HTTP policy |
+| Source acquisition + gates | `ingestion/crawler.py`, `planning.py`, `recovery.py`, `calendar.py` | M1 | Gate `SOURCE_SMOKE → REPRESENTATIVE_PILOT → M1_SCALE`; chưa gate thật nào PASS | source rights/semantics, evidence hashes, HTTP policy |
 | Source adapters | `ingestion/sources/` | M1 | Vnstock migrated; CafeF/VietFin là incomplete interface | endpoint semantics và rights approval |
 | Normalization | `ingestion/normalization/` | M1 | Generic architecture | source candidates, identity/unit/basis rules |
-| Reconciliation | `ingestion/reconciliation/` | M1 | Generic deterministic rules + conflict records | normalized candidates, approved priority rules |
+| Reconciliation | `ingestion/reconciliation/` | M1 | Field-level decisions; tách match/missing/value/unit/basis/timing/identity conflict | semantic comparison key, normalized candidates, approved priority rules |
 | Quality + promotion | `ingestion/quality.py`, compatibility promotion path | M1 | Có; legacy Vnstock path được giữ qua adapter | canonical schema và reconciliation |
-| Feature registry | `features/registry.py` | M1/M2 | Metadata-driven; chặn non-cluster feature | approved feature definitions/citations |
-| Market features | `features/market.py` | M1/M2 | Có từ baseline | canonical price/calendar/benchmark |
+| Feature registry | `features/registry.py` | M1/M2 | Metadata-driven; active registry không chứa Sharpe | approved feature definitions/citations |
+| Market features | `features/market.py` | M1/M2 | Snapshot 1.4 không sinh Sharpe | canonical price/calendar/benchmark |
 | Financial/PIT features | `features/fundamentals.py`, `point_in_time.py` | M1/M2 | Khung an toàn; feature cụ thể chờ approval | financial taxonomy + availability rules |
 | Preprocessing | `features/preprocessing.py` | M2 | Snapshot-only foundation | development protocol, registry eligibility |
 | Clustering registry | `clustering/base.py`, `registry.py` | M2 | Common interface | algorithm config, preprocessing output |
@@ -24,11 +24,12 @@
 | Portfolio evaluation | `evaluation/portfolio_metrics.py` | M3 | Có từ performance baseline | realized returns/backtest; không vào clustering |
 | Backtest | `backtest/portfolio.py`, `returns_engine.py` | M3 | Có return-space simulator | frozen signals, next-session execution, costs |
 | Experiment protocol | `experiments/protocol.py` | M2/M3 | Tách khỏi runner, multi-algorithm-aware | feature/model registry, holdout rules |
-| Experiment runner | `experiments/runner.py` | M2/M3 | Orchestrates immutable run | complete data run + protocol |
+| Experiment runner | `experiments/runner.py` | M2/M3 | M2 mặc định tắt portfolio; M3 phải bật rõ `portfolio_evaluation.enabled` | complete data run + protocol |
 | Artifact/reporting | `experiments/artifacts.py`, `reporting.py` | M2/M3 | Version/hash/export responsibility | runner outputs |
 | Product projection/API | `product/`, `web/` | Product/M3 | Có, phải giữ hoạt động | complete versioned experiment bundle |
 | CLI/scripts | `cli.py`, `run.py`, `scripts/` | Cross-cutting | Có; import path được migrate | package APIs/configs |
 | Config | `configs/data|features|experiments|product/` | Cross-cutting | Reorganized examples | registries + protocol schemas |
+| Human collection guide | `docs/DATA_COLLECTION_GUIDE.md` | M1 | Có workflow manual/multi-person; chưa thay source approval | assignment, rights review, raw hashes |
 | Tests | `tests/unit|integration|regression|fixtures/` | Cross-cutting | Assertion cũ được migrate | all layers |
 | Immutable evidence | `data/`, `artifacts/` | Evidence | Không mutate trong refactor | hashes/manifests/provenance |
 

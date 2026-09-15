@@ -48,6 +48,13 @@ class FeatureRegistry:
         return [self.get(name) for name in names]
 
     def require_cluster_eligible(self, names: Iterable[str]) -> list[FeatureDefinition]:
+        names = list(names)
+        explicitly_prohibited = [name for name in names if name in PROHIBITED_CLUSTER_INPUTS]
+        if explicitly_prohibited:
+            raise ValueError(
+                "Sharpe/ROI are portfolio-only and prohibited as clustering inputs: "
+                + ", ".join(explicitly_prohibited)
+            )
         definitions = self.resolve(names)
         prohibited = [item.name for item in definitions if not item.cluster_eligible]
         if prohibited:
@@ -68,14 +75,15 @@ class FeatureRegistry:
 
 PIT_MARKET = "Source row available_at phải không sau decision_at; basis phải nhất quán."
 NO_FILL = "Thiếu bất kỳ observation bắt buộc nào thì trả None; không fill hoặc đổi thành zero."
-INTERNAL_BASELINE = "DELTA market baseline 1.3; cần literature lock trước final methodology."
+INTERNAL_BASELINE = "DELTA market baseline 1.4; cần literature lock trước final methodology."
+PROHIBITED_CLUSTER_INPUTS = {"sharpe_63", "sharpe_126", "roi"}
 
 
 def _market(name: str, formula: str, lookback: str, *, cluster_eligible: bool = True,
             source: tuple[str, ...] = ("prices_daily", "trading_calendar"),
             transform: str = "winsorize_then_snapshot_scale") -> FeatureDefinition:
     return FeatureDefinition(name=name, family="market" if cluster_eligible else "portfolio_legacy",
-                             version="1.3.0", formula=formula, required_source=source,
+                             version="1.4.0", formula=formula, required_source=source,
                              lookback=lookback, point_in_time_rule=PIT_MARKET,
                              missing_policy=NO_FILL, transform=transform,
                              cluster_eligible=cluster_eligible, reference=INTERNAL_BASELINE)
@@ -94,10 +102,6 @@ DEFAULT_FEATURES = (
             source=("prices_daily", "benchmark_daily", "trading_calendar")),
     _market("liquidity_21", "mean(traded_value)", "21 consecutive values"),
     _market("ram_63", "mom_63 / vol_63", "mom_63 and vol_63"),
-    _market("sharpe_63", "legacy snapshot Sharpe; portfolio evaluation only", "63 returns and risk-free rates",
-            cluster_eligible=False, source=("prices_daily", "risk_free_rate", "trading_calendar")),
-    _market("sharpe_126", "legacy snapshot Sharpe; portfolio evaluation only", "126 returns and risk-free rates",
-            cluster_eligible=False, source=("prices_daily", "risk_free_rate", "trading_calendar")),
     FeatureDefinition(name="roi", family="portfolio_metric", version="prohibited",
                       formula="Không phải feature của DELTA.", required_source=("portfolio_returns",),
                       lookback="experiment-defined", point_in_time_rule="Chỉ sau portfolio simulation.",

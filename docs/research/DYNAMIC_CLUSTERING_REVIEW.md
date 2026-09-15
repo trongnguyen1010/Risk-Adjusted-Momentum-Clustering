@@ -6,6 +6,8 @@
 
 Monthly independent K-Means sau đó tính ARI, align label hoặc transition matrix là static snapshot clustering + temporal evaluation, không phải Dynamic Clustering.
 
+Danh sách 22 reference gốc không có dedicated Dynamic Clustering primary-method section. Nhóm F trong [LITERATURE_MATRIX.md](LITERATURE_MATRIX.md) được thêm sau mentor review nhưng hiện chưa có paper đủ full-text evidence để tạo methodology entry.
+
 ## Điều kiện approval
 
 Review phải nêu rõ:

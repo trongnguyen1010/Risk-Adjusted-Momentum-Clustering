@@ -39,7 +39,6 @@ from delta_t1.io import read_json, read_rows, write_json, digest
 from delta_t1.pipeline import run, run_canonical
 from delta_t1.experiments.protocol import validate_protocol
 from delta_t1.experiments.runner import experiment
-from delta_t1.ingestion.planning import plan_large_crawl
 from delta_t1.ingestion.recovery import recover_vendor
 from delta_t1.ingestion.calendar import benchmark_calendar
 
@@ -60,15 +59,15 @@ class ResearchUnitTests(unittest.TestCase):
             candidate_from_row("prices_daily", dict(common, source="a", adjustment_basis="unadjusted")),
             candidate_from_row("prices_daily", dict(common, source="b", adjustment_basis="vendor_adjusted")),
         ]
-        rows, decisions, conflicts = reconcile_candidates(candidates, ("a", "b"))
+        rows, decisions, conflicts = reconcile_candidates(candidates)
         self.assertFalse(rows)
-        self.assertFalse(decisions)
-        self.assertEqual(conflicts[0]["reason"], "incompatible_price_basis")
+        self.assertTrue(decisions)
+        self.assertIn("PRICE_BASIS_CONFLICT", {item["status"] for item in conflicts})
 
     def test_feature_registry_controls_cluster_eligibility(self):
         self.assertTrue(FEATURE_REGISTRY.get("mom_63").cluster_eligible)
-        self.assertFalse(FEATURE_REGISTRY.get("sharpe_63").cluster_eligible)
-        with self.assertRaisesRegex(ValueError, "non-cluster"):
+        self.assertNotIn("sharpe_63", FEATURE_REGISTRY.names())
+        with self.assertRaisesRegex(ValueError, "portfolio-only"):
             FEATURE_REGISTRY.require_cluster_eligible(["sharpe_63"])
 
     def test_financial_vintage_is_point_in_time(self):
@@ -199,10 +198,6 @@ class ResearchUnitTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'Sharpe/ROI'):
                 validate_protocol(config)
 
-    def test_scale_requires_real_pilot(self):
-        with self.assertRaisesRegex(ValueError, "pilot"):
-            plan_large_crawl(read_json(ROOT / "configs/data/scale.example.json"), {"status":"BLOCKED"})
-
     def test_corporate_action_adjustment_not_copied_from_raw(self):
         event = read_json(ROOT / "tests/fixtures/vendor/edge_cases.json")["corporate_action"]
         self.assertEqual(returns([event["before_price"], event["after_price"]]), [-.5])
@@ -221,6 +216,7 @@ class ResearchIntegrationTests(unittest.TestCase):
         cls.vendor, cls.policy_path = build_vendor(cls.root, cls.tables)
         cls.policy = read_json(cls.policy_path)
         cls.research_config = read_json(ROOT / "configs/experiments/kmeans.example.json")
+        cls.research_config["portfolio_evaluation"]["enabled"] = True
         cls.research_config["plots"] = False
         cls.research_config["bootstrap"]["samples"] = 30
         cls.experiment_config = cls.root / "experiment.json"
@@ -278,14 +274,29 @@ class ResearchIntegrationTests(unittest.TestCase):
                       traded_value_multiplier=dict(status="unresolved_optional",value=None,evidence=["optional"]),
                       availability_policy=dict(status="research_assumption",value="market_close_plus_delay",market_close_time="15:00:00+07:00",safety_delay_minutes=120,evidence=["explicit test assumption"]))
         policy["adjustment_basis"]["value"] = "unadjusted"
+        policy["market_field_mappings"] = {
+            "reference_price": {"status": "verified", "evidence": ["test fixture"],
+                                "canonical_unit": "VND/share", "provider_field": "reference",
+                                "multiplier": 1000},
+            "ceiling_price": {"status": "verified", "evidence": ["test fixture"],
+                              "canonical_unit": "VND/share", "provider_field": "ceiling",
+                              "multiplier": 1000},
+            "floor_price": {"status": "verified", "evidence": ["test fixture"],
+                            "canonical_unit": "VND/share", "provider_field": "floor",
+                            "multiplier": 1000},
+        }
+        record.update(reference=70, ceiling=75, floor=65)
         _, row = map_record(record, doc, policy, self.tables["securities"], {})
         self.assertAlmostEqual(row["raw_close"], 71700)
         self.assertEqual(row["raw_open"], 70000)
         self.assertEqual(row["volume"], 123400)
         self.assertIsNone(row["adj_close"])
         self.assertIsNone(row["traded_value"])
+        self.assertEqual((70000, 75000, 65000),
+                         (row["reference_price"], row["ceiling_price"], row["floor_price"]))
         self.assertTrue(row["available_at"].endswith("T17:00:00+07:00"))
         policy["adjustment_basis"]["value"] = "vendor_adjusted"
+        policy.pop("market_field_mappings")
         _, row = map_record(record, doc, policy, self.tables["securities"], {})
         self.assertIsNone(row["raw_close"])
         self.assertAlmostEqual(row["adj_close"], 71700)
@@ -397,6 +408,17 @@ class ResearchIntegrationTests(unittest.TestCase):
         self.assertNotEqual(a["run_id"], b["run_id"])
         for relative in ("performance.json", "profiles.jsonl", "diagnostics.jsonl", "backtests/cluster.jsonl"):
             self.assertEqual((first / relative).read_bytes(), (second / relative).read_bytes())
+
+    def test_m2_experiment_disables_portfolio_evaluation(self):
+        config = read_json(ROOT / "configs/experiments/kmeans.example.json")
+        config["plots"] = False
+        path = self.root / "m2-experiment.json"
+        write_json(path, config)
+        artifact, manifest = experiment(self.directory, path, self.root)
+        self.assertEqual("complete", manifest["status"], manifest.get("error"))
+        self.assertFalse(manifest["portfolio_evaluation_enabled"])
+        self.assertFalse((artifact / "performance.json").exists())
+        self.assertFalse((artifact / "backtests").exists())
 
 
 if __name__ == "__main__":

@@ -12,7 +12,7 @@ from .crawler import code_hash
 from .normalization.market import map_record
 from .quality import clean_tables
 from .reconciliation.candidates import candidate_from_row
-from .reconciliation.rules import reconcile_candidates
+from .reconciliation.rules import SourcePriorityPolicy, reconcile_candidates
 from .sources.vnstock import verify_vendor
 
 
@@ -31,7 +31,7 @@ def promote(vendor: Path, policy_path: Path, root: Path) -> tuple[Path, dict]:
                     status="running", started_at=now(), synthetic=policy.get("synthetic"),
                     data_mode="synthetic" if policy.get("synthetic") else "real",
                     methodology=policy.get("methodology", {}), policy=policy,
-                    policy_hash=digest(encoded(policy)), code_hash=code_hash(), schema_version="1.3.0")
+                    policy_hash=digest(encoded(policy)), code_hash=code_hash(), schema_version="1.4.0")
     errors, quarantine, tables = [], [], {}
     records_input = 0
     try:
@@ -85,9 +85,12 @@ def promote(vendor: Path, policy_path: Path, root: Path) -> tuple[Path, dict]:
                     quarantine.append(dict(record=record, error_code="PROMOTION_MAPPING",
                                            error_message=str(exc), source=document["source_routing"],
                                            vendor_run_id=vendor.name, job=document["job"], detected_at=now()))
-        priorities = tuple(policy.get("source_priority", (policy.get("source_routing"),)))
-        reconciled, decisions, conflicts = reconcile_candidates(candidates, priorities)
-        manifest["reconciliation"] = dict(rule_version="1.0", decisions=len(decisions), conflicts=len(conflicts))
+        priority_spec = policy.get("source_priority_policy")
+        priority_policy = SourcePriorityPolicy.from_dict(priority_spec) if priority_spec else None
+        reconciled, decisions, conflicts = reconcile_candidates(candidates, priority_policy)
+        write_rows(target / "reconciliation" / "decisions.jsonl", decisions)
+        write_rows(target / "reconciliation" / "conflicts.jsonl", conflicts)
+        manifest["reconciliation"] = dict(rule_version="2.0", decisions=len(decisions), conflicts=len(conflicts))
         for conflict in conflicts:
             quarantine.append(dict(record=conflict, error_code="RECONCILIATION_CONFLICT",
                                    error_message=conflict["reason"], source="multi_source",

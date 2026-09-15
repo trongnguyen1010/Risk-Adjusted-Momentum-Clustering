@@ -15,6 +15,50 @@ from .protocol import validate_protocol
 from .reporting import plot_artifacts, table_csv, write_report
 
 
+def _run_portfolio_evaluation(target, snapshots, tables, config):
+    """Run M3-only portfolio evaluation after clustering choices are frozen."""
+    backtests, performance, sensitivity = {}, {}, []
+    for strategy in ("cluster", "equal_weight_universe", "momentum_only", "risk_only"):
+        targets = [make_targets(snapshot, config["portfolio"], strategy) for snapshot in snapshots]
+        write_rows(target / "targets" / (strategy + ".jsonl"), targets)
+        result = simulate(targets, tables, config["backtest"])
+        rows = result["nav"]
+        backtests[strategy] = result
+        write_rows(target / "backtests" / (strategy + ".jsonl"), rows)
+        write_json(target / "backtests" / (strategy + "_execution.json"),
+                   {key: value for key, value in result.items() if key != "nav"})
+        table_csv(target / "backtests" / (strategy + ".csv"), rows)
+        returns, benchmark, turnover = (
+            [row[key] for row in rows] for key in ("net_return", "benchmark_return", "turnover")
+        )
+        performance[strategy] = metrics(returns, benchmark, config["rf_annual"], turnover)
+        performance[strategy]["bootstrap"] = bootstrap(returns, benchmark, **config["bootstrap"])
+        performance[strategy]["subperiods"] = {}
+        for year in sorted({row["date"][:4] for row in rows}):
+            subperiod = [row for row in rows if row["date"].startswith(year)]
+            if len(subperiod) >= 2:
+                performance[strategy]["subperiods"][year] = metrics(
+                    [row["net_return"] for row in subperiod],
+                    [row["benchmark_return"] for row in subperiod],
+                    config["rf_annual"],
+                    [row["turnover"] for row in subperiod],
+                )
+        for bps in config["cost_sensitivity_bps"]:
+            alternative = simulate(targets, tables, dict(config["backtest"], transaction_cost_bps=bps))
+            sensitivity.append({"strategy": strategy, "transaction_cost_bps": bps,
+                                "net_nav": alternative["nav"][-1]["net_nav"]})
+    first = next(iter(backtests.values()))["nav"]
+    benchmark = [row["benchmark_return"] for row in first]
+    performance[config["backtest"]["benchmark_id"]] = metrics(
+        benchmark, benchmark, config["rf_annual"], [0] * len(benchmark)
+    )
+    write_json(target / "performance.json", performance)
+    table_csv(target / "performance.csv", [dict(strategy=name, **value)
+                                             for name, value in performance.items()])
+    write_rows(target / "cost_sensitivity.jsonl", sensitivity)
+    return backtests
+
+
 def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dict]:
     """Create a new immutable experiment for every invocation."""
     data_run = Path(data_run).resolve()
@@ -94,57 +138,22 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
             table_csv(target / (name + ".csv"), rows)
         if not snapshots:
             raise ValueError("no eligible clustering snapshots")
-        for name in ("prices_daily", "benchmark_daily", "trading_calendar"):
-            tables[name] = [row for row in tables[name] if row["trade_date"] <= config["end"]]
-        backtests, performance, sensitivity = {}, {}, []
-        for strategy in ("cluster", "equal_weight_universe", "momentum_only", "risk_only"):
-            targets = [make_targets(snapshot, config["portfolio"], strategy) for snapshot in snapshots]
-            write_rows(target / "targets" / (strategy + ".jsonl"), targets)
-            result = simulate(targets, tables, config["backtest"])
-            rows = result["nav"]
-            backtests[strategy] = result
-            write_rows(target / "backtests" / (strategy + ".jsonl"), rows)
-            write_json(target / "backtests" / (strategy + "_execution.json"),
-                       {key: value for key, value in result.items() if key != "nav"})
-            table_csv(target / "backtests" / (strategy + ".csv"), rows)
-            returns, benchmark, turnover = (
-                [row[key] for row in rows] for key in ("net_return", "benchmark_return", "turnover")
-            )
-            performance[strategy] = metrics(returns, benchmark, config["rf_annual"], turnover)
-            performance[strategy]["bootstrap"] = bootstrap(returns, benchmark, **config["bootstrap"])
-            performance[strategy]["subperiods"] = {}
-            for year in sorted({row["date"][:4] for row in rows}):
-                subperiod = [row for row in rows if row["date"].startswith(year)]
-                if len(subperiod) >= 2:
-                    performance[strategy]["subperiods"][year] = metrics(
-                        [row["net_return"] for row in subperiod],
-                        [row["benchmark_return"] for row in subperiod],
-                        config["rf_annual"],
-                        [row["turnover"] for row in subperiod],
-                    )
-            for bps in config["cost_sensitivity_bps"]:
-                alternative = simulate(targets, tables, dict(config["backtest"], transaction_cost_bps=bps))
-                sensitivity.append(dict(strategy=strategy, transaction_cost_bps=bps,
-                                        net_nav=alternative["nav"][-1]["net_nav"]))
-        first = next(iter(backtests.values()))["nav"]
-        benchmark = [row["benchmark_return"] for row in first]
-        performance[config["backtest"]["benchmark_id"]] = metrics(
-            benchmark, benchmark, config["rf_annual"], [0] * len(benchmark)
-        )
-        write_json(target / "performance.json", performance)
-        table_csv(target / "performance.csv", [dict(strategy=name, **value)
-                                                 for name, value in performance.items()])
-        write_rows(target / "cost_sensitivity.jsonl", sensitivity)
+        portfolio_enabled = config["portfolio_evaluation"]["enabled"]
+        backtests = {}
+        if portfolio_enabled:
+            for name in ("prices_daily", "benchmark_daily", "trading_calendar"):
+                tables[name] = [row for row in tables[name] if row["trade_date"] <= config["end"]]
+            backtests = _run_portfolio_evaluation(target, snapshots, tables, config)
         if config.get("plots", False):
             plot_artifacts(target / "plots", backtests, transition_rows, diagnostic_rows, config["synthetic"])
         write_report(target / "report.md", manifest["run_id"], manifest["data_mode"],
-                     config["assumptions"], len(snapshots), len(skipped), len(assignments))
+                     config["assumptions"], len(snapshots), len(skipped), len(assignments),
+                     portfolio_enabled)
         manifest.update(status="complete", n_snapshots=len(snapshots), n_assignments=len(assignments),
-                        backtest_mode="fractional_return_space")
-        manifest["real_pilot_accepted"] = bool(
-            not config["synthetic"] and config.get("pilot") and len(snapshots) >= 12
-            and len({row["security_id"] for row in assignments}) >= 10 and transition_rows and first
-        )
+                        portfolio_evaluation_enabled=portfolio_enabled)
+        if portfolio_enabled:
+            manifest["backtest_mode"] = "fractional_return_space"
+        manifest["real_pilot_accepted"] = False
     except (ValueError, KeyError, TypeError, OSError, ImportError) as exc:
         manifest.update(status="failed", error=type(exc).__name__ + ": " + str(exc))
     write_rows(target / "events.jsonl", [dict(

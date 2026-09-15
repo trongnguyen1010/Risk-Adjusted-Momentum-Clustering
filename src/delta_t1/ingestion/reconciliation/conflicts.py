@@ -1,16 +1,22 @@
-"""Serializable conflict records; unresolved conflicts are never silently averaged."""
+"""Serializable unresolved field conflicts; values are never averaged."""
 from dataclasses import asdict, dataclass
 
 
 @dataclass(frozen=True)
 class ConflictRecord:
     table: str
-    key: tuple
+    canonical_key: tuple
+    comparison_key: tuple
+    field: str
+    status: str
     reason: str
     sources: tuple[str, ...]
+    raw_hashes: tuple[str, ...] = ()
 
     def as_dict(self) -> dict:
         value = asdict(self)
-        value["key"] = list(self.key)
+        value["canonical_key"] = list(self.canonical_key)
+        value["comparison_key"] = list(self.comparison_key)
         value["sources"] = list(self.sources)
+        value["raw_hashes"] = list(self.raw_hashes)
         return value

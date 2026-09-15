@@ -33,6 +33,32 @@ def multiplier(policy: dict, key: str, optional: bool = False):
     return value
 
 
+def mapped_market_price(record: dict, policy: dict, canonical_field: str):
+    """Map an optional exchange price only with field-level unit evidence.
+
+    Magnitude is never used to guess a multiplier. A missing reviewed mapping
+    deliberately produces ``None`` in the nullable canonical field.
+    """
+    spec = policy.get("market_field_mappings", {}).get(canonical_field)
+    if spec is None:
+        return None
+    if (spec.get("status") != "verified" or not spec.get("evidence")
+            or spec.get("canonical_unit") != "VND/share"
+            or not spec.get("provider_field")):
+        raise ValueError("unresolved market field mapping: " + canonical_field)
+    factor = spec.get("multiplier")
+    if (isinstance(factor, bool) or not isinstance(factor, (int, float))
+            or not math.isfinite(factor) or factor <= 0):
+        raise ValueError("invalid evidenced field multiplier: " + canonical_field)
+    value = record.get(spec["provider_field"])
+    if value is None:
+        return None
+    if (isinstance(value, bool) or not isinstance(value, (int, float))
+            or not math.isfinite(value) or value <= 0):
+        raise ValueError("invalid provider value: " + canonical_field)
+    return value * factor
+
+
 def map_record(record: dict, document: dict, policy: dict,
                master: list[dict], observations: dict) -> tuple[str, dict]:
     """Normalize one verified vendor market record; do not resolve source conflicts."""
@@ -83,6 +109,11 @@ def map_record(record: dict, document: dict, policy: dict,
                              if value_scale is not None and record.get("va") is not None else None),
                adj_close=(record["close"] * scale
                           if basis in ("split_adjusted", "vendor_adjusted", "total_return", "synthetic") else None))
+    band_fields = ("reference_price", "ceiling_price", "floor_price")
+    mapped_bands = {field: mapped_market_price(record, policy, field) for field in band_fields}
+    if any(value is not None for value in mapped_bands.values()) and basis not in ("unadjusted", "synthetic"):
+        raise ValueError("exchange price bands require an unadjusted price basis")
+    row.update(mapped_bands)
     open_price, high, low, close = (record[field] for field in ("open", "high", "low", "close"))
     if (any(isinstance(value, bool) or not isinstance(value, (int, float))
             or not math.isfinite(value) or value <= 0 for value in (open_price, high, low, close))

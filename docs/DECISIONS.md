@@ -1,6 +1,6 @@
 # Các quyết định còn hiệu lực
 
-Cập nhật 15/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation.
+Cập nhật 16/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation.
 
 | ID | Quyết định |
 |---|---|
@@ -20,6 +20,11 @@ Cập nhật 15/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-014 | JSONL dùng cho pilot; large-scale storage chỉ đổi sau M1 evidence. |
 | ADR-015 | Tài liệu Markdown viết tiếng Việt, giữ project terms bằng English khi rõ nghĩa hơn. |
 | ADR-016 | Không thêm concrete dynamic algorithm trước explicit approval trong `research/DYNAMIC_CLUSTERING_REVIEW.md`. |
+| ADR-017 | Gate thật theo hierarchy `SOURCE_SMOKE → REPRESENTATIVE_PILOT → M1_SCALE`; source smoke không mở scale và synthetic không pass gate thật. `EXTENDED_SCALE` không có cap 350. |
+| ADR-018 | Market contract 1.4 thêm nullable `reference_price`, `ceiling_price`, `floor_price`; mọi equity price là VND/share, volume là shares, traded value là VND; multiplier cần evidence. |
+| ADR-019 | Reconciliation diễn ra ở field level theo semantic comparison key; không average. Source priority chỉ dùng khi compatible và policy approved/versioned; mọi decision giữ raw hashes. |
+| ADR-020 | Active feature snapshot 1.4 không sinh Sharpe. Snapshot 1.3 chỉ đọc qua explicit legacy compatibility; Sharpe tiếp tục ở portfolio metrics. |
+| ADR-021 | M2 configs mặc định `portfolio_evaluation.enabled=false`; chỉ M3/frozen protocol được bật backtest/performance. |
 
 ## Open decisions
 
@@ -27,7 +32,7 @@ Cập nhật 15/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 |---|---|
 | OPEN-01 | Final thesis wording và research questions |
 | OPEN-02 | Approved Dynamic Clustering objective/method |
-| OPEN-03 | Source rights, endpoint semantics và priority rules |
+| OPEN-03 | CafeF/VietFin/Vnstock rights, endpoint semantics, field mappings/multipliers và source-priority approval |
 | OPEN-04 | Historical universe/delisted security master authority |
 | OPEN-05 | Financial feature taxonomy, sector treatment và citations |
 | OPEN-06 | Final development/validation/holdout và purging/embargo |

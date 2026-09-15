@@ -26,7 +26,7 @@ backtest + portfolio metrics    experiment artifacts
 |---|---|---|
 | Source acquisition | request, raw response, provider/version/rights metadata | canonical meaning |
 | Normalization | field/type/unit/basis/identity candidates | conflict winner |
-| Reconciliation/canonical | deterministic decision, conflict/evidence, historical identity | model selection |
+| Reconciliation/canonical | field-level decision, semantic comparison key, conflict/evidence, historical identity | model selection |
 | Features | registry, formula, PIT join, snapshot preprocessing | network access/portfolio metric |
 | Clustering | common interface, model fit/predict/artifact | duplicate metric logic/backtest choice |
 | Evaluation | cluster, temporal và portfolio metric ở module riêng | model fit |
@@ -40,10 +40,16 @@ backtest + portfolio metrics    experiment artifacts
 2. Missing giữ missing; không zero-fill hoặc silent forward-fill.
 3. Historical identity dùng interval; `available_at <= decision_at`.
 4. Raw, adjusted và total-return basis không được trộn.
-5. Feature eligibility do registry metadata quyết định; Sharpe/ROI không vào clustering.
+5. Feature eligibility do registry metadata quyết định; active feature snapshot không sinh Sharpe/ROI.
 6. Cluster quality, temporal stability và portfolio performance tách biệt.
 7. Product chỉ consume versioned artifact và giữ provenance/limitations.
 8. Dynamic package chỉ có interface cho tới explicit methodology approval.
+
+## M2/M3 execution boundary
+
+M2 config phải khai báo `portfolio_evaluation.enabled=false`; runner vẫn sinh assignments, cluster diagnostics và temporal diagnostics nhưng không tạo targets/backtests/performance. Chỉ M3/frozen protocol được bật portfolio evaluation. Portfolio return, Sharpe và ROI không được dùng chọn feature, PCA components, `k` hoặc algorithm.
+
+Common clustering interface hiện còn fixed-`k`: `config["k"]`, `k_range`, cluster IDs `0..k-1` và temporal alignment cùng số cluster. Đây là technical debt được giữ rõ, không che bằng adapter giả. DBSCAN tương lai cần noise label, variable cluster count, diagnostics riêng và temporal comparison không giả định same-`k`; chưa triển khai trong task này.
 
 ## Scale
 

@@ -13,7 +13,7 @@
 
 ## Ranh giới M1/M2/M3
 
-- **M1:** smoke 3–5 mã → pilot 50–60 mã → scale >=300 mã sau khi source validation pass; chưa báo hoàn tất chỉ vì pipeline chạy.
+- **M1:** `SOURCE_SMOKE` thật 3–5 mã chỉ mở `REPRESENTATIVE_PILOT`; chỉ PASS pilot 50–60 mã, >=5 năm mới mở planning `M1_SCALE` >=300. Synthetic không pass gate thật; `EXTENDED_SCALE` 5–15 năm không có cap 350.
 - **M2:** giữ deterministic static K-Means baseline; PCA/comparator đánh giá riêng. Không triển khai concrete dynamic algorithm trước khi `docs/research/DYNAMIC_CLUSTERING_REVIEW.md` phê duyệt.
 - **M3:** chỉ final backtest sau methodology freeze; dashboard tiêu thụ artifact, không điều khiển research.
 
@@ -31,11 +31,14 @@
 - Không forward-fill missing price, không đổi missing thành zero, không trộn raw/adjusted basis.
 - Chỉ dùng row có `available_at <= decision_at`; financial statement phải point-in-time và revision-aware.
 - Real clustering cần ít nhất ba calendar years usable observed history; mã ngắn lịch sử là `REFERENCE_ONLY`.
+- Market canonical dùng VND/share, volume dùng shares, traded value dùng VND; multiplier phải có evidence và không được suy từ magnitude.
+- Reconciliation so theo canonical entity/key ở field level; `source`/`fetched_at` khác nhau không tự tạo value conflict. Không average và không dùng source priority nếu policy chưa approved/versioned.
+- Provider report ID, canonical report identity và reconciliation comparison key là ba khái niệm khác nhau; không làm mất provider provenance.
 
 ## Testing requirements
 
 - Trước và sau mỗi phase: `python -m unittest discover -s tests -v` và `python -m compileall -q src tests scripts run.py`.
-- Thay pipeline phải chạy smoke config; thay web phải chạy `node --check web/app.js`.
+- Thay pipeline phải chạy `configs/data/synthetic_smoke.example.json`; source smoke template phải tiếp tục fail-closed. Thay web phải chạy `node --check web/app.js`.
 - Giữ và migrate assertion cũ. Không xóa/giảm test để làm migration pass.
 - Kiểm tra import cũ, JSON config/schema và Markdown link trước khi xóa file superseded.
 
@@ -48,4 +51,4 @@
 
 ## Forbidden shortcuts
 
-Không hard-code feature validity bằng prefix; không duplicate metrics trong model; không đặt placeholder thành kết quả; không crawl lớn trước source/pilot gates; không thêm microservice, broker, Kubernetes, auth/news/sentiment/database migration ngoài active milestone.
+Không hard-code feature validity bằng prefix; không sinh Sharpe trong active feature snapshot; không duplicate metrics trong model; không đặt placeholder thành kết quả; không crawl lớn trước source/pilot gates; không bypass login/anti-bot/paywall/access control; không thêm microservice, broker, Kubernetes, auth/news/sentiment/database migration ngoài active milestone.

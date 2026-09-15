@@ -48,17 +48,29 @@ def worker(job_path, output_path):
 
 
 def collect(root, start, end, symbols, resume=None, interval=5.0, timeout=90,
-            attempts=3, pilot_experiment=None):
+            attempts=3, gate_report_path=None):
     import time
-    pilot_hash = None
-    if len(set(symbols)) > 10:
-        from ..planning import pilot_report
-        if not pilot_experiment:
-            raise ValueError("more than 10 symbols requires a passing real pilot experiment")
-        report = pilot_report(Path(pilot_experiment))
-        if report["status"] != "PASS":
-            raise ValueError("real pilot failed; scale crawl blocked")
-        pilot_hash = report["experiment_manifest_hash"]
+    gate_hash = None
+    symbol_count = len(set(symbols))
+    if 60 < symbol_count < 300:
+        raise ValueError("61–299 symbols is not an M1 gate stage; use 50–60 pilot or >=300 scale")
+    if symbol_count > 5:
+        if not gate_report_path:
+            raise ValueError("more than 5 symbols requires an explicit passing M1 gate report")
+        gate_path = Path(gate_report_path).resolve()
+        report = read_json(gate_path)
+        if symbol_count <= 60:
+            accepted = (report.get("gate") == "SOURCE_SMOKE" and report.get("status") == "PASS"
+                        and "REPRESENTATIVE_PILOT" in report.get("unlocks", []))
+            error = "source smoke has not passed; representative pilot crawl blocked"
+        else:
+            accepted = (report.get("gate") == "REPRESENTATIVE_PILOT" and report.get("status") == "PASS"
+                        and "M1_SCALE" in report.get("unlocks", []))
+            error = "representative pilot has not passed; scale crawl blocked"
+        if (not accepted or report.get("checks", {}).get("real_data") is not True
+                or not report.get("input_evidence_hashes")):
+            raise ValueError(error)
+        gate_hash = digest(gate_path.read_bytes())
     if interval < 1 or timeout < 1 or not 1 <= attempts <= 5:
         raise ValueError("interval >= 1 second, timeout > 0, attempts between 1 and 5")
     try:
@@ -71,8 +83,8 @@ def collect(root, start, end, symbols, resume=None, interval=5.0, timeout=90,
         raise ValueError("provide explicit alphanumeric symbols")
     config = dict(start=start, end=end, symbols=sorted(set(symbols)), interval=interval,
                   timeout=timeout, attempts=attempts, vnstock_version=version, code_hash=code_hash())
-    if pilot_hash:
-        config["pilot_manifest_hash"] = pilot_hash
+    if gate_hash:
+        config["gate_report_hash"] = gate_hash
     config_hash = digest(encoded(config))
     run_id = resume or "vendor-pilot-" + uuid.uuid4().hex[:12]
     if not run_id.replace("-", "").isalnum():
