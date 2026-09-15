@@ -77,7 +77,8 @@ def verify_vendor(directory: Path, policy: dict) -> tuple[dict, list[dict]]:
 
 def evidence_value(policy: dict, key: str, optional: bool = False):
     item = policy.get(key, {})
-    if item.get("status") != "verified" or not item.get("evidence") or item.get("value") is None:
+    allowed = ("verified", "research_assumption") if key == "availability_policy" else ("verified",)
+    if item.get("status") not in allowed or not item.get("evidence") or item.get("value") is None:
         if optional:
             return None
         raise ValueError("unresolved semantic: " + key)
@@ -120,6 +121,14 @@ def map_record(record: dict, doc: dict, policy: dict, master: list[dict], observ
         available = doc["fetched_at"]
     elif mode == "reference":
         available = info["available_at"]
+    elif mode == "market_close_plus_delay":
+        assumption = policy["availability_policy"]
+        if assumption.get("status") != "research_assumption":
+            raise ValueError("historical availability must be labeled research_assumption")
+        delay = assumption["safety_delay_minutes"]
+        if isinstance(delay, bool) or not isinstance(delay, int) or delay < 0:
+            raise ValueError("invalid availability safety delay")
+        available = (datetime.fromisoformat(day + "T" + assumption["market_close_time"]) + timedelta(minutes=delay)).isoformat()
     else:
         raise ValueError("unsupported availability policy")
     common = dict(trade_date=day, available_at=available, fetched_at=doc["fetched_at"], source=doc["source_routing"])
@@ -133,15 +142,19 @@ def map_record(record: dict, doc: dict, policy: dict, master: list[dict], observ
         raise ValueError("unsupported vendor job kind")
     meta = resolve_security(master, job["symbol"], day)
     basis = evidence_value(policy, "adjustment_basis")
-    if basis not in ("unadjusted", "split_adjusted", "total_return", "unknown", "synthetic") or (basis == "synthetic" and not policy["synthetic"]):
+    if basis not in ("unadjusted", "split_adjusted", "vendor_adjusted", "total_return", "unknown", "synthetic") or (basis == "synthetic" and not policy["synthetic"]):
         raise ValueError("invalid adjustment basis")
     scale = multiplier(policy, "price_multiplier")
     volume_scale, value_scale = multiplier(policy, "volume_multiplier", True), multiplier(policy, "traded_value_multiplier", True)
     row = dict(common, security_id=meta["security_id"], ticker=meta["ticker"], exchange=meta["exchange"],
                adjustment_basis=basis, trading_status=info.get("trading_status", "unknown"),
                volume=record["volume"] * volume_scale if volume_scale is not None else None,
-               traded_value=record["va"] * value_scale if value_scale is not None else None,
-               adj_close=record["close"] * scale if basis in ("split_adjusted", "total_return", "synthetic") else None)
+               traded_value=record["va"] * value_scale if value_scale is not None and record.get("va") is not None else None,
+               adj_close=record["close"] * scale if basis in ("split_adjusted", "vendor_adjusted", "total_return", "synthetic") else None)
+    # Validate vendor OHLC even when adjusted OHLC is retained only in staging.
+    o, h, l, c = (record[f] for f in ("open", "high", "low", "close"))
+    if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) or v <= 0 for v in (o,h,l,c)) or not l <= min(o,c) <= max(o,c) <= h:
+        raise ValueError("corrupt vendor OHLC")
     for field in ("open", "high", "low", "close"):
         row["raw_" + field] = record[field] * scale if basis in ("unadjusted", "synthetic") else None
     return "prices_daily", row
@@ -155,10 +168,13 @@ def promote(vendor: Path, policy_path: Path, root: Path) -> tuple[Path, dict]:
     target = Path(root).resolve() / "data" / "canonical" / run_id
     target.mkdir(parents=True, exist_ok=False)
     manifest = dict(run_id=run_id, data_version=run_id, vendor_run_id=vendor.name, status="running", started_at=now(),
-                    synthetic=policy.get("synthetic"), policy=policy, policy_hash=digest(encoded(policy)), code_hash=code_hash(), schema_version="1.1.0")
+                    synthetic=policy.get("synthetic"), data_mode="synthetic" if policy.get("synthetic") else "real",
+                    methodology=policy.get("methodology", {}), policy=policy, policy_hash=digest(encoded(policy)), code_hash=code_hash(), schema_version="1.3.0")
     errors, quarantine, tables = [], [], {}
+    records_input = 0
     try:
         vendor_manifest, documents = verify_vendor(vendor, policy)
+        records_input = sum(len(d["records"]) for d in documents if d["job"]["kind"] != "listing")
         manifest["vendor_manifest_sha256"] = digest((vendor / "manifest.json").read_bytes())
         manifest["vendor_config"] = vendor_manifest["config"]
         references = {}
@@ -215,7 +231,9 @@ def promote(vendor: Path, policy_path: Path, root: Path) -> tuple[Path, dict]:
     write_rows(target / "quarantine" / "records.jsonl", quarantine)
     manifest.update(status="blocked" if errors or quarantine else "complete", finished_at=now(),
                     quality="QC ERROR" if errors or quarantine else "QC PASS", errors=errors, quarantined=len(quarantine),
-                    clean_rows={k: len(v) for k, v in tables.items()}, real_pilot_accepted=False)
+                    clean_rows={k: len(v) for k, v in tables.items()}, real_pilot_accepted=False,
+                    records_input=records_input, records_accepted=sum(len(tables.get(t, [])) for t in ("prices_daily", "benchmark_daily")),
+                    records_quarantined=len(quarantine), warnings=policy.get("warnings", []), blocking_errors=len(errors))
     manifest["artifacts"] = {p.relative_to(target).as_posix(): digest(p.read_bytes()) for p in sorted(target.rglob("*.jsonl"))}
     write_json(target / "manifest.json", manifest)
     return target, manifest

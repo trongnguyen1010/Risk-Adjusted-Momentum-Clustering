@@ -5,6 +5,14 @@ from statistics import mean, stdev, variance, covariance
 from collections import defaultdict
 
 
+def subtract_years(value: date, years: int) -> date:
+    """Calendar-year cutoff; map Feb 29 to Feb 28 in a non-leap target year."""
+    try:
+        return value.replace(year=value.year - years)
+    except ValueError:
+        return value.replace(year=value.year - years, day=28)
+
+
 def momentum(prices, window):
     values = prices[-window - 1:]
     return values[-1] / values[0] - 1 if len(values) == window + 1 and all(v is not None and v > 0 for v in values) else None
@@ -64,7 +72,8 @@ def build_features(tables, config, data_version):
                 series, bseries, liquidity, price_records, session_days = [], [], [], [], []
             if usable:
                 previous_basis = row["adjustment_basis"]
-            series.append(row["adj_close"] if usable else None)
+            price_field = "raw_close" if usable and row["adjustment_basis"] == "unadjusted" else "adj_close"
+            series.append(row[price_field] if usable else None)
             price_records.append(row if usable else None)
             session_days.append(day)
             bench = benchmark.get(day)
@@ -72,10 +81,25 @@ def build_features(tables, config, data_version):
             liquidity.append(row["traded_value"] if usable else None)
             if not session["is_month_end"]:
                 continue
+            observed_days = [d for d, value in zip(session_days, series) if value is not None]
+            history_start = observed_days[0] if observed_days else None
+            history_days = ((date.fromisoformat(day) - date.fromisoformat(history_start)).days
+                            if history_start else None)
+            minimum_history_years = config.get("minimum_history_years", 0)
+            has_minimum_history = bool(
+                history_start
+                and date.fromisoformat(history_start)
+                <= subtract_years(date.fromisoformat(day), minimum_history_years)
+            ) if minimum_history_years else bool(history_start)
             features = {"security_id": sid, "ticker": meta["ticker"], "as_of_date": day, "available_at": session["decision_at"],
-                        "feature_version": "1.1.0", "data_version": data_version,
+                        "feature_version": "1.3.0", "data_version": data_version,
+                        "data_mode": config.get("data_mode", "synthetic" if config["accepted_adjustments"] == ["synthetic"] else "real"),
+                        "vendor_run_id": config.get("vendor_run_id"), "canonical_run_id": config.get("canonical_run_id"),
                         "lookback_observations": sum(v is not None for v in series[-253:]),
                         "missing_count": sum(v is None for v in series[-253:]),
+                        "history_start_date": history_start,
+                        "history_calendar_days": history_days,
+                        "history_observations": len(observed_days),
                         "listing_age_days": (date.fromisoformat(day) - date.fromisoformat(meta["listing_date"])).days if meta["listing_date"] else None,
                         "adjustment_basis": previous_basis}
             for window in (21, 63, 126, 252):
@@ -105,7 +129,7 @@ def build_features(tables, config, data_version):
             downside = full_window(rs, 63)
             features["downside_vol_63"] = math.sqrt(mean(min(r, 0) ** 2 for r in downside) * 252) if downside else None
             features["ram_63"] = features["mom_63"] / features["vol_63"] if features["mom_63"] is not None and features["vol_63"] and features["vol_63"] > 1e-12 else None
-            reasons = {k: "insufficient_window_gap_unavailable_or_undefined" for k, v in features.items() if v is None}
+            reasons = {k: "insufficient_window_gap_unavailable_or_undefined" for k, v in features.items() if v is None and k not in ("vendor_run_id", "canonical_run_id")}
             if not row or row["trading_status"] != "normal":
                 reasons["trading_status"] = "missing_or_not_normal"
             if datetime.fromisoformat(meta["available_at"]) > cutoff:
@@ -114,9 +138,18 @@ def build_features(tables, config, data_version):
                 reasons["metadata"] = "unverified_historical_identity"
             if config.get("minimum_listing_age_days", 0) > 0 and (features["listing_age_days"] is None or features["listing_age_days"] < config["minimum_listing_age_days"]):
                 reasons["metadata"] = "minimum_listing_age"
+            if not has_minimum_history:
+                reasons["history"] = f"minimum_{minimum_history_years}_calendar_years_of_observed_data"
             if features["missing_count"] > config.get("maximum_missing_sessions", 253):
                 reasons["metadata"] = "missing_session_threshold"
             features["na_reason"] = reasons
-            features["eligibility"] = not any(features[k] is None for k in config["required_features"]) and "trading_status" not in reasons and "metadata" not in reasons
+            feature_complete = not any(features[k] is None for k in config["required_features"])
+            features["eligibility"] = feature_complete and has_minimum_history and "trading_status" not in reasons and "metadata" not in reasons
+            if not has_minimum_history and "trading_status" not in reasons and "metadata" not in reasons:
+                features["universe_segment"] = "REFERENCE_ONLY"
+            elif features["eligibility"]:
+                features["universe_segment"] = "ELIGIBLE_FOR_CLUSTERING"
+            else:
+                features["universe_segment"] = "EXCLUDED"
             output.append(features)
     return output

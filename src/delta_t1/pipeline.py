@@ -8,7 +8,9 @@ from .ingestion.quality import clean_tables, coverage
 from .features.compute import build_features
 
 
-INPUT_TABLES = {"securities", "prices_daily", "benchmark_daily", "trading_calendar", "corporate_actions", "risk_free_rate"}
+REQUIRED_INPUT_TABLES = {"securities", "prices_daily", "benchmark_daily", "trading_calendar"}
+OPTIONAL_INPUT_TABLES = {"corporate_actions", "risk_free_rate", "financial_reports", "financial_facts"}
+INPUT_TABLES = REQUIRED_INPUT_TABLES | OPTIONAL_INPUT_TABLES
 
 
 def load_config(path):
@@ -40,14 +42,18 @@ def validate_config(config):
         for key in job.get("params", {}):
             if any(secret in key.lower() for secret in ("token", "secret", "password", "api_key", "apikey")):
                 raise ValueError("do not put secrets in params; use token_env")
-    required = {"securities", "prices_daily", "benchmark_daily", "trading_calendar"}
-    if not required <= {job["table"] for job in jobs}:
+    if not REQUIRED_INPUT_TABLES <= {job["table"] for job in jobs}:
         raise ValueError("required input tables missing")
     fc = config["features"]
     feature_names = schema("feature_snapshots")["fields"]
-    if not fc.get("required_features") or any(k not in feature_names or not k.startswith(("mom_", "vol_", "sharpe_", "mdd_", "beta_", "liquidity_", "ram_", "downside_")) for k in fc["required_features"]):
+    if not fc.get("required_features") or any(k not in feature_names or not k.startswith(("mom_", "vol_", "mdd_", "beta_", "liquidity_", "ram_", "downside_")) for k in fc["required_features"]):
         raise ValueError("invalid required_features")
-    if not fc.get("accepted_adjustments") or not set(fc["accepted_adjustments"]) <= {"synthetic", "split_adjusted", "total_return"}:
+    minimum_history_years = fc.get("minimum_history_years", 0)
+    if isinstance(minimum_history_years, bool) or not isinstance(minimum_history_years, int) or minimum_history_years < 0:
+        raise ValueError("minimum_history_years must be a nonnegative integer")
+    if not config["synthetic"] and minimum_history_years < 3:
+        raise ValueError("real-data clustering requires minimum_history_years >= 3")
+    if not fc.get("accepted_adjustments") or not set(fc["accepted_adjustments"]) <= {"synthetic", "split_adjusted", "vendor_adjusted", "unadjusted", "total_return"}:
         raise ValueError("accepted_adjustments must name understood price conventions")
     if not config["synthetic"] and "synthetic" in fc["accepted_adjustments"]:
         raise ValueError("real-data config cannot accept synthetic adjustment basis")
@@ -87,6 +93,7 @@ def process_raw(raw, config, run_dir, manifest):
     """Shared canonical QC/features path for CSV, HTTP and verified promotion."""
     import time
     started = time.monotonic()
+    manifest["data_mode"] = "synthetic" if config["synthetic"] else "real"
     tables, issues, quarantine = clean_tables(raw, manifest["data_version"])
     if not config["synthetic"]:
         for table, field in (("trading_calendar", "available_at"), ("benchmark_daily", "index_basis")):
@@ -104,11 +111,12 @@ def process_raw(raw, config, run_dir, manifest):
     write_rows(run_dir / "quality" / "quarantine.jsonl", quarantine)
     features = []
     if not issues:
-        features = build_features(tables, config["features"], manifest["data_version"])
+        feature_config = dict(config["features"], data_mode=manifest["data_mode"], vendor_run_id=manifest.get("vendor_run_id"), canonical_run_id=manifest.get("canonical_run_id"))
+        features = build_features(tables, feature_config, manifest["data_version"])
         validate_rows("feature_snapshots", features)
         write_rows(run_dir / "features" / "monthly.jsonl", features)
     report = coverage(tables, features)
-    report.update(synthetic=manifest["synthetic"], run_id=manifest["run_id"], n_quality_errors=len(issues))
+    report.update(synthetic=manifest["synthetic"], data_mode=manifest["data_mode"], run_id=manifest["run_id"], n_quality_errors=len(issues))
     write_json(run_dir / "quality" / "coverage.json", report)
     write_rows(run_dir / "quality" / "events.jsonl", [dict(run_id=manifest["run_id"], stage="canonical_qc_features",
                records_in=sum(len(v) for v in raw.values()), records_out=sum(len(v) for v in tables.values()), records_failed=len(quarantine),
@@ -138,18 +146,21 @@ def run_canonical(canonical_path, config_path, root):
     for table in sorted(INPUT_TABLES):
         relative = "clean/" + table + ".jsonl"
         if relative not in source["artifacts"]:
-            raise ValueError("canonical table missing from manifest: " + table)
+            if table in REQUIRED_INPUT_TABLES:
+                raise ValueError("canonical table missing from manifest: " + table)
+            raw[table] = []
+            continue
         rows = read_rows(canonical_path / relative)
         raw[table] = [(r, {"source": r["source"]}, r["fetched_at"]) for r in rows]
-    validation = dict(config, jobs=[dict(id=name, table=name, provider="csv", source="verified_canonical") for name in sorted(INPUT_TABLES)])
+    validation = dict(config, jobs=[dict(id=name, table=name, provider="csv", source="verified_canonical") for name in sorted(REQUIRED_INPUT_TABLES)])
     validate_config(validation)
     run_id = "run-" + uuid.uuid4().hex[:12]
     directory = Path(root).resolve() / "data/runs" / run_id
     directory.mkdir(parents=True, exist_ok=False)
     manifest = dict(run_id=run_id, data_version=run_id, source_data_version=source["data_version"],
-                    vendor_run_id=source["vendor_run_id"], canonical_manifest_hash=digest((canonical_path / "manifest.json").read_bytes()),
+                    vendor_run_id=source["vendor_run_id"], canonical_run_id=source["run_id"], methodology=source.get("methodology", {}), canonical_manifest_hash=digest((canonical_path / "manifest.json").read_bytes()),
                     canonical_path=str(canonical_path),
                     config=config, config_hash=digest(encoded(config)), synthetic=config["synthetic"], code_hash=code_hash(),
-                    schema_version="1.1.0", started_at=now(), data_hash=digest(encoded(source["artifacts"])), status="downloaded")
+                    schema_version="1.3.0", started_at=now(), data_hash=digest(encoded(source["artifacts"])), status="downloaded")
     write_json(directory / "manifest.json", manifest)
     return process_raw(raw, config, directory, manifest)

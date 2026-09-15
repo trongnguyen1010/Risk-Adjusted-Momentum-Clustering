@@ -13,6 +13,16 @@ def main(argv=None):
     pipeline.add_argument("--resume", help="Resume the exact same config/code/raw snapshot")
     inspect = commands.add_parser("inspect", help="Print run status and artifact counts")
     inspect.add_argument("manifest")
+    product = commands.add_parser("product-build", help="Build an immutable company-intelligence bundle")
+    product.add_argument("--canonical", required=True)
+    product.add_argument("--features", required=True)
+    product.add_argument("--experiment", required=True)
+    product.add_argument("--output", required=True)
+    serve = commands.add_parser("serve", help="Serve a product bundle and the web shell")
+    serve.add_argument("--bundle", required=True)
+    serve.add_argument("--web-root", default="web")
+    serve.add_argument("--host", default="127.0.0.1")
+    serve.add_argument("--port", type=int, default=8000)
     args = parser.parse_args(argv)
     try:
         if args.command == "run":
@@ -22,6 +32,15 @@ def main(argv=None):
             if manifest['status'] != 'complete':
                 print("Inspect manifest jobs and quality/issues.jsonl before retrying.")
             return 0 if manifest["status"] == "complete" else 2
+        if args.command == "product-build":
+            from .product import export_product_bundle
+            manifest = export_product_bundle(args.canonical, args.features, args.experiment, args.output)
+            print(f"product_bundle={args.output} companies={manifest['company_count']} status={manifest['status']}")
+            return 0
+        if args.command == "serve":
+            from .product.server import serve
+            serve(args.bundle, args.web_root, args.host, args.port)
+            return 0
         manifest = read_json(args.manifest)
         for key in ("run_id", "status", "synthetic", "data_hash", "clean_rows", "feature_rows"):
             print(f"{key}: {manifest.get(key)}")

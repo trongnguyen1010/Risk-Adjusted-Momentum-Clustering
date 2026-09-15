@@ -1,56 +1,83 @@
-# Kế hoạch phát triển T1
+# Delta Intelligence execution plan
 
-Ngày cập nhật: 11/09/2026. Ba mốc dưới đây dẫn theo năm PDF trong `TaiLieu`; tài liệu khởi động gốc chưa có để đối chiếu độc lập. Trạng thái “đã hoàn thành” chỉ dùng khi có tệp kết quả/kiểm thử; người phụ trách là vai trò dự kiến cần gán tên trong công cụ theo dõi.
+Updated 14/09/2026 after reading the 1,266-line instruction, the complete purpose list in `CacBaiBaoLienQuan.txt`, auditing the repository, and reviewing the reference company-detail experience.
 
-## M1 - 19/09/2026: dữ liệu và đặc trưng
+Two tracks run together: **Product** delivers usable company intelligence; **Research** protects thesis validity. Product delivery need not wait for every paper, but no unvalidated pilot/model may be presented as a final research result.
 
-| ID | Việc và đầu vào | Người phụ trách / người rà soát | Hạn dự kiến | Đầu ra và điều kiện hoàn thành | Trạng thái |
-|---|---|---|---|---|---|
-| F01 | Đọc PDF, đối chiếu phạm vi | Trưởng nhóm / QC | 11/09 | DOCUMENT_REVIEW, ARCHITECTURE; phân biệt yêu cầu và giả định | Đã hoàn thành trong bộ nền |
-| F02 | Tạo hợp đồng và pipeline | DE/QD / QC | 11/09 | schema, CLI, dữ liệu gốc/mã băm/tiếp tục, kiểm thử chạy được | Đã hoàn thành trong bộ nền |
-| D01 | Tải mẫu thật 10–20 mã + VNINDEX | DE / DS | 12/09 | manifest nhà cung cấp, mẫu giá/metadata, nhật ký lỗi | Đã có bộ chuyển đổi; nghiệm thu nguồn còn mở |
-| D02 | Xác minh nguồn/cơ sở điều chỉnh/đơn vị | DE / QC | 12–13/09 | SOURCE_EVALUATION có ví dụ sự kiện doanh nghiệp và bảng trường thiếu | Chưa hoàn thành; phụ thuộc D01 |
-| D03 | Định danh lịch sử và lịch phiên | DE / QC | 13–15/09 | danh mục, lịch, ánh xạ ticker có khoảng hiệu lực, kiểm thử ngày đổi mã | Chưa hoàn thành |
-| D04 | Mở rộng khoảng 6 năm/≥300 mã | DE / trưởng nhóm | 13–16/09 | độ phủ theo cả hai cách hiểu 300 mã/5 năm; xử lý công việc lỗi | Chưa hoàn thành; phụ thuộc D02/D03 |
-| F03 | Tích hợp đặc trưng trên dữ liệu thật | DS / QC | 15–17/09 | động lượng/rủi ro, lý do NA, kiểm tra hợp lý sự kiện doanh nghiệp | Đã có hàm; chưa kiểm tra dữ liệu thật |
-| E01 | EDA M1 | DS / DE | 16–18/09 | notebook, phân phối/tương quan/mức thiếu, 3–5 nhận xét có số liệu | Chưa hoàn thành |
-| R01 | Tái lập và demo M1 | QD / người khác trong nhóm | 18–19/09 | chạy máy khác, ảnh chụp/phiên bản, danh sách kiểm đủ phạm vi | Chưa hoàn thành |
+## Gate 0 — completed foundation
 
-Ước lượng tham khảo: D01 2–4 giờ kỹ thuật cộng chờ API; D02/D03 mỗi việc 4–8 giờ cộng xác minh nguồn; D04 4–8 giờ orchestration cộng thời gian tải; E01 4–6 giờ; R01 2–4 giờ. Không xem đây là cam kết khi chưa biết chất lượng nguồn và quỹ giờ nhóm.
+- [x] Repository audit: `MAJOR REALIGNMENT REQUIRED`.
+- [x] Full instruction TXT and all 22 stated paper purposes read.
+- [x] Three-year observed-history policy for real clustering inputs.
+- [x] Financial PIT foundation contracts.
+- [x] Sharpe/ROI separated from clustering input and cluster-quality selection.
+- [x] Regenerable/incomplete data removed; complete real evidence preserved.
+- [x] Product-first architecture, company payload, API edge and web shell.
 
-Nếu đến buổi rà soát 12/09 chưa có mẫu đủ trường, cần trình bày báo cáo khoảng trống và quyết định cần chốt; không tự báo hoàn thành M1 bằng dữ liệu giả lập hoặc âm thầm giảm phạm vi.
+## P1 — product vertical slice
 
-## M2 - 17/10/2026: phân cụm và ổn định
+| ID | Task | Acceptance |
+|---|---|---|
+| P01 | Immutable product bundle | complete experiment required; hashes and lineage recorded |
+| P02 | Catalog/detail API | health/catalog/detail, ticker validation, explicit 404 |
+| P03 | Responsive ticker page | price, metrics, peers, cluster history, warnings/missing states |
+| P04 | Product contract tests | no fabricated domains/path traversal/incomplete-run checks |
+| P05 | Representative data upgrade | 20–50 securities, >=5 years, segment counts visible |
 
-| Khoảng | Công việc | Người phụ trách / người rà soát | Điều kiện hoàn thành |
+## P2 — source and canonical completeness
+
+| ID | Task | Dependency | Acceptance |
 |---|---|---|---|
-| 20–26/09 | Quy trình tập phát triển/kiểm định độc lập, K-Means/Ward và PCA | DS / QD/QC | Cùng đầu vào và tiền xử lý; tệp kết quả/gói mô hình/chỉ tiêu có phiên bản |
-| 27/09–03/10 | GMM, nhiều seed, loại bỏ từng thành phần động lượng so với điều chỉnh rủi ro | DS / QC | Bảng ba thuật toán, độ hội tụ, kích thước/hồ sơ cụm, lý do giữ/loại |
-| 04–10/10 | Ảnh chụp trượt, ARI, ánh xạ, chuyển cụm | DS/QD / QC | Hoán vị nhãn ARI=1; tách mã vào/ra; lưu nhãn gốc/đã căn chỉnh |
-| 11–17/10 | Chọn mô hình, phiếu mô hình, báo cáo ổn định, khóa chiến lược | Trưởng nhóm/DS/QD / mentor hoặc người rà soát | Người khác chạy lại; không tinh chỉnh trên tập kiểm định độc lập; phạm vi M3 được ghi rõ |
+| S01 | Verify CafeF access/terms/endpoints/semantics | data-rights decision | fields, units, basis, limits, rights evidence |
+| S02 | Map VietFin/Vnstock to providers | — | provider/version/endpoint/terms per table |
+| S03 | Smoke 3–5 tickers, actions, quarterly reports | S01,S02 | raw hashes, mismatches, publication dates |
+| C01 | Historical security master | S03 | delisted/current/ticker reuse/effective intervals |
+| C02 | Complete market contract | S03 | raw/adjusted OHLC, bands, volume/value semantics |
+| C03 | Financial mapping + PIT builder | S03 | IS/BS/CF, annual/quarter/YTD/TTM, scope/revisions |
+| C04 | Field-level reconciliation | C01–C03 | candidate/conflict/decision retained |
 
-Chỉ triển khai `Protocol` hiện tại thành mô-đun thực sau khi đầu vào đã ổn định. Thêm schema hồ sơ cụm/thí nghiệm/manifest mô hình trước khi FE phụ thuộc chúng. Không tạo chỉ tiêu giả cho phần chưa có.
+No 1,200-security crawl before this gate passes.
 
-## M3 - 07/11/2026: mô phỏng quá khứ, bảng điều khiển, bàn giao
+## R1 — literature completion and method lock
 
-| Khoảng | Công việc | Người phụ trách / người rà soát | Điều kiện hoàn thành |
-|---|---|---|---|
-| 18–24/10 | Tín hiệu/khớp lệnh/hạch toán/chi phí, chỉ số tham chiếu | QD / QC | Sổ giao dịch, tiền mặt/vị thế/NAV; phí/lô/sự kiện/thời gian có kiểm thử; không dùng `adj_close` làm giá gốc |
-| 18–24/10 | Tích hợp tệp kết quả vào UI | FE / DS/QD | Tổng quan dữ liệu, cụm, chuyển cụm, NAV; cùng `run_id` |
-| 25–31/10 | Tập kiểm định độc lập và phân tích độ nhạy, rà soát, báo cáo | DS/QD/QC / trưởng nhóm | Báo kết quả gộp/ròng và đối chứng; không sửa quy trình theo tập kiểm định độc lập |
-| 01–07/11 | Đóng băng, chạy máy khác, báo cáo/trang chiếu/demo | Cả nhóm / trưởng nhóm | README, notebook, bảng điều khiển, báo cáo ≤20 trang theo cách đếm được xác nhận |
+The purpose list is fully read, but full-text review status stays explicit. Complete all groups with page/section, dataset, formulas, findings and project decision:
 
-Chưa bắt đầu viết chương trình giao dịch đầy đủ khi chưa có giá gốc và sự kiện doanh nghiệp. Nếu dữ liệu chỉ đủ xấp xỉ theo lợi suất, phải đặc tả riêng phạm vi mô phỏng đó; không tự xem là hoàn thành mọi yêu cầu về sổ giao dịch.
+- Momentum/Vietnam: Jegadeesh–Titman; Võ–Trương; Phan–Zhou; Lê–Bertrand; Butt et al.
+- Clustering/portfolio: Han; Nanda; Ebrahimi; Ban et al.
+- Algorithms/metrics: MacQueen; Ward; Ester; Rousseeuw; Davies–Bouldin; Hubert–Arabie.
+- Reduction/visualization: Pearson; McInnes et al.
+- Portfolio/backtest: Markowitz; Sharpe; Lo; Bailey et al.; López de Prado.
+- Replication arm: Aslam, separate from Delta baseline.
 
-## Mẫu công việc và báo cáo
+Acceptance: one method-synthesis packet and approved meaning of “Dynamic Clustering”. Monthly K-Means plus label tracking must not be renamed dynamic clustering.
 
-Mỗi công việc: ID, mục tiêu, đầu vào/phiên bản, người phụ trách, người rà soát, đường dẫn đầu ra, kiểm tra nghiệm thu, ước lượng, hạn, phần phụ thuộc, trạng thái, liên kết PR/`run_id` và quyết định liên quan.
+## R2 — feature/model experiment
 
-Báo cáo tuần: đã xong kèm bằng chứng; con số thực đo; trở ngại/quyết định cần người trả lời; đầu ra tuần tới. Khi nghiệm thu, QC/người rà soát phải khác người phụ trách.
+1. Lock paper-backed market and PIT financial feature registry.
+2. Compare snapshot scaling with no-PCA vs PCA; publish loadings/explained variance.
+3. Freeze K-Means baseline; Ward/DBSCAN only if synthesis retains them.
+4. Implement an approved temporal objective, not a renamed rerun loop.
+5. Separate Silhouette/DBI/CH, ARI/transitions and portfolio metrics.
+6. Lock development/validation/holdout and purging/embargo before backtest.
+7. Decide percentage vs top-N universe, ties and ranking stage.
 
-## Điều kiện phát hành
+## P3 — product expansion
 
-- M1: dữ liệu thật đủ phạm vi đã thống nhất, schema/nguồn/độ phủ, bốn đặc trưng động lượng, EDA và máy khác chạy lại.
-- M2: ba thuật toán + PCA, kết quả so sánh, hồ sơ cụm, độ ổn định, cấu hình/phiếu mô hình, không rò rỉ dữ liệu.
-- M3: mô phỏng quá khứ có phí so với VNINDEX và các phương án đối chứng, UI, notebook, báo cáo, trang chiếu, tệp kết quả dự phòng.
-- T5/realtime/API phức tạp/thuật toán thứ tư chỉ xét sau phần bắt buộc; thay phạm vi phải ghi DECISIONS.
+- Annual/quarterly financial trends and PIT report viewer.
+- Verified quality/distress scores with applicability warnings.
+- Correlation heatmap and relative-value peer chart.
+- Licensed news/events and evaluated Vietnamese sentiment.
+- Cluster explanations, transition alerts, field-level trust panel.
+- Authentication, watchlists and alerts after privacy/security design.
+
+## Scale/release gate
+
+- Representative pilot before 1,200+ incremental crawl.
+- Parquet/DuckDB analytics; production database/object-store serving.
+- One-time final holdout; clean-machine reproduction/checksums.
+- CI/MR, security review, monitoring, freshness SLA and rollback.
+- Reports trace claims to paper/page/config/run.
+
+## Cleanup policy
+
+Delete temporary extraction, incomplete runs, regenerated synthetic outputs and superseded configs/docs with no live dependency. Preserve complete raw/vendor/canonical evidence and final experiment artifacts. Move reproducibility material only after imports/tests/links migrate; never delete evidence merely because its result is unfavorable.

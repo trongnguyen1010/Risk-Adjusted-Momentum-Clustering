@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 import uuid
+import zipfile
 
 from .backtest.portfolio import make_targets
 from .backtest.returns_engine import simulate
@@ -38,13 +39,30 @@ def validate_protocol(config: dict) -> None:
         raise ValueError("cluster range must be 2..10")
     if not cluster["features"] or cluster["n_init"] < 1 or cluster["max_iter"] < 1:
         raise ValueError("invalid model parameters")
+    prohibited = [name for name in cluster["features"] if name.lower().startswith("sharpe") or "roi" in name.lower()]
+    if prohibited:
+        raise ValueError("Sharpe/ROI are prohibited as clustering inputs by the current research requirement: " + ", ".join(prohibited))
     for key in ("momentum_feature", "risk_feature"):
         if cluster[key] not in cluster["features"]:
             raise ValueError("semantic feature must be in model space")
     if config["portfolio"]["selection_feature"] not in cluster["features"]:
         raise ValueError("portfolio selection feature must be in profile")
+    selection_feature = config["portfolio"]["selection_feature"].lower()
+    if selection_feature.startswith("sharpe") or "roi" in selection_feature:
+        raise ValueError("Sharpe/ROI cannot rank clusters; keep Sharpe only as a portfolio-performance metric")
     if config["portfolio"]["top_n"] < 1:
         raise ValueError("baseline top_n must be positive")
+    universe = config["portfolio"].get("backtest_universe")
+    if universe:
+        mode, value = universe.get("mode"), universe.get("value")
+        if mode not in ("all", "top_n", "percentage"):
+            raise ValueError("unsupported backtest_universe mode")
+        if mode == "top_n" and (isinstance(value, bool) or not isinstance(value, int) or value < 1):
+            raise ValueError("top_n backtest universe requires a positive integer value")
+        if mode == "percentage" and (isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 < value <= 1):
+            raise ValueError("percentage backtest universe requires value in (0, 1]")
+        if mode != "all" and not universe.get("rank_by"):
+            raise ValueError("rank_by is required for top_n/percentage backtest universe")
     if not math.isfinite(config["rf_annual"]) or config["rf_annual"] <= -1:
         raise ValueError("explicit valid research rf_annual required")
 
@@ -69,7 +87,7 @@ def plot_artifacts(directory: Path, backtests: dict, transitions: list[dict], di
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     directory.mkdir(parents=True, exist_ok=True)
-    label = "SYNTHETIC | " if synthetic else "DEVELOPMENT | "
+    label = "data_mode=synthetic | " if synthetic else "PILOT DỮ LIỆU THẬT (data_mode=real) | "
     fig, ax = plt.subplots(figsize=(9, 4.8), layout="constrained")
     benchmark_drawn = False
     for name, result in backtests.items():
@@ -82,7 +100,7 @@ def plot_artifacts(directory: Path, backtests: dict, transitions: list[dict], di
                 curve.append(level)
             ax.plot(range(len(rows)), curve, label="benchmark", linestyle="--")
             benchmark_drawn = True
-    ax.set(xlabel="Trading session after first execution", ylabel="Normalized NAV", title=label + "Return-space simulation")
+    ax.set(xlabel="Số phiên kể từ lần thực hiện đầu tiên", ylabel="NAV chuẩn hóa", title=label + "Mô phỏng return-space")
     ax.legend(fontsize=8)
     fig.savefig(directory / "nav.png", dpi=150)
     plt.close(fig)
@@ -94,7 +112,7 @@ def plot_artifacts(directory: Path, backtests: dict, transitions: list[dict], di
         for i in range(k):
             for j in range(k):
                 ax.text(j, i, counts[i][j], ha="center", va="center")
-        ax.set(xlabel="To aligned cluster", ylabel="From aligned cluster", title=label + "Transition counts")
+        ax.set(xlabel="Cluster đích đã căn chỉnh", ylabel="Cluster nguồn đã căn chỉnh", title=label + "Số lượng transition")
         ax.set_xticks(range(k))
         ax.set_yticks(range(k))
         fig.colorbar(im, ax=ax)
@@ -105,7 +123,7 @@ def plot_artifacts(directory: Path, backtests: dict, transitions: list[dict], di
         ks = sorted({r["k"] for r in valid})
         fig, ax = plt.subplots(figsize=(6, 4), layout="constrained")
         ax.plot(ks, [sum(r["silhouette"] for r in valid if r["k"] == k) / sum(r["k"] == k for r in valid) for k in ks], marker="o")
-        ax.set(xlabel="k", ylabel="Mean monthly silhouette", title=label + "k diagnostics")
+        ax.set(xlabel="k", ylabel="Silhouette trung bình theo tháng", title=label + "Chẩn đoán k")
         fig.savefig(directory / "k_diagnostics.png", dpi=150)
         plt.close(fig)
 
@@ -131,7 +149,10 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
     for name, rows in tables.items():
         validate_rows(name, rows)
     if not source["synthetic"]:
-        if not config.get("point_in_time_evidence") or any(m["identity_status"] != "verified" or not m["listing_date"] for m in tables["securities"]):
+        allowed_identity = {"verified"}
+        if config.get("pilot") and config.get("identity_method") == "provisional_verified_for_pilot":
+            allowed_identity.add("provisional_verified_for_pilot")
+        if not config.get("point_in_time_evidence") or any(m["identity_status"] not in allowed_identity for m in tables["securities"]):
             raise ValueError("real research needs verified historical master and PIT evidence")
         if any(not s.get("available_at") for s in tables["trading_calendar"]):
             raise ValueError("real calendar requires available_at")
@@ -140,6 +161,12 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
     run_id = "experiment-" + uuid.uuid4().hex[:12]
     target = Path(root).resolve() / "data/experiments" / run_id
     target.mkdir(parents=True, exist_ok=False)
+    # Capture dirty-worktree source too; git commit alone cannot reproduce it.
+    with zipfile.ZipFile(target / "source_snapshot.zip", "w", zipfile.ZIP_DEFLATED) as archive:
+        package = Path(__file__).parent
+        for path in sorted(package.rglob("*")):
+            if path.suffix in (".py", ".json"):
+                archive.write(path, "delta_t1/" + path.relative_to(package).as_posix())
     try:
         commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, stderr=subprocess.DEVNULL, text=True).strip()
     except (OSError, subprocess.CalledProcessError):
@@ -148,7 +175,8 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
                     data_version=source["data_version"], data_run_path=str(data_run), vendor_run_id=source.get("vendor_run_id"), source_manifest_hash=digest((data_run / "manifest.json").read_bytes()),
                     code_hash=code_hash(), git_commit=commit, random_seed=config["clustering"]["seed"], timestamp=now(),
                     environment=dict(python=sys.version, platform=platform.platform(), packages={d.metadata["Name"]: d.version for d in importlib.metadata.distributions()}),
-                    synthetic=config["synthetic"], real_pilot_accepted=False)
+                    synthetic=config["synthetic"], data_mode="synthetic" if config["synthetic"] else "real",
+                    canonical_run_id=source.get("canonical_run_id"), methodology=source.get("methodology", {}), real_pilot_accepted=False)
     write_json(target / "manifest.json", manifest)
     started = time.monotonic()
     events = []
@@ -234,7 +262,7 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
         write_rows(target / "cost_sensitivity.jsonl", sensitivity)
         if config.get("plots", False):
             plot_artifacts(target / "plots", backtests, transition_rows, diagnostic_rows, config["synthetic"])
-        report = ["# Báo cáo thí nghiệm " + run_id, "", "**KIỂM CHỨNG KỸ THUẬT BẰNG DỮ LIỆU GIẢ LẬP (SYNTHETIC)**" if config["synthetic"] else "**NGHIÊN CỨU TRÊN TẬP PHÁT TRIỂN — cần xem xét giới hạn nguồn dữ liệu và tính đúng thời điểm**", "",
+        report = ["# Báo cáo thí nghiệm " + run_id, "", "data_mode = " + manifest["data_mode"], "", "**KIỂM CHỨNG KỸ THUẬT BẰNG DỮ LIỆU GIẢ LẬP (SYNTHETIC)**" if config["synthetic"] else "**KẾT QUẢ PILOT — KHÔNG PHẢI KẾT QUẢ CUỐI CÙNG CỦA LUẬN VĂN**", "",
                   "Mô phỏng danh mục trên chuỗi lợi suất với tỷ trọng phân số, khớp tại giá đóng cửa phiên kế tiếp. Chưa mô phỏng sổ giao dịch theo số lượng cổ phiếu thực tế.",
                   "Không đánh giá trên tập kiểm định độc lập (holdout), không chọn mô hình dựa trên lợi nhuận.", "",
                   f"Số thời điểm phân cụm: {len(snapshots)}; số thời điểm bỏ qua: {len(skipped)}; số bản ghi gán cụm: {len(assignments)}.", "",
@@ -250,6 +278,8 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
         report.extend(f"- **{assumption_labels.get(k, k)}:** {v}" for k, v in config["assumptions"].items())
         atomic_write(target / "report.md", ("\n".join(report) + "\n").encode("utf-8"))
         manifest.update(status="complete", n_snapshots=len(snapshots), n_assignments=len(assignments), backtest_mode="fractional_return_space")
+        manifest["real_pilot_accepted"] = bool(not config["synthetic"] and config.get("pilot") and len(snapshots) >= 12
+                                              and len({r["security_id"] for r in assignments}) >= 10 and transition_rows and first)
     except (ValueError, KeyError, TypeError, OSError, ImportError) as exc:
         manifest.update(status="failed", error=type(exc).__name__ + ": " + str(exc))
     events.append(dict(run_id=run_id, stage="research", records_in=len(features) if "features" in locals() else 0,

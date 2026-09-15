@@ -22,7 +22,13 @@ def pilot_report(experiment_dir: Path) -> dict:
     dates = sorted({r["trade_date"] for r in prices})
     checks["3_to_10_securities"] = 3 <= len({r["security_id"] for r in prices}) <= 10
     checks["at_least_18_months"] = bool(dates) and (date.fromisoformat(dates[-1]) - date.fromisoformat(dates[0])).days >= 545
-    checks["historical_identity"] = bool(securities) and all(r["identity_status"] == "verified" and r["listing_date"] for r in securities)
+    allowed_identity = {"verified"}
+    if experiment["config"].get("pilot") and experiment["config"].get("identity_method") == "provisional_verified_for_pilot":
+        allowed_identity.add("provisional_verified_for_pilot")
+    checks["historical_identity"] = bool(securities) and all(r["identity_status"] in allowed_identity for r in securities)
+    checks["ten_securities_for_clustering"] = len(securities) >= 10
+    checks["monthly_transitions"] = bool(read_rows(directory / "transitions.jsonl"))
+    checks["backtest_complete"] = bool(read_rows(directory / "backtests/cluster.jsonl"))
     checks["long_window_eligible"] = any(r["eligibility"] and r["mom_252"] is not None for r in read_rows(source_path / "features/monthly.jsonl"))
     checks["vendor_lineage"] = bool(source.get("vendor_run_id") and source.get("canonical_manifest_hash"))
     checks["pit_evidence"] = bool(experiment["config"].get("point_in_time_evidence"))

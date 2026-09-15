@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from test_foundation import generator
 from delta_t1.ingestion.synthetic import build_vendor
-from delta_t1.backtest.portfolio import weights
+from delta_t1.backtest.portfolio import weights, select_backtest_universe
 from delta_t1.backtest.returns_engine import rebalance, simulate
 from delta_t1.clustering.kmeans import fit_snapshot, preprocess, fit_kmeans
 from delta_t1.evaluation.stability import membership_metrics, compare, alignment
@@ -24,9 +24,19 @@ from delta_t1.pipeline import run, run_canonical
 from delta_t1.research import experiment, validate_protocol
 from delta_t1.ingestion.planning import plan_large_crawl
 from delta_t1.ingestion.recovery import recover_vendor
+from delta_t1.ingestion.calendar import benchmark_calendar
 
 
 class ResearchUnitTests(unittest.TestCase):
+    def test_benchmark_calendar_and_availability_assumption(self):
+        rows = benchmark_calendar(["2025-01-30", "2025-01-31", "2025-02-03"], "2025-01-30", "2025-02-03", "2026-09-12T00:00:00+00:00")
+        hose = {r["trade_date"]:r for r in rows if r["exchange"] == "HOSE"}
+        self.assertTrue(hose["2025-01-31"]["is_month_end"])
+        self.assertFalse(hose["2025-02-01"]["is_open"])
+        self.assertEqual(hose["2025-01-31"]["decision_at"], "2025-01-31T17:00:00+07:00")
+        with self.assertRaisesRegex(ValueError,"sessions"):
+            benchmark_calendar(["2025-02-01"], "2025-02-01", "2025-02-01", "2026-09-12T00:00:00+00:00")
+
     def test_fixture_dates_identity_and_gaps(self):
         fixture = read_json(ROOT / "tests/fixtures/vendor/edge_cases.json")
         for row in fixture["timestamps"]:
@@ -47,6 +57,13 @@ class ResearchUnitTests(unittest.TestCase):
         _, cash2, cost2, _ = rebalance(values, cash, {}, .01)
         self.assertAlmostEqual(cash2, .99/1.01)
         self.assertGreater(turnover, 0)
+
+    def test_configurable_backtest_universe(self):
+        rows=[dict(security_id=str(i),liquidity=i) for i in range(10)]
+        percentage=select_backtest_universe(rows,{"mode":"percentage","value":.2,"rank_by":"liquidity","descending":True,"filters":{}})
+        top_n=select_backtest_universe(rows,{"mode":"top_n","value":3,"rank_by":"liquidity","descending":True,"filters":{}})
+        self.assertEqual([r['security_id'] for r in percentage],['9','8'])
+        self.assertEqual([r['security_id'] for r in top_n],['9','8','7'])
 
     def test_permutation_alignment_and_metrics(self):
         self.assertEqual(membership_metrics([0,0,1,1], [1,1,0,0]), (1,1))
@@ -92,6 +109,13 @@ class ResearchUnitTests(unittest.TestCase):
         config["development_end"] = "2025-01-01"
         with self.assertRaisesRegex(ValueError, "development"):
             validate_protocol(config)
+
+    def test_protocol_rejects_sharpe_and_roi_clustering_inputs(self):
+        for feature in ('sharpe_63','roi'):
+            config=read_json(ROOT / 'configs/research.demo.json')
+            config['clustering']['features'].append(feature)
+            with self.assertRaisesRegex(ValueError,'Sharpe/ROI'):
+                validate_protocol(config)
 
     def test_scale_requires_real_pilot(self):
         with self.assertRaisesRegex(ValueError, "pilot"):
@@ -159,6 +183,46 @@ class ResearchIntegrationTests(unittest.TestCase):
         self.assertIsNone(row["adj_close"])
         self.assertIsNotNone(row["raw_close"])
         self.assertEqual(row["available_at"], doc["fetched_at"])
+
+    def test_kbs_price_conversion_optional_value_and_delayed_availability(self):
+        # Artificial input is a unit fixture; it is never a real research run.
+        _, docs = verify_vendor(self.vendor, self.policy)
+        doc = next(d for d in docs if d["job"]["kind"] == "equity")
+        record = dict(doc["records"][0], open=70, high=72, low=69, close=71.7, volume=123400)
+        record.pop("va", None)
+        policy = copy.deepcopy(self.policy)
+        policy.update(price_multiplier=dict(status="verified",value=1000,evidence=["test fixture"]),
+                      volume_multiplier=dict(status="verified",value=1,evidence=["test fixture"]),
+                      traded_value_multiplier=dict(status="unresolved_optional",value=None,evidence=["optional"]),
+                      availability_policy=dict(status="research_assumption",value="market_close_plus_delay",market_close_time="15:00:00+07:00",safety_delay_minutes=120,evidence=["explicit test assumption"]))
+        policy["adjustment_basis"]["value"] = "unadjusted"
+        _, row = map_record(record, doc, policy, self.tables["securities"], {})
+        self.assertAlmostEqual(row["raw_close"], 71700)
+        self.assertEqual(row["raw_open"], 70000)
+        self.assertEqual(row["volume"], 123400)
+        self.assertIsNone(row["adj_close"])
+        self.assertIsNone(row["traded_value"])
+        self.assertTrue(row["available_at"].endswith("T17:00:00+07:00"))
+        policy["adjustment_basis"]["value"] = "vendor_adjusted"
+        _, row = map_record(record, doc, policy, self.tables["securities"], {})
+        self.assertIsNone(row["raw_close"])
+        self.assertAlmostEqual(row["adj_close"], 71700)
+        with self.assertRaisesRegex(ValueError,"OHLC"):
+            map_record(dict(record,low=100), doc, policy, self.tables["securities"], {})
+        policy["availability_policy"]["safety_delay_minutes"]=-1
+        with self.assertRaisesRegex(ValueError,"delay"):
+            map_record(record,doc,policy,self.tables["securities"],{})
+
+    def test_raw_features_do_not_require_adjusted_close(self):
+        tables = copy.deepcopy(self.tables)
+        fc = read_json(self.config_path)["features"]
+        baseline = build_features(tables, fc, "unit-synthetic")
+        for row in tables["prices_daily"]:
+            row.update(raw_close=row["adj_close"],adj_close=None,adjustment_basis="unadjusted")
+        fc["accepted_adjustments"]=["unadjusted"]
+        actual = build_features(tables, fc, "unit-synthetic")
+        self.assertEqual([r["mom_252"] for r in baseline],[r["mom_252"] for r in actual])
+        self.assertEqual([r["vol_63"] for r in baseline],[r["vol_63"] for r in actual])
 
     def test_checksum_code_and_reference_tampering(self):
         policy = copy.deepcopy(self.policy)

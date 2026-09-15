@@ -35,8 +35,11 @@ def simulate(targets: list[dict], tables: dict, config: dict) -> dict:
     """
     if config["execution"] != "next_close" or config["rebalance_frequency"] != "monthly":
         raise ValueError("return engine supports monthly next_close only")
-    if config["return_basis"] not in ("synthetic", "split_adjusted", "total_return"):
+    if config["return_basis"] not in ("synthetic", "split_adjusted", "vendor_adjusted", "unadjusted", "total_return"):
         raise ValueError("verified adjusted return convention required")
+    if config["return_basis"] in ("vendor_adjusted", "unadjusted") and not config.get("pilot_price_proxy_acknowledged"):
+        raise ValueError("pilot price-proxy limitation must be acknowledged")
+    mark_field = "raw_close" if config["return_basis"] == "unadjusted" else "adj_close"
     if not targets:
         raise ValueError("no target snapshots")
     rate = (config["transaction_cost_bps"] + config["slippage_bps"]) / 10000
@@ -71,7 +74,7 @@ def simulate(targets: list[dict], tables: dict, config: dict) -> dict:
         current = {}
         for sid in ids:
             record = prices.get((sid, day))
-            if not record or record["adj_close"] is None or record["adjustment_basis"] != config["return_basis"]:
+            if not record or record[mark_field] is None or record["adjustment_basis"] != config["return_basis"]:
                 raise ValueError(f"missing or incompatible holding/execution mark: {sid} {day}")
             actual_session = calendar.get((record["exchange"], day))
             if not actual_session or not actual_session["is_open"] or datetime.fromisoformat(actual_session["close_at"]) != datetime.fromisoformat(session["close_at"]):
@@ -80,7 +83,7 @@ def simulate(targets: list[dict], tables: dict, config: dict) -> dict:
                 raise ValueError("holding/execution mark unavailable by daily valuation cutoff")
             if target and record["trading_status"] != "normal":
                 raise ValueError("cannot rebalance suspended/unknown security")
-            current[sid] = record["adj_close"]
+            current[sid] = record[mark_field]
         for book in (values, gross_values):
             for sid in book:
                 book[sid] *= current[sid] / previous_prices[sid]

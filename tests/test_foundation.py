@@ -178,7 +178,7 @@ class PipelineTests(unittest.TestCase):
         result=build_features(tables,self.config['features'],self.manifest['data_version'])
         self.assertEqual(result,[r for r in self.features if r['security_id']==sid])
 
-    def test_constant_price_undefined_sharpe(self):
+    def test_constant_price_undefined_sharpe_does_not_control_eligibility(self):
         tables=copy.deepcopy(self.tables)
         for r in tables['prices_daily']:
             r['adj_close']=100
@@ -186,7 +186,40 @@ class PipelineTests(unittest.TestCase):
         last=result[-1]
         self.assertEqual(last['vol_63'],0)
         self.assertIsNone(last['sharpe_63'])
-        self.assertFalse(last['eligibility'])
+        self.assertTrue(last['eligibility'])
+
+    def test_three_year_history_eligibility_uses_observed_data(self):
+        tables=copy.deepcopy(self.tables)
+        config=dict(self.config['features'], minimum_history_years=3)
+        result=build_features(tables,config,'history-test')
+        self.assertFalse(any(r['eligibility'] for r in result))
+        self.assertEqual({r['universe_segment'] for r in result},{'REFERENCE_ONLY'})
+        self.assertTrue(all(r['history_start_date'] == '2024-01-01' for r in result))
+
+    def test_financial_report_contract_and_publication_timing(self):
+        report=dict(
+            report_id='R1',security_id=self.tables['securities'][0]['security_id'],fiscal_year=2025,
+            fiscal_quarter=2,period_start='2025-04-01',period_end='2025-06-30',
+            published_at='2025-07-30T09:00:00+07:00',available_at='2025-07-30T10:00:00+07:00',
+            statement_scope='consolidated',audit_status='reviewed',accounting_standard='VAS',revision=1,
+            is_restated=False,source_document_id='doc-1',source_document_hash='abc',source='fixture',
+            fetched_at='2025-07-30T10:00:00+07:00',data_version='v1')
+        fact=dict(
+            report_id='R1',security_id=report['security_id'],statement_type='income_statement',
+            item_code='REVENUE',item_name='Revenue',period_type='duration',value=100,currency='VND',
+            unit_scale=1_000_000,source='fixture',fetched_at=report['fetched_at'],data_version='v1')
+        validate_rows('financial_reports',[report])
+        validate_rows('financial_facts',[fact])
+        raw=self.raw(dict(securities=self.tables['securities'],prices_daily=self.tables['prices_daily'],
+                          benchmark_daily=self.tables['benchmark_daily'],trading_calendar=self.tables['trading_calendar'],
+                          corporate_actions=[],financial_reports=[report],financial_facts=[fact]))
+        cleaned,issues,_=clean_tables(raw,'v2')
+        self.assertFalse(issues)
+        self.assertEqual(len(cleaned['financial_facts']),1)
+        bad=copy.deepcopy(report);bad['available_at']='2025-07-29T10:00:00+07:00'
+        raw['financial_reports']=self.raw({'financial_reports':[bad]})['financial_reports']
+        _,issues,_=clean_tables(raw,'v3')
+        self.assertIn('PUBLICATION_TIMING',{r['rule_id'] for r in issues})
 
     def test_beta_one(self):
         tables=copy.deepcopy(self.tables)

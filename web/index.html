@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Delta Intelligence</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./">DELTA<span>INTELLIGENCE</span></a>
+    <form id="ticker-form" class="search" role="search">
+      <input id="ticker-input" aria-label="Mã cổ phiếu" autocomplete="off" placeholder="Nhập mã: FPT, VNM, HPG…">
+      <button type="submit">Phân tích</button>
+    </form>
+    <div id="data-badge" class="badge">Đang tải dữ liệu</div>
+  </header>
+
+  <main id="app" class="shell" aria-live="polite">
+    <section class="hero skeleton"></section>
+  </main>
+
+  <template id="company-template">
+    <section class="hero">
+      <div>
+        <div class="eyebrow"><span data-field="exchange"></span> · COMPANY INTELLIGENCE</div>
+        <h1><span data-field="ticker"></span> <small data-field="name"></small></h1>
+        <p data-field="description" class="muted"></p>
+      </div>
+      <div class="quote-card">
+        <div class="eyebrow">GIÁ GẦN NHẤT</div>
+        <div class="quote"><span data-field="price"></span> <small>VND</small></div>
+        <div data-field="change" class="change"></div>
+        <div data-field="quote-date" class="muted mini"></div>
+      </div>
+    </section>
+
+    <section data-role="warnings" class="warning-list"></section>
+
+    <section class="grid two">
+      <article class="panel chart-panel">
+        <div class="panel-head">
+          <div><div class="eyebrow">THỊ TRƯỜNG</div><h2>Diễn biến giá</h2></div>
+          <div class="range" role="group" aria-label="Khoảng thời gian">
+            <button data-days="63">3T</button><button data-days="126">6T</button><button data-days="252" class="active">1N</button><button data-days="0">Tất cả</button>
+          </div>
+        </div>
+        <div id="price-chart" class="chart"></div>
+      </article>
+
+      <article class="panel">
+        <div class="eyebrow">CLUSTER INTELLIGENCE</div>
+        <h2 data-field="cluster-label"></h2>
+        <div class="cluster-number">Nhóm <span data-field="cluster-id"></span></div>
+        <p class="muted" data-field="cluster-date"></p>
+        <h3>Cổ phiếu cùng nhóm</h3>
+        <div data-role="peers" class="chips"></div>
+        <div id="cluster-history" class="cluster-history"></div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><div class="eyebrow">TÍN HIỆU ĐỊNH LƯỢNG</div><h2>Market analytics</h2></div><div class="muted mini" data-field="feature-date"></div></div>
+      <div data-role="metrics" class="metrics"></div>
+    </section>
+
+    <section class="grid three domain-grid">
+      <article class="panel"><div class="eyebrow">FUNDAMENTALS</div><h2>Báo cáo & chỉ số tài chính</h2><div data-role="fundamentals-state" class="empty-state"></div></article>
+      <article class="panel"><div class="eyebrow">NEWS & SENTIMENT</div><h2>Tin tức và cảm xúc</h2><div data-role="sentiment-state" class="empty-state"></div></article>
+      <article class="panel"><div class="eyebrow">DATA TRUST</div><h2>Nguồn và độ tin cậy</h2><dl class="provenance"></dl></article>
+    </section>
+  </template>
+
+  <script src="./app.js" defer></script>
+</body>
+</html>

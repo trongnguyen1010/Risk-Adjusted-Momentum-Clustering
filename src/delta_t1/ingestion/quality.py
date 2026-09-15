@@ -113,6 +113,36 @@ def clean_tables(raw_tables, data_version):
         else:
             actions.append(row)
     tables["corporate_actions"] = actions
+    reports = []
+    for row in tables.get("financial_reports", []):
+        if row["security_id"] not in identities:
+            reject("financial_reports", row, "FOREIGN_KEY", "Unknown security_id")
+        elif row["period_start"] > row["period_end"]:
+            reject("financial_reports", row, "FINANCIAL_PERIOD", "period_start must not follow period_end")
+        elif datetime.fromisoformat(row["published_at"]).date().isoformat() < row["period_end"]:
+            reject("financial_reports", row, "PUBLICATION_TIMING", "published_at cannot precede period_end")
+        elif datetime.fromisoformat(row["published_at"]) > datetime.fromisoformat(row["available_at"]):
+            reject("financial_reports", row, "PUBLICATION_TIMING", "available_at cannot precede published_at")
+        else:
+            reports.append(row)
+    if "financial_reports" in tables:
+        tables["financial_reports"] = reports
+    report_index = {r["report_id"]: r for r in reports}
+    facts = []
+    for row in tables.get("financial_facts", []):
+        report = report_index.get(row["report_id"])
+        if report is None:
+            reject("financial_facts", row, "FOREIGN_KEY", "Unknown or quarantined report_id")
+        elif row["security_id"] != report["security_id"]:
+            reject("financial_facts", row, "FINANCIAL_IDENTITY", "Fact security_id differs from report security_id")
+        elif row["period_type"] == "instant" and row["statement_type"] != "balance_sheet":
+            reject("financial_facts", row, "FINANCIAL_PERIOD_TYPE", "Only balance-sheet facts may be instant")
+        elif row["period_type"] == "duration" and row["statement_type"] == "balance_sheet":
+            reject("financial_facts", row, "FINANCIAL_PERIOD_TYPE", "Balance-sheet facts must be instant")
+        else:
+            facts.append(row)
+    if "financial_facts" in tables:
+        tables["financial_facts"] = facts
     for table, rows in tables.items():
         keys = schema(table)["primary_key"]
         rows.sort(key=lambda row: tuple(str(row[k]) for k in keys))
@@ -120,15 +150,19 @@ def clean_tables(raw_tables, data_version):
 
 
 def coverage(tables, features):
-    by_security, by_year, by_exchange, snapshots = defaultdict(list), defaultdict(set), defaultdict(set), defaultdict(lambda: [0, 0])
+    by_security, by_year, by_exchange = defaultdict(list), defaultdict(set), defaultdict(set)
+    snapshots = defaultdict(lambda: {"rows": 0, "eligible": 0, "reference_only": 0, "excluded": 0})
     for row in tables.get("prices_daily", []):
         by_security[row["security_id"]].append(row["trade_date"])
         by_year[row["trade_date"][:4]].add(row["security_id"])
         by_exchange[row["exchange"]].add(row["security_id"])
     details = [{"security_id": key, "first_date": min(days), "last_date": max(days), "observations": len(days)} for key, days in sorted(by_security.items())]
     for row in features:
-        snapshots[row["as_of_date"]][0] += 1
-        snapshots[row["as_of_date"]][1] += int(row["eligibility"])
+        item = snapshots[row["as_of_date"]]
+        item["rows"] += 1
+        item["eligible"] += int(row["universe_segment"] == "ELIGIBLE_FOR_CLUSTERING")
+        item["reference_only"] += int(row["universe_segment"] == "REFERENCE_ONLY")
+        item["excluded"] += int(row["universe_segment"] == "EXCLUDED")
     missing = []
     observed = {(r["security_id"], r["trade_date"]) for r in tables.get("prices_daily", [])}
     for meta in tables.get("securities", []):
@@ -139,5 +173,5 @@ def coverage(tables, features):
                 and (meta["security_id"], d) not in observed):
                 missing.append({"security_id": meta["security_id"], "trade_date": d, "reason": "unclassified_gap"})
     return {"n_securities": len(details), "by_security": details, "by_year": {k: len(v) for k, v in sorted(by_year.items())},
-            "by_exchange": {k: len(v) for k, v in sorted(by_exchange.items())}, "snapshots": {k: {"rows": v[0], "eligible": v[1]} for k, v in sorted(snapshots.items())},
+            "by_exchange": {k: len(v) for k, v in sorted(by_exchange.items())}, "snapshots": dict(sorted(snapshots.items())),
             "missing_sessions": missing, "m1_accepted": False, "acceptance_note": "Coverage evidence only; source, 300 securities/5 years and review not yet accepted"}

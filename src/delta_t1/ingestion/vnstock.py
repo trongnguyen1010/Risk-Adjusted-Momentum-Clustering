@@ -74,7 +74,7 @@ def collect(root, start, end, symbols, resume=None, interval=5.0, timeout=90, at
     if pilot_hash:
         config["pilot_manifest_hash"] = pilot_hash
     config_hash = digest(encoded(config))
-    run_id = resume or "vendor-" + uuid.uuid4().hex[:12]
+    run_id = resume or "vendor-pilot-" + uuid.uuid4().hex[:12]
     if not run_id.replace("-", "").isalnum():
         raise ValueError("invalid run id")
     target = Path(root).resolve() / "data" / "vendor" / run_id
@@ -84,7 +84,7 @@ def collect(root, start, end, symbols, resume=None, interval=5.0, timeout=90, at
         if manifest["config_hash"] != config_hash:
             raise ValueError("vendor config/code changed; start a new run")
     else:
-        manifest = dict(run_id=run_id, config=config, config_hash=config_hash, started_at=now(), status="running", synthetic=False, jobs={})
+        manifest = dict(run_id=run_id, config=config, config_hash=config_hash, started_at=now(), status="running", synthetic=False, data_mode="real", jobs={})
     write_json(manifest_path, manifest)
     jobs = [{"id": "listing", "kind": "listing"}]
     for symbol in [*sorted(set(symbols)), "VNINDEX"]:

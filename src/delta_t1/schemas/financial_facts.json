@@ -1,0 +1,24 @@
+{
+  "contract_format": "delta-table-contract",
+  "schema_version": "1.3.0",
+  "table": "financial_facts",
+  "primary_key": ["report_id", "statement_type", "item_code"],
+  "fields": {
+    "report_id": {"type": "string", "nullable": false},
+    "security_id": {"type": "string", "nullable": false},
+    "statement_type": {"type": "string", "nullable": false, "enum": ["income_statement", "balance_sheet", "cash_flow_statement"]},
+    "item_code": {"type": "string", "nullable": false},
+    "item_name": {"type": "string", "nullable": false},
+    "period_type": {"type": "string", "nullable": false, "enum": ["duration", "instant"]},
+    "value": {"type": "number", "nullable": true},
+    "currency": {"type": "string", "nullable": true},
+    "unit_scale": {"type": "number", "nullable": false, "exclusive_min": 0},
+    "source": {"type": "string", "nullable": false},
+    "fetched_at": {"type": "datetime", "nullable": false},
+    "data_version": {"type": "string", "nullable": false}
+  },
+  "relations": [
+    {"target": "financial_reports", "on": "report_id"},
+    {"target": "securities", "on": "security_id"}
+  ]
+}

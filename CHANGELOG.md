@@ -1,3 +1,36 @@
+# 0.5 — product-first restructuring (2026-09-14)
+
+- Reframe the repository as Delta Intelligence: company/ticker intelligence is the product surface and clustering is one bounded analytical capability.
+- Add immutable company-detail bundle builder, safe file repository, read-only API edge and responsive web shell.
+- Preserve missing fundamentals/news/sentiment as explicit unavailable states; never fabricate zero values.
+- Add product requirements and API v1 contract; rewrite architecture and execution plan into product and research tracks.
+- Make direct-file opening show a styled server-required message, add one-command PowerShell launcher, and keep asset URLs valid under both file and HTTP contexts.
+- Remove superseded KBS unresolved/smoke config and reports whose referenced raw runs were already removed.
+- Repair the retained real-pilot latest pointer after generated-data cleanup.
+- Consolidate 25 scattered documentation files into a canonical 9-document set plus index and one immutable-manifest evidence file; remove duplicate audits, phase reports, drafts and empty templates.
+- Remove legacy real/offline pilot entry scripts and configs; extract the only reused benchmark-calendar helper into the generic ingestion layer.
+
+# 0.4 — research realignment foundation (2026-09-14)
+
+- Add a framework decision report: research framework is not final-standard, engineering core is reusable; recommend `RETAIN CORE / ARCHIVE LEGACY / REBUILD RESEARCH LAYER` rather than deleting the whole repository.
+- Re-read the complete 1,266-line instruction attachment and 74-line paper list; revise the roadmap around all 22 papers and their stated purposes across groups A–E. Correct the evidence status: only Aslam is locally full-text reviewed; Han/Nanda/DBSCAN have primary partial review, while the remaining listed works still require full-text review.
+- Clean reproducible generated data: remove obsolete synthetic runs/experiments/canonical/offline-pilot outputs, temporary PDF/test extraction, one interrupted vendor run and one incomplete real-pilot folder; retain complete real source/pilot evidence and the referenced regression run.
+- Audit leader requirements against local research PDFs, reading list, code, configs, artifacts and Git state; verdict `MAJOR REALIGNMENT REQUIRED`.
+- Document that current implementation is a monthly snapshot K-Means baseline, not an Aslam (2025) replication or approved Dynamic Clustering method.
+- Enforce three calendar years observed history for real clustering; add eligible/reference/excluded segments and coverage.
+- Prevent Sharpe/ROI from clustering inputs and selection; retain Sharpe as portfolio-performance metric.
+- Add optional quarterly financial report/fact PIT contracts and percentage/top-N universe capability.
+- Add source comparison, reconciliation design, dashboard contract, deliverable folders and P0–P2 roadmap. No large crawl, rename, remote change or commit was performed.
+
+# 0.3 — real KBS pilot (2026-09-12)
+
+- Resolve SDK 1000x price conversion using source/API and independent FPT price; detect vendor historical technical adjustment instead of mislabeling raw.
+- Promote explicit vendor_adjusted convention; support raw-close features/backtests when unadjusted mapping is justified.
+- Add retrospective availability safety delay, bounded provisional master, benchmark-derived calendar, nullable turnover and assumed rf.
+- Add real-pilot runner, 10-symbol 2023-2025 config, source snapshots, lineage and acceptance evidence.
+- Add conversion, optional-field, corrupt-OHLC, raw-feature and calendar tests.
+- Remove unused Protocol interfaces/app/notebook placeholders; retain old raw evidence and test fixtures.
+
 # Nhật ký thay đổi
 
 ## Bổ sung ngày 12/09/2026 — Báo cáo tiếng Việt
@@ -18,7 +51,7 @@
 - Bổ sung mô phỏng danh mục trên chuỗi lợi suất với tỷ trọng phân số, khớp sau tín hiệu, chi phí, bốn chiến lược, so sánh chỉ số tham chiếu, bootstrap ghép cặp, phân tích giai đoạn/độ nhạy chi phí và báo cáo/biểu đồ theo phiên bản.
 - Bổ sung dữ liệu mẫu và kiểm thử tích hợp/hồi quy ngoại tuyến; chỉ cho tải lớn sau khi bộ thử nghiệm thật đạt. Sổ giao dịch theo số lượng cổ phiếu, nghiệm thu dữ liệu thật và quy trình kiểm định độc lập đã khóa vẫn chưa hoàn tất.
 - Phát hiện các file nhà cung cấp có mã băm lệch do đổi định dạng; bổ sung phục hồi đúng bytes từ cache sang snapshot mới có thông tin truy vết, không sửa file gốc.
-- Kết quả kiểm chứng cuối đợt triển khai: 44/44 kiểm thử đạt; pilot 6 mã giả lập trong 18 tháng chạy xuyên suốt. Chi tiết và mã lần chạy nằm trong docs/VALIDATION.md và docs/phase_report.md.
+- Kết quả kiểm chứng cuối đợt triển khai: 44/44 kiểm thử đạt; pilot 6 mã giả lập trong 18 tháng chạy xuyên suốt. Chi tiết và mã lần chạy nằm trong docs/VALIDATION.md; báo cáo phase cũ đã được gỡ khi chuyển sang product roadmap.
 
 Ghi thay đổi có ảnh hưởng tới người dùng/developer và bằng chứng kiểm thử. Không dùng changelog như bằng chứng kết quả nghiên cứu chưa chạy.
 
