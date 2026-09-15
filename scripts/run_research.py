@@ -6,7 +6,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from delta_t1.pipeline import run_canonical
-from delta_t1.research import experiment
+from delta_t1.experiments.runner import experiment
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

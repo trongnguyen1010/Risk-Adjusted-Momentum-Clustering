@@ -1,66 +1,50 @@
-# Product-first architecture 2.0
+# Kiến trúc DELTA
 
-## Architectural decision
+## Nguyên tắc
 
-Delta Intelligence là nền tảng company/ticker intelligence. Research là upstream producer của insight có phiên bản; product chỉ đọc. Clustering là một capability bên cạnh market data, fundamentals, news/sentiment và data quality.
+DELTA có Research Core là upstream producer và Product Layer là downstream consumer. Research validity được quyết định bởi data/methodology/evaluation contract, không bởi dashboard hay portfolio return.
 
-```mermaid
-flowchart LR
-  subgraph Sources
-    CF[CafeF candidate]
-    VF[VietFin/provider]
-    VN[Vnstock/provider]
-    NW[Licensed news]
-  end
-  Sources --> ST[Immutable vendor staging]
-  ST --> NM[Normalize identity, units, basis, timestamps]
-  NM --> RC[Field-level reconciliation]
-  RC --> MK[Canonical market]
-  RC --> FN[Canonical financial PIT]
-  RC --> NS[Canonical news/events]
-  MK --> QC[QC + coverage]
-  FN --> QC
-  NS --> QC
-  QC --> RS[Research services]
-  RS --> CL[Clustering + temporal stability]
-  RS --> BT[Backtest + evaluation]
-  QC --> PB[Product bundle builder]
-  CL --> PB
-  BT --> PB
-  PB --> API[Versioned read API]
-  API --> WEB[Company detail web]
-  API --> FUT[Alerts, watchlists, portfolio workspace]
+```text
+CafeF / VietFin / Vnstock
+          ↓
+immutable source snapshots
+          ↓
+normalization → reconciliation/conflicts → canonical + QC
+          ↓
+feature registry + point-in-time feature snapshots
+          ↓
+clustering registry → cluster metrics + temporal metrics
+          ↓                         ↓
+backtest + portfolio metrics    experiment artifacts
+          └───────────────┬─────────┘
+                    product bundle → read API → web dashboard
 ```
 
 ## Bounded contexts
 
-| Context | Owns | Does not own |
+| Context | Sở hữu | Không sở hữu |
 |---|---|---|
-| Source acquisition | requests, raw response, provider/version/rights metadata | canonical meaning |
-| Canonical data | historical identity, market, financial PIT, news/event references | model selection |
-| Research | feature registry, preprocessing, models, cluster quality/stability, backtest | UI state/live requests |
-| Product projection | stable company-detail JSON from immutable runs | model recomputation |
-| API edge | routing, validation, caching/auth later | business calculations |
-| Web | interaction, charts, missing-state UX | raw source access/formulas |
+| Source acquisition | request, raw response, provider/version/rights metadata | canonical meaning |
+| Normalization | field/type/unit/basis/identity candidates | conflict winner |
+| Reconciliation/canonical | deterministic decision, conflict/evidence, historical identity | model selection |
+| Features | registry, formula, PIT join, snapshot preprocessing | network access/portfolio metric |
+| Clustering | common interface, model fit/predict/artifact | duplicate metric logic/backtest choice |
+| Evaluation | cluster, temporal và portfolio metric ở module riêng | model fit |
+| Experiments | protocol, orchestration, immutable artifacts/report | UI state |
+| Product projection | stable company JSON từ complete runs | research recomputation |
+| API/web | validation, read/interaction/missing-state UX | raw access/formula/model fit |
 
-## Implemented vertical slice
+## Invariants
 
-`src/delta_t1/product/builder.py` combines a complete canonical run, feature run and experiment into an immutable bundle. A company payload contains identity, quote/history with price basis, public market analytics, aligned cluster/profile/peers/history, explicit unavailable states, warnings and run provenance.
+1. Raw/canonical/experiment artifact là immutable và checksummed.
+2. Missing giữ missing; không zero-fill hoặc silent forward-fill.
+3. Historical identity dùng interval; `available_at <= decision_at`.
+4. Raw, adjusted và total-return basis không được trộn.
+5. Feature eligibility do registry metadata quyết định; Sharpe/ROI không vào clustering.
+6. Cluster quality, temporal stability và portfolio performance tách biệt.
+7. Product chỉ consume versioned artifact và giữ provenance/limitations.
+8. Dynamic package chỉ có interface cho tới explicit methodology approval.
 
-`src/delta_t1/product/server.py` exposes API v1 and serves `web/`. It currently uses only the Python standard library. A production edge can later move to FastAPI/PostgreSQL/Redis without changing the payload contract.
+## Scale
 
-## Non-negotiable boundaries
-
-1. Browser code never reads `data/` or recalculates research outputs.
-2. Product export requires `experiment.status=complete`.
-3. Missing stays missing; zero is never a placeholder.
-4. Every insight carries its as-of date and source run IDs.
-5. Pilot limitations survive projection into the product.
-6. Fundamentals use publication/availability time; restatements create new vintages.
-7. News requires a rights decision before text is stored or redistributed.
-
-## Scale and migration
-
-The target can exceed 1,200 securities and 15 years (~4.5 million daily rows). JSONL remains suitable for reproducible pilots. Accepted scale design uses Parquet/DuckDB for analytics and PostgreSQL/object storage for serving; data is partitioned and crawled incrementally with checkpoints.
-
-Existing IO, contracts, ingestion, QC, clustering stability and backtest utilities remain. They move only when an interface requires it; folder motion alone is not architecture. KBS pilot orchestration is reproducibility material, no longer the product entry point. Superseded smoke documents/configs with no live dependency are deleted.
+JSONL phù hợp smoke/pilot và reproducibility. Khi source validation/pilot pass và scale hàng trăm đến >1.200 mã trong 5–15 năm, analytics có thể chuyển sang partitioned Parquet/DuckDB; quyết định serving storage là M3/later và không được kéo microservice/database migration vào refactor hiện tại.

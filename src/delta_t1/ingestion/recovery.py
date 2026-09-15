@@ -3,7 +3,8 @@ from pathlib import Path
 import uuid
 
 from ..io import atomic_write, digest, now, read_json, write_json
-from .promotion import contained_file, verify_vendor
+from .sources.base import contained_file
+from .sources.vnstock import verify_vendor
 
 
 def recover_vendor(source: Path, policy_path: Path, root: Path) -> tuple[Path, dict]:

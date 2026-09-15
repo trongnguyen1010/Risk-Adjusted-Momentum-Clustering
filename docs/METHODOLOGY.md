@@ -1,0 +1,31 @@
+# Methodology
+
+## Phạm vi hiện tại
+
+DELTA có ba nhánh phân biệt:
+
+1. **Static baseline:** monthly cross-section, snapshot-only preprocessing, deterministic K-Means, label alignment và temporal tracking.
+2. **Comparator experiments:** PCA + K-Means và ít nhất một trong Ward/Agglomerative, DBSCAN, GMM sau khi protocol nêu rõ giả định.
+3. **Approved temporal method:** chưa triển khai; chỉ được bắt đầu sau explicit approval trong [Dynamic Clustering Review](research/DYNAMIC_CLUSTERING_REVIEW.md).
+
+Nhánh static baseline không được gọi là Dynamic Clustering dù có ARI, transition hoặc rolling month.
+
+## Universe và point-in-time
+
+Historical universe được tạo từ effective-dated `security_id`, không từ current ticker membership. Input tại snapshot phải có `available_at <= decision_at`. Real clustering yêu cầu ít nhất ba calendar years usable observed history; short history là `REFERENCE_ONLY`.
+
+Không forward-fill giá, không đổi missing thành zero và không splice raw với adjusted price. Quarterly financial data dùng publication/availability và giữ restatement vintage.
+
+## Model protocol
+
+- Fit transform/scaler/PCA chỉ trên development data được phép của snapshot/fold.
+- K-Means giữ seed, `n_init`, `max_iter`, convergence và deterministic tie behavior.
+- Chọn `k` bằng pre-registration hoặc cluster-quality criteria trên development set, không bằng portfolio return.
+- UMAP chủ yếu để visualization; không mặc định dùng làm model input.
+- Cluster label alignment phục vụ diễn giải transition, không thay thế permutation-invariant metric.
+
+## Feature protocol
+
+Market feature nền gồm momentum 21/63/126/252 sessions, volatility, downside volatility, maximum drawdown, beta và liquidity. Risk-adjusted momentum là research hypothesis và phải có version. Financial feature chỉ được bật sau paper-backed definition và taxonomy/PIT approval.
+
+Sharpe và ROI không phải clustering feature hay cluster-quality metric. Sharpe chỉ được tính ở portfolio evaluation.

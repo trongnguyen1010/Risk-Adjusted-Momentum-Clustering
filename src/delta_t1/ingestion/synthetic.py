@@ -4,7 +4,7 @@ Uses the existing synthetic generator's canonical data; no API/import of SDK.
 Each envelope, reference and policy is bound with SHA-256 like real promotion.
 """
 from pathlib import Path
-from delta_t1.ingestion.vnstock import date_batches
+from delta_t1.ingestion.sources.vnstock import date_batches
 from delta_t1.io import digest, encoded, now, write_json, write_rows
 
 

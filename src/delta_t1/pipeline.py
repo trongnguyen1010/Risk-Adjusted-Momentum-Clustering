@@ -5,7 +5,8 @@ from .io import read_json, read_rows, write_json, write_rows, digest, now, encod
 from .contracts import validate_rows, schema
 from .ingestion.crawler import crawl
 from .ingestion.quality import clean_tables, coverage
-from .features.compute import build_features
+from .features.market import build_features
+from .features.registry import FEATURE_REGISTRY
 
 
 REQUIRED_INPUT_TABLES = {"securities", "prices_daily", "benchmark_daily", "trading_calendar"}
@@ -46,8 +47,12 @@ def validate_config(config):
         raise ValueError("required input tables missing")
     fc = config["features"]
     feature_names = schema("feature_snapshots")["fields"]
-    if not fc.get("required_features") or any(k not in feature_names or not k.startswith(("mom_", "vol_", "mdd_", "beta_", "liquidity_", "ram_", "downside_")) for k in fc["required_features"]):
-        raise ValueError("invalid required_features")
+    try:
+        definitions = FEATURE_REGISTRY.require_cluster_eligible(fc.get("required_features", []))
+    except ValueError as exc:
+        raise ValueError("invalid required_features: " + str(exc)) from exc
+    if any(definition.name not in feature_names for definition in definitions):
+        raise ValueError("required feature is not present in the active snapshot contract")
     minimum_history_years = fc.get("minimum_history_years", 0)
     if isinstance(minimum_history_years, bool) or not isinstance(minimum_history_years, int) or minimum_history_years < 0:
         raise ValueError("minimum_history_years must be a nonnegative integer")
@@ -68,7 +73,7 @@ def run(config_path, root, resume=None):
     config = load_config(config_path)
     if resume:
         from .ingestion.crawler import code_hash
-        from .ingestion.promotion import contained_file
+        from .ingestion.sources.base import contained_file
         if not resume.replace("-", "").isalnum():
             raise ValueError("invalid run id")
         previous_dir = Path(root).resolve() / "data/runs" / resume
@@ -130,7 +135,7 @@ def process_raw(raw, config, run_dir, manifest):
 def run_canonical(canonical_path, config_path, root):
     """Verify promoted artifacts and create a new run; never mutate promotion."""
     import uuid
-    from .ingestion.promotion import contained_file
+    from .ingestion.sources.base import contained_file
     from .ingestion.crawler import code_hash
     canonical_path = Path(canonical_path).resolve()
     source = read_json(canonical_path / "manifest.json")

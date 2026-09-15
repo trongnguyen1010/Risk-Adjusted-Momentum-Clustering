@@ -2,58 +2,54 @@
 
 ## Source of truth
 
-Executable contracts are the JSON files in `src/delta_t1/schemas`; `contracts.py` normalizes and validates them. This document defines cross-table semantics only. Schema changes require a version bump, migration note, tests and `CHANGELOG.md`/`DECISIONS.md` update.
+Executable contracts là các JSON trong `src/delta_t1/schemas`; `contracts.py` thực hiện normalize/validate. Đổi type, key, unit hoặc semantics phải đi cùng schema version, migration note, tests, `CHANGELOG.md` và [Decisions](DECISIONS.md).
 
-All canonical rows carry `source`, `fetched_at` and `data_version`. Missing nullable fields become `null`, never `""`, NaN or an invented zero. Unknown provider columns remain in immutable raw data.
+Canonical row giữ `source`, `fetched_at` và `data_version`. Missing nullable dùng `null`, không dùng chuỗi rỗng, NaN hoặc zero giả. Provider column chưa map ở lại immutable raw envelope.
 
 ## Canonical tables
 
-| Table | Key | Core semantics |
+| Table | Key | Semantics chính |
 |---|---|---|
-| `securities` | security_id, valid_from | historical ticker/exchange/issuer interval, status and currency |
-| `prices_daily` | security_id, trade_date | raw/adjusted OHLC, price basis, volume/value, status, availability |
-| `benchmark_daily` | index_id, trade_date | price/total-return level and basis |
-| `trading_calendar` | exchange, trade_date | open/month-end and decision timestamps |
-| `corporate_actions` | event_id | announcement/ex/record/effective/payment dates and economic terms |
-| `risk_free_rate` | date, tenor | annualized rate, day-count basis and availability |
-| `financial_reports` | report_id | fiscal period, scope, audit/revision, publication/availability and document hash |
-| `financial_facts` | report_id, item_code | tidy statement fact, duration/instant, currency/scale and taxonomy |
-| `feature_snapshots` | security_id, as_of_date | as-of features, history, eligibility segment and NA reasons |
-| `assignments` | run/snapshot/security | raw/aligned cluster and optional display projection |
-| `transitions` | run/from/to/clusters | counts/rates over shared identities |
-| `trades`, `nav` | run-specific | future raw-price ledger contracts; not aliases for return-space simulation |
+| `securities` | security_id, valid_from | historical ticker/exchange/issuer interval, status, currency |
+| `prices_daily` | security_id, trade_date | raw/adjusted OHLC, basis, volume/value, status, availability |
+| `benchmark_daily` | index_id, trade_date | price hoặc total-return level và basis |
+| `trading_calendar` | exchange, trade_date | open/month-end và decision timestamp |
+| `corporate_actions` | event_id | announcement/ex/record/effective/payment dates và economic terms |
+| `risk_free_rate` | date, tenor | annualized rate, day-count basis và availability |
+| `financial_reports` | report_id | fiscal period, scope, audit/revision, publication/availability, document hash |
+| `financial_facts` | report_id, item_code | tidy fact, instant/duration, currency/scale, taxonomy |
+| `feature_snapshots` | security_id, as_of_date | PIT features, history, eligibility segment, NA reasons |
+| `assignments` | run/snapshot/security | raw/aligned cluster ID |
+| `transitions` | run/from/to/clusters | counts/rates trên shared identities |
+| `trades`, `nav` | run-specific | future raw-price ledger contracts; không phải alias của return-space simulation |
 
-## Identity and time
+## Identity và time
 
-- `security_id` is stable; ticker is an attribute with interval `[valid_from, valid_to)`.
-- Current listings do not prove historical membership. Ambiguous mappings quarantine.
-- `fetched_at` records acquisition; `published_at` records source publication; `available_at` records earliest permitted model use; `as_of_date` is the observation snapshot.
-- Financial timing must satisfy `available_at >= published_at >= period_end`.
-- Restatements create new report vintages; old snapshots are never overwritten.
-- Market/feature input requires `available_at <= decision_at`; execution begins next eligible session.
+- `security_id` ổn định; ticker là thuộc tính theo interval `[valid_from, valid_to)`.
+- Current listing không chứng minh historical membership; ambiguous mapping phải quarantine.
+- `fetched_at` là lúc acquire; `published_at` là lúc source công bố; `available_at` là thời điểm sớm nhất được phép dùng; `as_of_date` là snapshot date.
+- Financial timing phải thỏa `available_at >= published_at >= period_end`.
+- Restatement tạo report vintage mới; không overwrite snapshot cũ.
+- Market/feature input phải có `available_at <= decision_at`; execution bắt đầu từ eligible session kế tiếp.
 
-## Units and price basis
+## Unit và price basis
 
-Equity price is VND/share, volume is shares, traded value is VND; index levels remain points. A provider scale is applied only with evidence, never inferred from magnitude.
+Equity price dùng VND/share, volume dùng shares, traded value dùng VND; index level giữ points. Chỉ áp dụng provider multiplier khi có evidence, không suy từ magnitude.
 
-`raw_close`, split-adjusted, vendor-adjusted and certified total-return series are distinct. `raw_close` may be null; it is never copied from adjusted close. A basis change resets rolling windows. Do not derive traded value from adjusted price × volume unless a separately versioned proxy contract is approved.
+`raw_close`, split-adjusted, vendor-adjusted và certified total-return là các series khác nhau. `raw_close` có thể null và không được copy từ adjusted close. Basis change reset rolling window. Không suy traded value từ adjusted price × volume nếu chưa có proxy contract riêng.
 
 ## Feature eligibility
 
-Real runs require `minimum_history_years >= 3`, measured from first usable observed price in the same basis.
+Real run yêu cầu `minimum_history_years >= 3`, đo từ usable observed price đầu tiên trong cùng basis.
 
-- `ELIGIBLE_FOR_CLUSTERING`: history, identity, status and required features pass.
-- `REFERENCE_ONLY`: valid security lacks required observed history.
-- `EXCLUDED`: another eligibility rule fails.
+- `ELIGIBLE_FOR_CLUSTERING`: history, identity, status và required features pass.
+- `REFERENCE_ONLY`: security hợp lệ nhưng chưa đủ observed history.
+- `EXCLUDED`: fail rule khác.
 
-Rows retain `history_start_date`, `history_calendar_days`, `history_observations`, `lookback_observations`, `missing_count`, `na_reason` and `universe_segment`. Gaps are not compressed or forward-filled.
+Row giữ history/observation/missing counts, `na_reason` và segment. Gap không bị nén/forward-fill. Feature registry quyết định eligibility bằng metadata; Sharpe/ROI luôn `cluster_eligible=false`. Sharpe chỉ thuộc portfolio evaluation.
 
-Sharpe fields remain readable for backward compatibility but are forbidden in required/model/selection feature lists. Sharpe is a portfolio-performance metric only; ROI is not a clustering metric.
+## Quality và failure behavior
 
-## Quality and failure behavior
+Duplicate key, invalid type/date/number, overlapping identity, impossible OHLC, timing violation, unknown basis và broken relation phải quarantine kèm rule ID. Blocking issue chặn downstream feature. Sửa mapping/policy tạo run mới; raw/canonical artifact không bị overwrite.
 
-Duplicate keys, invalid types/dates/numbers, overlapping identity intervals, impossible OHLC, timing violations, unknown basis and broken relations are quarantined with rule IDs. Blocking issues prevent downstream features even when clean debug rows are written. Fixing input/mapping creates a new run; raw/canonical artifacts are not overwritten.
-
-Coverage reports missing sessions and segment counts without assuming every missing price is a holiday. Resume is read-only for completed runs and allowed only when config/code/raw hashes match.
-
-Pilot-specific KBS decisions remain only at [data/kbs_pilot_semantics.md](data/kbs_pilot_semantics.md) because immutable legacy manifests reference that path. They do not define the production contract.
+Coverage report missing session và segment count nhưng không tự coi missing price là holiday. Completed run resume chỉ đọc/verify khi config/code/raw hashes khớp. KBS pilot decisions chỉ còn tại [legacy semantics](data/kbs_pilot_semantics.md), không định nghĩa production contract.

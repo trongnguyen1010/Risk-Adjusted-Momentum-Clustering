@@ -1,1 +1,5 @@
-"""M2 extension boundary; no trained model is included in release 0.1.0."""
+"""Static clustering models and common registry."""
+
+from .registry import algorithms, get_algorithm
+
+__all__ = ["algorithms", "get_algorithm"]

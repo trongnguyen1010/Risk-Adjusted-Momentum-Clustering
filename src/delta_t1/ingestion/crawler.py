@@ -6,7 +6,7 @@ import uuid
 from pathlib import Path
 from ..io import digest, encoded, read_json, write_json, atomic_write, now
 from .. import __version__
-from .providers import HttpClient, parse_csv, json_page, page_url
+from .sources.base import HttpClient, parse_csv, json_page, page_url
 
 
 def crawl(config, root, resume=None):

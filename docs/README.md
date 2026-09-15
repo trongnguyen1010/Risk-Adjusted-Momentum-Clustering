@@ -1,19 +1,31 @@
-# Documentation map
+# Tài liệu DELTA — START HERE
 
-Chỉ các tài liệu dưới đây là nguồn sự thật đang hoạt động:
+Đọc theo thứ tự onboarding sau:
 
-| File | Vai trò |
-|---|---|
-| [PRODUCT_REQUIREMENTS.md](PRODUCT_REQUIREMENTS.md) | Sản phẩm phục vụ ai, module nào cần có |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | Ranh giới source/canonical/research/product/API/web |
-| [PLAN.md](PLAN.md) | Thứ tự triển khai và acceptance gates |
-| [DATA_CONTRACT.md](DATA_CONTRACT.md) | Schema, semantics, versioning và quality rules |
-| [DATA_PIPELINE.md](DATA_PIPELINE.md) | Nguồn, ingestion, reconciliation, PIT và scale-up |
-| [RESEARCH.md](RESEARCH.md) | Literature status, feature/model/evaluation/backtest protocol |
-| [API_CONTRACT.md](API_CONTRACT.md) | Public API v1 và missing-state behavior |
-| [DECISIONS.md](DECISIONS.md) | Quyết định còn hiệu lực và open decisions |
-| [VALIDATION.md](VALIDATION.md) | Bằng chứng test/run gần nhất |
+1. [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) — mục tiêu và hai track.
+2. [PROJECT_MAP.md](PROJECT_MAP.md) — vị trí, milestone, trạng thái và dependency của từng component.
+3. [ROADMAP.md](ROADMAP.md) — gates M1, M2, M3.
+4. [ARCHITECTURE.md](ARCHITECTURE.md) — boundaries và data flow.
 
-`data/kbs_pilot_semantics.md` là evidence lịch sử duy nhất còn giữ vì immutable pilot manifests tham chiếu đúng đường dẫn đó. Nó không phải hướng dẫn phát triển hiện tại.
+## Data và feature
 
-Tài liệu audit, phase report, dashboard draft, template rỗng và đặc tả bị trùng đã được hợp nhất hoặc xóa. Lịch sử thay đổi nằm trong `CHANGELOG.md`; không tạo thêm report trạng thái mới nếu có thể cập nhật một trong chín file trên.
+- [DATA_CONTRACT.md](DATA_CONTRACT.md)
+- [DATA_PIPELINE.md](DATA_PIPELINE.md)
+- [FEATURE_SYSTEM.md](FEATURE_SYSTEM.md)
+
+## Research và evaluation
+
+- [METHODOLOGY.md](METHODOLOGY.md)
+- [EVALUATION_AND_BACKTEST.md](EVALUATION_AND_BACKTEST.md)
+- [research/RESEARCH_QUESTIONS.md](research/RESEARCH_QUESTIONS.md)
+- [research/LITERATURE_MATRIX.md](research/LITERATURE_MATRIX.md)
+- [research/EXPERIMENT_PROTOCOL.md](research/EXPERIMENT_PROTOCOL.md)
+- [research/DYNAMIC_CLUSTERING_REVIEW.md](research/DYNAMIC_CLUSTERING_REVIEW.md)
+
+## Product và vận hành
+
+- [PRODUCT.md](PRODUCT.md)
+- [REPRODUCIBILITY.md](REPRODUCIBILITY.md)
+- [DECISIONS.md](DECISIONS.md)
+
+`data/kbs_pilot_semantics.md` là legacy evidence bắt buộc giữ nguyên path, không phải hướng dẫn phát triển hiện tại. Git history là archive; không tạo thư mục archive cho tài liệu superseded.

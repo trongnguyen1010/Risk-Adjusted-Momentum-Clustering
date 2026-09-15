@@ -39,9 +39,10 @@ def generate(root):
             writer.writerows(rows)
         jobs.append(dict(id=table,table=table,provider='csv',path='examples/synthetic/'+table+'.csv',source='synthetic_fixture',allow_empty=table=='corporate_actions'))
     config=dict(synthetic=True,jobs=jobs,features=dict(benchmark_id='VNINDEX',rf_annual=0,minimum_history_years=0,accepted_adjustments=['synthetic'],required_features=['mom_21','mom_63','mom_126','mom_252','vol_63','mdd_126','beta_126','liquidity_21']))
-    (root/'configs').mkdir(parents=True,exist_ok=True)
-    (root/'configs/demo.json').write_text(json.dumps(config,indent=2)+'\n',encoding='utf-8')
-    return root/'configs/demo.json'
+    (root/'configs/data').mkdir(parents=True,exist_ok=True)
+    path = root/'configs/data/smoke.example.json'
+    path.write_text(json.dumps(config,indent=2)+'\n',encoding='utf-8')
+    return path
 
 
 if __name__=='__main__':

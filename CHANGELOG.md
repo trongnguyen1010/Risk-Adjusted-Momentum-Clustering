@@ -1,3 +1,16 @@
+# Chưa phát hành — refactor kiến trúc DELTA (2026-09-15)
+
+- Tái xác lập DELTA là project Research Core + Product Layer theo milestone M1/M2/M3.
+- Tạo documentation onboarding tiếng Việt, Project Map, Roadmap, feature/method/evaluation/product/reproducibility contracts và research review structure.
+- Hợp nhất nội dung tài liệu superseded; thay `DEVELOPMENT_RULES.md` bằng `CONTRIBUTING.md` và viết lại `AGENTS.md` cho automated agents.
+- Giữ `docs/data/kbs_pilot_semantics.md` tại path cũ vì immutable evidence có thể tham chiếu.
+- Tách research runner thành `experiments/protocol.py`, `runner.py`, `artifacts.py`, `reporting.py`; orchestration resolve algorithm qua registry thay vì hard-code K-Means.
+- Tạo common clustering interface/registry, Ward comparator và `dynamic/base.py` guard; tách cluster, temporal và portfolio metrics thành ba module độc lập.
+- Chuyển Vnstock adapter/verification vào `ingestion/sources`, thêm CafeF/VietFin fail-closed interfaces và nối legacy promotion qua normalization/reconciliation generic có conflict records.
+- Tổ chức config theo data/features/experiments/product; thêm PCA snapshot preprocessing và `pca_kmeans.example.json` không fit future/holdout.
+- Migrate test suite sang unit/integration/regression theo subsystem, giữ assertion cũ và bổ sung invariant tests; acceptance đạt 70/70 tests, compile/JSON/link/web/diff checks pass.
+- Synthetic smoke `run-5016b877990c` và PCA+K-Means technical experiment `experiment-85dd31d7598b` complete; không xem đây là research result.
+
 # 0.5 — product-first restructuring (2026-09-14)
 
 - Reframe the repository as Delta Intelligence: company/ticker intelligence is the product surface and clustering is one bounded analytical capability.
@@ -51,7 +64,7 @@
 - Bổ sung mô phỏng danh mục trên chuỗi lợi suất với tỷ trọng phân số, khớp sau tín hiệu, chi phí, bốn chiến lược, so sánh chỉ số tham chiếu, bootstrap ghép cặp, phân tích giai đoạn/độ nhạy chi phí và báo cáo/biểu đồ theo phiên bản.
 - Bổ sung dữ liệu mẫu và kiểm thử tích hợp/hồi quy ngoại tuyến; chỉ cho tải lớn sau khi bộ thử nghiệm thật đạt. Sổ giao dịch theo số lượng cổ phiếu, nghiệm thu dữ liệu thật và quy trình kiểm định độc lập đã khóa vẫn chưa hoàn tất.
 - Phát hiện các file nhà cung cấp có mã băm lệch do đổi định dạng; bổ sung phục hồi đúng bytes từ cache sang snapshot mới có thông tin truy vết, không sửa file gốc.
-- Kết quả kiểm chứng cuối đợt triển khai: 44/44 kiểm thử đạt; pilot 6 mã giả lập trong 18 tháng chạy xuyên suốt. Chi tiết và mã lần chạy nằm trong docs/VALIDATION.md; báo cáo phase cũ đã được gỡ khi chuyển sang product roadmap.
+- Kết quả kiểm chứng cuối đợt triển khai: 44/44 kiểm thử đạt; pilot 6 mã giả lập trong 18 tháng chạy xuyên suốt. Trạng thái validation hiện được hợp nhất tại `docs/REPRODUCIBILITY.md`; báo cáo phase cũ đã được gỡ.
 
 Ghi thay đổi có ảnh hưởng tới người dùng/developer và bằng chứng kiểm thử. Không dùng changelog như bằng chứng kết quả nghiên cứu chưa chạy.
 
@@ -72,4 +85,4 @@ Ghi thay đổi có ảnh hưởng tới người dùng/developer và bằng ch�
 - JSONL là định dạng MVP; chưa có Parquet storage hoặc incremental merge tự động.
 - raw_close nullable để ghi nhận dữ liệu thiếu; không tự đồng nhất raw và adjusted.
 - M2/M3 là interfaces và schema dự kiến; chưa có trained models, backtest hoặc UI hoàn chỉnh.
-- Chưa chứng minh coverage 300 mã/5 năm hoặc hoàn thành nghiệm thu M1. Chi tiết kết quả chạy ở `docs/VALIDATION.md`.
+- Chưa chứng minh coverage 300 mã/5 năm hoặc hoàn thành nghiệm thu M1. Trạng thái hiện tại xem tại `docs/REPRODUCIBILITY.md`.

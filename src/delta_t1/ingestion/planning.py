@@ -3,8 +3,8 @@ from datetime import date
 from pathlib import Path
 
 from ..io import digest, read_json, read_rows
-from .promotion import contained_file
-from .vnstock import date_batches
+from .sources.base import contained_file
+from .sources.vnstock import date_batches
 
 
 def pilot_report(experiment_dir: Path) -> dict:

@@ -1,0 +1,52 @@
+{
+  "protocol_version": "1.0",
+  "synthetic": true,
+  "start": "2025-01-01",
+  "end": "2025-06-30",
+  "development_end": "2025-06-30",
+  "rf_annual": 0,
+  "assumptions": {
+    "risk_free": "Giả định nghiên cứu: lãi suất hiệu dụng năm bằng 0, chỉ dùng cho minh họa trên dữ liệu giả lập.",
+    "costs": "Giả định nghiên cứu: phí 10 điểm cơ bản (0,10%) cộng trượt giá 5 điểm cơ bản (0,05%) trên giá trị giao dịch, áp dụng cho cả mua và bán.",
+    "cash_return": "Tiền mặt chưa đầu tư có lợi suất bằng 0; không vay, không dùng đòn bẩy hoặc tài trợ vốn.",
+    "return_semantics": "Lợi suất đơn trên dữ liệu giả lập; khớp tại giá đóng cửa phiên kế tiếp bằng tỷ trọng phân số trên chuỗi lợi suất; chưa mô phỏng lô giao dịch và thời gian thanh toán của sàn.",
+    "k_rationale": "Cố định k=3 trước đánh giá để kiểm chứng kỹ thuật. Các chỉ tiêu cho k=2..10, ý nghĩa kinh tế và độ cân bằng giữa các cụm còn cần được thẩm định trong nghiên cứu thực tế."
+  },
+  "clustering": {
+    "algorithm": "kmeans",
+    "features": ["mom_63", "vol_63", "ram_63"],
+    "momentum_feature": "mom_63",
+    "risk_feature": "vol_63",
+    "winsor_quantile": 0.01,
+    "scaling": "zscore",
+    "log1p_features": [],
+    "reduction": {"method": "pca", "n_components": 2},
+    "k": 3,
+    "k_range": [2,3,4,5,6,7,8,9,10],
+    "seed": 42,
+    "n_init": 10,
+    "max_iter": 100
+  },
+  "portfolio": {
+    "semantic_label": "High Momentum / Low Risk",
+    "selection_feature": "ram_63",
+    "momentum_feature": "mom_63",
+    "risk_feature": "vol_63",
+    "weighting": "equal",
+    "top_n": 3,
+    "backtest_universe": {"mode": "all", "filters": {}}
+  },
+  "backtest": {
+    "execution": "next_close",
+    "rebalance_frequency": "monthly",
+    "return_basis": "synthetic",
+    "exchange": "HOSE",
+    "benchmark_id": "VNINDEX",
+    "transaction_cost_bps": 10,
+    "slippage_bps": 5,
+    "minimum_holding_sessions": 0
+  },
+  "bootstrap": {"seed": 42, "samples": 200, "block_length": 10},
+  "cost_sensitivity_bps": [0,10,25,50],
+  "plots": true
+}

@@ -1,0 +1,23 @@
+{
+  "template_status": "BLOCKED_UNTIL_SOURCE_SEMANTICS_AND_RIGHTS_ARE_VERIFIED",
+  "synthetic": false,
+  "http": {"timeout": 30, "attempts": 3, "min_interval": 2.0, "max_bytes": 20000000},
+  "jobs": [
+    {"id": "securities", "table": "securities", "provider": "csv", "source": "REPLACE_WITH_AUDITED_SOURCE", "path": "data/import/securities.csv"},
+    {
+      "id": "prices_batch_01", "table": "prices_daily", "provider": "http_json",
+      "source": "REPLACE_WITH_AUDITED_SOURCE", "endpoint": "https://example.invalid/prices",
+      "params": {"symbols": "REPLACE_WITH_50_TO_60_REPRESENTATIVE_SYMBOLS", "start": "2020-09-01", "end": "2026-08-31"},
+      "items_key": "items", "next_key": "next_cursor", "cursor_param": "cursor", "max_pages": 100,
+      "token_env": "DELTA_DATA_TOKEN", "mapping": {}, "defaults": {}, "multipliers": {}
+    },
+    {"id": "benchmark", "table": "benchmark_daily", "provider": "csv", "source": "REPLACE_WITH_AUDITED_SOURCE", "path": "data/import/benchmark_daily.csv"},
+    {"id": "calendar", "table": "trading_calendar", "provider": "csv", "source": "REPLACE_WITH_AUDITED_SOURCE", "path": "data/import/trading_calendar.csv"}
+  ],
+  "features": {
+    "benchmark_id": "VNINDEX", "rf_annual": null, "rf_tenor": "REPLACE_WITH_CONFIRMED_TENOR",
+    "accepted_adjustments": ["split_adjusted"],
+    "minimum_history_years": 3,
+    "required_features": ["mom_21", "mom_63", "mom_126", "mom_252", "vol_63", "mdd_126", "beta_126", "liquidity_21"]
+  }
+}

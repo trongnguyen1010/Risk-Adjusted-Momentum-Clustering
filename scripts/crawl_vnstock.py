@@ -8,7 +8,7 @@ root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root / "src"))
 # Worker processes must resolve the same checkout without an editable install.
 os.environ["PYTHONPATH"] = str(root / "src") + os.pathsep + os.environ.get("PYTHONPATH", "")
-from delta_t1.ingestion.vnstock import collect
+from delta_t1.ingestion.sources.vnstock import collect
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

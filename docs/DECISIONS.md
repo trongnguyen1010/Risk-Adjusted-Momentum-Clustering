@@ -1,36 +1,37 @@
-# Active decisions
+# Các quyết định còn hiệu lực
 
-Updated 14/09/2026. Historical discussion was consolidated to remove obsolete phase/audit documents. `CHANGELOG.md` retains chronology; this file contains decisions that still constrain implementation.
+Cập nhật 15/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation.
 
-| ID | Decision |
+| ID | Quyết định |
 |---|---|
-| ADR-001 | Delta Intelligence is a company/ticker intelligence product; clustering is one analytical capability. |
-| ADR-002 | UI/API read immutable product projections and never recompute research logic or scan raw tables. |
-| ADR-003 | Preserve immutable raw/canonical/model artifacts and field/run provenance. Missing data remains null/unavailable. |
-| ADR-004 | Current model is monthly snapshot K-Means with temporal tracking, not an approved Dynamic Clustering algorithm. |
-| ADR-005 | Aslam (2025) is a separate replication arm; current features/model are not that replication. |
-| ADR-006 | Real clustering requires three years of observed usable history; short history is `REFERENCE_ONLY`. |
-| ADR-007 | Sharpe/ROI are forbidden as clustering inputs/quality/selection metrics; Sharpe remains valid for portfolio evaluation. |
-| ADR-008 | CafeF is primary candidate; VietFin/Vnstock are connectors. Store underlying provider/version/terms, not connector name alone. |
-| ADR-009 | Financial data is point-in-time and revision-aware; no ratios enter models before period/scope/taxonomy rules are approved. |
-| ADR-010 | Raw, vendor-adjusted and total-return price semantics stay separate. No synthetic raw price or double-counted dividend. |
-| ADR-011 | KBS 10-symbol pilot is legacy engineering evidence, never thesis/product-production evidence. |
-| ADR-012 | Scale only after source smoke, reconciliation and representative 20–50 security pilot pass. |
-| ADR-013 | Backtest universe supports all/percentage/top-N, but final 20% semantics and ranking stage remain open. |
-| ADR-014 | JSONL is for pilots; accepted large-scale design is Parquet/DuckDB plus production database/object storage. |
-| ADR-015 | Do not rename rolling K-Means, tune on final holdout, fabricate publication times or silently remove failed securities. |
+| ADR-001 | DELTA có Research Core và Product Layer; research validity là ưu tiên hiện tại. |
+| ADR-002 | Product/API/web chỉ đọc immutable projections và không recompute research. |
+| ADR-003 | Raw/canonical/model artifact bất biến; missing giữ null/unavailable. |
+| ADR-004 | Monthly snapshot K-Means + temporal tracking không phải Dynamic Clustering. |
+| ADR-005 | Static K-Means deterministic là baseline; algorithm được chọn qua common registry. |
+| ADR-006 | Real clustering cần ba calendar years usable observed history; short history là `REFERENCE_ONLY`. |
+| ADR-007 | Sharpe/ROI bị cấm trong clustering input/quality/selection; Sharpe chỉ thuộc portfolio evaluation. |
+| ADR-008 | CafeF/VietFin/Vnstock là source candidates; không source nào complete trước khi semantics và rights được verify. |
+| ADR-009 | Financial data point-in-time và revision-aware; ratio chờ taxonomy/formula approval. |
+| ADR-010 | Raw/vendor-adjusted/total-return price semantics tách biệt; basis change reset window. |
+| ADR-011 | KBS 10-symbol pilot là legacy engineering evidence, không phải thesis evidence. |
+| ADR-012 | Scale theo gate 3–5 smoke → 50–60 representative pilot → >=300 securities. |
+| ADR-013 | Cluster quality, temporal stability và portfolio performance có module/decision riêng. |
+| ADR-014 | JSONL dùng cho pilot; large-scale storage chỉ đổi sau M1 evidence. |
+| ADR-015 | Tài liệu Markdown viết tiếng Việt, giữ project terms bằng English khi rõ nghĩa hơn. |
+| ADR-016 | Không thêm concrete dynamic algorithm trước explicit approval trong `research/DYNAMIC_CLUSTERING_REVIEW.md`. |
 
 ## Open decisions
 
-| ID | Owner decision needed |
+| ID | Cần quyết định |
 |---|---|
-| OPEN-01 | Final product/research title and research questions |
-| OPEN-02 | Paper-backed definition/objective of Dynamic Clustering |
-| OPEN-03 | Data rights, primary-provider priority and source-specific semantics |
-| OPEN-04 | Historical 1.200+ universe and delisted/security-master authority |
-| OPEN-05 | Financial feature families, taxonomy and sector treatment |
-| OPEN-06 | Percentage vs top-N policy, ranking feature and tie behavior |
-| OPEN-07 | Development/validation/holdout dates and purging/embargo rule |
-| OPEN-08 | Production stack, authentication, freshness SLA and deployment ownership |
+| OPEN-01 | Final thesis wording và research questions |
+| OPEN-02 | Approved Dynamic Clustering objective/method |
+| OPEN-03 | Source rights, endpoint semantics và priority rules |
+| OPEN-04 | Historical universe/delisted security master authority |
+| OPEN-05 | Financial feature taxonomy, sector treatment và citations |
+| OPEN-06 | Final development/validation/holdout và purging/embargo |
+| OPEN-07 | Comparator set và PCA protocol |
+| OPEN-08 | Final portfolio universe/ranking/tie policy |
 
-New decisions use: problem → alternatives → choice/reason → evidence → owner/date → affected contract/config/tests → remaining limits.
+Quyết định mới ghi: problem → alternatives → choice/reason → evidence → owner/date → affected contract/config/tests → remaining limits.
