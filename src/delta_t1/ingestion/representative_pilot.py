@@ -402,11 +402,14 @@ def _execute_job(job, config, kbs, cafef, store):
         if not payload_rows:
             break
         # Exclude the leading current/intraday snapshot row from historical mapping.
+        # Evidence only establishes the leading row of CafeF page 1 (page == 1 and row_index == 0)
+        # as the current/intraday snapshot.
         # The raw payload is already persisted in the artifact above; we only skip it
         # here to prevent it from entering the historical daily date-window.
         historical_payload_rows = [
-            row for row in payload_rows
-            if classify_cafef_page_row(row.get("TradeDate", "")) == "HISTORICAL"
+            row for row_index, row in enumerate(payload_rows)
+            if not (page == 1 and row_index == 0 and
+                    classify_cafef_page_row(row.get("TradeDate", ""), page=page, row_index=row_index) == "CURRENT_SNAPSHOT")
         ]
         if not historical_payload_rows:
             continue

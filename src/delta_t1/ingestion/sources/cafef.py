@@ -37,7 +37,8 @@ def _number(value, field, *, integral=False):
 def _parse_cafef_ampm(value):
     """Parse CafeF legacy M/D/YYYY h:mm:ss AM/PM TradeDate string.
 
-    Returns a naive datetime in local time, or None if the pattern does not match.
+    Returns a datetime in UTC (representing documented CafeF UTC-like timestamp
+    semantics), or None if the pattern does not match.
     """
     m = _CAFEF_AMPM.match(value.strip())
     if not m:
@@ -49,7 +50,7 @@ def _parse_cafef_ampm(value):
         hour += 12
     elif meridiem == "AM" and hour == 12:
         hour = 0
-    return datetime(year, month, day, hour, minute, second)
+    return datetime(year, month, day, hour, minute, second, tzinfo=timezone.utc)
 
 
 def cafef_trade_date(value):
@@ -58,7 +59,8 @@ def cafef_trade_date(value):
     Supported formats:
     - .NET tick-epoch: /Date(ms)/ or Date(ms+0700)
     - ISO-8601 with explicit timezone: 2026-09-14T17:00:00+07:00
-    - CafeF legacy AM/PM: M/D/YYYY h:mm:ss AM/PM (treated as VN local time)
+    - CafeF legacy AM/PM: M/D/YYYY h:mm:ss AM/PM (interpreted as UTC, converted
+      to Asia/Ho_Chi_Minh local calendar date)
     """
     if not isinstance(value, str):
         raise SemanticValidationError("CafeF TradeDate must be a string")
@@ -67,10 +69,10 @@ def cafef_trade_date(value):
     match = _DOTNET_DATE.match(normalized)
     if match:
         return datetime.fromtimestamp(int(match.group(1)) / 1000, timezone.utc).astimezone(_VN_TIME).date().isoformat()
-    # CafeF legacy M/D/YYYY h:mm:ss AM/PM (local VN time, no tz info on wire)
+    # CafeF legacy M/D/YYYY h:mm:ss AM/PM: interpret as UTC, convert to Asia/Ho_Chi_Minh
     parsed_ampm = _parse_cafef_ampm(value)
     if parsed_ampm is not None:
-        return parsed_ampm.date().isoformat()
+        return parsed_ampm.astimezone(_VN_TIME).date().isoformat()
     # ISO-8601 with explicit timezone
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
@@ -81,34 +83,36 @@ def cafef_trade_date(value):
     return parsed.astimezone(_VN_TIME).date().isoformat()
 
 
-def classify_cafef_page_row(raw_trade_date_value):
+def classify_cafef_page_row(raw_trade_date_value, page=1, row_index=0):
     """Classify a raw CafeF TradeDate string as 'CURRENT_SNAPSHOT' or 'HISTORICAL'.
 
-    The leading row on every CafeF page-001 is a current/intraday snapshot that
-    must NOT enter the historical daily time-series.  Two sentinel patterns exist:
+    Evidence only establishes the leading row of CafeF page 1 (page == 1 and
+    row_index == 0) as the current/intraday snapshot that must NOT enter the
+    historical daily time-series. Rows at any other position (page > 1 or
+    row_index > 0) are historical daily rows.
 
-    1. DateTime.MinValue (year 0001): 1/1/0001 12:00:00 AM  — seen for BCC, CMG etc.
-       when the intraday price is not yet available.
-    2. A valid intraday timestamp for today: e.g. 9/16/2026 7:45:00 AM — seen for
-       most symbols on the same session.
+    For the leading row (page == 1, row_index == 0), two snapshot sentinel
+    patterns exist:
+    1. DateTime.MinValue (year 0001): 1/1/0001 12:00:00 AM — seen when the
+       intraday price is not yet available (e.g. BCC, CMG).
+    2. A valid intraday AM/PM timestamp whose time component is NOT 17:00:00
+       (market close), e.g. 9/16/2026 7:45:00 AM.
 
-    Both are classified as CURRENT_SNAPSHOT so callers can preserve raw evidence
-    without letting the row enter the historical date window.
+    Both patterns are classified as CURRENT_SNAPSHOT only for page == 1 and
+    row_index == 0. Rows at other positions are not globally classified as
+    snapshots.
     """
+    if page != 1 or row_index != 0:
+        return "HISTORICAL"
     if not isinstance(raw_trade_date_value, str):
         return "HISTORICAL"
-    # Detect DateTime.MinValue sentinel (year == 0001)
     parsed_ampm = _parse_cafef_ampm(raw_trade_date_value)
-    if parsed_ampm is not None and parsed_ampm.year == CAFEF_DATETIME_MIN_VALUE.year:
-        return "CURRENT_SNAPSHOT"
-    # Detect intraday AM/PM timestamp: year >= today and time != 17:00:00 (market close)
-    # More precisely: any AM/PM timestamp whose time component is NOT 17:00:00 is snapshot.
-    # CafeF historical close times are all 17:00:00 PM (market close VN).
     if parsed_ampm is not None:
+        if parsed_ampm.year == CAFEF_DATETIME_MIN_VALUE.year:
+            return "CURRENT_SNAPSHOT"
         if parsed_ampm.hour != 17 or parsed_ampm.minute != 0 or parsed_ampm.second != 0:
             return "CURRENT_SNAPSHOT"
         return "HISTORICAL"
-    # .NET and ISO formats are always historical daily rows.
     return "HISTORICAL"
 
 
