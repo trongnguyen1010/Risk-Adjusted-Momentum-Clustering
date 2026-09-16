@@ -13,12 +13,15 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True)
     parser.add_argument("--gate-report", required=True)
-    parser.add_argument("--dry-run", action="store_true",
-                        help="validate and write a plan with exactly zero network requests")
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("--dry-run", action="store_true",
+                      help="validate and write a plan with exactly zero network requests")
+    mode.add_argument("--execute", action="store_true",
+                      help="explicitly authorize real representative-pilot acquisition")
     parser.add_argument("--resume", help="resume an existing immutable real pilot run ID")
     args = parser.parse_args(argv)
-    if args.dry_run and args.resume:
-        parser.error("--resume is only valid for an explicitly started real execution")
+    if args.resume and not args.execute:
+        parser.error("--resume requires --execute")
     try:
         if args.dry_run:
             directory, manifest = dry_run(args.config, args.gate_report, root=ROOT)

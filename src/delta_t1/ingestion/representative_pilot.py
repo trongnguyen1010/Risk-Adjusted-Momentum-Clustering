@@ -6,6 +6,7 @@ from pathlib import Path
 from ..artifact_ids import new_artifact_id
 from ..contracts import validate_rows
 from ..io import atomic_write, digest, encoded, read_json, write_json
+from .crawler import code_hash
 from .planning import M1_SCALE, REPRESENTATIVE_PILOT, SOURCE_SMOKE, representative_pilot_report
 from .sources.base import PublicJsonClient
 from .sources.cafef import (ADAPTER_VERSION as CAFE_VERSION, CafeFSource,
@@ -24,6 +25,10 @@ OFFICIAL_MARKET_SOURCES = {
 REQUIRED_EXCHANGES = {"HOSE", "HNX", "UPCOM"}
 SECRET_KEY_MARKERS = ("secret", "token", "password", "cookie", "credential", "api_key", "authorization")
 FINANCIAL_PIT_UNRESOLVED = "PIT_UNRESOLVED"
+RUN_IDENTITY_FIELDS = (
+    "config_hash", "universe_hash", "source_gate_hash", "code_hash",
+    "job_plan_hash", "kbs_adapter_version", "cafef_adapter_version",
+)
 
 
 def utc_now():
@@ -210,16 +215,37 @@ def _run_directory(root, run_id):
     return Path(root) / "data" / "raw" / "representative_pilot" / run_id
 
 
+def build_run_identity(prepared, plan):
+    """Return the complete immutable identity for a pilot execution plan."""
+    return {
+        "config_hash": prepared["config_hash"],
+        "universe_hash": prepared["universe_hash"],
+        "source_gate_hash": prepared["source_gate_hash"],
+        "code_hash": code_hash(),
+        "job_plan_hash": digest(encoded(plan)),
+        "kbs_adapter_version": KBS_VERSION,
+        "cafef_adapter_version": CAFE_VERSION,
+    }
+
+
+def validate_resume_identity(run_header, expected_identity):
+    """Reject old or mixed-version runs instead of migrating them in place."""
+    for field in RUN_IDENTITY_FIELDS:
+        if run_header.get(field) != expected_identity[field]:
+            raise ValueError(
+                f"resume {field} mismatch; start a new immutable run")
+
+
 def _write_run_headers(prepared, plan, run_id, *, dry_run):
     directory = _run_directory(prepared["root"], run_id)
     if directory.exists():
         raise ValueError("immutable representative-pilot run already exists")
+    identity = build_run_identity(prepared, plan)
     write_json(directory / "run.json", {
         "run_id": run_id, "template_type": REPRESENTATIVE_PILOT,
         "mode": "DRY_RUN" if dry_run else "REAL_EXECUTION",
         "started_at": utc_now(), "network_requests": 0,
-        "config_hash": prepared["config_hash"], "universe_hash": prepared["universe_hash"],
-        "source_gate_hash": prepared["source_gate_hash"],
+        **identity,
     })
     write_json(directory / "source_gate_reference.json", {
         "gate": SOURCE_SMOKE, "status": "PASS", "unlocks": [REPRESENTATIVE_PILOT],
@@ -438,9 +464,10 @@ def _build_real_manifest(prepared, plan, manifest):
 
 
 def run_real(config_path, gate_report_path, *, root, resume=None):
-    """Execute the official pilot path. Callers must explicitly omit --dry-run."""
+    """Execute the official pilot path after the CLI has required --execute."""
     prepared = load_readiness(config_path, gate_report_path, root=root)
     plan = build_job_plan(prepared)
+    identity = build_run_identity(prepared, plan)
     run_id = resume or new_artifact_id("representative-pilot")
     directory = _run_directory(prepared["root"], run_id)
     if resume:
@@ -448,9 +475,7 @@ def run_real(config_path, gate_report_path, *, root, resume=None):
             raise ValueError("resume requires an existing representative-pilot run")
         manifest = read_json(directory / "manifest.json")
         run_header = read_json(directory / "run.json")
-        if any(run_header.get(key) != prepared[key] for key in (
-                "config_hash", "universe_hash", "source_gate_hash")):
-            raise ValueError("resume inputs changed; start a new immutable run")
+        validate_resume_identity(run_header, identity)
     else:
         directory = _write_run_headers(prepared, plan, run_id, dry_run=False)
         manifest = {"run_id": run_id, "mode": "REAL_EXECUTION", "status": "RUNNING",

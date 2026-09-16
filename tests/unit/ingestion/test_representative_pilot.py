@@ -1,3 +1,6 @@
+import contextlib
+import importlib.util
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,11 +13,17 @@ TMP_ROOT = ROOT / "tmp"
 TMP_ROOT.mkdir(exist_ok=True)
 
 from delta_t1.ingestion.representative_pilot import (
-    OFFICIAL_MARKET_SOURCES, build_job_plan, dry_run, load_readiness,
-    validate_source_gate, validate_universe,
+    CAFE_VERSION, KBS_VERSION, OFFICIAL_MARKET_SOURCES, _write_run_headers,
+    build_job_plan, build_run_identity, dry_run, load_readiness,
+    run_real, validate_resume_identity, validate_source_gate, validate_universe,
 )
 from delta_t1.ingestion.sources.vnstock import KBSPublicHttpSource, collect
-from delta_t1.io import read_json, write_json
+from delta_t1.io import digest, encoded, read_json, write_json
+
+PILOT_CLI_SPEC = importlib.util.spec_from_file_location(
+    "representative_pilot_cli", ROOT / "scripts" / "run_representative_pilot.py")
+pilot_cli = importlib.util.module_from_spec(PILOT_CLI_SPEC)
+PILOT_CLI_SPEC.loader.exec_module(pilot_cli)
 
 
 def universe(size=50):
@@ -74,6 +83,60 @@ class RepresentativePilotTests(unittest.TestCase):
         write_json(gate_path, gate())
         return root, config_path, gate_path
 
+    def build_identity_fixture(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            root, config_path, gate_path = self.setup_files(temp)
+            prepared = load_readiness(config_path, gate_path, root=root)
+            plan = build_job_plan(prepared)
+            with patch("delta_t1.ingestion.representative_pilot.code_hash",
+                       return_value="c" * 64):
+                identity = build_run_identity(prepared, plan)
+            return identity
+
+    def build_real_run_header(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            root, config_path, gate_path = self.setup_files(temp)
+            prepared = load_readiness(config_path, gate_path, root=root)
+            plan = build_job_plan(prepared)
+            with patch("delta_t1.ingestion.representative_pilot.code_hash",
+                       return_value="c" * 64):
+                directory = _write_run_headers(
+                    prepared, plan, "representative-pilot-20260916T000000Z-1234abcd",
+                    dry_run=False)
+            return read_json(directory / "run.json"), plan
+
+    def assert_cli_refused(self, arguments):
+        with contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit) as raised:
+                pilot_cli.main(arguments)
+        self.assertEqual(2, raised.exception.code)
+
+    def test_cli_refuses_missing_mode(self):
+        self.assert_cli_refused(["--config", "pilot.json", "--gate-report", "gate.json"])
+
+    def test_cli_refuses_dry_run_and_execute_together(self):
+        self.assert_cli_refused([
+            "--config", "pilot.json", "--gate-report", "gate.json",
+            "--dry-run", "--execute",
+        ])
+
+    def test_cli_refuses_resume_without_execute(self):
+        self.assert_cli_refused([
+            "--config", "pilot.json", "--gate-report", "gate.json",
+            "--dry-run", "--resume", "representative-pilot-existing",
+        ])
+
+    def test_cli_execute_calls_real_path(self):
+        gate_report = {"gate": "REPRESENTATIVE_PILOT", "status": "PASS", "unlocks": []}
+        with patch.object(pilot_cli, "run_real",
+                          return_value=(Path("run"), {}, gate_report)) as runner:
+            result = pilot_cli.main([
+                "--config", "pilot.json", "--gate-report", "gate.json", "--execute",
+            ])
+        self.assertEqual(0, result)
+        runner.assert_called_once_with(
+            "pilot.json", "gate.json", root=ROOT, resume=None)
+
     def test_dry_run_performs_zero_network_and_cannot_unlock_scale(self):
         with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
             root, config_path, gate_path = self.setup_files(temp)
@@ -86,6 +149,69 @@ class RepresentativePilotTests(unittest.TestCase):
             self.assertEqual([], manifest["unlocks"])
             self.assertFalse(manifest["gate_emitted"])
             self.assertFalse((directory / "gate.json").exists())
+
+    def test_new_real_run_stores_code_hash(self):
+        header, _ = self.build_real_run_header()
+        self.assertEqual("c" * 64, header["code_hash"])
+
+    def test_new_real_run_stores_job_plan_hash(self):
+        header, plan = self.build_real_run_header()
+        self.assertEqual(digest(encoded(plan)), header["job_plan_hash"])
+
+    def test_new_real_run_stores_kbs_adapter_version(self):
+        header, _ = self.build_real_run_header()
+        self.assertEqual(KBS_VERSION, header["kbs_adapter_version"])
+
+    def test_new_real_run_stores_cafef_adapter_version(self):
+        header, _ = self.build_real_run_header()
+        self.assertEqual(CAFE_VERSION, header["cafef_adapter_version"])
+
+    def test_resume_refuses_changed_code_hash(self):
+        identity = self.build_identity_fixture()
+        stored = dict(identity, code_hash="changed")
+        with self.assertRaisesRegex(ValueError, "code_hash mismatch"):
+            validate_resume_identity(stored, identity)
+
+    def test_resume_refuses_changed_job_plan_hash(self):
+        identity = self.build_identity_fixture()
+        stored = dict(identity, job_plan_hash="changed")
+        with self.assertRaisesRegex(ValueError, "job_plan_hash mismatch"):
+            validate_resume_identity(stored, identity)
+
+    def test_resume_refuses_changed_kbs_adapter_version(self):
+        identity = self.build_identity_fixture()
+        stored = dict(identity, kbs_adapter_version="changed")
+        with self.assertRaisesRegex(ValueError, "kbs_adapter_version mismatch"):
+            validate_resume_identity(stored, identity)
+
+    def test_resume_refuses_changed_cafef_adapter_version(self):
+        identity = self.build_identity_fixture()
+        stored = dict(identity, cafef_adapter_version="changed")
+        with self.assertRaisesRegex(ValueError, "cafef_adapter_version mismatch"):
+            validate_resume_identity(stored, identity)
+
+    def test_unchanged_identity_permits_resume_path(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            root, config_path, gate_path = self.setup_files(temp)
+            prepared = load_readiness(config_path, gate_path, root=root)
+            plan = build_job_plan(prepared)
+            run_id = "representative-pilot-20260916T000000Z-1234abcd"
+            with patch("delta_t1.ingestion.representative_pilot.code_hash",
+                       return_value="c" * 64):
+                directory = _write_run_headers(
+                    prepared, plan, run_id, dry_run=False)
+                write_json(directory / "manifest.json", {
+                    "run_id": run_id, "mode": "REAL_EXECUTION", "status": "RUNNING",
+                    "jobs": {job["id"]: {
+                        "status": "COMPLETE", "job": job, "artifacts": [],
+                    } for job in plan["jobs"]},
+                })
+                with patch("delta_t1.ingestion.representative_pilot._execute_job",
+                           side_effect=AssertionError("completed resume job re-executed")) as execute:
+                    resumed, _, _ = run_real(
+                        config_path, gate_path, root=root, resume=run_id)
+            execute.assert_not_called()
+            self.assertEqual(directory, resumed)
 
     def test_universe_count_duplicate_history_and_exchange_rules_fail_closed(self):
         with self.assertRaisesRegex(ValueError, "50-60"):

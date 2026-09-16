@@ -76,7 +76,7 @@ Market pilot có thể PASS khi financial còn `PIT_UNRESOLVED`. Khi unresolved:
 - historical financial clustering/backtest bị chặn;
 - không gọi PIT là verified và không xóa financial track khỏi roadmap.
 
-## Runner và dry-run
+## Runner, dry-run và execution lock
 
 Runner active:
 
@@ -87,7 +87,18 @@ Runner active:
   --dry-run
 ```
 
-`--dry-run` validate gate, universe, >=5 năm, exchanges/sectors, routing, batches, gitignore, financial lock và secret-like keys; nó tạo plan local với `network_requests=0`, không tạo provider raw, không tạo pilot PASS gate và không unlock scale. Real `--resume <run_id>` chỉ chấp nhận cùng config/universe/source-gate hashes và verify artifact checksum.
+`--dry-run` validate gate, universe, >=5 năm, exchanges/sectors, routing, batches, gitignore, financial lock và secret-like keys; nó tạo plan local với `network_requests=0`, không tạo provider raw, không tạo pilot PASS gate và không unlock scale.
+
+Real pilot luôn yêu cầu explicit `--execute`; invocation không có mode hoặc có đồng thời `--dry-run --execute` sẽ bị từ chối. `--resume <run_id>` chỉ hợp lệ cùng `--execute`:
+
+```powershell
+.venv\Scripts\python.exe scripts\run_representative_pilot.py `
+  --config <reviewed-local-config.json> `
+  --gate-report <source-smoke-gate.json> `
+  --execute
+```
+
+Mỗi `run.json` khóa exact `config_hash`, `universe_hash`, `source_gate_hash`, `code_hash`, deterministic `job_plan_hash`, KBS adapter version và CafeF adapter version. Resume recompute và so khớp toàn bộ identity; thiếu hoặc mismatch bất kỳ field nào đều fail-closed và yêu cầu run immutable mới. Mixed-version resume bị cấm, không migrate run cũ.
 
 ## Raw layout và provenance
 
@@ -123,6 +134,6 @@ PASS chỉ unlock `M1_SCALE` planning. Nó không có nghĩa financial PIT/featu
 
 ## Readiness evidence
 
-Focused dry-run `representative-pilot-20260916T130831Z-78d8f2d2`: `PASS`, 50 fake fixture symbols, 713 planned jobs, zero network requests, không provider raw, không gate/unlock. Validation: 116/116 unit/integration/regression tests PASS; `compileall` PASS; synthetic smoke `run-20260916T131147Z-fbc92498` complete; tracked JSON và Markdown links PASS; `git diff --check` PASS. GitHub CI `NOT_RUN`.
+Focused dry-run `representative-pilot-20260916T130831Z-78d8f2d2`: `PASS`, 50 fake fixture symbols, 713 planned jobs, zero network requests, không provider raw, không gate/unlock. Validation: 129/129 unit/integration/regression tests PASS; `compileall` PASS; synthetic smoke `run-20260916T135530Z-737413bc` complete; tracked JSON và Markdown links PASS; `git diff --check` PASS. GitHub CI `NOT_RUN`.
 
 Blocker còn lại để **thực thi** pilot là review/freeze real 50–60-symbol universe và local config; pilot chưa được chạy trong readiness task này. Local dry-run artifacts và synthetic outputs vẫn gitignored.
