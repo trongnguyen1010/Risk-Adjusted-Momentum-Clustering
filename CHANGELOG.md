@@ -1,3 +1,11 @@
+# Chưa phát hành — M1 Data V2 runtime reset (2026-09-16)
+
+- Retire legacy runtime `data/` và generated `artifacts/` khỏi active workspace.
+- Khôi phục `/data/` và `artifacts/` vào Git ignore.
+- Xóa legacy product path assumptions; launcher chỉ dùng explicit config và existing bundle.
+- Giữ historical KBS/Vnstock lessons trong documentation, không giữ runtime evidence.
+- Active M1 data lifecycle bắt đầu lại từ source discovery và `SOURCE_SMOKE` mới.
+
 # Chưa phát hành — M1 readiness correction (2026-09-16)
 
 - Chuẩn hóa future artifact ID thành `<prefix>-YYYYMMDDTHHMMSSZ-xxxxxxxx` qua một helper trung tâm; giữ compatibility với mọi old immutable ID.
