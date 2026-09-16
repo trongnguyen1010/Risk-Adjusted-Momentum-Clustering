@@ -23,7 +23,7 @@
 | FPT | 14 | 16 / 16 | PASS | volume `MATCHED_VOLUME` |
 | VNM | 14 | 16 / 15 | PASS | `PROVIDER_CORRUPT_ROW`; exact evidence-pinned `EXCLUDE_ROW` |
 | PVS | 14 | 16 / 16 | PASS | volume `MATCHED_VOLUME` |
-| ACV | 14 | 16 / 16 | PASS | `SOURCE_SEMANTIC_DIFFERENCE`; keep source-qualified values separate |
+| ACV | 14 | 16 / 16 | PASS | current interpretation `UNRESOLVED`; source-qualified values remain separate |
 | VNINDEX | 14 | 16 / 16 | PASS | index points; provider volume retained |
 
 All observed date ranges are `2026-08-24..2026-09-15` and `2021-09-06..2021-09-27`. KBS hashes remain in the machine gate; the table below records the exact CafeF pages that actually contributed rows to each requested window.
@@ -49,7 +49,7 @@ Paths follow `data/raw/cafef/source-smoke-20260916T122331Z-79427ec6/{SYMBOL}-pag
 | Finding | Evidence | Policy |
 |---|---|---|
 | VNM `2021-09-09` | CafeF reference `85,400`, floor `194,400`, ceiling `223,600` VND/share; adjacent rows coherent | raw retained; row status `INVALID_REQUIRED_MARKET_ROW`; exclude only exact pinned row; mismatch fails window |
-| ACV latest five shared dates | KBS differs from both CafeF matched and matched+put-through volume; no stable multiplier | `SOURCE_SEMANTIC_DIFFERENCE`; `KEEP_SEPARATE_NO_EQUALITY_ASSUMPTION` |
+| ACV latest five shared dates | KBS differs from both CafeF matched and matched+put-through volume; approximate ratio is not semantic evidence | `UNRESOLVED`; `KEEP_SOURCE_QUALIFIED`; no equality/merge |
 | Price basis, all equities | KBS `VENDOR_ADJUSTED`; CafeF reference/limit basis | no direct comparison, average or overwrite |
 
 ## Supporting evidence

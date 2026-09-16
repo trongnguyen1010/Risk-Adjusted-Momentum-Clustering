@@ -11,7 +11,7 @@ DELTA là project research + product cho thị trường cổ phiếu Việt Nam
 
 | Milestone | Trạng thái hiện tại |
 |---|---|
-| **M1 — Data Foundation** | Đã có immutable ingestion/schema/QC và gate code; `SOURCE_SMOKE` thật, `REPRESENTATIVE_PILOT` 50–60 mã và scale >=300 đều chưa PASS. |
+| **M1 — Data Foundation** | `SOURCE_SMOKE` thật đã PASS. Official `REPRESENTATIVE_PILOT` runner/config đã ready nhưng real 50–60 mã chưa chạy; `M1_SCALE` chưa unlock. Financial vẫn `RAW_ONLY_PIT_UNRESOLVED`. |
 | **M2 — Clustering Research** | Static K-Means deterministic là baseline; temporal tracking hiện tại không phải Dynamic Clustering. PCA/comparator và methodology động còn phải hoàn thiện. |
 | **M3 — Backtest + Product** | Đã có return-space backtest, product bundle, read API và web shell; final backtest chờ freeze methodology và representative data. |
 

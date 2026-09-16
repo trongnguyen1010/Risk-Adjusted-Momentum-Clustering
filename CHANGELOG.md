@@ -1,3 +1,12 @@
+# Chưa phát hành — REPRESENTATIVE_PILOT readiness (2026-09-16)
+
+- Thêm official pilot runner/config/universe contract dùng đúng KBS direct public HTTP + CafeF direct; dry-run zero-network không thể emit PASS gate hoặc unlock scale.
+- Chặn official gate khỏi legacy Vnstock SDK collector; giữ collector cho <=5-symbol reference experiments.
+- Tách market pilot gate khỏi financial PIT: `PIT_UNRESOLVED` không chặn market readiness nhưng bắt buộc `financial_features_allowed=false`.
+- Sửa volume classifier: chỉ exact equality/documented mapping mới xác định semantic; ACV là `UNRESOLVED`, giữ `KEEP_SOURCE_QUALIFIED`, không merge.
+- Chuẩn bị immutable run/job/manifest/gate layout, resume hash guards và pilot gate chỉ unlock `M1_SCALE` sau future real evidence.
+- Validation: 116/116 tests, compileall, synthetic smoke và zero-network pilot dry-run pass; GitHub CI không chạy; không thực hiện real pilot.
+
 # Chưa phát hành — M1 Data V2 runtime reset (2026-09-16)
 
 - Cho phép bounded private research/demo collection trên public CafeF/KBS paths theo owner-accepted risk; rights vẫn `RIGHTS_NOT_VERIFIED`, raw không redistribution và production vẫn yêu cầu licensed source.

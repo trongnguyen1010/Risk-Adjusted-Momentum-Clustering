@@ -94,37 +94,62 @@ def source_smoke_report(evidence: dict | Path | str) -> dict:
 
 def representative_pilot_report(evidence: dict | Path | str,
                                 source_smoke: dict) -> dict:
-    """Assess the real 50–60 security production-pipeline pilot."""
+    """Assess the real 50–60 security market pilot, independently of financial PIT."""
     item, hashes = _evidence(evidence)
     hashes.update(source_smoke.get("input_evidence_hashes", {}))
+    financial_pit_status = item.get("financial_pit_status", "PIT_UNRESOLVED")
+    financial_features_allowed = (
+        financial_pit_status == "PIT_READY"
+        and item.get("financial_features_allowed") is True
+    )
+    provider_hashes = item.get("provider_artifact_hashes", {})
+    provider_hashes_valid = bool(provider_hashes) and all(
+        isinstance(path, str) and path
+        and isinstance(value, str) and len(value) == 64
+        and all(char in "0123456789abcdef" for char in value)
+        for path, value in provider_hashes.items()
+    )
     checks = {
         "source_smoke_passed": (
             source_smoke.get("gate") == SOURCE_SMOKE
             and source_smoke.get("status") == "PASS"
+            and REPRESENTATIVE_PILOT in source_smoke.get("unlocks", [])
         ),
         "real_data": item.get("synthetic") is False,
+        "real_execution_evidence": item.get("run_mode") == "REAL_EXECUTION",
         "fifty_to_sixty_symbols": 50 <= item.get("symbol_count", 0) <= 60,
         "at_least_five_years": item.get("history_years", 0) >= 5,
         "representative_exchanges": bool(item.get("representative_exchanges")),
-        "representative_sectors": bool(item.get("representative_sectors")),
-        "historical_identity_verified": bool(item.get("historical_identity_verified")),
-        "price_and_corporate_action_semantics_verified": bool(
-            item.get("price_and_corporate_action_semantics_verified")
+        "representative_sectors_or_documented_limit": bool(
+            item.get("representative_sectors_or_documented_limit")
         ),
-        "multi_source_reconciliation_reviewed": bool(
-            item.get("multi_source_reconciliation_reviewed")
+        "source_routing_matches_smoke": bool(item.get("source_routing_matches_smoke")),
+        "market_qc_passed": bool(item.get("market_qc_passed")),
+        "price_basis_safe": bool(item.get("price_basis_safe")),
+        "reconciliation_policy_safe": bool(item.get("reconciliation_policy_safe")),
+        "provenance_complete": bool(item.get("provenance_complete")),
+        "invalid_rows_fail_closed": bool(item.get("invalid_rows_fail_closed")),
+        "source_qualified_conflicts": bool(item.get("source_qualified_conflicts")),
+        "missing_values_preserved": bool(item.get("missing_values_preserved")),
+        "no_price_forward_fill": bool(item.get("no_price_forward_fill")),
+        "no_current_shares_backfill": bool(item.get("no_current_shares_backfill")),
+        "real_provider_artifacts_hashed": provider_hashes_valid,
+        "financial_pit_status_valid": financial_pit_status in ("PIT_UNRESOLVED", "PIT_READY"),
+        "financial_safety_lock_active": (
+            financial_pit_status == "PIT_READY" or not financial_features_allowed
         ),
-        "pit_financial_support_verified": bool(item.get("pit_financial_support_verified")),
-        "qc_and_coverage_passed": bool(item.get("qc_and_coverage_passed")),
         "evidence_hashed": bool(hashes),
     }
-    return _report(
+    report = _report(
         REPRESENTATIVE_PILOT,
         checks,
-        "Pilot production M1 với historical identity, PIT financial, reconciliation và QC.",
+        "Pilot market M1 với source-qualified reconciliation và QC; financial PIT là track riêng.",
         hashes,
-        unlocks=(M1_SCALE, EXTENDED_SCALE),
+        unlocks=(M1_SCALE,),
     )
+    report.update(financial_pit_status=financial_pit_status,
+                  financial_features_allowed=financial_features_allowed)
+    return report
 
 
 def _range_years(start: str, end: str) -> float:

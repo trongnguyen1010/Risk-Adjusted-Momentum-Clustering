@@ -29,16 +29,19 @@ Mục tiêu không chỉ là “crawl được data”, mà là bảo đảm m�
 4. [SOURCE_SMOKE.md](SOURCE_SMOKE.md)  
    Quy trình chạy real `SOURCE_SMOKE` 3–5 mã và tiêu chuẩn PASS/BLOCKED.
 
-5. [TEAM_CRAWLING.md](TEAM_CRAWLING.md)  
+5. [REPRESENTATIVE_PILOT.md](REPRESENTATIVE_PILOT.md)
+   Official 50–60-symbol pilot path, universe/config contract, dry-run, QC và gate semantics.
+
+6. [TEAM_CRAWLING.md](TEAM_CRAWLING.md)
    Cách chia batch cho nhiều người mà dữ liệu vẫn thống nhất.
 
-6. [HANDOFF_TEMPLATE.md](HANDOFF_TEMPLATE.md)  
+7. [HANDOFF_TEMPLATE.md](HANDOFF_TEMPLATE.md)
    Template manifest, collector report và checklist bàn giao.
 
-7. [sources/SOURCE_NOTE_TEMPLATE.md](sources/SOURCE_NOTE_TEMPLATE.md)  
+8. [sources/SOURCE_NOTE_TEMPLATE.md](sources/SOURCE_NOTE_TEMPLATE.md)
    Template ghi semantics riêng cho mỗi source.
 
-8. [AGENT_SOURCE_SMOKE_PROMPT.md](AGENT_SOURCE_SMOKE_PROMPT.md)  
+9. [AGENT_SOURCE_SMOKE_PROMPT.md](AGENT_SOURCE_SMOKE_PROMPT.md)
    Master prompt cho coding/research agent thực hiện source discovery và real smoke đầu tiên.
 
 ## 2. Gate chính
@@ -71,6 +74,8 @@ historical eligible universe
 ```
 
 **Không có gate nào được skip.**
+
+Current state: `SOURCE_SMOKE=PASS`; `REPRESENTATIVE_PILOT=READY TO RUN / NOT YET EXECUTED`; `M1_SCALE=NOT UNLOCKED`; financial `PIT_UNRESOLVED / RAW_ONLY`.
 
 ## 3. Quy tắc bất biến
 

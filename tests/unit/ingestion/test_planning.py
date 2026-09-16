@@ -41,12 +41,18 @@ def source_evidence(synthetic=False):
 
 def pilot_evidence(synthetic=False):
     return {
-        "synthetic": synthetic, "symbol_count": 55, "history_years": 5.2,
-        "representative_exchanges": True, "representative_sectors": True,
-        "historical_identity_verified": True,
-        "price_and_corporate_action_semantics_verified": True,
-        "multi_source_reconciliation_reviewed": True,
-        "pit_financial_support_verified": True, "qc_and_coverage_passed": True,
+        "synthetic": synthetic, "run_mode": "REAL_EXECUTION",
+        "symbol_count": 55, "history_years": 5.2,
+        "representative_exchanges": True,
+        "representative_sectors_or_documented_limit": True,
+        "source_routing_matches_smoke": True, "market_qc_passed": True,
+        "price_basis_safe": True, "reconciliation_policy_safe": True,
+        "provenance_complete": True,
+        "invalid_rows_fail_closed": True, "source_qualified_conflicts": True,
+        "missing_values_preserved": True, "no_price_forward_fill": True,
+        "no_current_shares_backfill": True,
+        "financial_pit_status": "PIT_UNRESOLVED", "financial_features_allowed": False,
+        "provider_artifact_hashes": {"data/raw/kbs/pilot/FPT.json": "c" * 64},
         "evidence_hashes": {"pilot-manifest.json": "b" * 64},
     }
 
@@ -71,15 +77,26 @@ class PlanningGateTests(unittest.TestCase):
                   "universe_evidence": "reviewed", "evidence_hashes": {}}
         self.assertEqual("BLOCKED", plan_m1_scale(config, smoke)["status"])
         pilot = representative_pilot_report(pilot_evidence(), smoke)
+        self.assertEqual("PASS", pilot["status"])
+        self.assertEqual("PIT_UNRESOLVED", pilot["financial_pit_status"])
+        self.assertFalse(pilot["financial_features_allowed"])
         plan = plan_m1_scale(config, pilot)
         self.assertEqual((M1_SCALE, "PLANNED"), (plan["gate"], plan["status"]))
 
-    def test_extended_scale_has_no_350_symbol_cap(self):
+    def test_representative_pilot_does_not_directly_unlock_extended_scale(self):
         pilot = representative_pilot_report(pilot_evidence(), source_smoke_report(source_evidence()))
         config = {"start": "2011-01-01", "end": "2025-12-31",
                   "symbols": [f"S{i:04d}" for i in range(1201)],
                   "universe_evidence": "reviewed historical universe"}
-        self.assertEqual("PLANNED", plan_extended_scale(config, pilot)["status"])
+        self.assertEqual([M1_SCALE], pilot["unlocks"])
+        self.assertEqual("BLOCKED", plan_extended_scale(config, pilot)["status"])
+
+    def test_real_pilot_cannot_pass_without_provider_artifact_hashes(self):
+        evidence = pilot_evidence()
+        evidence["provider_artifact_hashes"] = {}
+        pilot = representative_pilot_report(evidence, source_smoke_report(source_evidence()))
+        self.assertEqual("BLOCKED", pilot["status"])
+        self.assertIn("real_provider_artifacts_hashed", pilot["blocking_reasons"])
 
     def test_source_smoke_required_failure_has_no_unlocks(self):
         evidence = source_evidence()
@@ -99,6 +116,12 @@ class PlanningGateTests(unittest.TestCase):
         self.assertNotIn("jobs", source)
         with self.assertRaisesRegex(ValueError, "fail-closed"):
             load_config(ROOT / "configs/data/source_smoke.example.json")
+        pilot = read_json(ROOT / "configs/data/representative_pilot.example.json")
+        self.assertEqual(REPRESENTATIVE_PILOT, pilot["template_type"])
+        self.assertEqual("LOCAL_OR_REVIEWED_PATH", pilot["universe_file"])
+        self.assertEqual("RAW_ONLY_PIT_UNRESOLVED", pilot["financial"]["mode"])
+        self.assertFalse(pilot["financial"]["enabled_for_market_gate"])
+        self.assertNotIn("token", str(pilot).lower())
 
 
 if __name__ == "__main__":

@@ -60,7 +60,7 @@ def map_kbs_wire_ohlcv_row(row, symbol, exchange, *, is_index=False):
     return result
 
 
-def classify_volume_semantics(kbs_rows, cafef_rows, max_dates=5):
+def classify_volume_semantics(kbs_rows, cafef_rows, max_dates=5, documented_mapping=None):
     """Classify, but never reconcile, bounded shared-date volume observations."""
     if not 1 <= max_dates <= 5:
         raise ValueError("volume semantic comparison is bounded to at most five dates")
@@ -82,18 +82,22 @@ def classify_volume_semantics(kbs_rows, cafef_rows, max_dates=5):
                              and row["kbs_volume"] == row["cafef_total_volume"]
                              for row in comparisons):
         classification = "TOTAL_VOLUME"
-    elif comparisons and all(row["kbs_volume"] is not None
-                             and row["cafef_matched_volume"] is not None
-                             and 0.5 <= row["kbs_volume"] / max(row["cafef_matched_volume"], 1) <= 2
-                             for row in comparisons):
-        classification = "SOURCE_SEMANTIC_DIFFERENCE"
+    elif documented_mapping:
+        classification = "OTHER_DOCUMENTED_SEMANTIC"
     else:
         classification = "UNRESOLVED"
     return {"classification": classification, "dates_checked": len(comparisons),
             "comparisons": comparisons,
-            "unit_multiplier_issue": False if classification != "UNRESOLVED" else None,
-            "board_or_lot_semantic": "NOT_PROVEN",
-            "promotion_rule": "KEEP_SEPARATE_NO_EQUALITY_ASSUMPTION"}
+            "documented_mapping": documented_mapping,
+            "storage_policy": "KEEP_SOURCE_QUALIFIED",
+            "equality_assumption": False,
+            "canonical_merge_allowed": False,
+            "market_collection_safe": True,
+            "canonical_volume_candidate": {
+                "provider": "kbs",
+                "field": "volume",
+                "basis": "PROVIDER_REPORTED_OHLCV_VOLUME",
+            }}
 
 
 def financial_raw_only_metadata(payload):
@@ -194,25 +198,18 @@ def collect(root, start, end, symbols, resume=None, interval=5.0, timeout=90,
     import time
     gate_hash = None
     symbol_count = len(set(symbols))
+    if symbol_count > 5 and gate_report_path:
+        raise ValueError(
+            "official SOURCE_SMOKE/REPRESENTATIVE_PILOT gates cannot authorize the legacy Vnstock SDK path; "
+            "use scripts/run_representative_pilot.py"
+        )
     if 60 < symbol_count < 300:
         raise ValueError("61–299 symbols is not an M1 gate stage; use 50–60 pilot or >=300 scale")
     if symbol_count > 5:
-        if not gate_report_path:
-            raise ValueError("more than 5 symbols requires an explicit passing M1 gate report")
-        gate_path = Path(gate_report_path).resolve()
-        report = read_json(gate_path)
-        if symbol_count <= 60:
-            accepted = (report.get("gate") == "SOURCE_SMOKE" and report.get("status") == "PASS"
-                        and "REPRESENTATIVE_PILOT" in report.get("unlocks", []))
-            error = "source smoke has not passed; representative pilot crawl blocked"
-        else:
-            accepted = (report.get("gate") == "REPRESENTATIVE_PILOT" and report.get("status") == "PASS"
-                        and "M1_SCALE" in report.get("unlocks", []))
-            error = "representative pilot has not passed; scale crawl blocked"
-        if (not accepted or report.get("checks", {}).get("real_data") is not True
-                or not report.get("input_evidence_hashes")):
-            raise ValueError(error)
-        gate_hash = digest(gate_path.read_bytes())
+        raise ValueError(
+            "legacy Vnstock SDK collector is limited to <=5-symbol reference experiments; "
+            "it is not an active M1 gate path"
+        )
     if interval < 1 or timeout < 1 or not 1 <= attempts <= 5:
         raise ValueError("interval >= 1 second, timeout > 0, attempts between 1 and 5")
     try:

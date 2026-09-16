@@ -10,6 +10,10 @@ RIGHTS_STATUS = "RIGHTS_NOT_VERIFIED"
 EXECUTION_POLICY = "ACCEPTED_RESEARCH_RISK"
 PRICE_UNIT = "VND_PER_SHARE"
 ADAPTER_VERSION = "cafef-research-demo-2"
+INVALID_ROW_EVIDENCE_FIELDS = {
+    "BasicPrice", "Ceiling", "Floor", "ClosePrice", "AdjustPrice",
+    "Volume", "TotalValue", "AgreedVolume", "AgreedValue",
+}
 _DOTNET_DATE = re.compile(r"^/?Date\((\d+)(?:[+-]\d+)?\)/?$")
 _VN_TIME = timezone(timedelta(hours=7))
 
@@ -88,7 +92,7 @@ def apply_invalid_row_policy(rows, policy):
         expected = policy if (row.get("provider"), row["symbol"], row["trade_date"]) == (
             policy.get("provider"), policy.get("symbol"), policy.get("trade_date")) else {}
         expected_raw = expected.get("expected_raw_fields", {})
-        raw_match = bool(expected_raw) and all(
+        raw_match = set(expected_raw) == INVALID_ROW_EVIDENCE_FIELDS and all(
             row["raw_fields"].get(key) == value for key, value in expected_raw.items())
         safe = (expected.get("classification") == "PROVIDER_CORRUPT_ROW"
                 and expected.get("row_status") == status

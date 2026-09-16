@@ -13,6 +13,7 @@ from delta_t1.io import atomic_write, digest, encoded, write_json
 from delta_t1.ingestion.planning import source_smoke_report
 from delta_t1.ingestion.sources.base import PublicJsonClient
 from delta_t1.ingestion.sources.cafef import (ADAPTER_VERSION as CAFE_VERSION, CafeFSource,
+                                               INVALID_ROW_EVIDENCE_FIELDS,
                                                apply_invalid_row_policy,
                                                map_trade_history_row)
 from delta_t1.ingestion.sources.vnstock import (ADAPTER_VERSION as KBS_VERSION, KBSPublicHttpSource,
@@ -52,6 +53,8 @@ def validate_config(config):
     if (policy.get("classification"), policy.get("row_status"), policy.get("policy")) != (
             "PROVIDER_CORRUPT_ROW", "INVALID_REQUIRED_MARKET_ROW", "EXCLUDE_ROW"):
         raise ValueError("invalid required-market-row policy is not fail-closed")
+    if set(policy.get("expected_raw_fields", {})) != INVALID_ROW_EVIDENCE_FIELDS:
+        raise ValueError("invalid required-market-row policy lacks the exact raw fingerprint")
     if config.get("corporate_action_evidence", {}).get("status") not in (
             "VERIFIED", "PARTIAL", "UNAVAILABLE"):
         raise ValueError("corporate-action evidence status is invalid")
@@ -217,7 +220,7 @@ def run(config_path):
                             & set(r["trade_date"] for r in cafe_by_window["WINDOW_RECENT"]["rows"]))
             volume = classify_volume_semantics(kbs_by_window["WINDOW_RECENT"],
                                                cafe_by_window["WINDOW_RECENT"]["rows"])
-            volume_safe = volume["classification"] != "UNRESOLVED"
+            volume_safe = volume["market_collection_safe"]
             passed = all(c["ohlcv_valid"] and c["cafef_limits_valid"]
                          and c["invalid_rows_resolved"] and c["value_components_valid"]
                          for c in checks.values()) and volume_safe

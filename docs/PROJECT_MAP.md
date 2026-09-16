@@ -5,8 +5,8 @@
 | Component | Directory/file | Milestone | Trạng thái | Dependency chính |
 |---|---|---|---|---|
 | IO + executable contracts | `src/delta_t1/io.py`, `contracts.py`, `schemas/` | M1 | Có; `shares_history` là optional input cho compatibility | JSON schema, immutable write policy |
-| Source acquisition + gates | `ingestion/crawler.py`, `planning.py`, `recovery.py`, `calendar.py` | M1 | Gate `SOURCE_SMOKE → REPRESENTATIVE_PILOT → M1_SCALE`; chưa gate thật nào PASS | source rights/semantics, evidence hashes, HTTP policy |
-| Source adapters | `ingestion/sources/` | M1 | Vnstock migrated; CafeF/VietFin là incomplete interface | endpoint semantics và rights approval |
+| Source acquisition + gates | `ingestion/representative_pilot.py`, `planning.py`, source runners | M1 | `SOURCE_SMOKE` PASS; official pilot runner/config ready, pilot chưa chạy; M1 scale chưa unlock | reviewed 50–60 universe, real hashes/QC |
+| Source adapters | `ingestion/sources/` | M1 | Official pilot: KBS direct HTTP + CafeF direct; Vnstock SDK chỉ legacy/reference | accepted-risk research use; production rights chưa verified |
 | Normalization | `ingestion/normalization/` | M1 | Generic architecture | source candidates, identity/unit/basis rules |
 | Reconciliation | `ingestion/reconciliation/` | M1 | Field-level decisions; tách match/missing/value/unit/basis/timing/identity conflict | semantic comparison key, normalized candidates, approved priority rules |
 | Quality + promotion | `ingestion/quality.py`, compatibility promotion path | M1 | Có; legacy Vnstock path được giữ qua adapter | canonical schema và reconciliation |
@@ -28,7 +28,7 @@
 | Artifact/reporting | `experiments/artifacts.py`, `reporting.py` | M2/M3 | Version/hash/export responsibility | runner outputs |
 | Artifact IDs | `artifact_ids.py` | Cross-cutting | Future IDs dùng UTC timestamp + 8 lowercase hex; old IDs vẫn hợp lệ | immutable manifests + local active index |
 | Product projection/API | `product/`, `web/` | Product/M3 | Có, phải giữ hoạt động | complete versioned experiment bundle |
-| CLI/scripts | `cli.py`, `run.py`, `scripts/` | Cross-cutting | Có; import path được migrate | package APIs/configs |
+| CLI/scripts | `cli.py`, `run.py`, `scripts/` | Cross-cutting | `run_representative_pilot.py` là active M1 pilot; `crawl_vnstock.py` là legacy SDK experiment | package APIs/configs, PASS source gate |
 | Config | `configs/data|features|experiments|product/` | Cross-cutting | Reorganized examples | registries + protocol schemas |
 | Human collection guide | `docs/crawl/README.md` | M1 | START HERE cho workflow manual/multi-person; chưa thay source approval | assignment, rights review, raw hashes |
 | Tests | `tests/unit|integration|regression|fixtures/` | Cross-cutting | Assertion cũ được migrate | all layers |

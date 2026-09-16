@@ -1,4 +1,4 @@
-"""Collect a small vendor sample; expand explicitly after reviewing source semantics."""
+"""LEGACY Vnstock SDK experiment; never official REPRESENTATIVE_PILOT evidence."""
 import argparse
 import os
 import sys
@@ -15,7 +15,7 @@ if __name__ == "__main__":
     parser.add_argument("--start", default="2026-08-01")
     parser.add_argument("--end", default="2026-08-31")
     parser.add_argument("--symbols", nargs="+", default=["FPT", "VNM", "PVS"])
-    parser.add_argument("--gate-report", help="PASS SOURCE_SMOKE for 6–60 symbols; PASS REPRESENTATIVE_PILOT above 60")
+    parser.add_argument("--gate-report", help="legacy compatibility only; official M1 gates are rejected")
     parser.add_argument("--resume")
     parser.add_argument("--interval", type=float, default=5.0)
     args = parser.parse_args()

@@ -50,7 +50,7 @@ Mỗi field decision giữ table, canonical key, comparison key, field, candidat
 ## Gate trước scale
 
 1. **SOURCE_SMOKE:** 3–5 securities thật, HOSE/HNX/UPCOM và short-history/inactive/identity edge case khi có thể; request >=5 năm nếu source hỗ trợ. Kiểm tra required market fields, known corporate actions, ít nhất ba quarterly reports, unit/timezone/basis/pagination/rate/rights. PASS chỉ mở pilot.
-2. **REPRESENTATIVE_PILOT:** 50–60 securities, >=5 năm, representative exchange/sector; historical identity, multi-source field reconciliation, PIT financial và QC/coverage evidence. Chỉ PASS bước này mở scale planning.
+2. **REPRESENTATIVE_PILOT:** 50–60 securities, >=5 năm, representative exchange/sector; official KBS direct HTTP + CafeF direct, field reconciliation và market QC/coverage evidence. Financial PIT là track riêng; unresolved giữ feature lock nhưng không chặn market pilot. Chỉ PASS bước này mở M1 scale planning.
 3. **M1_SCALE:** >=300 securities và >=5 năm; chưa chạy.
 4. **EXTENDED_SCALE:** historical eligible universe, 5–15 năm, có thể >1.200; không cap 350 và chưa chạy.
 
@@ -59,13 +59,14 @@ Mọi report có `status`, `gate`, `checks`, `blocking_reasons`, `scope` và inp
 ## Commands
 
 ```powershell
-.venv\Scripts\python.exe scripts/crawl_vnstock.py --symbols FPT VNM PVS --start 2021-01-01 --end 2025-12-31
+.venv\Scripts\python.exe scripts/run_representative_pilot.py --help
+.venv\Scripts\python.exe scripts/crawl_vnstock.py --help  # LEGACY SDK experiment only
 .venv\Scripts\python.exe scripts/plan_crawl.py --help
 .venv\Scripts\python.exe scripts/promote_vnstock.py --help
 .venv\Scripts\python.exe run.py run --config configs/data/synthetic_smoke.example.json
 ```
 
-`configs/data/source_smoke.example.json` là safe template, mặc định fail-closed và không chứa endpoint CafeF/VietFin giả. Không chạy template này cho tới khi semantics/rights được review.
+`configs/data/representative_pilot.example.json` là active fail-closed template; cần reviewed local universe và PASS SOURCE_SMOKE gate. `configs/data/source_smoke.example.json` vẫn là safe smoke template. Legacy `pilot.example.json` không phải active runner config.
 
 Secrets chỉ nằm trong environment variable. Một writer sở hữu một run; resume chỉ khi config/code/raw hashes khớp. JSONL dùng cho smoke/pilot; chỉ cân nhắc partitioned Parquet/DuckDB và serving storage sau khi M1 gates có evidence.
 

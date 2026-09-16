@@ -21,7 +21,7 @@
 | FPT | HOSE | 14 | 16 | PASS | `MATCHED_VOLUME` |
 | VNM | HOSE | 14 | 16 raw / 15 eligible | PASS | `MATCHED_VOLUME` |
 | PVS | HNX | 14 | 16 | PASS | `MATCHED_VOLUME` |
-| ACV | UPCOM | 14 | 16 | PASS | `SOURCE_SEMANTIC_DIFFERENCE` |
+| ACV | UPCOM | 14 | 16 | PASS | Evidence `UNRESOLVED`; source-qualified storage safe |
 | VNINDEX | benchmark | 14 | 16 | PASS | provider volume retained, unit unresolved |
 
 KBS OHLC là `VENDOR_ADJUSTED`; CafeF reference/limit price là VND/share sau multiplier `1,000`. Hai price basis không được so sánh hoặc overwrite. `TotalValue`/`AgreedValue` giữ raw VND; missing không đổi thành zero.
@@ -34,7 +34,7 @@ Policy chỉ áp dụng khi provider/symbol/date và toàn bộ raw fields khớ
 
 ## ACV volume resolution
 
-Năm ngày gần nhất được kiểm tra. KBS volume không bằng CafeF matched volume và cũng không bằng matched plus put-through; tỷ lệ gần 1 nên không có bằng chứng cho unit multiplier hoặc lot/board conversion. Classification là `SOURCE_SEMANTIC_DIFFERENCE`, với promotion rule `KEEP_SEPARATE_NO_EQUALITY_ASSUMPTION`. Vì hai giá trị vẫn source-qualified và không bị merge/overwrite, đây là policy an toàn và ACV PASS.
+Năm ngày gần nhất được kiểm tra. KBS volume không bằng CafeF matched volume và cũng không bằng matched plus put-through. Approximate numerical similarity không chứng minh semantic; readiness refactor vì vậy ghi classification hiện hành là `UNRESOLVED`. `storage_policy=KEEP_SOURCE_QUALIFIED`, `equality_assumption=false`, `canonical_merge_allowed=false`; KBS volume là explicit canonical candidate có KBS provenance. Vì không merge/average/overwrite, `market_collection_safe=true` và SOURCE_SMOKE PASS không đổi. Immutable run vẫn giữ original classifier output để audit.
 
 ## Supporting evidence
 

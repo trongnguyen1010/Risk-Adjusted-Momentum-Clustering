@@ -6,8 +6,8 @@ Mục tiêu là canonical data có historical identity, price basis, point-in-ti
 
 - [x] Immutable ingestion, schema validation, QC, recovery và synthetic regression foundation.
 - [x] Ba năm usable observed history và `REFERENCE_ONLY` policy.
-- [ ] **SOURCE_SMOKE:** 3–5 securities thật, HOSE/HNX/UPCOM và edge case khi có thể; request >=5 năm nếu source hỗ trợ; review endpoint, field/unit/timezone/basis, pagination/rate/rights, corporate action, share/capital-structure availability và quarterly reports. PASS chỉ mở representative pilot, không mở scale.
-- [ ] **REPRESENTATIVE_PILOT:** 50–60 securities, >=5 năm, representative exchange/sector; historical identity, multi-source field-level reconciliation, PIT financial, share-history coverage và QC/coverage evidence. Chỉ PASS gate này mở scale planning.
+- [x] **SOURCE_SMOKE:** canonical run `source-smoke-20260916T122331Z-79427ec6` PASS; chỉ mở representative pilot, không mở scale.
+- [ ] **REPRESENTATIVE_PILOT:** runner/config/dry-run ready, real 50–60 securities × >=5 năm chưa chạy. Market gate dùng KBS direct HTTP + CafeF direct; financial PIT là track riêng và vẫn khóa feature.
 - [ ] **M1_SCALE:** >=300 securities, >=5 năm; chưa chạy.
 - [ ] **EXTENDED_SCALE:** historical eligible universe, 5–15 năm, có thể >1.200 securities; không có cap 350 và chưa chạy.
 - [ ] Chốt financial taxonomy, publication/revision rules và paper-backed financial feature.

@@ -103,7 +103,9 @@ class ResearchDemoSourceTests(unittest.TestCase):
                   "classification": "PROVIDER_CORRUPT_ROW",
                   "row_status": "INVALID_REQUIRED_MARKET_ROW", "policy": "EXCLUDE_ROW",
                   "expected_raw_fields": {"BasicPrice": 85.4, "Ceiling": 223.6,
-                                          "Floor": 194.4, "ClosePrice": 85.2}}
+                      "Floor": 194.4, "ClosePrice": 85.2, "AdjustPrice": 64.634,
+                      "Volume": 2452400, "TotalValue": 209239000000,
+                      "AgreedVolume": 0, "AgreedValue": 0}}
         self.assertEqual(price_band_row_status(row), "INVALID_REQUIRED_MARKET_ROW")
         eligible, findings = apply_invalid_row_policy([row], policy)
         self.assertEqual([], eligible)
@@ -119,7 +121,7 @@ class ResearchDemoSourceTests(unittest.TestCase):
         self.assertEqual("FAIL_SYMBOL_WINDOW", findings[0]["policy"])
         self.assertFalse(findings[0]["safe"])
 
-    def test_acv_volume_is_source_semantic_difference(self):
+    def test_acv_volume_remains_unresolved_and_source_qualified(self):
         kbs = [{"trade_date": f"2026-09-{day:02d}", "volume": value}
                for day, value in ((15, 231600), (14, 413700), (11, 462000), (10, 193500), (9, 713500))]
         cafef = [{"trade_date": f"2026-09-{day:02d}", "matched_volume": matched,
@@ -127,9 +129,27 @@ class ResearchDemoSourceTests(unittest.TestCase):
                  for day, matched, put_through in ((15, 229900, 0), (14, 413400, 110000),
                      (11, 460800, 0), (10, 193300, 46300), (9, 705700, 0))]
         finding = classify_volume_semantics(kbs, cafef)
-        self.assertEqual("SOURCE_SEMANTIC_DIFFERENCE", finding["classification"])
+        self.assertEqual("UNRESOLVED", finding["classification"])
         self.assertEqual(5, finding["dates_checked"])
-        self.assertEqual("KEEP_SEPARATE_NO_EQUALITY_ASSUMPTION", finding["promotion_rule"])
+        self.assertEqual("KEEP_SOURCE_QUALIFIED", finding["storage_policy"])
+        self.assertFalse(finding["equality_assumption"])
+        self.assertFalse(finding["canonical_merge_allowed"])
+        self.assertTrue(finding["market_collection_safe"])
+
+    def test_volume_semantics_require_exact_or_documented_evidence(self):
+        kbs = [{"trade_date": "2026-09-15", "volume": 100}]
+        matched = [{"trade_date": "2026-09-15", "matched_volume": 100,
+                    "put_through_volume": 25}]
+        total = [{"trade_date": "2026-09-15", "matched_volume": 75,
+                  "put_through_volume": 25}]
+        approximate = [{"trade_date": "2026-09-15", "matched_volume": 99,
+                        "put_through_volume": 0}]
+        self.assertEqual("MATCHED_VOLUME", classify_volume_semantics(kbs, matched)["classification"])
+        self.assertEqual("TOTAL_VOLUME", classify_volume_semantics(kbs, total)["classification"])
+        self.assertEqual("UNRESOLVED", classify_volume_semantics(kbs, approximate)["classification"])
+        self.assertEqual("OTHER_DOCUMENTED_SEMANTIC",
+                         classify_volume_semantics(kbs, approximate,
+                             documented_mapping="provider-documented auction inclusion")["classification"])
 
     def test_cafef_window_records_actual_contributing_page_hash(self):
         class Source:
