@@ -105,6 +105,32 @@ class RepresentativePilotTests(unittest.TestCase):
                     dry_run=False)
             return read_json(directory / "run.json"), plan
 
+    def setup_real_resume_run(self, directory):
+        root, config_path, gate_path = self.setup_files(directory)
+        prepared = load_readiness(config_path, gate_path, root=root)
+        plan = build_job_plan(prepared)
+        run_id = "representative-pilot-20260916T000000Z-1234abcd"
+        with patch("delta_t1.ingestion.representative_pilot.code_hash",
+                   return_value="c" * 64):
+            run_directory = _write_run_headers(
+                prepared, plan, run_id, dry_run=False)
+        write_json(run_directory / "manifest.json", {
+            "run_id": run_id, "mode": "REAL_EXECUTION", "status": "RUNNING",
+            "jobs": {job["id"]: {
+                "status": "COMPLETE", "job": job, "artifacts": [],
+            } for job in plan["jobs"]},
+        })
+        return root, config_path, gate_path, run_id, run_directory
+
+    def assert_resume_refused_before_network(self, config_path, gate_path, root,
+                                             run_id, message):
+        with patch("delta_t1.ingestion.representative_pilot.code_hash",
+                   return_value="c" * 64):
+            with patch("delta_t1.ingestion.representative_pilot.PublicJsonClient",
+                       side_effect=AssertionError("network client constructed")):
+                with self.assertRaisesRegex(ValueError, message):
+                    run_real(config_path, gate_path, root=root, resume=run_id)
+
     def assert_cli_refused(self, arguments):
         with contextlib.redirect_stderr(io.StringIO()):
             with self.assertRaises(SystemExit) as raised:
@@ -190,22 +216,94 @@ class RepresentativePilotTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cafef_adapter_version mismatch"):
             validate_resume_identity(stored, identity)
 
-    def test_unchanged_identity_permits_resume_path(self):
+    def test_dry_run_cannot_resume_as_real_execution(self):
         with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
             root, config_path, gate_path = self.setup_files(temp)
-            prepared = load_readiness(config_path, gate_path, root=root)
-            plan = build_job_plan(prepared)
             run_id = "representative-pilot-20260916T000000Z-1234abcd"
             with patch("delta_t1.ingestion.representative_pilot.code_hash",
                        return_value="c" * 64):
-                directory = _write_run_headers(
-                    prepared, plan, run_id, dry_run=False)
-                write_json(directory / "manifest.json", {
-                    "run_id": run_id, "mode": "REAL_EXECUTION", "status": "RUNNING",
-                    "jobs": {job["id"]: {
-                        "status": "COMPLETE", "job": job, "artifacts": [],
-                    } for job in plan["jobs"]},
-                })
+                directory, _ = dry_run(
+                    config_path, gate_path, root=root, run_id=run_id)
+            before = read_json(directory / "manifest.json")
+            self.assert_resume_refused_before_network(
+                config_path, gate_path, root, run_id, "run header mode mismatch")
+            self.assertEqual(before, read_json(directory / "manifest.json"))
+
+    def test_resume_refuses_non_real_run_header_mode(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            root, config_path, gate_path, run_id, directory = self.setup_real_resume_run(temp)
+            header = read_json(directory / "run.json")
+            header["mode"] = "DRY_RUN"
+            write_json(directory / "run.json", header)
+            self.assert_resume_refused_before_network(
+                config_path, gate_path, root, run_id, "run header mode mismatch")
+
+    def test_resume_refuses_non_real_manifest_mode(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            root, config_path, gate_path, run_id, directory = self.setup_real_resume_run(temp)
+            manifest = read_json(directory / "manifest.json")
+            manifest["mode"] = "DRY_RUN"
+            write_json(directory / "manifest.json", manifest)
+            self.assert_resume_refused_before_network(
+                config_path, gate_path, root, run_id, "manifest mode mismatch")
+
+    def test_resume_refuses_run_id_mismatch(self):
+        for filename, message in (("run.json", "run header run_id mismatch"),
+                                  ("manifest.json", "manifest run_id mismatch")):
+            with self.subTest(filename=filename):
+                with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+                    root, config_path, gate_path, run_id, directory = (
+                        self.setup_real_resume_run(temp))
+                    document = read_json(directory / filename)
+                    document["run_id"] = "representative-pilot-different"
+                    write_json(directory / filename, document)
+                    self.assert_resume_refused_before_network(
+                        config_path, gate_path, root, run_id, message)
+
+    def test_resume_refuses_tampered_stored_job_plan(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            root, config_path, gate_path, run_id, directory = self.setup_real_resume_run(temp)
+            stored_plan = read_json(directory / "job_plan.json")
+            stored_plan["benchmark"] = "TAMPERED"
+            write_json(directory / "job_plan.json", stored_plan)
+            self.assert_resume_refused_before_network(
+                config_path, gate_path, root, run_id, "stored job_plan_hash mismatch")
+
+    def test_resume_refuses_missing_manifest_job(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            root, config_path, gate_path, run_id, directory = self.setup_real_resume_run(temp)
+            manifest = read_json(directory / "manifest.json")
+            manifest["jobs"].pop(next(iter(manifest["jobs"])))
+            write_json(directory / "manifest.json", manifest)
+            self.assert_resume_refused_before_network(
+                config_path, gate_path, root, run_id, "manifest job set mismatch")
+
+    def test_resume_refuses_extra_manifest_job(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            root, config_path, gate_path, run_id, directory = self.setup_real_resume_run(temp)
+            manifest = read_json(directory / "manifest.json")
+            manifest["jobs"]["unexpected-job"] = {
+                "status": "PENDING", "job": {"id": "unexpected-job"}, "artifacts": [],
+            }
+            write_json(directory / "manifest.json", manifest)
+            self.assert_resume_refused_before_network(
+                config_path, gate_path, root, run_id, "manifest job set mismatch")
+
+    def test_resume_refuses_modified_manifest_job_definition(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            root, config_path, gate_path, run_id, directory = self.setup_real_resume_run(temp)
+            manifest = read_json(directory / "manifest.json")
+            job_id = next(iter(manifest["jobs"]))
+            manifest["jobs"][job_id]["job"]["provider"] = "tampered"
+            write_json(directory / "manifest.json", manifest)
+            self.assert_resume_refused_before_network(
+                config_path, gate_path, root, run_id, "manifest job definition mismatch")
+
+    def test_unchanged_identity_permits_resume_path(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            root, config_path, gate_path, run_id, directory = self.setup_real_resume_run(temp)
+            with patch("delta_t1.ingestion.representative_pilot.code_hash",
+                       return_value="c" * 64):
                 with patch("delta_t1.ingestion.representative_pilot._execute_job",
                            side_effect=AssertionError("completed resume job re-executed")) as execute:
                     resumed, _, _ = run_real(

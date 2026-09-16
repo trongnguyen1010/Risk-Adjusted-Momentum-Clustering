@@ -100,6 +100,8 @@ Real pilot luôn yêu cầu explicit `--execute`; invocation không có mode ho�
 
 Mỗi `run.json` khóa exact `config_hash`, `universe_hash`, `source_gate_hash`, `code_hash`, deterministic `job_plan_hash`, KBS adapter version và CafeF adapter version. Resume recompute và so khớp toàn bộ identity; thiếu hoặc mismatch bất kỳ field nào đều fail-closed và yêu cầu run immutable mới. Mixed-version resume bị cấm, không migrate run cũ.
 
+Resume chỉ chấp nhận artifact có cùng `run_id` và `mode=REAL_EXECUTION` trong cả `run.json` lẫn `manifest.json`; dry-run artifact không thể promote hoặc resume thành real execution. Trước khi tạo network client, runner verify hash và exact content của stored `job_plan.json`, exact manifest job-ID set và exact job definition cho từng ID. Mismatch dừng trước execution và không mutate run.
+
 ## Raw layout và provenance
 
 ```text
@@ -134,6 +136,6 @@ PASS chỉ unlock `M1_SCALE` planning. Nó không có nghĩa financial PIT/featu
 
 ## Readiness evidence
 
-Focused dry-run `representative-pilot-20260916T130831Z-78d8f2d2`: `PASS`, 50 fake fixture symbols, 713 planned jobs, zero network requests, không provider raw, không gate/unlock. Validation: 129/129 unit/integration/regression tests PASS; `compileall` PASS; synthetic smoke `run-20260916T135530Z-737413bc` complete; tracked JSON và Markdown links PASS; `git diff --check` PASS. GitHub CI `NOT_RUN`.
+Focused dry-run `representative-pilot-20260916T130831Z-78d8f2d2`: `PASS`, 50 fake fixture symbols, 713 planned jobs, zero network requests, không provider raw, không gate/unlock. Validation: 137/137 unit/integration/regression tests PASS; `compileall` PASS; synthetic smoke `run-20260916T141124Z-0b92997d` complete; tracked JSON và Markdown links PASS; `git diff --check` PASS. GitHub CI `NOT_RUN`.
 
 Blocker còn lại để **thực thi** pilot là review/freeze real 50–60-symbol universe và local config; pilot chưa được chạy trong readiness task này. Local dry-run artifacts và synthetic outputs vẫn gitignored.

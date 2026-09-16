@@ -1,5 +1,6 @@
 # Chưa phát hành — REPRESENTATIVE_PILOT readiness (2026-09-16)
 
+- Micro-hardening resume: chỉ nhận immutable `REAL_EXECUTION` run cùng `run_id`, verify stored job-plan hash/content và exact manifest job set/definitions trước khi tạo network client; dry-run không thể promote/resume thành real.
 - Hardening cuối: real acquisition bắt buộc explicit `--execute`; no-mode, mixed mode và resume không kèm execute đều fail-closed.
 - Khóa resume bằng exact config/universe/source-gate/code/job-plan hashes cùng KBS/CafeF adapter versions; cấm mixed-version resume và không migrate run cũ.
 - Thêm official pilot runner/config/universe contract dùng đúng KBS direct public HTTP + CafeF direct; dry-run zero-network không thể emit PASS gate hoặc unlock scale.
@@ -7,7 +8,7 @@
 - Tách market pilot gate khỏi financial PIT: `PIT_UNRESOLVED` không chặn market readiness nhưng bắt buộc `financial_features_allowed=false`.
 - Sửa volume classifier: chỉ exact equality/documented mapping mới xác định semantic; ACV là `UNRESOLVED`, giữ `KEEP_SOURCE_QUALIFIED`, không merge.
 - Chuẩn bị immutable run/job/manifest/gate layout, resume hash guards và pilot gate chỉ unlock `M1_SCALE` sau future real evidence.
-- Validation: 129/129 tests, compileall, synthetic smoke và zero-network pilot dry-run pass; GitHub CI không chạy; không thực hiện real pilot.
+- Validation: 137/137 tests, compileall, synthetic smoke và zero-network pilot dry-run pass; GitHub CI không chạy; không thực hiện real pilot.
 
 # Chưa phát hành — M1 Data V2 runtime reset (2026-09-16)
 

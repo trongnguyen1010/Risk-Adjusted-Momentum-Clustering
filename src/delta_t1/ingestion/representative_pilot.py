@@ -236,6 +236,47 @@ def validate_resume_identity(run_header, expected_identity):
                 f"resume {field} mismatch; start a new immutable run")
 
 
+def validate_resume_run(directory, run_id, expected_plan, expected_identity):
+    """Validate an immutable real run completely before constructing a client."""
+    run_header = read_json(directory / "run.json")
+    manifest = read_json(directory / "manifest.json")
+    for name, document in (("run header", run_header), ("manifest", manifest)):
+        if document.get("run_id") != run_id:
+            raise ValueError(
+                f"resume {name} run_id mismatch; start a new immutable run")
+        if document.get("mode") != "REAL_EXECUTION":
+            raise ValueError(
+                f"resume {name} mode mismatch; only REAL_EXECUTION runs can resume")
+    validate_resume_identity(run_header, expected_identity)
+
+    stored_plan = read_json(directory / "job_plan.json")
+    if digest(encoded(stored_plan)) != expected_identity["job_plan_hash"]:
+        raise ValueError(
+            "resume stored job_plan_hash mismatch; start a new immutable run")
+    if stored_plan != expected_plan:
+        raise ValueError(
+            "resume stored job plan mismatch; start a new immutable run")
+
+    expected_jobs = {job["id"]: job for job in expected_plan["jobs"]}
+    stored_jobs = manifest.get("jobs")
+    if not isinstance(stored_jobs, dict):
+        raise ValueError(
+            "resume manifest jobs must be an object; start a new immutable run")
+    missing = sorted(set(expected_jobs) - set(stored_jobs))
+    extra = sorted(set(stored_jobs) - set(expected_jobs))
+    if missing or extra:
+        raise ValueError(
+            f"resume manifest job set mismatch (missing={missing}, extra={extra}); "
+            "start a new immutable run")
+    for job_id, expected_job in expected_jobs.items():
+        state = stored_jobs[job_id]
+        if not isinstance(state, dict) or state.get("job") != expected_job:
+            raise ValueError(
+                f"resume manifest job definition mismatch: {job_id}; "
+                "start a new immutable run")
+    return manifest
+
+
 def _write_run_headers(prepared, plan, run_id, *, dry_run):
     directory = _run_directory(prepared["root"], run_id)
     if directory.exists():
@@ -473,9 +514,7 @@ def run_real(config_path, gate_report_path, *, root, resume=None):
     if resume:
         if not run_id.startswith("representative-pilot-") or not directory.is_dir():
             raise ValueError("resume requires an existing representative-pilot run")
-        manifest = read_json(directory / "manifest.json")
-        run_header = read_json(directory / "run.json")
-        validate_resume_identity(run_header, identity)
+        manifest = validate_resume_run(directory, run_id, plan, identity)
     else:
         directory = _write_run_headers(prepared, plan, run_id, dry_run=False)
         manifest = {"run_id": run_id, "mode": "REAL_EXECUTION", "status": "RUNNING",
