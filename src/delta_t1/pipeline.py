@@ -10,7 +10,7 @@ from .features.registry import FEATURE_REGISTRY
 
 
 REQUIRED_INPUT_TABLES = {"securities", "prices_daily", "benchmark_daily", "trading_calendar"}
-OPTIONAL_INPUT_TABLES = {"corporate_actions", "risk_free_rate", "financial_reports", "financial_facts"}
+OPTIONAL_INPUT_TABLES = {"corporate_actions", "risk_free_rate", "financial_reports", "financial_facts", "shares_history"}
 INPUT_TABLES = REQUIRED_INPUT_TABLES | OPTIONAL_INPUT_TABLES
 
 

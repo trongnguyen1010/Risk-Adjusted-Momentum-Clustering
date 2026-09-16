@@ -11,11 +11,12 @@ Canonical row giữ `source`, `fetched_at` và `data_version`. Missing nullable 
 | Table | Key | Semantics chính |
 |---|---|---|
 | `securities` | security_id, valid_from | historical ticker/exchange/issuer interval, status, currency |
+| `shares_history` | security_id, effective_date | historical listed/outstanding/issued/treasury shares, availability và provenance |
 | `prices_daily` | security_id, trade_date | raw OHLC, optional reference/ceiling/floor, adjusted close nếu có, basis, volume/value, status, availability |
 | `benchmark_daily` | index_id, trade_date | price hoặc total-return level và basis |
 | `trading_calendar` | exchange, trade_date | open/month-end và decision timestamp |
 | `corporate_actions` | event_id | announcement/ex/record/effective/payment dates và economic terms |
-| `risk_free_rate` | date, tenor | annualized rate, day-count basis và availability |
+| `risk_free_rate` (optional support) | date, tenor | annualized rate, day-count basis và availability |
 | `financial_reports` | report_id | fiscal period, scope, audit/revision, publication/availability, document hash |
 | `financial_facts` | report_id, statement_type, item_code | tidy fact, instant/duration, currency/scale, taxonomy |
 | `feature_snapshots` | security_id, as_of_date | PIT features, history, eligibility segment, NA reasons |
@@ -31,6 +32,12 @@ Canonical row giữ `source`, `fetched_at` và `data_version`. Missing nullable 
 - Financial timing phải thỏa `available_at >= published_at >= period_end`.
 - Restatement tạo report vintage mới; không overwrite snapshot cũ.
 - Market/feature input phải có `available_at <= decision_at`; execution bắt đầu từ eligible session kế tiếp.
+
+## Shares history
+
+`shares_history` giữ số cổ phiếu listed, outstanding, issued và treasury theo `security_id + effective_date` để hỗ trợ historical market cap, valuation, corporate-action cross-check và future size feature. Các count dùng đơn vị shares, nullable non-negative integer; mỗi row phải có ít nhất một count. Không giả định các count bằng nhau và không áp dụng current snapshot ngược về lịch sử. `available_at` có thể trước hoặc sau `effective_date`; `fetched_at` phải không sớm hơn `available_at`. Corrections được giữ bằng immutable run/data version.
+
+Market cap, BVPS, P/E, P/B, Piotroski F-Score, Beneish M-Score và Altman Z-Score variants là derived/versioned analytics, không phải raw source-of-truth. Vendor-derived ratio chỉ giữ làm comparison evidence. End-of-period `outstanding_shares` không đủ để tái tạo standard EPS; cần weighted-average basic/diluted shares hoặc documented vendor EPS basis.
 
 ## Unit và price basis
 

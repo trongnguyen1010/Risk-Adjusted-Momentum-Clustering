@@ -77,6 +77,7 @@ src/delta_t1/ingestion/sources/
 src/delta_t1/ingestion/normalization/
 src/delta_t1/ingestion/reconciliation/
 src/delta_t1/ingestion/planning.py
+src/delta_t1/schemas/shares_history.json
 src/delta_t1/schemas/prices_daily.json
 src/delta_t1/schemas/financial_reports.json
 src/delta_t1/schemas/financial_facts.json
@@ -87,13 +88,7 @@ Run baseline tests before changes.
 2. REORGANIZE CRAWL DOCS FIRST
 ==================================================
 
-If the repository still has:
-
-docs/DATA_COLLECTION_GUIDE.md
-
-move it using git history-preserving rename to:
-
-docs/crawl/DATA_COLLECTION_GUIDE.md
+Use `docs/crawl/README.md` as the only data-collection navigation entry point from outside the crawl folder.
 
 Create/ensure:
 
@@ -139,6 +134,7 @@ For each source separately:
 1. Identify the public UI/page/document that exposes:
    - historical market data;
    - company/security metadata;
+   - share/capital structure data;
    - financial statements if available;
    - corporate actions if available.
 
@@ -242,6 +238,28 @@ A source field is not considered verified until:
 - unit is understood;
 - mapping is documented;
 - transform is explicit.
+
+==================================================
+7A. SHARE / CAPITAL-STRUCTURE AVAILABILITY
+==================================================
+
+For each source, check:
+
+- current listed shares available;
+- current outstanding shares available;
+- issued/treasury shares available;
+- historical changes available;
+- effective date available;
+- publication/available time available.
+
+Record exactly one status:
+
+VERIFIED_AVAILABLE
+CURRENT_SNAPSHOT_ONLY
+HISTORICAL_UNAVAILABLE
+BLOCKED
+
+Do not assume share counts are equal and do not backfill current counts into history. A market-price source does not fail solely because it lacks historical shares; another approved source may supply the domain, but the limitation must be explicit.
 
 ==================================================
 8. RAW FIRST
@@ -440,6 +458,7 @@ PASS requires:
 - >=5-year request or documented source history limitation;
 - required market fields verified;
 - corporate action inspected;
+- shares/capital-structure availability status documented;
 - >=3 quarterly reports inspected;
 - collection semantics verified;
 - rights reviewed;

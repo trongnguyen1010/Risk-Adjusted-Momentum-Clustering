@@ -18,7 +18,24 @@
 | ticker_history | Raw/High | Identity changes |
 | exchange_history | Raw/High | Historical membership |
 
-## 2. Daily market
+## 2. Shares / Capital Structure History
+
+| Field | Priority |
+|---|---|
+| security_id | Required |
+| effective_date | Required |
+| available_at | Required |
+| listed_shares | Conditional |
+| outstanding_shares | Conditional |
+| issued_shares | Conditional |
+| treasury_shares | Conditional |
+| source | Required |
+| fetched_at | Required |
+| data_version | Required |
+
+Count dùng đơn vị shares và ít nhất một count phải có. Source có thể chỉ cung cấp current snapshot; historical availability phải được ghi trung thực. Không giả định các count bằng nhau và không backfill current counts vào quá khứ.
+
+## 3. Daily market
 
 | Field | Priority | Canonical target | Vì sao |
 |---|---|---|---|
@@ -46,7 +63,7 @@ Optional RAW-only candidates:
 
 Không promote các field optional trước semantics review.
 
-## 3. Corporate actions
+## 4. Corporate actions
 
 | Field | Priority |
 |---|---|
@@ -63,7 +80,7 @@ Không promote các field optional trước semantics review.
 | currency | Conditional |
 | source_document | High |
 
-## 4. Financial reports
+## 5. Financial reports
 
 ### Report metadata
 
@@ -119,6 +136,7 @@ Không promote các field optional trước semantics review.
 - total_debt;
 - shareholders_equity;
 - retained_earnings.
+- property_plant_equipment.
 
 ### Cash-flow raw facts
 
@@ -130,8 +148,11 @@ Không promote các field optional trước semantics review.
 - capital_expenditure nếu semantics rõ;
 - dividends_paid;
 - net_change_in_cash.
+- depreciation nếu semantics rõ.
 
-## 5. Benchmark
+Các fact `weighted_average_basic_shares` và `weighted_average_diluted_shares` được giữ khi source semantics đã verify; không thay bằng end-of-period outstanding shares.
+
+## 6. Benchmark
 
 Tối thiểu:
 
@@ -141,7 +162,7 @@ Tối thiểu:
 - index basis;
 - source/provenance.
 
-## 6. Trading calendar
+## 7. Trading calendar
 
 - exchange;
 - trade_date;

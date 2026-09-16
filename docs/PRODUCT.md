@@ -13,8 +13,10 @@ Foundation hiện có:
 
 API base `/api/v1` hỗ trợ `GET /health`, `GET /companies`, `GET /companies/{ticker}`. Unknown ticker trả 404; nullable/unavailable không được hiển thị thành zero. Payload giữ schema version, as-of date, price basis, warnings và run provenance.
 
+Market cap, BVPS, P/E, P/B, Piotroski F-Score, Beneish M-Score và Altman Z-Score variants chỉ được compute/version sau khi source semantics và formula được duyệt; vendor-derived values chỉ là comparison evidence. EPS không được suy từ end-of-period outstanding shares khi thiếu weighted-average basic/diluted shares hoặc documented vendor EPS basis. Composite scores cũng không tự động trở thành clustering inputs vì có thể double-count underlying facts.
+
 ## Future commercial product
 
-News, sentiment, authentication, watchlists, alerts, personalized workspace và production database/cache là extension thương mại tương lai, ngoài scope refactor hiện tại. Chúng chỉ được mở sau rights, privacy, security và product decisions riêng.
+Company profile/logo/description/website, news, sentiment, authentication, watchlists, alerts, personalized workspace và production database/cache là extension thương mại tương lai, ngoài M1 hiện tại. Chúng chỉ được mở sau rights, privacy, security và product decisions riêng.
 
 Product không được dẫn dắt research methodology. Cluster label không phải bullish/bearish recommendation; giao diện phải phân biệt pilot/synthetic với validated production evidence.

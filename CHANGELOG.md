@@ -1,5 +1,7 @@
 # Chưa phát hành — M1 readiness correction (2026-09-16)
 
+- Thêm optional canonical contract `shares_history`, generic reconciliation key và QC cho security relation, non-empty counts và availability timing; không thay legacy Vnstock promotion.
+- Bổ sung discovery/smoke documentation cho capital structure với explicit availability status; chưa crawl hoặc discover endpoint thật.
 - Thay gate pilot cũ bằng `SOURCE_SMOKE`, `REPRESENTATIVE_PILOT`, `M1_SCALE`, `EXTENDED_SCALE`; synthetic không thể mở gate thật và extended planner không còn cap 350.
 - Đổi tên config thành `synthetic_smoke.example.json`, thêm `source_smoke.example.json` fail-closed không chứa endpoint giả và thêm hướng dẫn collection/handoff nhiều người.
 - Nâng market/feature contract lên 1.4: thêm reference/ceiling/floor theo VND/share và loại Sharpe khỏi active feature snapshot; giữ read-only legacy 1.3 compatibility.

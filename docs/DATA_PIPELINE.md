@@ -54,7 +54,7 @@ Mỗi field decision giữ table, canonical key, comparison key, field, candidat
 3. **M1_SCALE:** >=300 securities và >=5 năm; chưa chạy.
 4. **EXTENDED_SCALE:** historical eligible universe, 5–15 năm, có thể >1.200; không cap 350 và chưa chạy.
 
-Mọi report có `status`, `gate`, `checks`, `blocking_reasons`, `scope` và input evidence hashes. Synthetic không pass gate thật. Quy trình manual và handoff cho nhiều collector nằm tại [DATA_COLLECTION_GUIDE.md](DATA_COLLECTION_GUIDE.md).
+Mọi report có `status`, `gate`, `checks`, `blocking_reasons`, `scope` và input evidence hashes. Synthetic không pass gate thật. Bắt đầu quy trình manual và handoff cho nhiều collector tại [crawl/README.md](crawl/README.md).
 
 ## Commands
 

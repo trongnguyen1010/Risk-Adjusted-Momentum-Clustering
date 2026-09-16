@@ -22,6 +22,8 @@ backtest + portfolio metrics    experiment artifacts
 
 ## Bounded contexts
 
+M1 canonical/core target gồm `securities`, `shares_history`, `prices_daily`, `corporate_actions`, `trading_calendar`, `benchmark_daily`, `financial_reports` và `financial_facts`; `risk_free_rate` chỉ là optional support data. `shares_history` giữ capital structure theo thời gian để hỗ trợ market-cap/valuation, corporate-action cross-check và future size features, không backfill current counts về quá khứ.
+
 | Context | Sở hữu | Không sở hữu |
 |---|---|---|
 | Source acquisition | request, raw response, provider/version/rights metadata | canonical meaning |

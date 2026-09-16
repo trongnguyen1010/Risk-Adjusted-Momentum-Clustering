@@ -11,7 +11,7 @@
 
 - [DATA_CONTRACT.md](DATA_CONTRACT.md)
 - [DATA_PIPELINE.md](DATA_PIPELINE.md)
-- [DATA_COLLECTION_GUIDE.md](DATA_COLLECTION_GUIDE.md) — quy trình khám phá source, phân công collector và handoff.
+- [crawl/README.md](crawl/README.md) — **START HERE** cho source discovery, collection, smoke testing và team crawling.
 - [FEATURE_SYSTEM.md](FEATURE_SYSTEM.md)
 
 ## Research và evaluation

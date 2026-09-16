@@ -16,6 +16,7 @@ Discovery phải trả lời:
 8. Có rate limit/access restriction không?
 9. Source có đủ history không?
 10. Có corporate actions/financial publication metadata không?
+11. Có current/historical share hoặc capital-structure data không?
 
 ## 2. Workflow bằng browser
 
@@ -85,6 +86,7 @@ Không tự động hóa ngay.
 Lấy:
 
 - 5–10 market rows;
+- current share snapshot và historical change sample nếu source có;
 - 1 corporate-action case;
 - ít nhất 3 quarterly reports.
 
@@ -107,6 +109,19 @@ confidence: ...
 ```
 
 Không suy multiplier chỉ vì “giá có vẻ nhỏ 1000 lần”.
+
+### Capital-structure check
+
+Với mỗi source, ghi rõ:
+
+- current listed shares có không;
+- current outstanding shares có không;
+- issued/treasury shares có không;
+- historical changes có không;
+- effective date có không;
+- publication/available time có không.
+
+Kết luận bằng đúng một status: `VERIFIED_AVAILABLE`, `CURRENT_SNAPSHOT_ONLY`, `HISTORICAL_UNAVAILABLE` hoặc `BLOCKED`. Thiếu share history ở một market-price source không tự động loại source đó; domain này có thể do source khác đã được duyệt cung cấp, nhưng limitation phải explicit. Không backfill current counts về lịch sử.
 
 ### Step 6 — pagination/range
 

@@ -25,6 +25,8 @@ Cập nhật 16/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-019 | Reconciliation diễn ra ở field level theo semantic comparison key; không average. Source priority chỉ dùng khi compatible và policy approved/versioned; mọi decision giữ raw hashes. |
 | ADR-020 | Active feature snapshot 1.4 không sinh Sharpe. Snapshot 1.3 chỉ đọc qua explicit legacy compatibility; Sharpe tiếp tục ở portfolio metrics. |
 | ADR-021 | M2 configs mặc định `portfolio_evaluation.enabled=false`; chỉ M3/frozen protocol được bật backtest/performance. |
+| ADR-022 | `shares_history` là optional canonical input với key `security_id + effective_date`; share counts khác nhau không bị giả định bằng nhau và current count không được backfill về lịch sử. |
+| ADR-023 | Market cap, valuation ratios và F/M/Z scores là derived/versioned analytics; vendor ratio chỉ để đối chiếu. EPS cần weighted-average shares hoặc documented vendor basis. |
 
 ## Open decisions
 
@@ -38,5 +40,6 @@ Cập nhật 16/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | OPEN-06 | Final development/validation/holdout và purging/embargo |
 | OPEN-07 | Comparator set và PCA protocol |
 | OPEN-08 | Final portfolio universe/ranking/tie policy |
+| OPEN-09 | Authority, history coverage và field semantics cho listed/outstanding/issued/treasury shares |
 
 Quyết định mới ghi: problem → alternatives → choice/reason → evidence → owner/date → affected contract/config/tests → remaining limits.

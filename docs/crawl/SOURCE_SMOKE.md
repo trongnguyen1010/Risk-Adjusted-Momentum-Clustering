@@ -54,6 +54,12 @@ Bắt buộc verify:
 
 Ít nhất 1 known action.
 
+### Shares / capital structure
+
+Kiểm tra current listed/outstanding shares, issued/treasury shares, historical changes, effective date và publication/available time. Ghi một status: `VERIFIED_AVAILABLE`, `CURRENT_SNAPSHOT_ONLY`, `HISTORICAL_UNAVAILABLE` hoặc `BLOCKED`.
+
+Market source không tự động fail chỉ vì thiếu historical share counts; source khác đã được duyệt có thể cung cấp domain này. Limitation phải explicit và current snapshot không được backfill về quá khứ.
+
 ### Financial
 
 Ít nhất 3 quarterly reports cho một hoặc nhiều mã.
@@ -120,6 +126,7 @@ HTTP/error state
 - >=5y request hoặc documented source limitation;
 - market required fields verified;
 - >=1 corporate action inspected;
+- shares/capital-structure availability status documented;
 - >=3 quarterly reports inspected;
 - unit/timezone/basis/pagination/rate behavior documented;
 - access/rights reviewed;

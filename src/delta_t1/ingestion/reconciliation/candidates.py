@@ -27,6 +27,7 @@ KEY_FIELDS = {
     "prices_daily": ("security_id", "trade_date"),
     "benchmark_daily": ("index_id", "trade_date"),
     "securities": ("security_id", "valid_from"),
+    "shares_history": ("security_id", "effective_date"),
     "financial_reports": ("report_id",),
     "financial_facts": ("report_id", "statement_type", "item_code"),
 }

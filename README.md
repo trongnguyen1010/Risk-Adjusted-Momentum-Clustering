@@ -41,7 +41,7 @@ artifacts/      Versioned product projection được sinh từ experiment
 
 [docs/README.md](docs/README.md) → [Project Overview](docs/PROJECT_OVERVIEW.md) → [Project Map](docs/PROJECT_MAP.md) → [Roadmap](docs/ROADMAP.md).
 
-Xem thêm [Architecture](docs/ARCHITECTURE.md), [Data Contract](docs/DATA_CONTRACT.md), [Data Collection Guide](docs/DATA_COLLECTION_GUIDE.md), [Methodology](docs/METHODOLOGY.md), [Product](docs/PRODUCT.md), [Reproducibility](docs/REPRODUCIBILITY.md) và [Contributing](CONTRIBUTING.md).
+Xem thêm [Architecture](docs/ARCHITECTURE.md), [Data Contract](docs/DATA_CONTRACT.md), [Data Collection — START HERE](docs/crawl/README.md), [Methodology](docs/METHODOLOGY.md), [Product](docs/PRODUCT.md), [Reproducibility](docs/REPRODUCIBILITY.md) và [Contributing](CONTRIBUTING.md).
 
 ## Disclaimer
 

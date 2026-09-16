@@ -8,6 +8,7 @@ Mục tiêu không chỉ là “crawl được data”, mà là bảo đảm m�
 
 - source semantics rõ ràng;
 - unit/timezone/price basis rõ ràng;
+- share/capital-structure availability và effective/available timing rõ ràng;
 - raw evidence bất biến;
 - provenance và checksum;
 - cách chia việc thống nhất khi nhiều collector cùng crawl;
@@ -81,6 +82,7 @@ historical eligible universe
 - Không đổi missing thành zero.
 - Không trộn raw price và adjusted price.
 - Không dùng current ticker list làm historical universe.
+- Không giả định các share counts bằng nhau hoặc backfill current share count về lịch sử.
 - Không sửa raw file đã checkpoint.
 - Không coi data vendor-computed feature là canonical feature.
 - Không average conflict giữa hai source để “cho khớp”.

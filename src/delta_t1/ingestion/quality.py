@@ -67,6 +67,19 @@ def clean_tables(raw_tables, data_version):
         reject("securities", securities[i], "METADATA_INTERVAL", "Invalid or overlapping identity/ticker interval")
     securities = tables["securities"] = [r for i, r in enumerate(securities) if i not in bad_metadata]
     identities = {r["security_id"] for r in securities}
+    shares = []
+    for row in tables.get("shares_history", []):
+        if row["security_id"] not in identities:
+            reject("shares_history", row, "SHARES_FOREIGN_KEY", "Unknown security_id")
+        elif all(row[field] is None for field in (
+                "listed_shares", "outstanding_shares", "issued_shares", "treasury_shares")):
+            reject("shares_history", row, "SHARES_EMPTY", "At least one share-count field is required")
+        elif datetime.fromisoformat(row["fetched_at"]) < datetime.fromisoformat(row["available_at"]):
+            reject("shares_history", row, "SHARES_AVAILABILITY", "fetched_at cannot precede available_at")
+        else:
+            shares.append(row)
+    if "shares_history" in tables:
+        tables["shares_history"] = shares
     calendar = {(r["exchange"], r["trade_date"]): r for r in tables.get("trading_calendar", [])}
     cleaned_prices = []
     for row in tables.get("prices_daily", []):

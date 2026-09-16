@@ -4,7 +4,7 @@
 
 | Component | Directory/file | Milestone | Trạng thái | Dependency chính |
 |---|---|---|---|---|
-| IO + executable contracts | `src/delta_t1/io.py`, `contracts.py`, `schemas/` | M1 | Có, giữ nguyên behavior | JSON schema, immutable write policy |
+| IO + executable contracts | `src/delta_t1/io.py`, `contracts.py`, `schemas/` | M1 | Có; `shares_history` là optional input cho compatibility | JSON schema, immutable write policy |
 | Source acquisition + gates | `ingestion/crawler.py`, `planning.py`, `recovery.py`, `calendar.py` | M1 | Gate `SOURCE_SMOKE → REPRESENTATIVE_PILOT → M1_SCALE`; chưa gate thật nào PASS | source rights/semantics, evidence hashes, HTTP policy |
 | Source adapters | `ingestion/sources/` | M1 | Vnstock migrated; CafeF/VietFin là incomplete interface | endpoint semantics và rights approval |
 | Normalization | `ingestion/normalization/` | M1 | Generic architecture | source candidates, identity/unit/basis rules |
@@ -29,7 +29,7 @@
 | Product projection/API | `product/`, `web/` | Product/M3 | Có, phải giữ hoạt động | complete versioned experiment bundle |
 | CLI/scripts | `cli.py`, `run.py`, `scripts/` | Cross-cutting | Có; import path được migrate | package APIs/configs |
 | Config | `configs/data|features|experiments|product/` | Cross-cutting | Reorganized examples | registries + protocol schemas |
-| Human collection guide | `docs/DATA_COLLECTION_GUIDE.md` | M1 | Có workflow manual/multi-person; chưa thay source approval | assignment, rights review, raw hashes |
+| Human collection guide | `docs/crawl/README.md` | M1 | START HERE cho workflow manual/multi-person; chưa thay source approval | assignment, rights review, raw hashes |
 | Tests | `tests/unit|integration|regression|fixtures/` | Cross-cutting | Assertion cũ được migrate | all layers |
 | Immutable evidence | `data/`, `artifacts/` | Evidence | Không mutate trong refactor | hashes/manifests/provenance |
 
@@ -38,3 +38,5 @@
 `sources → normalization → reconciliation → canonical/QC → features → clustering → evaluation/backtest → experiment artifacts → product bundle/API/web`.
 
 Dependency chỉ đi theo chiều này. Product không gọi ngược vào feature/model; portfolio metrics không quay lại chọn clustering.
+
+M1 canonical/core target gồm `securities`, `shares_history`, `prices_daily`, `corporate_actions`, `trading_calendar`, `benchmark_daily`, `financial_reports` và `financial_facts`. `risk_free_rate` vẫn là optional support data; legacy Vnstock promotion không sở hữu domain `shares_history` mới.
