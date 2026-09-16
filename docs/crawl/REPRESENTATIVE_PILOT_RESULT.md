@@ -82,3 +82,9 @@ Policy [representative_pilot.qc_policy.v1.json](../../configs/data/representativ
 |VNM|HOSE|Food & Beverage|2020-01-02|2026-09-15|1670|539|Y|PASS|MATCHED|
 
 Tất cả `reference_only=N`. `UNRESOLVED` volume vẫn `KEEP_SOURCE_QUALIFIED`, `canonical_merge_allowed=false`; không silently repair.
+
+## Canonical-readiness audit
+
+Offline mapper đã replay cùng PASS assessment và exact-hash policy trên toàn bộ 55 mã, không network và không sửa raw. Kết quả mapping: `91.768` `prices_daily` candidates, `1.667` `benchmark_daily` rows, `5.009` observed-session calendar rows; standard market schemas, unique keys, calendar relations và latest-21-session traded-value coverage đều PASS.
+
+KBS `VENDOR_ADJUSTED` chỉ map `adj_close`; `raw_open/high/low/close` giữ `null`, KBS `va` chưa promote, CafeF price bands không trộn với adjusted basis. CafeF `traded_value` chỉ gắn theo exact ticker/date với field-level lineage. Canonical promotion vẫn `BLOCKED` vì frozen universe chưa có `securities.company_name` và current ticker/exchange metadata chưa chứng minh complete historical identity intervals. Không dùng ticker làm tên công ty và không backdate current identity để ép PASS.

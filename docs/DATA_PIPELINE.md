@@ -60,6 +60,7 @@ Mọi report có `status`, `gate`, `checks`, `blocking_reasons`, `scope` và inp
 
 ```powershell
 .venv\Scripts\python.exe scripts/run_representative_pilot.py --help
+.venv\Scripts\python.exe scripts/map_representative_pilot_canonical.py --help
 .venv\Scripts\python.exe scripts/crawl_vnstock.py --help  # LEGACY SDK experiment only
 .venv\Scripts\python.exe scripts/plan_crawl.py --help
 .venv\Scripts\python.exe scripts/promote_vnstock.py --help
@@ -67,6 +68,8 @@ Mọi report có `status`, `gate`, `checks`, `blocking_reasons`, `scope` và inp
 ```
 
 `configs/data/representative_pilot.example.json` là active fail-closed template; cần reviewed local universe và PASS SOURCE_SMOKE gate. `configs/data/source_smoke.example.json` vẫn là safe smoke template. Legacy `pilot.example.json` không phải active runner config.
+
+Canonical-readiness mapper của representative pilot chỉ đọc checksummed raw + PASS QC assessment, không gọi network. Nó ghi versioned candidate tables và lineage dưới `data/canonical/`, nhưng không promote khi `securities` identity contract còn thiếu. Vendor-adjusted KBS chỉ vào `adj_close`; CafeF bands không được trộn vào adjusted price basis và missing giữ `null`.
 
 Secrets chỉ nằm trong environment variable. Một writer sở hữu một run; resume chỉ khi config/code/raw hashes khớp. JSONL dùng cho smoke/pilot; chỉ cân nhắc partitioned Parquet/DuckDB và serving storage sau khi M1 gates có evidence.
 

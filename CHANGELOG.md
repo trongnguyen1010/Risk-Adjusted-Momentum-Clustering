@@ -3,6 +3,7 @@
 - Hoàn tất real acquisition `representative-pilot-20260916T185530Z-410ffcba` với 839/839 jobs; offline immutable QC replay zero-network PASS, 55/55 mã usable >=5 năm và VNINDEX PASS.
 - Thêm versioned exact-hash QC policy: quarantine 51 provider invariant violations, không repair raw; mismatch hoặc rule thiếu/thừa đều fail-closed.
 - Khóa KBS primary >=5 năm và CafeF auxiliary non-empty/partial source-qualified; 6 volume conflicts vẫn unmerged, financial PIT vẫn unresolved. `M1_SCALE` chỉ unlock cho planning, chưa chạy.
+- Thêm offline canonical-readiness mapper cho frozen 55-symbol pilot: market-table mapping/schema/lineage PASS nhưng promotion fail-closed khi thiếu company name và historical identity intervals; không fabricate raw OHLC hoặc metadata.
 - Pre-execution hardening: raw replay dùng cùng position-aware CafeF snapshot exclusion với acquisition; pagination phân biệt empty/partial source exhaustion, real max-pages, repeated/overlapping/non-progressing pages và phát diagnostics đầy đủ.
 - Thêm explicit mapping-diagnostic v2 policy: checkpoint CafeF source exhaustion để full crawl đi tới final QC, nhưng bắt buộc final gate FAIL và liệt kê `reference_source_exhausted_symbols`; không che coverage hoặc nới official PASS.
 - Thêm offline raw-corpus preflight kiểm tra checksum/schema/replay/pagination/coverage mà không gọi network hoặc sửa raw evidence.
