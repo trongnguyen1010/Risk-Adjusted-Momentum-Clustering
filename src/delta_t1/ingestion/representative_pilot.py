@@ -11,7 +11,7 @@ from .planning import M1_SCALE, REPRESENTATIVE_PILOT, SOURCE_SMOKE, representati
 from .sources.base import PublicJsonClient
 from .sources.cafef import (ADAPTER_VERSION as CAFE_VERSION, CafeFSource,
                             INVALID_ROW_EVIDENCE_FIELDS, apply_invalid_row_policy,
-                            map_trade_history_row)
+                            classify_cafef_page_row, map_trade_history_row)
 from .sources.vnstock import (ADAPTER_VERSION as KBS_VERSION, KBSPublicHttpSource,
                               classify_volume_semantics, date_batches,
                               financial_raw_only_metadata, map_kbs_wire_ohlcv_row)
@@ -401,8 +401,17 @@ def _execute_job(job, config, kbs, cafef, store):
         payload_rows = response["payload"]["Data"]
         if not payload_rows:
             break
+        # Exclude the leading current/intraday snapshot row from historical mapping.
+        # The raw payload is already persisted in the artifact above; we only skip it
+        # here to prevent it from entering the historical daily date-window.
+        historical_payload_rows = [
+            row for row in payload_rows
+            if classify_cafef_page_row(row.get("TradeDate", "")) == "HISTORICAL"
+        ]
+        if not historical_payload_rows:
+            continue
         mapped = [map_trade_history_row(row, job["symbol"], job["exchange"])
-                  for row in payload_rows]
+                  for row in historical_payload_rows]
         if min(row["trade_date"] for row in mapped) <= job["start"]:
             reached_start = True
             break

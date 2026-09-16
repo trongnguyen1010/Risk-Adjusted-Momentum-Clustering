@@ -17,6 +17,9 @@ from delta_t1.ingestion.representative_pilot import (
     build_job_plan, build_run_identity, dry_run, load_readiness,
     run_real, validate_resume_identity, validate_source_gate, validate_universe,
 )
+from delta_t1.ingestion.sources.cafef import (
+    CAFEF_DATETIME_MIN_VALUE, cafef_trade_date, classify_cafef_page_row,
+)
 from delta_t1.ingestion.sources.vnstock import KBSPublicHttpSource, collect
 from delta_t1.io import digest, encoded, read_json, write_json
 
@@ -357,6 +360,125 @@ class RepresentativePilotTests(unittest.TestCase):
             write_json(config_path, value)
             with self.assertRaisesRegex(ValueError, "routing"):
                 load_readiness(config_path, gate_path, root=root)
+
+
+
+class CafeFSnapshotClassificationTests(unittest.TestCase):
+    """Focused tests for CafeF TradeDate format support and snapshot classification.
+
+    Addresses the REPRESENTATIVE_PILOT runtime bug where:
+    - CafeF TradeHistoryNew returns historical dates as M/D/YYYY h:mm:ss AM/PM
+    - The leading page-001 row is a current/intraday snapshot that must be excluded
+      from the historical daily time-series, including the DateTime.MinValue sentinel.
+    """
+
+    # --- 1. Legacy AM/PM historical date is parsed correctly ------------------
+
+    def test_legacy_ampm_historical_date_parsed(self):
+        """CafeF historical close date M/D/YYYY 5:00:00 PM is parsed to correct ISO date."""
+        # 9/14/2026 5:00:00 PM -> 2026-09-14
+        self.assertEqual("2026-09-14", cafef_trade_date("9/14/2026 5:00:00 PM"))
+        # 1/2/2021 5:00:00 PM -> 2021-01-02
+        self.assertEqual("2021-01-02", cafef_trade_date("1/2/2021 5:00:00 PM"))
+        # single-digit month/day
+        self.assertEqual("2026-08-03", cafef_trade_date("8/3/2026 5:00:00 PM"))
+
+    def test_legacy_ampm_historical_date_is_classified_historical(self):
+        """A historical close timestamp (17:00:00) is HISTORICAL, not a snapshot."""
+        self.assertEqual("HISTORICAL", classify_cafef_page_row("9/14/2026 5:00:00 PM"))
+        self.assertEqual("HISTORICAL", classify_cafef_page_row("8/3/2026 5:00:00 PM"))
+
+    # --- 2. Current snapshot with valid intraday timestamp --------------------
+
+    def test_current_snapshot_with_intraday_timestamp_is_excluded(self):
+        """An intraday AM timestamp (e.g. 7:45:00 AM) is classified as CURRENT_SNAPSHOT."""
+        self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row("9/16/2026 7:45:00 AM"))
+        self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row("9/16/2026 7:59:56 AM"))
+        # A PM timestamp that is NOT 17:00:00 is also a snapshot
+        self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row("9/16/2026 3:30:00 PM"))
+
+    # --- 3. Current snapshot with DateTime.MinValue (1/1/0001 12:00:00 AM) ---
+
+    def test_datetime_min_value_sentinel_is_classified_as_snapshot(self):
+        """CafeF DateTime.MinValue sentinel (year 0001) is a CURRENT_SNAPSHOT, not a date."""
+        self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row("1/1/0001 12:00:00 AM"))
+
+    def test_datetime_min_value_constant_has_year_1(self):
+        """CAFEF_DATETIME_MIN_VALUE sentinel value matches .NET DateTime.MinValue."""
+        self.assertEqual(1, CAFEF_DATETIME_MIN_VALUE.year)
+
+    # --- 4. Existing .NET Date(...) format is unchanged -----------------------
+
+    def test_dotnet_date_format_still_works(self):
+        """Existing .NET /Date(ms)/ format is unaffected by the patch."""
+        # /Date(1631577600000)/ = 2021-09-14 in UTC -> 2021-09-14 VN (UTC+7)
+        self.assertEqual("2021-09-14", cafef_trade_date("/Date(1631577600000)/"))
+        self.assertEqual("HISTORICAL", classify_cafef_page_row("/Date(1631577600000)/"))
+
+    # --- 5. Existing ISO date format is unchanged ----------------------------
+
+    def test_iso_date_format_still_works(self):
+        """Existing ISO-8601 format with tz is unaffected by the patch."""
+        self.assertEqual("2026-09-14", cafef_trade_date("2026-09-14T17:00:00+07:00"))
+        self.assertEqual("HISTORICAL", classify_cafef_page_row("2026-09-14T17:00:00+07:00"))
+
+    # --- 6. Snapshot never enters historical rows in _execute_job -------------
+
+    def test_snapshot_rows_never_enter_historical_time_series(self):
+        """_execute_job must exclude both snapshot patterns from mapped historical rows.
+
+        Simulates a page-001 payload with:
+        - Row 0: DateTime.MinValue snapshot (BCC/CMG pattern)
+        - Row 1: intraday timestamp snapshot (normal pattern)
+        - Row 2: first real historical close
+        - Row 3: older historical close that triggers reached_start
+        """
+        import json as _json
+        from delta_t1.ingestion.representative_pilot import _execute_job
+
+        historical_row_1 = {
+            "Symbol": "CMG", "TradeDate": "9/14/2026 5:00:00 PM",
+            "BasicPrice": 22.5, "ClosePrice": 22.8, "Volume": 124400,
+            "AdjustPrice": 22.8, "Ceiling": 24.05, "Floor": 20.95,
+            "TotalValue": 2857960000, "AgreedVolume": 0, "AgreedValue": 0,
+        }
+        historical_row_0 = dict(historical_row_1, TradeDate="2019-12-31T17:00:00+07:00",
+                                BasicPrice=10.0, Ceiling=11.0, Floor=9.0)
+        payload = {
+            "Success": True,
+            "Data": [
+                # Row 0: DateTime.MinValue sentinel (excluded)
+                dict(historical_row_1, TradeDate="1/1/0001 12:00:00 AM"),
+                # Row 1: intraday snapshot (excluded)
+                dict(historical_row_1, TradeDate="9/16/2026 7:45:00 AM"),
+                # Row 2: real historical close
+                historical_row_1,
+                # Row 3: older than job start -> triggers reached_start
+                historical_row_0,
+            ],
+        }
+        body = _json.dumps(payload).encode()
+
+        class SnapshotCafeFSource:
+            def acquire_trade_history_page(self, _request):
+                return {"payload": payload, "body": body,
+                        "url": "https://example.test", "status": 200}
+
+        class SnapshotStore:
+            def __init__(self):
+                self.saved = []
+            def save(self, *_args, **_kwargs):
+                self.saved.append(True)
+                return {"raw_path": "data/raw/cafef/run/CMG-page-001.json", "sha256": "a" * 64}
+
+        job = {"id": "cafef-CMG", "provider": "cafef", "kind": "reference_limits_value",
+               "symbol": "CMG", "exchange": "HOSE",
+               "start": "2020-01-01", "end": "2026-09-14", "max_pages": 100}
+        store = SnapshotStore()
+        # Must not raise — reached_start is True because historical_row_0 <= job start
+        artifacts = _execute_job(job, {}, None, SnapshotCafeFSource(), store)
+        self.assertEqual(1, len(artifacts))  # one page artifact saved
+        self.assertEqual(1, len(store.saved))
 
 
 if __name__ == "__main__":
