@@ -3,8 +3,12 @@ import hashlib
 import json
 import os
 import tempfile
+import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+REPLACE_MAX_ATTEMPTS = 6
+REPLACE_BACKOFF_DELAYS = (0.05, 0.10, 0.20, 0.40, 0.80)
 
 
 def now():
@@ -26,10 +30,20 @@ def atomic_write(path, data):
     try:
         with os.fdopen(fd, "wb") as stream:
             stream.write(data)
-        os.replace(tmp, path)
+        for attempt in range(REPLACE_MAX_ATTEMPTS):
+            try:
+                os.replace(tmp, path)
+                break
+            except PermissionError:
+                if attempt == REPLACE_MAX_ATTEMPTS - 1:
+                    raise
+                time.sleep(REPLACE_BACKOFF_DELAYS[attempt])
     finally:
         if os.path.exists(tmp):
-            os.unlink(tmp)
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
 
 
 def write_json(path, value):
