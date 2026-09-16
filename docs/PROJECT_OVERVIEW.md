@@ -16,4 +16,4 @@ M3 thesis dashboard nằm trong scope. News, sentiment, authentication, watchlis
 
 ## Nguyên tắc kết luận
 
-Synthetic và legacy SDK pilot chỉ chứng minh plumbing/reproducibility. Real `SOURCE_SMOKE` đã PASS; official `REPRESENTATIVE_PILOT` dùng KBS direct HTTP + CafeF direct đã ready nhưng chưa thực thi. SOURCE_SMOKE không tự mở scale; chỉ real pilot PASS mới mở `M1_SCALE` planning. Financial hiện `RAW_ONLY_PIT_UNRESOLVED` và bị cấm khỏi historical analytics. DELTA là công cụ nghiên cứu, không phải investment advice.
+Synthetic và legacy SDK pilot chỉ chứng minh plumbing/reproducibility. Real `SOURCE_SMOKE` và official `REPRESENTATIVE_PILOT` KBS direct HTTP + CafeF direct đã PASS; `M1_SCALE` chỉ được mở cho planning và chưa chạy. Financial hiện `RAW_ONLY_PIT_UNRESOLVED` và bị cấm khỏi historical analytics. DELTA là công cụ nghiên cứu, không phải investment advice.

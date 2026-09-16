@@ -98,6 +98,19 @@ class PlanningGateTests(unittest.TestCase):
         self.assertEqual("BLOCKED", pilot["status"])
         self.assertIn("real_provider_artifacts_hashed", pilot["blocking_reasons"])
 
+    def test_offline_qc_replay_requires_bound_run_and_policy_hash(self):
+        evidence = pilot_evidence()
+        evidence.update(qc_evaluation_mode="OFFLINE_IMMUTABLE_REPLAY",
+                        source_run_status="FAILED_GATE",
+                        source_run_id="representative-pilot-20260916T000000Z-1234abcd",
+                        qc_policy_hash="d" * 64)
+        smoke = source_smoke_report(source_evidence())
+        self.assertEqual("PASS", representative_pilot_report(evidence, smoke)["status"])
+        evidence["qc_policy_hash"] = "not-a-hash"
+        blocked = representative_pilot_report(evidence, smoke)
+        self.assertEqual("BLOCKED", blocked["status"])
+        self.assertIn("qc_replay_evidence", blocked["blocking_reasons"])
+
     def test_source_smoke_required_failure_has_no_unlocks(self):
         evidence = source_evidence()
         evidence["required_symbol_market_checks_passed"] = False

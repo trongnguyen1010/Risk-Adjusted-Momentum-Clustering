@@ -7,8 +7,8 @@
 Trạng thái hiện tại:
 
 - `SOURCE_SMOKE`: **PASS**, canonical run `source-smoke-20260916T122331Z-79427ec6`;
-- `REPRESENTATIVE_PILOT`: **READY TO RUN / NOT YET EXECUTED**;
-- `M1_SCALE`: **NOT UNLOCKED**;
+- `REPRESENTATIVE_PILOT`: **PASS**, real acquisition run `representative-pilot-20260916T185530Z-410ffcba`;
+- `M1_SCALE`: **UNLOCKED FOR PLANNING / NOT EXECUTED**;
 - financial PIT: `PIT_UNRESOLVED`, raw-only, không được dùng trong historical analytics.
 
 ```text
@@ -102,6 +102,26 @@ Mỗi `run.json` khóa exact `config_hash`, `universe_hash`, `source_gate_hash`,
 
 Resume chỉ chấp nhận artifact có cùng `run_id` và `mode=REAL_EXECUTION` trong cả `run.json` lẫn `manifest.json`; dry-run artifact không thể promote hoặc resume thành real execution. Trước khi tạo network client, runner verify hash và exact content của stored `job_plan.json`, exact manifest job-ID set và exact job definition cho từng ID. Mismatch dừng trước execution và không mutate run.
 
+Trước một manual real run, quét lại toàn bộ local raw corpus mà không gọi network:
+
+```powershell
+.venv\Scripts\python.exe scripts\preflight_representative_pilot.py
+```
+
+Preflight kiểm tra JSON/envelope/schema/identity/checksum, position-aware CafeF snapshot replay, date mapping, price bands, duplicate dates/pages, pagination progress và requested-start coverage. Đây là reliability check, không phải official research gate. CafeF empty/partial page trước requested start được báo `SOURCE_EXHAUSTED`; chỉ hết đúng `max_pages` mới được báo `MAX_PAGES_REACHED`. Raw payload không bị sửa.
+
+Config `representative_pilot.mapping_diagnostic.v2.json` cho phép hoàn tất acquisition để quan sát mapping/QC khi CafeF auxiliary history bị source-truncate. Acquisition gate ban đầu vẫn fail-closed. Sau review, policy v1 khóa KBS làm primary OHLCV yêu cầu >=5 năm và CafeF làm reference source bắt buộc non-empty nhưng được partial nếu giữ source-qualified. Offline finalizer verify toàn bộ raw checksum và chỉ exclude invalid row theo exact provider/symbol/date/raw-row hash; mismatch dừng. Max-pages, repeated page, overlap và non-progress vẫn dừng acquisition.
+
+```powershell
+.venv\Scripts\python.exe scripts\finalize_representative_pilot.py `
+  --config configs/data/representative_pilot.mapping_diagnostic.v2.json `
+  --gate-report data/raw/source_smoke/source-smoke-20260916T122331Z-79427ec6/gate.json `
+  --qc-policy configs/data/representative_pilot.qc_policy.v1.json `
+  --run-id representative-pilot-20260916T185530Z-410ffcba
+```
+
+Finalizer là zero-network immutable replay, không sửa raw và không được áp policy cho run ID khác. Kết quả canonical nằm tại [REPRESENTATIVE_PILOT_RESULT.md](REPRESENTATIVE_PILOT_RESULT.md).
+
 ## Raw layout và provenance
 
 ```text
@@ -138,4 +158,4 @@ PASS chỉ unlock `M1_SCALE` planning. Nó không có nghĩa financial PIT/featu
 
 Focused dry-run `representative-pilot-20260916T130831Z-78d8f2d2`: `PASS`, 50 fake fixture symbols, 713 planned jobs, zero network requests, không provider raw, không gate/unlock. Validation: 137/137 unit/integration/regression tests PASS; `compileall` PASS; synthetic smoke `run-20260916T141124Z-0b92997d` complete; tracked JSON và Markdown links PASS; `git diff --check` PASS. GitHub CI `NOT_RUN`.
 
-Blocker còn lại để **thực thi** pilot là review/freeze real 50–60-symbol universe và local config; pilot chưa được chạy trong readiness task này. Local dry-run artifacts và synthetic outputs vẫn gitignored.
+Real acquisition và exact-hash QC replay đã hoàn tất; result gate PASS unlock planning `M1_SCALE`, không unlock financial features hoặc tự cho phép scale execution. Local raw/derived artifacts vẫn gitignored.

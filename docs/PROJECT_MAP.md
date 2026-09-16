@@ -5,7 +5,7 @@
 | Component | Directory/file | Milestone | Trạng thái | Dependency chính |
 |---|---|---|---|---|
 | IO + executable contracts | `src/delta_t1/io.py`, `contracts.py`, `schemas/` | M1 | Có; `shares_history` là optional input cho compatibility | JSON schema, immutable write policy |
-| Source acquisition + gates | `ingestion/representative_pilot.py`, `planning.py`, source runners | M1 | `SOURCE_SMOKE` PASS; official pilot runner/config ready, pilot chưa chạy; M1 scale chưa unlock | reviewed 50–60 universe, real hashes/QC |
+| Source acquisition + gates | `ingestion/representative_pilot.py`, `planning.py`, source runners | M1 | `SOURCE_SMOKE` và real 55-symbol pilot PASS; M1 scale chỉ unlock cho planning, chưa chạy | versioned scale universe/config và approved execution |
 | Source adapters | `ingestion/sources/` | M1 | Official pilot: KBS direct HTTP + CafeF direct; Vnstock SDK chỉ legacy/reference | accepted-risk research use; production rights chưa verified |
 | Normalization | `ingestion/normalization/` | M1 | Generic architecture | source candidates, identity/unit/basis rules |
 | Reconciliation | `ingestion/reconciliation/` | M1 | Field-level decisions; tách match/missing/value/unit/basis/timing/identity conflict | semantic comparison key, normalized candidates, approved priority rules |

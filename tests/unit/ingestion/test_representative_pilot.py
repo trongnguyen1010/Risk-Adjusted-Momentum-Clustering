@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,7 +14,8 @@ TMP_ROOT = ROOT / "tmp"
 TMP_ROOT.mkdir(exist_ok=True)
 
 from delta_t1.ingestion.representative_pilot import (
-    CAFE_VERSION, KBS_VERSION, OFFICIAL_MARKET_SOURCES, _write_run_headers,
+    CAFE_VERSION, KBS_VERSION, OFFICIAL_MARKET_SOURCES, _build_real_manifest,
+    _execute_job, _map_cafef_page_rows, _write_run_headers,
     build_job_plan, build_run_identity, dry_run, load_readiness,
     run_real, validate_resume_identity, validate_source_gate, validate_universe,
 )
@@ -683,8 +685,119 @@ class CafeFSnapshotClassificationTests(unittest.TestCase):
                "symbol": "CMG", "exchange": "HOSE",
                "start": "2020-01-01", "end": "2026-09-14", "max_pages": 100}
         store = SnapshotStore()
-        artifacts = _execute_job(job, {}, None, MultiPageCafeFSource(), store)
+        artifacts = _execute_job(
+            job, {"cafef": {"page_size": 2}}, None, MultiPageCafeFSource(), store)
         self.assertEqual(2, len(artifacts))
+
+
+class CafeFPaginationHardeningTests(unittest.TestCase):
+    def setUp(self):
+        self.job = {
+            "id": "cafef-ACB", "provider": "cafef", "kind": "reference_limits_value",
+            "symbol": "ACB", "exchange": "HOSE", "start": "2020-01-01",
+            "end": "2026-09-15", "max_pages": 2,
+        }
+
+    @staticmethod
+    def row(day, trade_date=None):
+        return {
+            "Symbol": "ACB", "TradeDate": trade_date or f"2026-01-{day:02d}T17:00:00+07:00",
+            "BasicPrice": 20.0, "ClosePrice": 20.5, "Volume": 1000,
+            "AdjustPrice": 20.5, "Ceiling": 21.0, "Floor": 19.0,
+            "TotalValue": 20500000, "AgreedVolume": 0, "AgreedValue": 0,
+        }
+
+    @staticmethod
+    def source(pages):
+        class Source:
+            def acquire_trade_history_page(self, request):
+                payload = {"Success": True, "Data": pages[request["page_index"] - 1]}
+                return {"payload": payload, "body": json.dumps(payload).encode(),
+                        "url": "https://example.test", "status": 200}
+        return Source()
+
+    @staticmethod
+    def store():
+        class Store:
+            def __init__(self):
+                self.pages = []
+            def save(self, provider, name, response, request, **kwargs):
+                self.pages.append(request["page_index"])
+                return {"raw_path": f"data/raw/cafef/run/{name}.json",
+                        "sha256": "a" * 64, "request": request}
+        return Store()
+
+    def test_acb_empty_page_is_source_exhausted_not_max_pages(self):
+        page = [self.row(day) for day in range(30, 0, -1)]
+        store = self.store()
+        with self.assertRaisesRegex(
+                ValueError,
+                r"symbol=ACB.*oldest_date_observed=2026-01-01.*last_page=2.*SOURCE_EXHAUSTED_EMPTY_PAGE"):
+            _execute_job(self.job, {"cafef": {"page_size": 30}}, None,
+                         self.source([page, []]), store)
+        self.assertEqual([1, 2], store.pages)
+
+    def test_explicit_diagnostic_policy_checkpoints_source_exhaustion(self):
+        page = [self.row(day) for day in range(30, 0, -1)]
+        store = self.store()
+        job = dict(self.job, source_exhaustion_policy="CHECKPOINT_PARTIAL_FAIL_GATE")
+        artifacts = _execute_job(
+            job, {"cafef": {"page_size": 30}}, None, self.source([page, []]), store)
+        self.assertEqual([1, 2], store.pages)
+        self.assertEqual("PARTIAL_SOURCE_EXHAUSTED", artifacts[-1]["coverage"]["status"])
+        self.assertEqual("2026-01-01", artifacts[-1]["coverage"]["oldest_date_observed"])
+        self.assertEqual("SOURCE_EXHAUSTED_EMPTY_PAGE",
+                         artifacts[-1]["coverage"]["termination_reason"])
+
+    def test_partial_final_page_is_source_exhausted(self):
+        store = self.store()
+        with self.assertRaisesRegex(ValueError, "SOURCE_EXHAUSTED_PARTIAL_PAGE"):
+            _execute_job(self.job, {"cafef": {"page_size": 30}}, None,
+                         self.source([[self.row(30), self.row(29)]]), store)
+        self.assertEqual([1], store.pages)
+
+    def test_actual_page_limit_reports_max_pages(self):
+        page1 = [self.row(day) for day in range(30, 0, -1)]
+        page2 = [self.row(1, f"2025-12-{day:02d}T17:00:00+07:00")
+                 for day in range(31, 1, -1)]
+        with self.assertRaisesRegex(ValueError, "termination_reason=MAX_PAGES_REACHED"):
+            _execute_job(self.job, {"cafef": {"page_size": 30}}, None,
+                         self.source([page1, page2]), self.store())
+
+    def test_repeated_page_fails_before_more_requests(self):
+        page = [self.row(day) for day in range(30, 0, -1)]
+        store = self.store()
+        with self.assertRaisesRegex(ValueError, "termination_reason=REPEATED_PAGE"):
+            _execute_job(self.job, {"cafef": {"page_size": 30}}, None,
+                         self.source([page, page]), store)
+        self.assertEqual([1, 2], store.pages)
+
+    def test_sentinel_outside_leading_position_fails_with_context(self):
+        rows = [self.row(30), self.row(29, "/Date(-62135596800000)/")]
+        with self.assertRaisesRegex(
+                SemanticValidationError,
+                r"provider=cafef symbol=ACB page=2 row_index=1 raw_trade_date='/Date"):
+            _map_cafef_page_rows(rows, self.job, 2)
+
+    def test_manifest_raw_replay_excludes_leading_snapshot_without_mutating_raw(self):
+        snapshot = self.row(30, "/Date(-62135596800000)/")
+        historical = self.row(29, "2026-01-29T17:00:00+07:00")
+        payload = {"Success": True, "Data": [snapshot, historical]}
+        before = json.loads(json.dumps(payload))
+        artifact = {"raw_path": "data/raw/cafef/run/cafef-ACB-page-001.json",
+                    "sha256": "a" * 64, "request": {"page_index": 1}}
+        prepared = {
+            "root": ROOT, "config": config("unused.json"),
+            "universe": [universe(1)[0] | {
+                "ticker": "ACB", "exchange": "HOSE", "sector": "Banks",
+            }],
+        }
+        manifest = {"jobs": {"cafef-ACB": {"job": self.job, "artifacts": [artifact]}}}
+        with patch("delta_t1.ingestion.representative_pilot._artifact_payload",
+                   return_value=payload):
+            result = _build_real_manifest(prepared, {}, manifest)
+        self.assertEqual(1, result["symbols"]["ACB"]["cafef_row_count"])
+        self.assertEqual(before, payload)
 
 
 if __name__ == "__main__":

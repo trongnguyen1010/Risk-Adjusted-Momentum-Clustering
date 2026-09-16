@@ -8,7 +8,7 @@ from ..contracts import validate_rows
 from ..io import atomic_write, digest, encoded, read_json, write_json
 from .crawler import code_hash
 from .planning import M1_SCALE, REPRESENTATIVE_PILOT, SOURCE_SMOKE, representative_pilot_report
-from .sources.base import PublicJsonClient
+from .sources.base import PublicJsonClient, SemanticValidationError
 from .sources.cafef import (ADAPTER_VERSION as CAFE_VERSION, CafeFSource,
                             INVALID_ROW_EVIDENCE_FIELDS, apply_invalid_row_policy,
                             classify_cafef_page_row, map_trade_history_row)
@@ -129,6 +129,9 @@ def validate_config(config, *, root):
     cafef = config.get("cafef", {})
     if cafef.get("page_size") != 30 or not 1 <= cafef.get("max_pages", 0) <= 100:
         raise ValueError("CafeF pilot pagination must use page size 30 and max_pages <= 100")
+    exhaustion_policy = cafef.get("source_exhaustion_policy", "FAIL_RUN")
+    if exhaustion_policy not in ("FAIL_RUN", "CHECKPOINT_PARTIAL_FAIL_GATE"):
+        raise ValueError("CafeF source_exhaustion_policy is invalid")
     thresholds = config.get("coverage_thresholds", {})
     ratio = thresholds.get("minimum_usable_five_year_ratio")
     if (not isinstance(ratio, (int, float)) or isinstance(ratio, bool)
@@ -185,7 +188,9 @@ def build_job_plan(prepared):
         jobs.append({"id": f"cafef-{row['ticker']}", "provider": "cafef",
                      "kind": "reference_limits_value", "symbol": row["ticker"],
                      "exchange": row["exchange"], "start": config["start"],
-                     "end": config["end"], "max_pages": config["cafef"]["max_pages"]})
+                     "end": config["end"], "max_pages": config["cafef"]["max_pages"],
+                     "source_exhaustion_policy": config["cafef"].get(
+                         "source_exhaustion_policy", "FAIL_RUN")})
     for start, end in batches:
         jobs.append({"id": f"kbs-VNINDEX-{start}-{end}", "provider": "kbs",
                      "kind": "index", "symbol": "VNINDEX", "exchange": "HOSE",
@@ -373,6 +378,35 @@ def _valid_kbs(rows, *, index=False):
     )
 
 
+def _map_cafef_page_rows(payload_rows, job, page):
+    """Map one CafeF page while preserving the position-aware snapshot rule."""
+    if not isinstance(payload_rows, list):
+        raise SemanticValidationError(
+            f"provider=cafef symbol={job['symbol']} page={page} Data must be a list")
+    mapped = []
+    for row_index, row in enumerate(payload_rows):
+        raw_value = row.get("TradeDate") if isinstance(row, dict) else None
+        if classify_cafef_page_row(raw_value, page=page, row_index=row_index) == "CURRENT_SNAPSHOT":
+            continue
+        try:
+            mapped.append(map_trade_history_row(row, job["symbol"], job["exchange"]))
+        except (SemanticValidationError, OverflowError, OSError, ValueError) as exc:
+            raise SemanticValidationError(
+                "provider=cafef "
+                f"symbol={job['symbol']} page={page} row_index={row_index} "
+                f"raw_trade_date={raw_value!r}: {exc}"
+            ) from exc
+    return mapped
+
+
+def _cafef_coverage_error(job, *, last_page, oldest, termination):
+    return ValueError(
+        "provider=cafef "
+        f"symbol={job['symbol']} requested_start={job['start']} requested_end={job['end']} "
+        f"oldest_date_observed={oldest} last_page={last_page} termination_reason={termination}"
+    )
+
+
 def _execute_job(job, config, kbs, cafef, store):
     if job["provider"] == "kbs" and job["kind"] in ("equity", "index"):
         response = kbs.acquire_ohlcv(job["symbol"], job["start"], job["end"],
@@ -389,37 +423,73 @@ def _execute_job(job, config, kbs, cafef, store):
                            adapter_version=KBS_VERSION, acquisition_client="delta_public_http",
                            endpoint_discovered_via="vnstock")]
     artifacts, reached_start = [], False
+    oldest_observed = None
+    previous_dates = None
+    seen_page_payloads = set()
+    page_size = int(config.get("cafef", {}).get("page_size", 30))
+    termination = "MAX_PAGES_REACHED"
+    last_page = 0
     for page in range(1, job["max_pages"] + 1):
+        last_page = page
         response = cafef.acquire_trade_history_page(
-            {"symbol": job["symbol"], "page_index": page, "page_size": 30})
+            {"symbol": job["symbol"], "page_index": page, "page_size": page_size})
         artifact = store.save("cafef", f"{job['id']}-page-{page:03d}", response,
                               {"symbol": job["symbol"], "exchange": job["exchange"],
                                "date_range": {"start": job["start"], "end": job["end"]},
-                               "page_index": page, "page_size": 30},
+                               "page_index": page, "page_size": page_size},
                               adapter_version=CAFE_VERSION, acquisition_client="direct")
         artifacts.append(artifact)
         payload_rows = response["payload"]["Data"]
         if not payload_rows:
+            termination = "SOURCE_EXHAUSTED_EMPTY_PAGE"
             break
-        # Exclude the leading current/intraday snapshot row from historical mapping.
-        # Evidence only establishes the leading row of CafeF page 1 (page == 1 and row_index == 0)
-        # as the current/intraday snapshot.
-        # The raw payload is already persisted in the artifact above; we only skip it
-        # here to prevent it from entering the historical daily date-window.
-        historical_payload_rows = [
-            row for row_index, row in enumerate(payload_rows)
-            if not (page == 1 and row_index == 0 and
-                    classify_cafef_page_row(row.get("TradeDate", ""), page=page, row_index=row_index) == "CURRENT_SNAPSHOT")
-        ]
-        if not historical_payload_rows:
-            continue
-        mapped = [map_trade_history_row(row, job["symbol"], job["exchange"])
-                  for row in historical_payload_rows]
-        if min(row["trade_date"] for row in mapped) <= job["start"]:
+        page_fingerprint = digest(encoded(payload_rows))
+        if page_fingerprint in seen_page_payloads:
+            raise _cafef_coverage_error(
+                job, last_page=page, oldest=oldest_observed, termination="REPEATED_PAGE")
+        seen_page_payloads.add(page_fingerprint)
+        mapped = _map_cafef_page_rows(payload_rows, job, page)
+        page_dates = {row["trade_date"] for row in mapped}
+        if previous_dates is not None and page_dates:
+            if page_dates & previous_dates:
+                raise _cafef_coverage_error(
+                    job, last_page=page, oldest=oldest_observed,
+                    termination="PAGINATION_OVERLAP")
+            if min(page_dates) >= min(previous_dates):
+                raise _cafef_coverage_error(
+                    job, last_page=page, oldest=oldest_observed,
+                    termination="PAGINATION_NOT_PROGRESSING")
+        if page_dates:
+            oldest_observed = min(filter(None, (oldest_observed, min(page_dates))))
+            previous_dates = page_dates
+        if page_dates and min(page_dates) <= job["start"]:
             reached_start = True
             break
+        if len(payload_rows) < page_size:
+            termination = "SOURCE_EXHAUSTED_PARTIAL_PAGE"
+            break
     if not reached_start:
-        raise ValueError(f"CafeF max_pages did not reach requested start for {job['symbol']}")
+        if (termination.startswith("SOURCE_EXHAUSTED_")
+                and job.get("source_exhaustion_policy") == "CHECKPOINT_PARTIAL_FAIL_GATE"
+                and artifacts and oldest_observed is not None):
+            artifacts[-1] = dict(artifacts[-1], coverage={
+                "status": "PARTIAL_SOURCE_EXHAUSTED",
+                "requested_start": job["start"],
+                "oldest_date_observed": oldest_observed,
+                "last_page": last_page,
+                "termination_reason": termination,
+            })
+            return artifacts
+        raise _cafef_coverage_error(
+            job, last_page=last_page, oldest=oldest_observed, termination=termination)
+    if artifacts:
+        artifacts[-1] = dict(artifacts[-1], coverage={
+            "status": "REQUESTED_START_REACHED",
+            "requested_start": job["start"],
+            "oldest_date_observed": oldest_observed,
+            "last_page": last_page,
+            "termination_reason": "REQUESTED_START_REACHED",
+        })
     return artifacts
 
 
@@ -430,7 +500,7 @@ def _artifact_payload(root, artifact):
 def _build_real_manifest(prepared, plan, manifest):
     config, root = prepared["config"], prepared["root"]
     universe_by_symbol = {row["ticker"]: row for row in prepared["universe"]}
-    kbs_rows, cafef_rows, hashes = {}, {}, {}
+    kbs_rows, cafef_rows, hashes, cafef_coverage = {}, {}, {}, {}
     financial = []
     for state in manifest["jobs"].values():
         job = state["job"]
@@ -443,8 +513,13 @@ def _build_real_manifest(prepared, plan, manifest):
                         for row in payload["data_day"]]
                 kbs_rows.setdefault(job["symbol"], []).extend(rows)
             elif job["kind"] == "reference_limits_value":
-                rows = [map_trade_history_row(row, job["symbol"], job["exchange"])
-                        for row in payload["Data"]]
+                if artifact.get("coverage"):
+                    cafef_coverage[job["symbol"]] = artifact["coverage"]
+                page = artifact.get("request", {}).get("page_index")
+                if not isinstance(page, int) or page < 1:
+                    raise ValueError(
+                        f"provider=cafef symbol={job['symbol']} raw replay lacks valid page_index")
+                rows = _map_cafef_page_rows(payload["Data"], job, page)
                 cafef_rows.setdefault(job["symbol"], []).extend(
                     row for row in rows if job["start"] <= row["trade_date"] <= job["end"])
             elif job["kind"] == "financial_raw_only":
@@ -490,6 +565,9 @@ def _build_real_manifest(prepared, plan, manifest):
             "history_usability": {"observed_years": years, "usable_5y": years >= 5,
                                   "usable_3y_for_clustering": years >= 3},
             "reference_only": reference_only, "qc_status": "PASS" if qc else "FAIL",
+            "reference_source_coverage": cafef_coverage.get(symbol, {
+                "status": "UNKNOWN_LEGACY_ARTIFACT",
+            }),
         }
     benchmark_rows = sorted(kbs_rows.get("VNINDEX", []), key=lambda row: row["trade_date"])
     aggregate = {
@@ -504,6 +582,9 @@ def _build_real_manifest(prepared, plan, manifest):
         "sector_coverage": sorted({item["sector"] for item in symbol_manifests.values() if item["sector"]}),
         "failed_symbols": failed, "quarantined_rows": quarantined,
         "provider_conflicts": conflicts,
+        "reference_source_exhausted_symbols": sorted(
+            symbol for symbol, coverage in cafef_coverage.items()
+            if coverage.get("status") == "PARTIAL_SOURCE_EXHAUSTED"),
     }
     manifest.update(symbols=symbol_manifests, aggregate=aggregate,
                     benchmark={"symbol": "VNINDEX", "rows": len(benchmark_rows),
@@ -563,6 +644,7 @@ def run_real(config_path, gate_report_path, *, root, resume=None):
             "market_qc_passed": (
                 len(aggregate["failed_symbols"]) <= thresholds["maximum_failed_symbols"]
                 and five_year_ratio >= thresholds["minimum_usable_five_year_ratio"]
+                and not aggregate["reference_source_exhausted_symbols"]
                 and manifest["benchmark"]["valid"]
             ),
             "price_basis_safe": all(item["price_basis"] == "VENDOR_ADJUSTED"

@@ -117,6 +117,18 @@ def representative_pilot_report(evidence: dict | Path | str,
         ),
         "real_data": item.get("synthetic") is False,
         "real_execution_evidence": item.get("run_mode") == "REAL_EXECUTION",
+        "qc_replay_evidence": (
+            item.get("qc_evaluation_mode") is None
+            or (
+                item.get("qc_evaluation_mode") == "OFFLINE_IMMUTABLE_REPLAY"
+                and item.get("source_run_status") in ("COMPLETE", "FAILED_GATE")
+                and isinstance(item.get("source_run_id"), str)
+                and item["source_run_id"].startswith("representative-pilot-")
+                and isinstance(item.get("qc_policy_hash"), str)
+                and len(item["qc_policy_hash"]) == 64
+                and all(char in "0123456789abcdef" for char in item["qc_policy_hash"])
+            )
+        ),
         "fifty_to_sixty_symbols": 50 <= item.get("symbol_count", 0) <= 60,
         "at_least_five_years": item.get("history_years", 0) >= 5,
         "representative_exchanges": bool(item.get("representative_exchanges")),
