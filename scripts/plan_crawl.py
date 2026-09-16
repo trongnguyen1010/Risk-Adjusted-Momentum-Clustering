@@ -2,11 +2,11 @@
 import argparse
 from pathlib import Path
 import sys
-import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from delta_t1.artifact_ids import new_artifact_id
 from delta_t1.ingestion.planning import plan_extended_scale, plan_m1_scale
 from delta_t1.io import read_json, write_json
 
@@ -17,7 +17,7 @@ if __name__ == "__main__":
     parser.add_argument("--config", required=True)
     parser.add_argument("--extended", action="store_true")
     args = parser.parse_args()
-    output = ROOT / "data/plans" / ("plan-" + uuid.uuid4().hex[:12] + ".json")
+    output = ROOT / "data/plans" / (new_artifact_id("plan") + ".json")
     try:
         pilot = read_json(args.representative_pilot_report)
         planner = plan_extended_scale if args.extended else plan_m1_scale

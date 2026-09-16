@@ -1,6 +1,7 @@
 """Only publish feature artifacts after required downloads and QC have passed."""
 import math
 from pathlib import Path
+from .artifact_ids import new_artifact_id
 from .io import read_json, read_rows, write_json, write_rows, digest, now, encoded
 from .contracts import validate_rows, schema
 from .ingestion.crawler import crawl
@@ -131,7 +132,6 @@ def process_raw(raw, config, run_dir, manifest):
 
 def run_canonical(canonical_path, config_path, root):
     """Verify promoted artifacts and create a new run; never mutate promotion."""
-    import uuid
     from .ingestion.sources.base import contained_file
     from .ingestion.crawler import code_hash
     canonical_path = Path(canonical_path).resolve()
@@ -156,7 +156,7 @@ def run_canonical(canonical_path, config_path, root):
         raw[table] = [(r, {"source": r["source"]}, r["fetched_at"]) for r in rows]
     validation = dict(config, jobs=[dict(id=name, table=name, provider="csv", source="verified_canonical") for name in sorted(REQUIRED_INPUT_TABLES)])
     validate_config(validation)
-    run_id = "run-" + uuid.uuid4().hex[:12]
+    run_id = new_artifact_id("run")
     directory = Path(root).resolve() / "data/runs" / run_id
     directory.mkdir(parents=True, exist_ok=False)
     manifest = dict(run_id=run_id, data_version=run_id, source_data_version=source["data_version"],

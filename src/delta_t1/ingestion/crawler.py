@@ -2,8 +2,8 @@
 import platform
 import subprocess
 import sys
-import uuid
 from pathlib import Path
+from ..artifact_ids import new_artifact_id
 from ..io import digest, encoded, read_json, write_json, atomic_write, now
 from .. import __version__
 from .sources.base import HttpClient, parse_csv, json_page, page_url
@@ -14,7 +14,7 @@ def crawl(config, root, resume=None):
     jobs = config["jobs"]
     fingerprint = {"config": config, "csv_hashes": {j["id"]: digest((root / j["path"]).read_bytes()) for j in jobs if j["provider"] == "csv"}}
     config_hash = digest(encoded(fingerprint))
-    run_id = resume or ("run-" + uuid.uuid4().hex[:12])
+    run_id = resume or new_artifact_id("run")
     if not run_id.replace("-", "").isalnum():
         raise ValueError("invalid run id")
     run_dir = root / "data" / "runs" / run_id

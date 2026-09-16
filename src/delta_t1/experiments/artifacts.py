@@ -4,9 +4,9 @@ from pathlib import Path
 import platform
 import subprocess
 import sys
-import uuid
 import zipfile
 
+from ..artifact_ids import new_artifact_id
 from ..contracts import validate_rows
 from ..ingestion.crawler import code_hash
 from ..ingestion.sources.base import contained_file
@@ -53,7 +53,7 @@ def load_verified_data_run(data_run: Path, config: dict) -> tuple[dict, dict[str
 
 
 def start_experiment(root: Path, data_run: Path, source: dict, config: dict) -> tuple[Path, dict]:
-    run_id = "experiment-" + uuid.uuid4().hex[:12]
+    run_id = new_artifact_id("experiment")
     target = Path(root).resolve() / "data/experiments" / run_id
     target.mkdir(parents=True, exist_ok=False)
     package = Path(__file__).parents[1]

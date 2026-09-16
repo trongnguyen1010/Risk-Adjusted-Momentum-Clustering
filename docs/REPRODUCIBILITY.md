@@ -6,6 +6,10 @@ Raw, canonical run, feature run, experiment model/output và product bundle là 
 
 Manifest ghi config hash, code hash/source snapshot, input artifact hashes, environment, random seed, data/feature/model version và lineage IDs. Resume chỉ được phép khi các hash phù hợp; một writer sở hữu một run.
 
+`data/` là runtime storage local và được Git ignore. Existing immutable real/referenced evidence không được rename trong housekeeping. Unreferenced synthetic/failed technical artifacts có thể được move nguyên thư mục vào `data/archive/<batch>/`, có archive manifest, và không bị silently delete. [Local active index](../data/ACTIVE_INDEX.json) là navigation index cho artifact đang giữ và artifact chưa phân loại.
+
+Mọi artifact mới dùng ID `<prefix>-YYYYMMDDTHHMMSSZ-xxxxxxxx` với UTC timestamp và token 8 lowercase hex; ví dụ `run-20260916T041530Z-a1b2c3d4`. Source, method, config và các chi tiết dài tiếp tục nằm trong manifest. Old immutable IDs vẫn hợp lệ và không bị đổi tên.
+
 ## Kiểm tra chuẩn
 
 ```powershell

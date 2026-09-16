@@ -1,7 +1,7 @@
 """Recover exact original bytes into a NEW snapshot; never repair in place."""
 from pathlib import Path
-import uuid
 
+from ..artifact_ids import new_artifact_id
 from ..io import atomic_write, digest, now, read_json, write_json
 from .sources.base import contained_file
 from .sources.vnstock import verify_vendor
@@ -25,7 +25,7 @@ def recover_vendor(source: Path, policy_path: Path, root: Path) -> tuple[Path, d
             raise ValueError("no exact verified original bytes available for " + job_id)
         payloads[state["path"]] = match.read_bytes()
         recovered_from[state["path"]] = match.relative_to(source).as_posix()
-    run_id = "vendor-recovered-" + uuid.uuid4().hex[:12]
+    run_id = new_artifact_id("vendor-recovered")
     target = Path(root).resolve() / "data/vendor" / run_id
     target.mkdir(parents=True, exist_ok=False)
     for relative, payload in payloads.items():

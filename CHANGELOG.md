@@ -1,5 +1,7 @@
 # Chưa phát hành — M1 readiness correction (2026-09-16)
 
+- Chuẩn hóa future artifact ID thành `<prefix>-YYYYMMDDTHHMMSSZ-xxxxxxxx` qua một helper trung tâm; giữ compatibility với mọi old immutable ID.
+- Thêm local `data/ACTIVE_INDEX.json` và archive manifest; move ba unreferenced synthetic technical artifacts vào `data/archive/legacy-20260916/` mà không xóa hoặc đổi tên real/referenced evidence.
 - Thêm optional canonical contract `shares_history`, generic reconciliation key và QC cho security relation, non-empty counts và availability timing; không thay legacy Vnstock promotion.
 - Bổ sung discovery/smoke documentation cho capital structure với explicit availability status; chưa crawl hoặc discover endpoint thật.
 - Thay gate pilot cũ bằng `SOURCE_SMOKE`, `REPRESENTATIVE_PILOT`, `M1_SCALE`, `EXTENDED_SCALE`; synthetic không thể mở gate thật và extended planner không còn cap 350.

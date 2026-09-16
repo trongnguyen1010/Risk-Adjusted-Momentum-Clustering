@@ -4,8 +4,8 @@ Source verification, normalization and reconciliation live in separate generic
 layers. This module only coordinates the retained legacy promotion command.
 """
 from pathlib import Path
-import uuid
 
+from ..artifact_ids import new_artifact_id
 from ..contracts import validate_rows
 from ..io import digest, encoded, now, read_json, read_rows, write_json, write_rows
 from .crawler import code_hash
@@ -24,7 +24,7 @@ def promote(vendor: Path, policy_path: Path, root: Path) -> tuple[Path, dict]:
     """Create a new canonical run or persistent blocked/quarantine report."""
     policy_path, vendor = Path(policy_path).resolve(), Path(vendor).resolve()
     policy = read_json(policy_path)
-    run_id = "canonical-" + uuid.uuid4().hex[:12]
+    run_id = new_artifact_id("canonical")
     target = Path(root).resolve() / "data" / "canonical" / run_id
     target.mkdir(parents=True, exist_ok=False)
     manifest = dict(run_id=run_id, data_version=run_id, vendor_run_id=vendor.name,

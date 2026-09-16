@@ -3,10 +3,10 @@ import importlib.metadata
 import json
 import subprocess
 import sys
-import uuid
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+from ...artifact_ids import new_artifact_id
 from ...contracts import validate_rows
 from ...io import atomic_write, digest, encoded, now, read_json, write_json
 from ..crawler import code_hash
@@ -86,7 +86,7 @@ def collect(root, start, end, symbols, resume=None, interval=5.0, timeout=90,
     if gate_hash:
         config["gate_report_hash"] = gate_hash
     config_hash = digest(encoded(config))
-    run_id = resume or "vendor-pilot-" + uuid.uuid4().hex[:12]
+    run_id = resume or new_artifact_id("vendor-pilot")
     if not run_id.replace("-", "").isalnum():
         raise ValueError("invalid run id")
     target = Path(root).resolve() / "data" / "vendor" / run_id

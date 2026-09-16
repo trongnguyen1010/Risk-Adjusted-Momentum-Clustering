@@ -26,12 +26,13 @@
 | Experiment protocol | `experiments/protocol.py` | M2/M3 | Tách khỏi runner, multi-algorithm-aware | feature/model registry, holdout rules |
 | Experiment runner | `experiments/runner.py` | M2/M3 | M2 mặc định tắt portfolio; M3 phải bật rõ `portfolio_evaluation.enabled` | complete data run + protocol |
 | Artifact/reporting | `experiments/artifacts.py`, `reporting.py` | M2/M3 | Version/hash/export responsibility | runner outputs |
+| Artifact IDs | `artifact_ids.py` | Cross-cutting | Future IDs dùng UTC timestamp + 8 lowercase hex; old IDs vẫn hợp lệ | immutable manifests + local active index |
 | Product projection/API | `product/`, `web/` | Product/M3 | Có, phải giữ hoạt động | complete versioned experiment bundle |
 | CLI/scripts | `cli.py`, `run.py`, `scripts/` | Cross-cutting | Có; import path được migrate | package APIs/configs |
 | Config | `configs/data|features|experiments|product/` | Cross-cutting | Reorganized examples | registries + protocol schemas |
 | Human collection guide | `docs/crawl/README.md` | M1 | START HERE cho workflow manual/multi-person; chưa thay source approval | assignment, rights review, raw hashes |
 | Tests | `tests/unit|integration|regression|fixtures/` | Cross-cutting | Assertion cũ được migrate | all layers |
-| Immutable evidence | `data/`, `artifacts/` | Evidence | Không mutate trong refactor | hashes/manifests/provenance |
+| Immutable evidence | `data/`, `artifacts/` | Evidence | `data/` local/gitignored; active evidence không rename, technical output chỉ archive có manifest | hashes/manifests/provenance, `data/ACTIVE_INDEX.json` |
 
 ## Dependency flow
 

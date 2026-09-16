@@ -68,3 +68,5 @@ Mọi report có `status`, `gate`, `checks`, `blocking_reasons`, `scope` và inp
 `configs/data/source_smoke.example.json` là safe template, mặc định fail-closed và không chứa endpoint CafeF/VietFin giả. Không chạy template này cho tới khi semantics/rights được review.
 
 Secrets chỉ nằm trong environment variable. Một writer sở hữu một run; resume chỉ khi config/code/raw hashes khớp. JSONL dùng cho smoke/pilot; chỉ cân nhắc partitioned Parquet/DuckDB và serving storage sau khi M1 gates có evidence.
+
+`data/` là local/gitignored runtime storage; `data/ACTIVE_INDEX.json` là local navigation index. Future generated artifact IDs theo `<prefix>-YYYYMMDDTHHMMSSZ-xxxxxxxx`, còn source/method/config nằm trong manifest. Existing real/referenced artifacts không bị rename; unreferenced synthetic/failed technical artifacts chỉ được archive nguyên trạng dưới `data/archive/<batch>/`, không silently delete.
