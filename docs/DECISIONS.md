@@ -27,6 +27,7 @@ Cập nhật 16/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-021 | M2 configs mặc định `portfolio_evaluation.enabled=false`; chỉ M3/frozen protocol được bật backtest/performance. |
 | ADR-022 | `shares_history` là optional canonical input với key `security_id + effective_date`; share counts khác nhau không bị giả định bằng nhau và current count không được backfill về lịch sử. |
 | ADR-023 | Market cap, valuation ratios và F/M/Z scores là derived/versioned analytics; vendor ratio chỉ để đối chiếu. EPS cần weighted-average shares hoặc documented vendor basis. |
+| ADR-024 | **Research/demo collection under accepted provider-rights uncertainty:** dùng public CafeF/KBS paths cho bounded private academic research/demo theo `ACCEPTED_RESEARCH_RISK`; provider rights vẫn `RIGHTS_NOT_VERIFIED`, không bypass access control, không raw redistribution, financial chỉ `RAW_ONLY_PIT_UNRESOLVED`, và production/commercial vẫn licensed-source-only. Owner quyết định ngày 16/09/2026; ảnh hưởng source adapters, smoke config/tests và risk policy. |
 
 ## Open decisions
 
@@ -43,3 +44,7 @@ Cập nhật 16/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | OPEN-09 | Authority, history coverage và field semantics cho listed/outstanding/issued/treasury shares |
 
 Quyết định mới ghi: problem → alternatives → choice/reason → evidence → owner/date → affected contract/config/tests → remaining limits.
+
+## ADR — Research/demo collection under accepted provider-rights uncertainty
+
+Project owner quyết định dùng public CafeF/KBS paths cho bounded private academic research/demo. Provider rights vẫn `RIGHTS_NOT_VERIFIED`; execution label là `ACCEPTED_RESEARCH_RISK`. Không bypass access control, không raw redistribution, financial data chỉ `RAW_ONLY_PIT_UNRESOLVED`, và production/commercial vẫn chỉ dùng licensed/approved source. Quyết định ngày 16/09/2026; affected: source adapters, smoke config/tests và data-usage risk policy. Remaining limit: quyết định này không xác minh copyright, provider rights hoặc PIT timing.

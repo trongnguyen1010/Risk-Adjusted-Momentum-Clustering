@@ -11,6 +11,105 @@ from ...contracts import validate_rows
 from ...io import atomic_write, digest, encoded, now, read_json, write_json
 from ..crawler import code_hash
 from .base import contained_file
+from .base import PublicJsonClient, SemanticValidationError
+
+
+KBS_BASE = "https://kbbuddywts.kbsec.com.vn/iis-server/investment"
+RIGHTS_STATUS = "RIGHTS_NOT_VERIFIED"
+EXECUTION_POLICY = "ACCEPTED_RESEARCH_RISK"
+PRICE_BASIS = "VENDOR_ADJUSTED"
+ADAPTER_VERSION = "kbs-via-vnstock-research-demo-1"
+
+
+def map_vnstock_ohlcv_row(row, symbol, exchange, *, is_index=False, normalized_client=True):
+    """Map a Vnstock-normalized row; stock prices are restored to VND/share."""
+    required = {"time", "open", "high", "low", "close", "volume"}
+    if not isinstance(row, dict) or not required.issubset(row):
+        raise SemanticValidationError("Vnstock OHLCV row has unexpected schema")
+    try:
+        trade_date = date.fromisoformat(str(row["time"])[:10]).isoformat()
+    except ValueError as exc:
+        raise SemanticValidationError("invalid Vnstock trade date") from exc
+    multiplier = 1 if is_index or not normalized_client else 1000
+    result = {"symbol": symbol.upper(), "exchange": exchange.upper(), "trade_date": trade_date}
+    for field in ("open", "high", "low", "close"):
+        value = row[field]
+        if value is None or isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise SemanticValidationError(f"invalid Vnstock {field}")
+        result[field] = float(value) * multiplier
+    volume = row["volume"]
+    if volume is not None and (isinstance(volume, bool) or not isinstance(volume, (int, float))):
+        raise SemanticValidationError("invalid Vnstock volume")
+    result.update(volume=None if volume is None else int(volume),
+                  price_basis=PRICE_BASIS, price_unit="INDEX_POINTS" if is_index else "VND_PER_SHARE",
+                  volume_unit="SHARES" if not is_index else "PROVIDER_INDEX_VOLUME",
+                  provider="kbs", acquisition_client="vnstock", rights_status=RIGHTS_STATUS,
+                  execution_policy=EXECUTION_POLICY)
+    return result
+
+
+def map_kbs_wire_ohlcv_row(row, symbol, exchange, *, is_index=False):
+    required = {"t", "o", "h", "l", "c", "v"}
+    if not isinstance(row, dict) or not required.issubset(row):
+        raise SemanticValidationError("KBS data_day row has unexpected schema")
+    normalized = {"time": row["t"], "open": row["o"], "high": row["h"],
+                  "low": row["l"], "close": row["c"], "volume": row["v"]}
+    return map_vnstock_ohlcv_row(normalized, symbol, exchange, is_index=is_index,
+                                 normalized_client=False)
+
+
+def financial_raw_only_metadata(payload):
+    if not isinstance(payload, dict) or not isinstance(payload.get("Head"), list):
+        raise SemanticValidationError("KBS financial envelope has unexpected schema")
+    observations = []
+    for head in payload["Head"]:
+        if not isinstance(head, dict):
+            raise SemanticValidationError("KBS financial Head row must be an object")
+        observations.append({
+            key: head.get(key) for key in ("ReportDate", "DatePubDepartment", "CreatedDate",
+                                           "LastUpdate", "PeriodBegin", "PeriodEnd", "YearPeriod",
+                                           "TermCode", "United", "AuditedStatus")
+        } | {"published_at": None, "available_at": None,
+             "revision": "INTERNAL_RAW_OBSERVATION_ONLY", "pit_status": "PIT_UNRESOLVED"})
+    return observations
+
+
+class KBSVnstockSource:
+    """Exact public KBS paths documented by Vnstock, with DELTA transport limits."""
+
+    source_id = "kbs"
+    acquisition_client = "vnstock"
+    verification_status = "RESEARCH_DEMO_ACCEPTED_RISK"
+
+    def __init__(self, client=None):
+        self.client = client or PublicJsonClient()
+
+    def acquire_ohlcv(self, symbol, start, end, *, is_index=False):
+        symbol = symbol.upper()
+        if not symbol.isalnum() or date.fromisoformat(start) > date.fromisoformat(end):
+            raise ValueError("invalid bounded KBS market request")
+        kind = "index" if is_index else "stocks"
+        endpoint = f"{KBS_BASE}/{kind}/{symbol}/data_day"
+        fmt = lambda value: date.fromisoformat(value).strftime("%d-%m-%Y")
+        response = self.client.get_json(endpoint, {"sdate": fmt(start), "edate": fmt(end)})
+        payload = response["payload"]
+        if not isinstance(payload, dict) or payload.get("symbol", "").upper() != symbol:
+            raise SemanticValidationError("KBS identity/envelope mismatch")
+        if not isinstance(payload.get("data_day"), list):
+            raise SemanticValidationError("KBS data_day missing")
+        return response
+
+    def acquire_financial_raw(self, symbol, *, report_type="KQKD", period_type=2,
+                              page=1, page_size=3):
+        if report_type not in ("KQKD", "CDKT", "LCTT") or period_type not in (1, 2):
+            raise ValueError("unsupported bounded financial request")
+        if page != 1 or not 1 <= page_size <= 3:
+            raise ValueError("financial RAW_ONLY request exceeds smoke bound")
+        params = {"page": page, "pageSize": page_size, "type": report_type, "unit": 1000,
+                  "termtype": period_type, "languageid": 1}
+        if report_type == "LCTT":
+            params.update(code=symbol.upper(), termType=period_type)
+        return self.client.get_json(f"{KBS_BASE}/stock/finance-info/{symbol.upper()}", params)
 
 
 def date_batches(start, end, days=180):

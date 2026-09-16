@@ -1,5 +1,8 @@
 # Chưa phát hành — M1 Data V2 runtime reset (2026-09-16)
 
+- Cho phép bounded private research/demo collection trên public CafeF/KBS paths theo owner-accepted risk; rights vẫn `RIGHTS_NOT_VERIFIED`, raw không redistribution và production vẫn yêu cầu licensed source.
+- Thêm adapter CafeF historical limits/value, KBS/Vnstock OHLCV, financial `RAW_ONLY_PIT_UNRESOLVED`, config và runner cho đúng bốn mã SOURCE_SMOKE.
+
 - Retire legacy runtime `data/` và generated `artifacts/` khỏi active workspace.
 - Khôi phục `/data/` và `artifacts/` vào Git ignore.
 - Xóa legacy product path assumptions; launcher chỉ dùng explicit config và existing bundle.
