@@ -28,6 +28,7 @@ Cập nhật 16/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-022 | `shares_history` là optional canonical input với key `security_id + effective_date`; share counts khác nhau không bị giả định bằng nhau và current count không được backfill về lịch sử. |
 | ADR-023 | Market cap, valuation ratios và F/M/Z scores là derived/versioned analytics; vendor ratio chỉ để đối chiếu. EPS cần weighted-average shares hoặc documented vendor basis. |
 | ADR-024 | **Research/demo collection under accepted provider-rights uncertainty:** dùng public CafeF/KBS paths cho bounded private academic research/demo theo `ACCEPTED_RESEARCH_RISK`; provider rights vẫn `RIGHTS_NOT_VERIFIED`, không bypass access control, không raw redistribution, financial chỉ `RAW_ONLY_PIT_UNRESOLVED`, và production/commercial vẫn licensed-source-only. Owner quyết định ngày 16/09/2026; ảnh hưởng source adapters, smoke config/tests và risk policy. |
+| ADR-025 | **SOURCE_SMOKE anomaly policy và gate:** provider-corrupt market row chỉ được exclude khi provider/symbol/date/raw fields khớp exact versioned evidence; raw/finding luôn giữ, không repair/backfill. Cross-source volume khác semantic phải giữ riêng, không giả định equality. Direct KBS HTTP ghi `acquisition_client=delta_public_http`, Vnstock chỉ là discovery provenance. Chỉ machine gate PASS mới unlock `REPRESENTATIVE_PILOT`. |
 
 ## Open decisions
 
@@ -48,3 +49,7 @@ Quyết định mới ghi: problem → alternatives → choice/reason → eviden
 ## ADR — Research/demo collection under accepted provider-rights uncertainty
 
 Project owner quyết định dùng public CafeF/KBS paths cho bounded private academic research/demo. Provider rights vẫn `RIGHTS_NOT_VERIFIED`; execution label là `ACCEPTED_RESEARCH_RISK`. Không bypass access control, không raw redistribution, financial data chỉ `RAW_ONLY_PIT_UNRESOLVED`, và production/commercial vẫn chỉ dùng licensed/approved source. Quyết định ngày 16/09/2026; affected: source adapters, smoke config/tests và data-usage risk policy. Remaining limit: quyết định này không xác minh copyright, provider rights hoặc PIT timing.
+
+## ADR — SOURCE_SMOKE anomaly resolution và executable gate
+
+Problem: một CafeF row VNM có price band bất khả thi và KBS/CafeF ACV volume khác nhau nhưng không có bằng chứng unit/mapping error. Alternatives gồm sửa/điền row, ưu tiên một source, fail toàn smoke, hoặc áp policy evidence-bounded. Choice: exact raw-evidence match mới cho phép gắn `INVALID_REQUIRED_MARKET_ROW` và exclude khỏi CafeF constraint promotion; raw giữ nguyên, KBS cùng ngày không bị xóa. Volume khác semantic được source-qualify và giữ riêng. Direct public HTTP provenance được ghi đúng client; machine gate fail-closed và chỉ PASS mới unlock representative pilot. Evidence: canonical run `source-smoke-20260916T122331Z-79427ec6`, gate/hash manifest và unit tests. Owner/date: project owner, 16/09/2026. Affected: source adapters, smoke config/runner, planning gate, tests, manifest. Remaining limits: rights vẫn chưa xác minh, corporate action còn partial, shares chỉ current snapshot, financial PIT unresolved; quyết định không mở M1/extended scale.

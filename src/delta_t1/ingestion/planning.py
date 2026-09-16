@@ -16,8 +16,8 @@ M1_SCALE = "M1_SCALE"
 EXTENDED_SCALE = "EXTENDED_SCALE"
 
 REQUIRED_MARKET_FIELDS = {
-    "raw_open", "raw_high", "raw_low", "raw_close", "reference_price", "ceiling_price",
-    "floor_price", "volume", "traded_value", "trading_status",
+    "open", "high", "low", "close", "reference_price", "ceiling_price",
+    "floor_price", "volume", "traded_value",
 }
 
 
@@ -30,10 +30,10 @@ def _evidence(value: dict | Path | str) -> tuple[dict, dict[str, str]]:
 
 def _report(gate: str, checks: dict[str, bool], scope: str,
             evidence_hashes: dict[str, str], *, pass_status: str = "PASS",
-            unlocks: tuple[str, ...] = ()) -> dict:
+            failure_status: str = "BLOCKED", unlocks: tuple[str, ...] = ()) -> dict:
     blocking = [name for name, passed in checks.items() if not passed]
     return {
-        "status": pass_status if not blocking else "BLOCKED",
+        "status": pass_status if not blocking else failure_status,
         "gate": gate,
         "checks": checks,
         "blocking_reasons": blocking,
@@ -62,7 +62,19 @@ def source_smoke_report(evidence: dict | Path | str) -> dict:
             or bool(item.get("source_history_limit_documented"))
         ),
         "required_market_fields_verified": REQUIRED_MARKET_FIELDS <= fields,
+        "required_symbol_market_checks_passed": bool(
+            item.get("required_symbol_market_checks_passed")
+        ),
+        "benchmark_passed": bool(item.get("benchmark_passed")),
+        "history_depth_passed": bool(item.get("history_depth_passed")),
+        "safe_anomaly_policy_applied": bool(item.get("safe_anomaly_policy_applied")),
+        "volume_semantics_safe": bool(item.get("volume_semantics_safe")),
+        "provenance_valid": bool(item.get("provenance_valid")),
+        "cafef_window_evidence_hashed": bool(item.get("cafef_window_evidence_hashed")),
         "corporate_actions_inspected": item.get("corporate_actions_inspected", 0) >= 1,
+        "shares_capital_structure_documented": bool(
+            item.get("shares_capital_structure_documented")
+        ),
         "quarterly_reports_inspected": item.get("quarterly_reports_inspected", 0) >= 3,
         "units_timezone_basis_pagination_rates_verified": bool(
             item.get("collection_semantics_verified")
@@ -75,6 +87,7 @@ def source_smoke_report(evidence: dict | Path | str) -> dict:
         checks,
         "Xác minh source semantics/rights và mechanics; không phải production pilot.",
         hashes,
+        failure_status="FAIL",
         unlocks=(REPRESENTATIVE_PILOT,),
     )
 

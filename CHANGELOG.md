@@ -72,6 +72,14 @@
 
 # Nhật ký thay đổi
 
+## SOURCE_SMOKE failure resolution — 2026-09-16
+
+- Phân loại VNM CafeF `2021-09-09` là `PROVIDER_CORRUPT_ROW`; chỉ exact versioned evidence mới được exclude khỏi constraint promotion, raw/finding được giữ và mismatch fail-closed.
+- Phân loại ACV volume là `SOURCE_SEMANTIC_DIFFERENCE`; giữ giá trị source-qualified riêng biệt, không giả định equality hay overwrite.
+- Sửa provenance KBS direct HTTP thành `acquisition_client=delta_public_http`, giữ `endpoint_discovered_via=vnstock`.
+- Bổ sung machine-readable SOURCE_SMOKE gate, actual CafeF contributing-page hashes, corporate-action/shares evidence và coverage tests.
+- Real rerun `source-smoke-20260916T122331Z-79427ec6` PASS và chỉ unlock `REPRESENTATIVE_PILOT`; không chạy pilot hoặc large-scale crawl.
+
 ## Bổ sung ngày 12/09/2026 — Báo cáo tiếng Việt
 
 - Chuyển báo cáo triển khai theo giai đoạn và báo cáo rà soát repository sang tiếng Việt.

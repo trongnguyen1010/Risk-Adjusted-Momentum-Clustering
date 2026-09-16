@@ -1,71 +1,48 @@
 # DELTA Research/Demo SOURCE_SMOKE Result
 
-## Execution policy
+## Kết quả
 
-- Run: `source-smoke-20260916T111529Z-af9bc570`, real data, `synthetic=false`.
-- Rights remain `RIGHTS_NOT_VERIFIED`; execution policy is `ACCEPTED_RESEARCH_RISK` under [DATA_USAGE_RISK_ACCEPTANCE.md](../data/DATA_USAGE_RISK_ACCEPTANCE.md).
-- Private/local academic research and non-commercial demo only; raw redistribution is prohibited.
-- Concurrency `1`, minimum interval `2.0s`, timeout `20s`, attempts `2`; no proxy, credential, session, token, cookie or bypass was used.
+- Run canonical: `source-smoke-20260916T122331Z-79427ec6`; real data, `synthetic=false`.
+- Trạng thái: **PASS**. Machine gate `SOURCE_SMOKE` không có blocking reason và chỉ unlock `REPRESENTATIVE_PILOT`.
+- Không chạy pilot trong đợt này. Quyền vẫn `RIGHTS_NOT_VERIFIED`; policy là `ACCEPTED_RESEARCH_RISK`, private/local academic research và non-commercial demo; không tái phân phối raw.
+- Exactly `FPT` (HOSE), `VNM` (HOSE), `PVS` (HNX), `ACV` (UPCOM) và `VNINDEX` được kiểm tra trên `WINDOW_RECENT=2026-08-22..2026-09-15` và `WINDOW_OLD=2021-09-03..2021-09-27`.
 
-## Symbols and windows
+## Provenance và access
 
-Exactly `FPT` (HOSE), `VNM` (HOSE), `PVS` (HNX), `ACV` (UPCOM) and benchmark `VNINDEX` were requested. `WINDOW_RECENT=2026-08-22..2026-09-15` and `WINDOW_OLD=2021-09-03..2021-09-27`; each is 25 calendar days and the old window is approximately five years earlier. No pilot crawl was started.
+- KBS public HTTP: `provider=kbs`, `acquisition_client=delta_public_http`, `endpoint_discovered_via=vnstock`; không tuyên bố đã gọi qua Vnstock SDK.
+- CafeF: `provider=cafef`, `acquisition_client=direct`, endpoint trade-history công khai và bounded binary page search.
+- Concurrency `1`, minimum interval `2.0s`, timeout `20s`, attempts `2`; không proxy, credential, token, cookie hoặc bypass.
+- Canonical run nhận HTTP 200 và không gặp 401/403/429/CAPTCHA/login wall. Run `source-smoke-20260916T120608Z-e1282509` fail-closed do transient JSON retry exhaustion; không unlock gì và không được dùng làm canonical.
 
-## Provider/client paths
+## Market checks
 
-- KBS via the public path documented by Vnstock: `/iis-server/investment/{stocks|index}/{symbol}/data_day`; provenance is `provider=kbs`, `acquisition_client=vnstock`.
-- CafeF direct: `/du-lieu/Ajax/PageNew/TradeHistoryNew.ashx`, deterministic 30-row pages located by bounded binary page search.
-- KBS financial raw-only: `/iis-server/investment/stock/finance-info/FPT`, one page and three quarterly observations.
+| Symbol | Exchange | Recent | Old | Kết quả | Volume semantic |
+|---|---|---:|---:|---|---|
+| FPT | HOSE | 14 | 16 | PASS | `MATCHED_VOLUME` |
+| VNM | HOSE | 14 | 16 raw / 15 eligible | PASS | `MATCHED_VOLUME` |
+| PVS | HNX | 14 | 16 | PASS | `MATCHED_VOLUME` |
+| ACV | UPCOM | 14 | 16 | PASS | `SOURCE_SEMANTIC_DIFFERENCE` |
+| VNINDEX | benchmark | 14 | 16 | PASS | provider volume retained, unit unresolved |
 
-## Market coverage
+KBS OHLC là `VENDOR_ADJUSTED`; CafeF reference/limit price là VND/share sau multiplier `1,000`. Hai price basis không được so sánh hoặc overwrite. `TotalValue`/`AgreedValue` giữ raw VND; missing không đổi thành zero.
 
-Every equity and VNINDEX returned `14` recent rows (`2026-08-24..2026-09-15`) and `16` old rows (`2021-09-06..2021-09-27`) from KBS. CafeF returned the same row counts/date spans for every equity. Thus current availability and approximately five-year technical history reach both passed without expanding either requested window.
+## VNM anomaly resolution
 
-## Per-symbol results
+CafeF row `VNM 2021-09-09` có `BasicPrice=85.4`, `Ceiling=223.6`, `Floor=194.4`, `ClosePrice=85.2`, trong khi hai ngày liền kề có price band hợp lệ và KBS cùng ngày có adjusted OHLC/volume bình thường. Bounded evidence loại trừ unit multiplier, date parsing, mapping và corporate-action explanation; classification là `PROVIDER_CORRUPT_ROW`.
 
-| Symbol | Recent | Old | Result | Finding |
-|---|---:|---:|---|---|
-| FPT | 14 | 16 | PASS | OHLCV, limit prices and value components valid; recent volume `MATCH`. |
-| VNM | 14 | 16 | FAIL | CafeF old row `2021-09-09` has reference `85,400` but floor `194,400` and ceiling `223,600` VND/share: invalid price-band relation and canonical-corruption risk. |
-| PVS | 14 | 16 | PASS | OHLCV, limit prices and value components valid; recent volume `MATCH`. |
-| ACV | 14 | 16 | PASS | Required fields valid; recent KBS volume vs CafeF matched volume is `VALUE_CONFLICT` on 13/14 shared dates and is not silently reconciled. |
+Policy chỉ áp dụng khi provider/symbol/date và toàn bộ raw fields khớp evidence đã pin: row được gắn `INVALID_REQUIRED_MARKET_ROW` rồi `EXCLUDE_ROW` khỏi CafeF market-constraint promotion. Raw artifact và finding được giữ nguyên; không sửa giá, không backfill, không xóa KBS OHLCV cùng ngày. Nếu evidence không khớp, policy fail-closed thành `FAIL_SYMBOL_WINDOW`.
 
-## VNINDEX result
+## ACV volume resolution
 
-PASS. Both windows returned valid daily OHLC index levels and provider volume (`14` recent, `16` old). Prices retain `INDEX_POINTS`; no equity price multiplier was applied. Provenance is KBS via Vnstock.
+Năm ngày gần nhất được kiểm tra. KBS volume không bằng CafeF matched volume và cũng không bằng matched plus put-through; tỷ lệ gần 1 nên không có bằng chứng cho unit multiplier hoặc lot/board conversion. Classification là `SOURCE_SEMANTIC_DIFFERENCE`, với promotion rule `KEEP_SEPARATE_NO_EQUALITY_ASSUMPTION`. Vì hai giá trị vẫn source-qualified và không bị merge/overwrite, đây là policy an toàn và ACV PASS.
 
-## Units / basis
+## Supporting evidence
 
-KBS equity OHLC is `VENDOR_ADJUSTED`, stored as VND/share; volume is shares. VNINDEX uses index-level semantics. CafeF `BasicPrice`, `Ceiling` and `Floor` are multiplied by `1,000` to VND/share; `TotalValue`/`AgreedValue` are raw VND. `traded_value` is derived only when both same-row CafeF components are present. No missing value was changed to zero.
+- Corporate action: một FPT cash-dividend event, status `PARTIAL`; có announcement/ex-right/source URL nhưng record/payment date chưa có.
+- Shares/capital structure: cả bốn mã là `CURRENT_SNAPSHOT_ONLY`; không backfill current shares vào lịch sử.
+- Financial raw-only: ba FPT quarterly observations (Q4/2025, Q1/2026, Q2/2026), `RAW_ONLY_PIT_UNRESOLVED`; không dùng trong feature, clustering hoặc backtest.
+- Raw inventory: `52` immutable local artifacts (`41` CafeF pages, `10` KBS market responses, `1` KBS financial response) cùng metadata/SHA-256. Raw payload không commit.
 
-## Reconciliation findings
+## Gate
 
-No averaging or source-priority overwrite occurred. KBS adjusted OHLC was not compared directly with CafeF reference/limit fields; those comparisons are classified `PRICE_BASIS_CONFLICT`/not performed. Recent volumes were `MATCH` for FPT, VNM and PVS. ACV is `VALUE_CONFLICT`; neither adding CafeF put-through volume nor treating it as matched volume consistently explains KBS volume.
-
-## Access-control observations
-
-The completed run received HTTP 200 for all requests and encountered no 401, 403, 429, CAPTCHA, managed challenge or login wall. No bypass was attempted. An earlier local attempt stopped after two KBS requests because the transport rejected CafeF's parseable JSON with a non-JSON content type; this was a local false-positive guard, not provider access control, and a new immutable run was created after correcting the parser.
-
-## Data quality findings
-
-KBS OHLC bounds, date ordering, duplicate-date checks, units and provenance passed in both windows. CafeF field schema, local trade-date conversion and value-component rules passed. The VNM 2021-09-09 limit-price anomaly is a required-field failure. The ACV cross-source volume conflict remains explicit and requires semantic investigation before any later promotion rule.
-
-## Raw artifact summary
-
-The completed run wrote `52` private ignored artifacts/metadata records under `data/raw/`: `41` CafeF pages and `11` KBS responses, each with request metadata, provider/client, adapter version, rights/execution labels, observation time and SHA-256. No raw payload is committed. Raw pages are append-only within the run; the report records summaries only.
-
-## Financial raw-only observations
-
-One bounded FPT KQKD quarterly response preserved three observations (Q2/2026, Q1/2026, Q4/2025) plus facts and source metadata. `ReportDate`, `DatePubDepartment`, `CreatedDate`, `LastUpdate`, period bounds, `YearPeriod`, `TermCode`, `United` and `AuditedStatus` remain raw. `published_at=null`, `available_at=null`, revision is internal observation only, and `pit_status=PIT_UNRESOLVED`. No financial fact entered features, clustering or backtest.
-
-## PASS / PARTIAL / FAIL
-
-**FAIL.** FPT, PVS, ACV and VNINDEX pass their required market checks; VNM fails because a required CafeF old-window price-band row is internally invalid. History depth itself passes. Under the explicit fail-closed criteria, one required-field corruption risk makes the project smoke fail.
-
-## Pilot readiness
-
-`NOT_READY`. Do not run the 50–60-symbol pilot. Blocking field: VNM CafeF historical `reference_price`/`ceiling_price`/`floor_price` consistency on `2021-09-09`. ACV volume reconciliation is also unresolved and must be documented or resolved before promotion policy.
-
-## Next action
-
-Investigate the VNM row using bounded provider evidence and define an explicit policy for provider-corrupt price-band rows; separately investigate ACV KBS-volume semantics. Then run a new four-symbol SOURCE_SMOKE. Do not start the pilot or scale crawl.
+Machine-readable artifact: `data/raw/source_smoke/source-smoke-20260916T122331Z-79427ec6/gate.json`. Tất cả required checks là `true`, `status=PASS`, `blocking_reasons=[]`, `unlocks=["REPRESENTATIVE_PILOT"]`. Gate chứa hash của config, policy docs và toàn bộ raw evidence. PASS này chỉ mở representative pilot; không mở M1/extended scale.

@@ -18,7 +18,7 @@ KBS_BASE = "https://kbbuddywts.kbsec.com.vn/iis-server/investment"
 RIGHTS_STATUS = "RIGHTS_NOT_VERIFIED"
 EXECUTION_POLICY = "ACCEPTED_RESEARCH_RISK"
 PRICE_BASIS = "VENDOR_ADJUSTED"
-ADAPTER_VERSION = "kbs-via-vnstock-research-demo-1"
+ADAPTER_VERSION = "kbs-delta-public-http-research-demo-2"
 
 
 def map_vnstock_ohlcv_row(row, symbol, exchange, *, is_index=False, normalized_client=True):
@@ -54,8 +54,46 @@ def map_kbs_wire_ohlcv_row(row, symbol, exchange, *, is_index=False):
         raise SemanticValidationError("KBS data_day row has unexpected schema")
     normalized = {"time": row["t"], "open": row["o"], "high": row["h"],
                   "low": row["l"], "close": row["c"], "volume": row["v"]}
-    return map_vnstock_ohlcv_row(normalized, symbol, exchange, is_index=is_index,
-                                 normalized_client=False)
+    result = map_vnstock_ohlcv_row(normalized, symbol, exchange, is_index=is_index,
+                                   normalized_client=False)
+    result.update(acquisition_client="delta_public_http", endpoint_discovered_via="vnstock")
+    return result
+
+
+def classify_volume_semantics(kbs_rows, cafef_rows, max_dates=5):
+    """Classify, but never reconcile, bounded shared-date volume observations."""
+    if not 1 <= max_dates <= 5:
+        raise ValueError("volume semantic comparison is bounded to at most five dates")
+    kbs = {row["trade_date"]: row for row in kbs_rows}
+    cafef = {row["trade_date"]: row for row in cafef_rows}
+    days = sorted(set(kbs) & set(cafef), reverse=True)[:max_dates]
+    comparisons = []
+    for day in days:
+        matched = cafef[day]["matched_volume"]
+        put_through = cafef[day]["put_through_volume"]
+        total = None if matched is None or put_through is None else matched + put_through
+        comparisons.append({"trade_date": day, "kbs_volume": kbs[day]["volume"],
+                            "cafef_matched_volume": matched,
+                            "cafef_put_through_volume": put_through,
+                            "cafef_total_volume": total})
+    if comparisons and all(row["kbs_volume"] == row["cafef_matched_volume"] for row in comparisons):
+        classification = "MATCHED_VOLUME"
+    elif comparisons and all(row["cafef_total_volume"] is not None
+                             and row["kbs_volume"] == row["cafef_total_volume"]
+                             for row in comparisons):
+        classification = "TOTAL_VOLUME"
+    elif comparisons and all(row["kbs_volume"] is not None
+                             and row["cafef_matched_volume"] is not None
+                             and 0.5 <= row["kbs_volume"] / max(row["cafef_matched_volume"], 1) <= 2
+                             for row in comparisons):
+        classification = "SOURCE_SEMANTIC_DIFFERENCE"
+    else:
+        classification = "UNRESOLVED"
+    return {"classification": classification, "dates_checked": len(comparisons),
+            "comparisons": comparisons,
+            "unit_multiplier_issue": False if classification != "UNRESOLVED" else None,
+            "board_or_lot_semantic": "NOT_PROVEN",
+            "promotion_rule": "KEEP_SEPARATE_NO_EQUALITY_ASSUMPTION"}
 
 
 def financial_raw_only_metadata(payload):
@@ -74,11 +112,12 @@ def financial_raw_only_metadata(payload):
     return observations
 
 
-class KBSVnstockSource:
-    """Exact public KBS paths documented by Vnstock, with DELTA transport limits."""
+class KBSPublicHttpSource:
+    """DELTA direct HTTP adapter for public KBS paths discovered via Vnstock."""
 
     source_id = "kbs"
-    acquisition_client = "vnstock"
+    acquisition_client = "delta_public_http"
+    endpoint_discovered_via = "vnstock"
     verification_status = "RESEARCH_DEMO_ACCEPTED_RISK"
 
     def __init__(self, client=None):
@@ -110,6 +149,10 @@ class KBSVnstockSource:
         if report_type == "LCTT":
             params.update(code=symbol.upper(), termType=period_type)
         return self.client.get_json(f"{KBS_BASE}/stock/finance-info/{symbol.upper()}", params)
+
+
+# Compatibility import only; provenance is determined by the actual direct-HTTP class above.
+KBSVnstockSource = KBSPublicHttpSource
 
 
 def date_batches(start, end, days=180):

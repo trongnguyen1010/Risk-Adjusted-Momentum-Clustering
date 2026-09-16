@@ -20,10 +20,18 @@ def source_evidence(synthetic=False):
         "representative_exchange_evidence": "HOSE/HNX/UPCOM + edge case",
         "requested_history_years": 5,
         "verified_market_fields": [
-            "raw_open", "raw_high", "raw_low", "raw_close", "reference_price", "ceiling_price",
-            "floor_price", "volume", "traded_value", "trading_status",
+            "open", "high", "low", "close", "reference_price", "ceiling_price",
+            "floor_price", "volume", "traded_value",
         ],
+        "required_symbol_market_checks_passed": True,
+        "benchmark_passed": True,
+        "history_depth_passed": True,
+        "safe_anomaly_policy_applied": True,
+        "volume_semantics_safe": True,
+        "provenance_valid": True,
+        "cafef_window_evidence_hashed": True,
         "corporate_actions_inspected": 2,
+        "shares_capital_structure_documented": True,
         "quarterly_reports_inspected": 3,
         "collection_semantics_verified": True,
         "rights_reviewed": True,
@@ -46,7 +54,7 @@ def pilot_evidence(synthetic=False):
 class PlanningGateTests(unittest.TestCase):
     def test_synthetic_cannot_pass_real_gates(self):
         smoke = source_smoke_report(source_evidence(synthetic=True))
-        self.assertEqual((SOURCE_SMOKE, "BLOCKED"), (smoke["gate"], smoke["status"]))
+        self.assertEqual((SOURCE_SMOKE, "FAIL"), (smoke["gate"], smoke["status"]))
         real_smoke = source_smoke_report(source_evidence())
         pilot = representative_pilot_report(pilot_evidence(synthetic=True), real_smoke)
         self.assertEqual("BLOCKED", pilot["status"])
@@ -54,7 +62,10 @@ class PlanningGateTests(unittest.TestCase):
 
     def test_only_representative_pilot_unlocks_m1_scale(self):
         smoke = source_smoke_report(source_evidence())
+        self.assertEqual("PASS", smoke["status"])
         self.assertEqual([REPRESENTATIVE_PILOT], smoke["unlocks"])
+        self.assertTrue(smoke["checks"]["real_data"])
+        self.assertTrue(smoke["input_evidence_hashes"])
         config = {"start": "2020-01-01", "end": "2025-12-31",
                   "symbols": [f"S{i:03d}" for i in range(300)],
                   "universe_evidence": "reviewed", "evidence_hashes": {}}
@@ -69,6 +80,14 @@ class PlanningGateTests(unittest.TestCase):
                   "symbols": [f"S{i:04d}" for i in range(1201)],
                   "universe_evidence": "reviewed historical universe"}
         self.assertEqual("PLANNED", plan_extended_scale(config, pilot)["status"])
+
+    def test_source_smoke_required_failure_has_no_unlocks(self):
+        evidence = source_evidence()
+        evidence["required_symbol_market_checks_passed"] = False
+        smoke = source_smoke_report(evidence)
+        self.assertEqual("FAIL", smoke["status"])
+        self.assertEqual([], smoke["unlocks"])
+        self.assertIn("required_symbol_market_checks_passed", smoke["blocking_reasons"])
 
     def test_smoke_configs_are_unambiguous_and_source_template_fails_closed(self):
         self.assertFalse((ROOT / "configs/data/smoke.example.json").exists())

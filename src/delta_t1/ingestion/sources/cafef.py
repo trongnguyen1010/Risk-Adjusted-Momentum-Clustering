@@ -9,7 +9,7 @@ TRADE_HISTORY_ENDPOINT = "https://cafef.vn/du-lieu/Ajax/PageNew/TradeHistoryNew.
 RIGHTS_STATUS = "RIGHTS_NOT_VERIFIED"
 EXECUTION_POLICY = "ACCEPTED_RESEARCH_RISK"
 PRICE_UNIT = "VND_PER_SHARE"
-ADAPTER_VERSION = "cafef-research-demo-1"
+ADAPTER_VERSION = "cafef-research-demo-2"
 _DOTNET_DATE = re.compile(r"^/?Date\((\d+)(?:[+-]\d+)?\)/?$")
 _VN_TIME = timezone(timedelta(hours=7))
 
@@ -66,7 +66,39 @@ def map_trade_history_row(row, symbol, exchange):
         "cafef_adjust_price": None if row["AdjustPrice"] is None else _number(row["AdjustPrice"], "AdjustPrice") * 1000,
         "price_unit": PRICE_UNIT, "provider": "cafef", "acquisition_client": "direct",
         "rights_status": RIGHTS_STATUS, "execution_policy": EXECUTION_POLICY,
+        "raw_fields": {field: row[field] for field in sorted(required)},
     }
+
+
+def price_band_row_status(row):
+    values = (row.get("reference_price"), row.get("ceiling_price"), row.get("floor_price"))
+    if all(value is not None for value in values) and values[2] <= values[0] <= values[1]:
+        return "VALID"
+    return "INVALID_REQUIRED_MARKET_ROW"
+
+
+def apply_invalid_row_policy(rows, policy):
+    """Apply only an evidence-pinned exclusion; never repair provider values."""
+    eligible, findings = [], []
+    for row in rows:
+        status = price_band_row_status(row)
+        if status == "VALID":
+            eligible.append(row)
+            continue
+        expected = policy if (row.get("provider"), row["symbol"], row["trade_date"]) == (
+            policy.get("provider"), policy.get("symbol"), policy.get("trade_date")) else {}
+        expected_raw = expected.get("expected_raw_fields", {})
+        raw_match = bool(expected_raw) and all(
+            row["raw_fields"].get(key) == value for key, value in expected_raw.items())
+        safe = (expected.get("classification") == "PROVIDER_CORRUPT_ROW"
+                and expected.get("row_status") == status
+                and expected.get("policy") == "EXCLUDE_ROW" and raw_match)
+        findings.append({"symbol": row["symbol"], "trade_date": row["trade_date"],
+                         "row_status": status,
+                         "classification": expected.get("classification", "UNRESOLVED") if safe else "UNRESOLVED",
+                         "policy": "EXCLUDE_ROW" if safe else "FAIL_SYMBOL_WINDOW",
+                         "safe": safe, "raw_fields": row["raw_fields"]})
+    return eligible, findings
 
 
 class CafeFSource(SourceAdapter):
