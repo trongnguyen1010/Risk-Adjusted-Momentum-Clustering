@@ -17,8 +17,10 @@ from delta_t1.ingestion.representative_pilot import (
     build_job_plan, build_run_identity, dry_run, load_readiness,
     run_real, validate_resume_identity, validate_source_gate, validate_universe,
 )
+from delta_t1.ingestion.sources.base import SemanticValidationError
 from delta_t1.ingestion.sources.cafef import (
-    CAFEF_DATETIME_MIN_VALUE, cafef_trade_date, classify_cafef_page_row,
+    CAFEF_DATETIME_MIN_VALUE, CAFEF_DOTNET_DATETIME_MIN_VALUE,
+    cafef_trade_date, classify_cafef_page_row, map_trade_history_row,
 )
 from delta_t1.ingestion.sources.vnstock import KBSPublicHttpSource, collect
 from delta_t1.io import digest, encoded, read_json, write_json
@@ -409,15 +411,28 @@ class CafeFSnapshotClassificationTests(unittest.TestCase):
         # A PM timestamp that is NOT 17:00:00 is also a snapshot at page 1 row 0
         self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row("9/16/2026 3:30:00 PM", page=1, row_index=0))
 
-    # --- 3. Current snapshot with DateTime.MinValue (1/1/0001 12:00:00 AM) ---
+    # --- 3. Current snapshot with DateTime.MinValue (AM/PM and .NET tick-epoch) ---
 
     def test_datetime_min_value_sentinel_is_classified_as_snapshot(self):
         """CafeF DateTime.MinValue sentinel (year 0001) is a CURRENT_SNAPSHOT at page 1 row 0."""
         self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row("1/1/0001 12:00:00 AM", page=1, row_index=0))
 
+    def test_dotnet_datetime_min_value_sentinel_is_classified_as_snapshot(self):
+        """CafeF .NET DateTime.MinValue tick-epoch /Date(-62135596800000)/ is CURRENT_SNAPSHOT at page 1 row 0."""
+        self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row("/Date(-62135596800000)/", page=1, row_index=0))
+        self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row(CAFEF_DOTNET_DATETIME_MIN_VALUE, page=1, row_index=0))
+        self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row(r"\/Date(-62135596800000)\/", page=1, row_index=0))
+
     def test_datetime_min_value_constant_has_year_1(self):
         """CAFEF_DATETIME_MIN_VALUE sentinel value matches .NET DateTime.MinValue."""
         self.assertEqual(1, CAFEF_DATETIME_MIN_VALUE.year)
+
+    def test_negative_dotnet_date_fails_closed_in_historical_parser(self):
+        """Negative .NET timestamps are not valid historical trade dates and fail closed."""
+        with self.assertRaises(SemanticValidationError):
+            cafef_trade_date("/Date(-123456)/")
+        with self.assertRaises(SemanticValidationError):
+            cafef_trade_date("/Date(-62135596800000)/")
 
     # --- 4. Position awareness: no global snapshot classification -------------
 
@@ -426,12 +441,28 @@ class CafeFSnapshotClassificationTests(unittest.TestCase):
         # Page 1 row 0: intraday timestamp is CURRENT_SNAPSHOT
         self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row("9/16/2026 7:45:00 AM", page=1, row_index=0))
         self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row("1/1/0001 12:00:00 AM", page=1, row_index=0))
-        # Page 1 row 1+ are NOT snapshot even if time != 17:00
+        self.assertEqual("CURRENT_SNAPSHOT", classify_cafef_page_row("/Date(-62135596800000)/", page=1, row_index=0))
+        # Page 1 row 1+ are NOT snapshot even if time != 17:00 or DateTime.MinValue
         self.assertEqual("HISTORICAL", classify_cafef_page_row("9/16/2026 7:45:00 AM", page=1, row_index=1))
         self.assertEqual("HISTORICAL", classify_cafef_page_row("1/1/0001 12:00:00 AM", page=1, row_index=1))
+        self.assertEqual("HISTORICAL", classify_cafef_page_row("/Date(-62135596800000)/", page=1, row_index=1))
         # Page 2+ rows are NOT snapshot even if row_index == 0
         self.assertEqual("HISTORICAL", classify_cafef_page_row("9/16/2026 7:45:00 AM", page=2, row_index=0))
         self.assertEqual("HISTORICAL", classify_cafef_page_row("1/1/0001 12:00:00 AM", page=2, row_index=0))
+        self.assertEqual("HISTORICAL", classify_cafef_page_row("/Date(-62135596800000)/", page=2, row_index=0))
+
+    def test_dotnet_datetime_min_value_outside_page1_row0_is_historical_and_fails_closed(self):
+        """At row_index > 0 or page > 1, /Date(-62135596800000)/ is HISTORICAL and fails closed on mapping."""
+        self.assertEqual("HISTORICAL", classify_cafef_page_row("/Date(-62135596800000)/", page=1, row_index=1))
+        self.assertEqual("HISTORICAL", classify_cafef_page_row("/Date(-62135596800000)/", page=2, row_index=0))
+        row = {
+            "Symbol": "CMG", "TradeDate": "/Date(-62135596800000)/",
+            "BasicPrice": 22.5, "ClosePrice": 22.8, "Volume": 124400,
+            "AdjustPrice": 22.8, "Ceiling": 24.05, "Floor": 20.95,
+            "TotalValue": 2857960000, "AgreedVolume": 0, "AgreedValue": 0,
+        }
+        with self.assertRaises(SemanticValidationError):
+            map_trade_history_row(row, "CMG", "HOSE")
 
     # --- 5. Existing .NET Date(...) format is unchanged -----------------------
 
@@ -499,6 +530,56 @@ class CafeFSnapshotClassificationTests(unittest.TestCase):
         self.assertEqual(1, len(store.saved))
         # Verify raw payload is preserved unchanged with leading sentinel
         self.assertEqual("1/1/0001 12:00:00 AM", store.saved_payloads[0]["Data"][0]["TradeDate"])
+
+    def test_execute_job_excludes_leading_dotnet_datetime_min_value_snapshot(self):
+        """_execute_job excludes .NET DateTime.MinValue tick-epoch /Date(-62135596800000)/ at page 1 row 0 before mapping."""
+        import json as _json
+        from delta_t1.ingestion.representative_pilot import _execute_job
+
+        historical_row_1 = {
+            "Symbol": "CMG", "TradeDate": "9/14/2026 5:00:00 PM",
+            "BasicPrice": 22.5, "ClosePrice": 22.8, "Volume": 124400,
+            "AdjustPrice": 22.8, "Ceiling": 24.05, "Floor": 20.95,
+            "TotalValue": 2857960000, "AgreedVolume": 0, "AgreedValue": 0,
+        }
+        historical_row_0 = dict(historical_row_1, TradeDate="2019-12-31T17:00:00+07:00",
+                                BasicPrice=10.0, Ceiling=11.0, Floor=9.0)
+        payload = {
+            "Success": True,
+            "Data": [
+                # Row 0: .NET DateTime.MinValue sentinel (must be excluded before map_trade_history_row)
+                dict(historical_row_1, TradeDate="/Date(-62135596800000)/"),
+                # Row 1: real historical close
+                historical_row_1,
+                # Row 2: older than job start -> triggers reached_start
+                historical_row_0,
+            ],
+        }
+        body = _json.dumps(payload).encode()
+
+        class SnapshotCafeFSource:
+            def acquire_trade_history_page(self, _request):
+                return {"payload": payload, "body": body,
+                        "url": "https://example.test", "status": 200}
+
+        class SnapshotStore:
+            def __init__(self):
+                self.saved = []
+                self.saved_payloads = []
+            def save(self, provider, artifact_id, response, metadata, **kwargs):
+                self.saved.append(True)
+                self.saved_payloads.append(response["payload"])
+                return {"raw_path": "data/raw/cafef/run/CMG-page-001.json", "sha256": "a" * 64}
+
+        job = {"id": "cafef-CMG", "provider": "cafef", "kind": "reference_limits_value",
+               "symbol": "CMG", "exchange": "HOSE",
+               "start": "2020-01-01", "end": "2026-09-14", "max_pages": 100}
+        store = SnapshotStore()
+        artifacts = _execute_job(job, {}, None, SnapshotCafeFSource(), store)
+        self.assertEqual(1, len(artifacts))
+        self.assertEqual(1, len(store.saved))
+        # Raw payload preserved unchanged with /Date(-62135596800000)/
+        self.assertEqual("/Date(-62135596800000)/", store.saved_payloads[0]["Data"][0]["TradeDate"])
 
     def test_execute_job_excludes_leading_intraday_snapshot(self):
         """_execute_job excludes normal intraday timestamp snapshot at page 1 row 0."""

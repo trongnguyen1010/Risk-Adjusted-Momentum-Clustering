@@ -24,6 +24,9 @@ _VN_TIME = timezone(timedelta(hours=7))
 # Sentinel emitted by CafeF for the leading current/intraday snapshot row
 # when no intraday time is available (DateTime.MinValue in .NET).
 CAFEF_DATETIME_MIN_VALUE = datetime(1, 1, 1, 0, 0, 0)
+# .NET DateTime.MinValue serialized as tick-epoch: /Date(-62135596800000)/
+CAFEF_DOTNET_DATETIME_MIN_VALUE = "/Date(-62135596800000)/"
+_DOTNET_MIN_VALUE = re.compile(r"^/?Date\(-62135596800000(?:[+-]\d+)?\)/?$")
 
 
 def _number(value, field, *, integral=False):
@@ -91,14 +94,15 @@ def classify_cafef_page_row(raw_trade_date_value, page=1, row_index=0):
     historical daily time-series. Rows at any other position (page > 1 or
     row_index > 0) are historical daily rows.
 
-    For the leading row (page == 1, row_index == 0), two snapshot sentinel
-    patterns exist:
-    1. DateTime.MinValue (year 0001): 1/1/0001 12:00:00 AM — seen when the
-       intraday price is not yet available (e.g. BCC, CMG).
-    2. A valid intraday AM/PM timestamp whose time component is NOT 17:00:00
+    For the leading row (page == 1, row_index == 0), snapshot sentinel patterns exist:
+    1. .NET DateTime.MinValue tick-epoch: /Date(-62135596800000)/ — seen when the
+       intraday price is not yet available in JSON serialization (e.g. CMG).
+    2. Legacy AM/PM DateTime.MinValue (year 0001): 1/1/0001 12:00:00 AM — seen
+       when formatted as an AM/PM string (e.g. BCC, CMG).
+    3. A valid intraday AM/PM timestamp whose time component is NOT 17:00:00
        (market close), e.g. 9/16/2026 7:45:00 AM.
 
-    Both patterns are classified as CURRENT_SNAPSHOT only for page == 1 and
+    These patterns are classified as CURRENT_SNAPSHOT only for page == 1 and
     row_index == 0. Rows at other positions are not globally classified as
     snapshots.
     """
@@ -106,6 +110,9 @@ def classify_cafef_page_row(raw_trade_date_value, page=1, row_index=0):
         return "HISTORICAL"
     if not isinstance(raw_trade_date_value, str):
         return "HISTORICAL"
+    normalized = raw_trade_date_value.replace("\\/", "/").strip("/")
+    if _DOTNET_MIN_VALUE.match(normalized):
+        return "CURRENT_SNAPSHOT"
     parsed_ampm = _parse_cafef_ampm(raw_trade_date_value)
     if parsed_ampm is not None:
         if parsed_ampm.year == CAFEF_DATETIME_MIN_VALUE.year:
