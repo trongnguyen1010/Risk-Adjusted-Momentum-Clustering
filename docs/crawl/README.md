@@ -33,7 +33,7 @@ Mục tiêu không chỉ là “crawl được data”, mà là bảo đảm m�
    Official 50–60-symbol pilot path, universe/config contract, dry-run, QC và gate semantics.
 
 6. [TEAM_CRAWLING.md](TEAM_CRAWLING.md)
-   Cách chia batch cho nhiều người mà dữ liệu vẫn thống nhất.
+   Runbook M1 scale 500 mã/5 collectors: readiness, shard contract, storage, handoff, merge và raw → canonical → feature.
 
 7. [HANDOFF_TEMPLATE.md](HANDOFF_TEMPLATE.md)
    Template manifest, collector report và checklist bàn giao.
@@ -65,7 +65,8 @@ REPRESENTATIVE_PILOT
     │ PASS
     ▼
 M1_SCALE
->=300 mã, >=5 năm
+>=300 mã; mỗi mã >=3 năm usable
+range thu thập chung 5–15 năm
     │
     ▼
 EXTENDED_SCALE

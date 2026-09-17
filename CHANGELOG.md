@@ -1,5 +1,6 @@
 # Chưa phát hành — REPRESENTATIVE_PILOT readiness (2026-09-16)
 
+- Thêm M1 scale multi-machine path cho 500 mã/5 collectors: frozen universe 500 mã đều có bounded evidence >3 năm, deterministic 5×100 assignments, zero-network/execute/resume shard runner, exact union/disjoint/checksum handoff verifier, central canonical mapper/promoter và single-pass market feature build. Range chung 2020-01-01..2026-09-15; gate theo usable >=3 năm, còn usable >=5 năm là reporting metric. Pilot 50–60 guard giữ nguyên; chưa chạy real scale network.
 - Hoàn tất real acquisition `representative-pilot-20260916T185530Z-410ffcba` với 839/839 jobs; offline immutable QC replay zero-network PASS, 55/55 mã usable >=5 năm và VNINDEX PASS.
 - Thêm versioned exact-hash QC policy: quarantine 51 provider invariant violations, không repair raw; mismatch hoặc rule thiếu/thừa đều fail-closed.
 - Khóa KBS primary >=5 năm và CafeF auxiliary non-empty/partial source-qualified; 6 volume conflicts vẫn unmerged, financial PIT vẫn unresolved. `M1_SCALE` chỉ unlock cho planning, chưa chạy.
