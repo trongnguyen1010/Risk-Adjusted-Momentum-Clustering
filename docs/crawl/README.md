@@ -75,7 +75,7 @@ historical eligible universe
 
 **Không có gate nào được skip.**
 
-Current state: `SOURCE_SMOKE=PASS`; `REPRESENTATIVE_PILOT=PASS` (55/55 usable >=5 năm); `M1_SCALE=UNLOCKED FOR PLANNING / NOT EXECUTED`; financial `PIT_UNRESOLVED / RAW_ONLY`.
+Current state: `SOURCE_SMOKE=PASS`; `REPRESENTATIVE_PILOT=PASS` (55/55 usable >=5 năm); pilot canonical market/features 55/55 latest eligible với provisional observed identity; `M1_SCALE=UNLOCKED FOR PLANNING / NOT EXECUTED`; financial `PIT_UNRESOLVED / RAW_ONLY`.
 
 ## 3. Quy tắc bất biến
 

@@ -1,6 +1,6 @@
 # Các quyết định còn hiệu lực
 
-Cập nhật 16/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation.
+Cập nhật 17/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation.
 
 | ID | Quyết định |
 |---|---|
@@ -30,6 +30,7 @@ Cập nhật 16/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-024 | **Research/demo collection under accepted provider-rights uncertainty:** dùng public CafeF/KBS paths cho bounded private academic research/demo theo `ACCEPTED_RESEARCH_RISK`; provider rights vẫn `RIGHTS_NOT_VERIFIED`, không bypass access control, không raw redistribution, financial chỉ `RAW_ONLY_PIT_UNRESOLVED`, và production/commercial vẫn licensed-source-only. Owner quyết định ngày 16/09/2026; ảnh hưởng source adapters, smoke config/tests và risk policy. |
 | ADR-025 | **SOURCE_SMOKE anomaly policy và gate:** provider-corrupt market row chỉ được exclude khi provider/symbol/date/raw fields khớp exact versioned evidence; raw/finding luôn giữ, không repair/backfill. Cross-source volume khác semantic phải giữ riêng, không giả định equality. Direct KBS HTTP ghi `acquisition_client=delta_public_http`, Vnstock chỉ là discovery provenance. Chỉ machine gate PASS mới unlock `REPRESENTATIVE_PILOT`. |
 | ADR-026 | **REPRESENTATIVE_PILOT path alignment và financial-track separation:** official pilot dùng KBS direct HTTP + CafeF direct như SOURCE_SMOKE; Vnstock SDK chỉ legacy. Market pilot không đòi PIT-ready financial; `PIT_UNRESOLVED` bắt buộc `financial_features_allowed=false`. Cross-source volume unresolved giữ source-qualified, không merge. |
+| ADR-027 | **Pilot canonical identity scope:** current KBS stock/name/exchange snapshot chỉ bổ sung display name và exact pilot membership. `valid_from` lấy first accepted pilot price, không lấy listing date; status luôn `provisional_verified_for_pilot`. Scope này cho phép validate market features trên frozen pilot nhưng không được dùng như complete historical universe cho scale/backtest. |
 
 ## Open decisions
 
@@ -62,3 +63,7 @@ Problem: legacy pilot dùng Vnstock SDK khác với acquisition path đã smoke-
 ## ADR — Representative pilot primary/reference coverage và exact-hash QC
 
 Real run `representative-pilot-20260916T185530Z-410ffcba` cho thấy KBS có >=5 năm OHLCV cho 55/55 mã, trong khi CafeF direct trả non-empty nhưng source-truncated history cho 53 mã. Choice: KBS là primary market history/benchmark; CafeF là auxiliary limits/value/volume source được phép partial nhưng luôn source-qualified và không canonical-merge. Provider invariant violation chỉ được exclude nếu versioned policy khớp exact provider, ticker, trade date và raw-row SHA-256 trên đúng immutable run; thiếu/thừa/mismatch fail-closed. Offline replay phải verify mọi artifact checksum, không network và không mutate raw. Evidence: policy v1, assessment/gate và result report ngày 17/09/2026. `REPRESENTATIVE_PILOT=PASS` chỉ unlock planning M1 scale; financial PIT và production rights vẫn unresolved.
+
+## ADR — Pilot canonical identity scope
+
+Problem: frozen pilot universe có stable provider security ID, ticker/exchange/sector/listing date nhưng thiếu company name; current metadata không tự chứng minh complete historical identity. Choice: exact-match 55 KBS `stock` rows cung cấp current display name/exchange, còn interval chỉ bắt đầu tại first accepted pilot market observation và mang `provisional_verified_for_pilot`. Promotion phải verify immutable parent hashes, exact ticker/exchange set, schema/FK và 55/55 latest market feature eligibility. Evidence: security master v1 và canonical run `canonical-pilot-20260917T062832Z-6748ac02`, 17/09/2026. Affected: canonical pilot mapper/promoter, tests, result/status docs. Remaining limit: không đóng `OPEN-04`, không biến current membership thành historical universe truth, không mở financial features và không tự cho phép M1 scale execution.

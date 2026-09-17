@@ -87,4 +87,8 @@ Tất cả `reference_only=N`. `UNRESOLVED` volume vẫn `KEEP_SOURCE_QUALIFIED`
 
 Offline mapper đã replay cùng PASS assessment và exact-hash policy trên toàn bộ 55 mã, không network và không sửa raw. Kết quả mapping: `91.768` `prices_daily` candidates, `1.667` `benchmark_daily` rows, `5.009` observed-session calendar rows; standard market schemas, unique keys, calendar relations và latest-21-session traded-value coverage đều PASS.
 
-KBS `VENDOR_ADJUSTED` chỉ map `adj_close`; `raw_open/high/low/close` giữ `null`, KBS `va` chưa promote, CafeF price bands không trộn với adjusted basis. CafeF `traded_value` chỉ gắn theo exact ticker/date với field-level lineage. Canonical promotion vẫn `BLOCKED` vì frozen universe chưa có `securities.company_name` và current ticker/exchange metadata chưa chứng minh complete historical identity intervals. Không dùng ticker làm tên công ty và không backdate current identity để ép PASS.
+KBS `VENDOR_ADJUSTED` chỉ map `adj_close`; `raw_open/high/low/close` giữ `null`, KBS `va` chưa promote, CafeF price bands không trộn với adjusted basis. CafeF `traded_value` chỉ gắn theo exact ticker/date với field-level lineage.
+
+Canonical promotion `canonical-pilot-20260917T062832Z-6748ac02` đã verify toàn bộ parent artifact hash và tạo `55` securities, `91.768` prices, `1.667` benchmark rows, `5.009` calendar rows và `4.455` monthly market feature snapshots; latest eligibility đạt `55/55`. Generic clean-table replay có `0` issue và `0` quarantine; network requests bằng `0`.
+
+Company name là current KBS display label đã verify exact 55 ticker/stock/exchange. Identity interval bắt đầu tại first accepted pilot price date, không backdate về listing date, và giữ `provisional_verified_for_pilot` với scope `PILOT_OBSERVED_INTERVAL_ONLY`. Đây là đủ cho market-only pilot feature validation, không phải complete historical-universe master và không đóng `OPEN-04`. Financial vẫn `PIT_UNRESOLVED`, `financial_features_allowed=false`.
