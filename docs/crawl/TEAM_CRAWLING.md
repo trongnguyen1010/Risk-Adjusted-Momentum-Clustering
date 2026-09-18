@@ -12,6 +12,8 @@ Official M1 scale tooling hiện đã có:
 - central mapper dedupe theo canonical semantic key;
 - central promoter tạo một canonical dataset và tính features đúng một lần.
 
+Trạng thái thực thi 18/09/2026: đủ 5 handoff/500 mã; exact assignment/job/raw-checksum verification và central mapping PASS. Mapping quarantine 3.301 provider-constraint rows có raw evidence, giữ 500/500 mã >=3 năm và 484/500 mã >=5 năm. Offline EDA/QC report `m1-scale-quality-20260918T130735Z-54038c13` đã sinh. Promotion đã tạo clean tables/features nhưng gate FAIL: 168/500 latest rows feature-complete, dưới ngưỡng 300, và identity vẫn provisional. Không chỉnh threshold hoặc raw để ép PASS.
+
 Không dùng runner pilot năm lần và không sửa guard 50–60 để lách gate. Master universe 500 mã, scale config, security master và 5 assignment đã freeze; cả 5 official dry-run đều `READINESS=PASS network_requests=0`. Project owner đã chấp nhận bắt đầu acquisition do deadline. Universe là deterministic engineering sample dựa trên identity/history/source availability, không phải market-cap-weighted universe; không được diễn giải thành historical index membership.
 
 ## 2. Những lệnh chạy được ngay
@@ -237,6 +239,10 @@ Mảng `runs` phải chứa đủ cả 5 assignment. Sau khi copy nguyên contro
 .venv\Scripts\python.exe scripts/promote_m1_scale_canonical.py `
   --candidate <M1_SCALE_CANDIDATE_DIRECTORY> --config <M1_SCALE_CONFIG_JSON> `
   --securities <M1_SCALE_SECURITY_MASTER_JSON> `
+  --feature-config configs/features/market.example.json
+
+.venv\Scripts\python.exe scripts/report_m1_scale_quality.py `
+  --canonical <CANONICAL_M1_SCALE_DIRECTORY> `
   --feature-config configs/features/market.example.json
 ```
 

@@ -76,7 +76,7 @@ historical eligible universe
 
 **Không có gate nào được skip.**
 
-Current state: `SOURCE_SMOKE=PASS`; `REPRESENTATIVE_PILOT=PASS` (55/55 usable >=5 năm); pilot canonical market/features 55/55 latest eligible với provisional observed identity; `M1_SCALE=UNLOCKED FOR PLANNING / NOT EXECUTED`; financial `PIT_UNRESOLVED / RAW_ONLY`.
+Current state: `SOURCE_SMOKE=PASS`; `REPRESENTATIVE_PILOT=PASS`; M1 raw acquisition/canonical mapping/EDA đã hoàn tất cho 500 mã. Sau QC có 500/500 mã >=3 năm và 484/500 mã >=5 năm. `M1_SCALE` feature gate vẫn `FAIL` vì chỉ 168/500 latest rows feature-complete trước identity review, dưới ngưỡng 300; report `m1-scale-quality-20260918T130735Z-54038c13` kết luận `PARTIAL`. Financial vẫn `PIT_UNRESOLVED / RAW_ONLY`.
 
 ## 3. Quy tắc bất biến
 

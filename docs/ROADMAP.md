@@ -8,11 +8,11 @@ Mục tiêu là canonical data có historical identity, price basis, point-in-ti
 - [x] Ba năm usable observed history và `REFERENCE_ONLY` policy.
 - [x] **SOURCE_SMOKE:** canonical run `source-smoke-20260916T122331Z-79427ec6` PASS; chỉ mở representative pilot, không mở scale.
 - [x] **REPRESENTATIVE_PILOT:** real run `representative-pilot-20260916T185530Z-410ffcba`, 55/55 securities usable >=5 năm; exact-hash QC replay PASS. Canonical pilot `canonical-pilot-20260917T062832Z-6748ac02` có 55/55 latest market snapshots eligible dưới `PILOT_OBSERVED_INTERVAL_ONLY`; financial PIT vẫn khóa feature.
-- [ ] **M1_SCALE:** >=300 securities có tối thiểu 3 năm usable observed history; range thu thập chung 5–15 năm. Đã unlock cho planning, chưa chạy.
+- [ ] **M1_SCALE:** acquisition 5 shard/500 mã, central mapping và EDA/QC đã chạy; 500/500 mã giữ >=3 năm, 484/500 giữ >=5 năm. Deadline collection coverage đạt, nhưng feature gate vẫn FAIL vì chỉ 168 latest rows feature-complete trước identity review, dưới ngưỡng >=300; không hạ gate để ép PASS.
 - [ ] **EXTENDED_SCALE:** historical eligible universe, 5–15 năm, có thể >1.200 securities; không có cap 350 và chưa chạy.
 - [ ] Chốt financial taxonomy, publication/revision rules và paper-backed financial feature.
 - [ ] Chốt source mapping/version cho market và share counts sau real source evidence; không backfill current share count về lịch sử.
-- [ ] Xuất EDA, coverage và data-quality report.
+- [x] Xuất offline EDA/coverage/data-quality artifact cho M1 scale; report `m1-scale-quality-20260918T130735Z-54038c13` kết luận `PARTIAL` và giữ per-symbol evidence.
 
 ## M2 — Clustering Research
 

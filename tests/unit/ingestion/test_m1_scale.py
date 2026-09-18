@@ -9,7 +9,8 @@ TMP_ROOT = ROOT / "tmp"
 TMP_ROOT.mkdir(exist_ok=True)
 
 from delta_t1.ingestion.m1_scale import (
-    M1_SCALE_SHARD, _load_scale_security_master, _unique_rows,
+    M1_SCALE_SHARD, _compatible_text_hashes, _load_scale_security_master,
+    _require_portable_hash, _unique_rows,
     build_scale_job_plan, dry_run_shard, load_scale_readiness,
     evaluate_scale_shard_checks, load_assignment_index, validate_assignment,
     validate_pilot_gate,
@@ -85,6 +86,19 @@ def assignment(ids, *, benchmark=True):
 
 
 class M1ScaleTests(unittest.TestCase):
+    def test_handoff_text_hash_accepts_lf_or_crlf_but_not_changed_content(self):
+        with tempfile.TemporaryDirectory(dir=TMP_ROOT) as temp:
+            path = Path(temp) / "frozen.json"
+            lf = b'{\n  "value": 1\n}\n'
+            crlf = lf.replace(b"\n", b"\r\n")
+            atomic_write(path, lf)
+            hashes = _compatible_text_hashes(path)
+            self.assertIn(digest(lf), hashes)
+            self.assertIn(digest(crlf), hashes)
+            _require_portable_hash(path, digest(crlf), "fixture")
+            with self.assertRaisesRegex(ValueError, "fixture hash mismatch"):
+                _require_portable_hash(path, digest(b'{"value":2}'), "fixture")
+
     def files(self, directory, *, benchmark=True):
         rows = universe_rows()
         atomic_write(directory / ".gitignore", b"/data/\n")
