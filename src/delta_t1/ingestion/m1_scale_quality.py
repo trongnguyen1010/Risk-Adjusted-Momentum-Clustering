@@ -94,13 +94,15 @@ _REQUIRED_FEATURES = (
 def _generate_plots(report, rows, plots_dir):
     """Generate exactly four deterministic EDA charts into plots_dir.
 
-    Returns a dict mapping plot key -> relative path string (or None if
-    matplotlib is unavailable).  Does NOT raise on partial failure;
-    individual plot errors are surfaced via returned None values.
+    Behavior:
+    - If matplotlib is unavailable: returns a dict with all values None
+      (graceful fallback; report remains readable without images).
+    - If matplotlib IS available: raises loudly on any chart failure so
+      a supposedly successful EDA report is never silently missing charts.
 
-    Note on session coverage: the coverage shown is relative to the
-    *observed canonical exchange-session union*, NOT a verified official
-    HOSE/HNX/UPCOM exchange calendar.  The label explicitly reflects this.
+    Note on session coverage: the denominator is the *observed canonical
+    exchange-session union*, NOT a verified official HOSE/HNX/UPCOM
+    exchange calendar.  The chart label makes this explicit.
     """
     if not _MATPLOTLIB_AVAILABLE:
         return {name: None for name in (
@@ -113,112 +115,102 @@ def _generate_plots(report, rows, plots_dir):
     results = {}
 
     # 1. Securities by exchange (bar chart) -----------------------------------
-    try:
-        exchange_data = report.get("exchange_coverage", {})
-        exchanges = sorted(exchange_data)
-        counts = [exchange_data[ex]["securities"] for ex in exchanges]
-        fig, ax = plt.subplots(figsize=(6, 4))
-        bars = ax.bar(exchanges, counts, color=["#2196F3", "#4CAF50", "#FF9800"][:len(exchanges)])
-        ax.bar_label(bars, padding=3)
-        ax.set_title("Securities by Exchange")
-        ax.set_ylabel("Number of Securities")
-        ax.set_xlabel("Exchange")
-        ax.set_ylim(0, max(counts) * 1.15 if counts else 1)
-        fig.tight_layout()
-        path = plots_dir / "exchange_distribution.png"
-        fig.savefig(path, dpi=100)
-        plt.close(fig)
-        results["exchange_distribution"] = path.name
-    except Exception:  # pragma: no cover
-        results["exchange_distribution"] = None
+    exchange_data = report.get("exchange_coverage", {})
+    exchanges = sorted(exchange_data)
+    counts = [exchange_data[ex]["securities"] for ex in exchanges]
+    fig, ax = plt.subplots(figsize=(6, 4))
+    bars = ax.bar(exchanges, counts, color=["#2196F3", "#4CAF50", "#FF9800"][:len(exchanges)])
+    ax.bar_label(bars, padding=3)
+    ax.set_title("Securities by Exchange")
+    ax.set_ylabel("Number of Securities")
+    ax.set_xlabel("Exchange")
+    ax.set_ylim(0, max(counts) * 1.15 if counts else 1)
+    fig.tight_layout()
+    path = plots_dir / "exchange_distribution.png"
+    fig.savefig(path, dpi=100)
+    plt.close(fig)
+    results["exchange_distribution"] = path.name
 
     # 2. Session coverage distribution (histogram) ----------------------------
-    try:
-        coverages = [
-            row["observed_session_coverage"]
-            for row in rows
-            if row.get("observed_session_coverage") is not None
-        ]
-        med = median(coverages) if coverages else None
-        fig, ax = plt.subplots(figsize=(7, 4))
+    # Denominator = observed canonical exchange-session union (NOT official calendar)
+    coverages = [
+        row["observed_session_coverage"]
+        for row in rows
+        if row.get("observed_session_coverage") is not None
+    ]
+    med = median(coverages) if coverages else None
+    fig, ax = plt.subplots(figsize=(7, 4))
+    if coverages:
         ax.hist(coverages, bins=40, color="#5C6BC0", edgecolor="white", linewidth=0.4)
-        if med is not None:
-            ax.axvline(med, color="#E53935", linestyle="--", linewidth=1.5,
-                       label=f"Median {med:.2%}")
-            ax.legend(fontsize=9)
-        ax.set_title(
-            "Coverage vs. Observed Exchange Sessions\n"
-            "(relative to observed canonical session union, NOT official exchange calendar)"
-        )
-        ax.set_xlabel("Coverage vs. Observed Exchange Sessions")
-        ax.set_ylabel("Symbols")
-        fig.tight_layout()
-        path = plots_dir / "observed_session_coverage.png"
-        fig.savefig(path, dpi=100)
-        plt.close(fig)
-        results["observed_session_coverage"] = path.name
-    except Exception:  # pragma: no cover
-        results["observed_session_coverage"] = None
+    if med is not None:
+        ax.axvline(med, color="#E53935", linestyle="--", linewidth=1.5,
+                   label=f"Median {med:.2%}")
+        ax.legend(fontsize=9)
+    ax.set_title(
+        "Coverage vs. Observed Exchange Sessions\n"
+        "(denominator = observed canonical session union, NOT official exchange calendar)"
+    )
+    ax.set_xlabel("Coverage vs. Observed Exchange Sessions")
+    ax.set_ylabel("Symbols")
+    fig.tight_layout()
+    path = plots_dir / "observed_session_coverage.png"
+    fig.savefig(path, dpi=100)
+    plt.close(fig)
+    results["observed_session_coverage"] = path.name
 
     # 3. Required feature availability (bar chart) ----------------------------
-    try:
-        feature_cov = report.get("latest_feature_coverage", {})
-        total = report.get("summary", {}).get("selected_symbols", 500)
-        feat_names = list(_REQUIRED_FEATURES)
-        available = [feature_cov.get(f, {}).get("available", 0) for f in feat_names]
-        missing = [feature_cov.get(f, {}).get("missing", total - available[i])
-                   for i, f in enumerate(feat_names)]
-        x = range(len(feat_names))
-        fig, ax = plt.subplots(figsize=(9, 4))
-        bar_avail = ax.bar(x, available, label="Available", color="#43A047")
-        bar_miss = ax.bar(x, missing, bottom=available, label="Missing", color="#EF5350")
-        ax.bar_label(bar_avail, labels=[str(v) for v in available],
-                     padding=2, fontsize=8)
-        ax.set_xticks(list(x))
-        ax.set_xticklabels(feat_names, rotation=30, ha="right", fontsize=9)
-        ax.set_ylabel("Symbols")
-        ax.set_title("Required Feature Availability at Latest Completed Snapshot")
-        ax.set_ylim(0, total * 1.12)
-        ax.axhline(total, color="#0D47A1", linestyle=":", linewidth=1, label=f"Total ({total})")
-        ax.legend(fontsize=9)
-        fig.tight_layout()
-        path = plots_dir / "feature_availability.png"
-        fig.savefig(path, dpi=100)
-        plt.close(fig)
-        results["feature_availability"] = path.name
-    except Exception:  # pragma: no cover
-        results["feature_availability"] = None
+    feature_cov = report.get("latest_feature_coverage", {})
+    total = report.get("summary", {}).get("selected_symbols", 500)
+    feat_names = list(_REQUIRED_FEATURES)
+    available = [feature_cov.get(f, {}).get("available", 0) for f in feat_names]
+    missing = [feature_cov.get(f, {}).get("missing", total - available[i])
+               for i, f in enumerate(feat_names)]
+    x = range(len(feat_names))
+    fig, ax = plt.subplots(figsize=(9, 4))
+    bar_avail = ax.bar(x, available, label="Available", color="#43A047")
+    bar_miss = ax.bar(x, missing, bottom=available, label="Missing", color="#EF5350")
+    ax.bar_label(bar_avail, labels=[str(v) for v in available],
+                 padding=2, fontsize=8)
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(feat_names, rotation=30, ha="right", fontsize=9)
+    ax.set_ylabel("Symbols")
+    ax.set_title("Required Feature Availability at Latest Completed Snapshot")
+    ax.set_ylim(0, total * 1.12)
+    ax.axhline(total, color="#0D47A1", linestyle=":", linewidth=1, label=f"Total ({total})")
+    ax.legend(fontsize=9)
+    fig.tight_layout()
+    path = plots_dir / "feature_availability.png"
+    fig.savefig(path, dpi=100)
+    plt.close(fig)
+    results["feature_availability"] = path.name
 
     # 4. Top exclusion/missing-feature reasons (horizontal bar) ---------------
-    try:
-        reason_counts = report.get("exclusion_reason_counts", {})
-        # Show top 12; distinguish historical_identity from market-feature reasons
-        top = sorted(reason_counts.items(), key=lambda kv: -kv[1])[:12]
-        labels = [item[0] for item in top]
-        counts = [item[1] for item in top]
-        colors = [
-            "#7B1FA2" if "historical_identity" in lbl else "#1565C0"
-            for lbl in labels
-        ]
-        fig, ax = plt.subplots(figsize=(10, max(3, len(labels) * 0.55)))
-        bars = ax.barh(range(len(labels)), counts, color=colors)
-        ax.set_yticks(range(len(labels)))
-        ax.set_yticklabels([lbl.replace(":", ":\n  ") for lbl in labels], fontsize=8)
-        ax.invert_yaxis()
-        ax.set_xlabel("Symbol-count")
-        ax.set_title("Top Exclusion / Missing-Feature Reasons")
-        legend_handles = [
-            plt.Rectangle((0, 0), 1, 1, color="#7B1FA2", label="historical_identity"),
-            plt.Rectangle((0, 0), 1, 1, color="#1565C0", label="market-feature"),
-        ]
-        ax.legend(handles=legend_handles, fontsize=8, loc="lower right")
-        fig.tight_layout()
-        path = plots_dir / "exclusion_reasons.png"
-        fig.savefig(path, dpi=100)
-        plt.close(fig)
-        results["exclusion_reasons"] = path.name
-    except Exception:  # pragma: no cover
-        results["exclusion_reasons"] = None
+    reason_counts = report.get("exclusion_reason_counts", {})
+    # Show top 12; distinguish historical_identity from market-feature reasons
+    top = sorted(reason_counts.items(), key=lambda kv: -kv[1])[:12]
+    labels = [item[0] for item in top]
+    counts = [item[1] for item in top]
+    colors = [
+        "#7B1FA2" if "historical_identity" in lbl else "#1565C0"
+        for lbl in labels
+    ]
+    fig, ax = plt.subplots(figsize=(10, max(3, len(labels) * 0.55)))
+    ax.barh(range(len(labels)), counts, color=colors)
+    ax.set_yticks(range(len(labels)))
+    ax.set_yticklabels([lbl.replace(":", ":\n  ") for lbl in labels], fontsize=8)
+    ax.invert_yaxis()
+    ax.set_xlabel("Symbol-count")
+    ax.set_title("Top Exclusion / Missing-Feature Reasons")
+    legend_handles = [
+        plt.Rectangle((0, 0), 1, 1, color="#7B1FA2", label="historical_identity"),
+        plt.Rectangle((0, 0), 1, 1, color="#1565C0", label="market-feature"),
+    ]
+    ax.legend(handles=legend_handles, fontsize=8, loc="lower right")
+    fig.tight_layout()
+    path = plots_dir / "exclusion_reasons.png"
+    fig.savefig(path, dpi=100)
+    plt.close(fig)
+    results["exclusion_reasons"] = path.name
 
     return results
 
@@ -584,16 +576,18 @@ def build_m1_scale_quality_report(canonical_path, feature_config_path, *, root):
             "candidate_manifest": digest(candidate_manifest_path.read_bytes()),
             "feature_config": digest(feature_config_path.read_bytes()),
         },
-        # market_feature_stage_ready is independent from strict research gate.
-        # true iff canonical promotion succeeded AND market feature artifact was generated.
+        # Readiness fields: canonical manifest is the authoritative source of truth.
+        # market_feature_stage_ready: true iff canonical promotion PASS AND artifact generated.
         # Does NOT imply historical identity verified, financial PIT resolved,
         # clustering sample approved, or research gate passing.
-        "market_feature_stage_ready": (
-            manifest.get("canonical_promotion_status") == "PASS"
-            and bool(features)
+        "market_feature_stage_ready": manifest.get(
+            "market_feature_stage_ready",
+            manifest.get("canonical_promotion_status") == "PASS" and bool(features),
         ),
-        "feature_stage_ready": False,  # deprecated alias: strict research gate (always FAIL here)
-        "research_stage_ready": False,  # strict gate (historical identity + PIT + policy)
+        # feature_stage_ready: deprecated alias = strict research gate (read from manifest).
+        "feature_stage_ready": manifest.get("feature_stage_ready", False),
+        # research_stage_ready: strict gate (historical identity + PIT + policy).
+        "research_stage_ready": manifest.get("research_stage_ready", False),
     }
     output = root / "data" / "derived" / "m1_scale_quality" / report["report_id"]
     write_rows(output / "per_symbol.jsonl", rows)

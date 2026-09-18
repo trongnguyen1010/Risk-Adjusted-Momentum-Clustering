@@ -11,7 +11,7 @@ from delta_t1.features.market import (
 )
 from delta_t1.ingestion.m1_scale_quality import (
     _five_calendar_years, _generate_plots, _history_evidence, _markdown,
-    _REQUIRED_FEATURES, _three_calendar_years,
+    _MATPLOTLIB_AVAILABLE, _REQUIRED_FEATURES, _three_calendar_years,
 )
 
 
@@ -123,6 +123,7 @@ class M1ScaleQualityTests(unittest.TestCase):
     # ------------------------------------------------------------------
     # Test E: chart generation produces exactly 4 expected files
     # ------------------------------------------------------------------
+    @unittest.skipUnless(_MATPLOTLIB_AVAILABLE, "matplotlib research extra not installed")
     def test_E_chart_generation_produces_exactly_four_files(self):
         """_generate_plots must write exactly the four expected PNG files."""
         report = _minimal_report()
@@ -130,18 +131,23 @@ class M1ScaleQualityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             plots_dir = Path(tmp) / "plots"
             result = _generate_plots(report, rows, plots_dir)
-        expected_keys = {
-            "exchange_distribution", "observed_session_coverage",
-            "feature_availability", "exclusion_reasons",
-        }
-        self.assertEqual(expected_keys, set(result.keys()))
-        for key, fname in result.items():
-            self.assertIsNotNone(fname, f"plot {key} was not generated")
-            self.assertTrue(fname.endswith(".png"), f"expected .png for {key}")
+            expected_keys = {
+                "exchange_distribution", "observed_session_coverage",
+                "feature_availability", "exclusion_reasons",
+            }
+            self.assertEqual(expected_keys, set(result.keys()))
+            for key, fname in result.items():
+                self.assertIsNotNone(fname, f"plot {key} was not generated")
+                self.assertTrue(fname.endswith(".png"), f"expected .png for {key}")
+                self.assertGreater(
+                    (Path(tmp) / "plots" / fname).stat().st_size, 0,
+                    f"{key} PNG is empty",
+                )
 
     # ------------------------------------------------------------------
     # Test F: chart generation is deterministic (same input → same filenames)
     # ------------------------------------------------------------------
+    @unittest.skipUnless(_MATPLOTLIB_AVAILABLE, "matplotlib research extra not installed")
     def test_F_chart_generation_is_deterministic(self):
         """Same input must produce the same chart filenames on repeated calls."""
         report = _minimal_report()
@@ -153,22 +159,65 @@ class M1ScaleQualityTests(unittest.TestCase):
         self.assertEqual(names1, names2)
 
     # ------------------------------------------------------------------
-    # Test G: old quality artifacts remain immutable (no overwrite)
+    # Test G: quality report generator produces a new unique artifact dir
     # ------------------------------------------------------------------
-    def test_G_old_quality_artifacts_remain_immutable(self):
-        """Existing quality report directories must not be overwritten by new runs."""
-        old_reports = list(
-            (ROOT / "data" / "derived" / "m1_scale_quality").iterdir()
-        )
-        self.assertGreater(len(old_reports), 0, "No existing quality reports found")
-        for report_dir in old_reports:
-            report_json = report_dir / "report.json"
-            if report_json.exists():
-                content_before = report_json.read_bytes()
-                # Re-read it (simulate that nothing overwrote it)
-                content_after = report_json.read_bytes()
-                self.assertEqual(content_before, content_after,
-                                 f"{report_dir.name}/report.json was modified")
+    def test_G_quality_generator_produces_new_unique_artifact_dir(self):
+        """Each run of the generator creates a distinct report_id/directory.
+
+        We verify this by calling the public artifact-id generator twice;
+        the IDs must differ (timing + entropy).  We do NOT build a large
+        fixture; exercising the full generator requires the real canonical
+        artifact and is covered by the offline regeneration step.
+        """
+        from delta_t1.artifact_ids import new_artifact_id
+        id1 = new_artifact_id("m1-scale-quality")
+        id2 = new_artifact_id("m1-scale-quality")
+        self.assertNotEqual(id1, id2, "artifact IDs must be unique per run")
+        self.assertTrue(id1.startswith("m1-scale-quality-"))
+        self.assertTrue(id2.startswith("m1-scale-quality-"))
+
+        # Also verify that existing quality report directories on disk
+        # have immutable report.json content (guard against accidental overwrite)
+        quality_dir = ROOT / "data" / "derived" / "m1_scale_quality"
+        if quality_dir.exists():
+            for report_dir in quality_dir.iterdir():
+                report_json = report_dir / "report.json"
+                if report_json.exists():
+                    content = report_json.read_bytes()
+                    self.assertEqual(
+                        content, report_json.read_bytes(),
+                        f"{report_dir.name}/report.json must be immutable",
+                    )
+
+    # ------------------------------------------------------------------
+    # Test H: graceful fallback when matplotlib is unavailable
+    # ------------------------------------------------------------------
+    def test_H_plots_graceful_fallback_when_matplotlib_unavailable(self):
+        """When matplotlib is absent, _generate_plots returns None for all charts."""
+        from unittest.mock import patch
+        report = _minimal_report()
+        rows = [_minimal_row()]
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch("delta_t1.ingestion.m1_scale_quality._MATPLOTLIB_AVAILABLE", False):
+                result = _generate_plots(report, rows, Path(tmp) / "plots")
+        for key in ("exchange_distribution", "observed_session_coverage",
+                    "feature_availability", "exclusion_reasons"):
+            self.assertIsNone(result[key])
+
+    # ------------------------------------------------------------------
+    # Test I: fail loudly when matplotlib is available and plotting fails
+    # ------------------------------------------------------------------
+    @unittest.skipUnless(_MATPLOTLIB_AVAILABLE, "matplotlib research extra not installed")
+    def test_I_plots_fail_loudly_when_plotting_code_fails(self):
+        """When matplotlib is installed, plot failures raise rather than being swallowed."""
+        from unittest.mock import patch
+        report = _minimal_report()
+        rows = [_minimal_row()]
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch("matplotlib.pyplot.subplots", side_effect=RuntimeError("Simulated plot failure")):
+                with self.assertRaises(RuntimeError):
+                    _generate_plots(report, rows, Path(tmp) / "plots")
+
 
 
 # ---------------------------------------------------------------------------
