@@ -951,6 +951,13 @@ def promote_scale_candidate(candidate_path, config_path, securities_path,
         "canonical_promotion_status": canonical_status,
         "m1_gate_status": gate_status,
         "m1_status": "PASS" if gate_status == "PASS" else "PARTIAL",
+        # market_feature_stage_ready: true iff canonical promotion succeeded AND
+        # market feature artifact was generated.  Independent of strict research
+        # gate (historical identity, financial PIT, sample-size policy).
+        "market_feature_stage_ready": canonical_status == "PASS" and bool(features),
+        # feature_stage_ready: DEPRECATED - kept as strict-research-gate alias for
+        # backward compatibility.  Do NOT use for market-feature analysis.
+        # Use market_feature_stage_ready instead.
         "feature_stage_ready": gate_status == "PASS",
         "market_feature_artifact_generated": bool(features),
         "research_stage_ready": gate_status == "PASS", "network_requests": 0,

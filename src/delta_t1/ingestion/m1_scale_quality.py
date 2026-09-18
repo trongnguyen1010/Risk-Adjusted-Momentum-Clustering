@@ -8,6 +8,14 @@ from ..features.market import at_least_calendar_years, latest_completed_snapshot
 from ..io import atomic_write, digest, now, read_json, read_rows, write_json, write_rows
 from .m1_scale import evaluate_m1_readiness_checks
 
+try:
+    import matplotlib
+    matplotlib.use("Agg")  # offline / non-interactive backend
+    import matplotlib.pyplot as plt
+    _MATPLOTLIB_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    _MATPLOTLIB_AVAILABLE = False
+
 
 def _inside(path, parent, label):
     path, parent = Path(path).resolve(), Path(parent).resolve()
@@ -73,10 +81,154 @@ def _history_evidence(observed_dates, open_session_dates):
     }
 
 
-def _markdown(report, rows):
+# ---------------------------------------------------------------------------
+# EDA plot generation
+# ---------------------------------------------------------------------------
+
+_REQUIRED_FEATURES = (
+    "mom_21", "mom_63", "mom_126", "mom_252",
+    "vol_63", "mdd_126", "beta_126", "liquidity_21",
+)
+
+
+def _generate_plots(report, rows, plots_dir):
+    """Generate exactly four deterministic EDA charts into plots_dir.
+
+    Returns a dict mapping plot key -> relative path string (or None if
+    matplotlib is unavailable).  Does NOT raise on partial failure;
+    individual plot errors are surfaced via returned None values.
+
+    Note on session coverage: the coverage shown is relative to the
+    *observed canonical exchange-session union*, NOT a verified official
+    HOSE/HNX/UPCOM exchange calendar.  The label explicitly reflects this.
+    """
+    if not _MATPLOTLIB_AVAILABLE:
+        return {name: None for name in (
+            "exchange_distribution", "observed_session_coverage",
+            "feature_availability", "exclusion_reasons",
+        )}
+
+    plots_dir = Path(plots_dir)
+    plots_dir.mkdir(parents=True, exist_ok=True)
+    results = {}
+
+    # 1. Securities by exchange (bar chart) -----------------------------------
+    try:
+        exchange_data = report.get("exchange_coverage", {})
+        exchanges = sorted(exchange_data)
+        counts = [exchange_data[ex]["securities"] for ex in exchanges]
+        fig, ax = plt.subplots(figsize=(6, 4))
+        bars = ax.bar(exchanges, counts, color=["#2196F3", "#4CAF50", "#FF9800"][:len(exchanges)])
+        ax.bar_label(bars, padding=3)
+        ax.set_title("Securities by Exchange")
+        ax.set_ylabel("Number of Securities")
+        ax.set_xlabel("Exchange")
+        ax.set_ylim(0, max(counts) * 1.15 if counts else 1)
+        fig.tight_layout()
+        path = plots_dir / "exchange_distribution.png"
+        fig.savefig(path, dpi=100)
+        plt.close(fig)
+        results["exchange_distribution"] = path.name
+    except Exception:  # pragma: no cover
+        results["exchange_distribution"] = None
+
+    # 2. Session coverage distribution (histogram) ----------------------------
+    try:
+        coverages = [
+            row["observed_session_coverage"]
+            for row in rows
+            if row.get("observed_session_coverage") is not None
+        ]
+        med = median(coverages) if coverages else None
+        fig, ax = plt.subplots(figsize=(7, 4))
+        ax.hist(coverages, bins=40, color="#5C6BC0", edgecolor="white", linewidth=0.4)
+        if med is not None:
+            ax.axvline(med, color="#E53935", linestyle="--", linewidth=1.5,
+                       label=f"Median {med:.2%}")
+            ax.legend(fontsize=9)
+        ax.set_title(
+            "Coverage vs. Observed Exchange Sessions\n"
+            "(relative to observed canonical session union, NOT official exchange calendar)"
+        )
+        ax.set_xlabel("Coverage vs. Observed Exchange Sessions")
+        ax.set_ylabel("Symbols")
+        fig.tight_layout()
+        path = plots_dir / "observed_session_coverage.png"
+        fig.savefig(path, dpi=100)
+        plt.close(fig)
+        results["observed_session_coverage"] = path.name
+    except Exception:  # pragma: no cover
+        results["observed_session_coverage"] = None
+
+    # 3. Required feature availability (bar chart) ----------------------------
+    try:
+        feature_cov = report.get("latest_feature_coverage", {})
+        total = report.get("summary", {}).get("selected_symbols", 500)
+        feat_names = list(_REQUIRED_FEATURES)
+        available = [feature_cov.get(f, {}).get("available", 0) for f in feat_names]
+        missing = [feature_cov.get(f, {}).get("missing", total - available[i])
+                   for i, f in enumerate(feat_names)]
+        x = range(len(feat_names))
+        fig, ax = plt.subplots(figsize=(9, 4))
+        bar_avail = ax.bar(x, available, label="Available", color="#43A047")
+        bar_miss = ax.bar(x, missing, bottom=available, label="Missing", color="#EF5350")
+        ax.bar_label(bar_avail, labels=[str(v) for v in available],
+                     padding=2, fontsize=8)
+        ax.set_xticks(list(x))
+        ax.set_xticklabels(feat_names, rotation=30, ha="right", fontsize=9)
+        ax.set_ylabel("Symbols")
+        ax.set_title("Required Feature Availability at Latest Completed Snapshot")
+        ax.set_ylim(0, total * 1.12)
+        ax.axhline(total, color="#0D47A1", linestyle=":", linewidth=1, label=f"Total ({total})")
+        ax.legend(fontsize=9)
+        fig.tight_layout()
+        path = plots_dir / "feature_availability.png"
+        fig.savefig(path, dpi=100)
+        plt.close(fig)
+        results["feature_availability"] = path.name
+    except Exception:  # pragma: no cover
+        results["feature_availability"] = None
+
+    # 4. Top exclusion/missing-feature reasons (horizontal bar) ---------------
+    try:
+        reason_counts = report.get("exclusion_reason_counts", {})
+        # Show top 12; distinguish historical_identity from market-feature reasons
+        top = sorted(reason_counts.items(), key=lambda kv: -kv[1])[:12]
+        labels = [item[0] for item in top]
+        counts = [item[1] for item in top]
+        colors = [
+            "#7B1FA2" if "historical_identity" in lbl else "#1565C0"
+            for lbl in labels
+        ]
+        fig, ax = plt.subplots(figsize=(10, max(3, len(labels) * 0.55)))
+        bars = ax.barh(range(len(labels)), counts, color=colors)
+        ax.set_yticks(range(len(labels)))
+        ax.set_yticklabels([lbl.replace(":", ":\n  ") for lbl in labels], fontsize=8)
+        ax.invert_yaxis()
+        ax.set_xlabel("Symbol-count")
+        ax.set_title("Top Exclusion / Missing-Feature Reasons")
+        legend_handles = [
+            plt.Rectangle((0, 0), 1, 1, color="#7B1FA2", label="historical_identity"),
+            plt.Rectangle((0, 0), 1, 1, color="#1565C0", label="market-feature"),
+        ]
+        ax.legend(handles=legend_handles, fontsize=8, loc="lower right")
+        fig.tight_layout()
+        path = plots_dir / "exclusion_reasons.png"
+        fig.savefig(path, dpi=100)
+        plt.close(fig)
+        results["exclusion_reasons"] = path.name
+    except Exception:  # pragma: no cover
+        results["exclusion_reasons"] = None
+
+    return results
+
+
+def _markdown(report, rows, plot_names=None):
     summary = report["summary"]
     features = report["latest_feature_coverage"]
     incomplete = summary["selected_symbols"] - summary["latest_feature_complete"]
+    mfsr = report.get("market_feature_stage_ready", False)
+    plot_names = plot_names or {}
     lines = [
         "# M1 Scale — EDA và báo cáo chất lượng dữ liệu",
         "",
@@ -95,6 +247,20 @@ def _markdown(report, rows):
         f"{summary['selected_symbols']} và research-ready = "
         f"{summary['research_ready']}/{summary['selected_symbols']}. "
         "Identity provisional và financial PIT vẫn được giữ fail-closed.",
+        "",
+        "## Readiness summary",
+        "",
+        "| Field | Value |",
+        "|---|---|",
+        f"| `market_feature_stage_ready` | {'✓ true' if mfsr else '✗ false'} |",
+        f"| `research_stage_ready` | {'✓ true' if report.get('research_stage_ready') else '✗ false'} |",
+        f"| `feature_stage_ready` *(deprecated alias = strict gate)* "
+        f"| {'✓ true' if report.get('feature_stage_ready') else '✗ false'} |",
+        "",
+        "> **Lưu ý:** `market_feature_stage_ready = true` KHÔNG có nghĩa historical identity",
+        "> đã verify, financial PIT đã giải quyết, clustering sample đã approved, hay research",
+        "> gate PASS. Đây chỉ là bằng chứng rằng canonical promotion đã thành công và",
+        "> market feature artifact đã được tạo.",
         "",
         "## Coverage và readiness độc lập",
         "",
@@ -135,7 +301,10 @@ def _markdown(report, rows):
         f"| Price rows | {distribution['minimum']} | {distribution['p25']:.1f} | "
         f"{distribution['median']:.1f} | {distribution['p75']:.1f} | "
         f"{distribution['maximum']} |",
-        f"| Observed-session coverage | {coverage['minimum']:.2%} | "
+        # NOTE: label is 'coverage_vs_observed_exchange_sessions', NOT 'observed_session_coverage'.
+        # This is coverage relative to the *observed canonical exchange-session union*,
+        # NOT proof of complete official HOSE/HNX/UPCOM exchange calendar coverage.
+        f"| Coverage vs. observed exchange sessions | {coverage['minimum']:.2%} | "
         f"{coverage['p25']:.2%} | {coverage['median']:.2%} | "
         f"{coverage['p75']:.2%} | {coverage['maximum']:.2%} |",
         "",
@@ -146,6 +315,35 @@ def _markdown(report, rows):
     ])
     for exchange, values in sorted(report["exchange_coverage"].items()):
         lines.append(f"| {exchange} | {values['securities']} | {values['price_rows']} |")
+    # Embed EDA charts (relative paths; report remains readable if images are absent)
+    lines.extend(["", "## EDA Charts", ""])
+    chart_specs = [
+        ("exchange_distribution", "1. Securities by Exchange"),
+        ("observed_session_coverage",
+         "2. Coverage vs. Observed Exchange Sessions"
+         " *(relative to observed canonical session union, NOT official exchange calendar)*"),
+        ("feature_availability", "3. Required Feature Availability"),
+        ("exclusion_reasons", "4. Top Exclusion / Missing-Feature Reasons"),
+    ]
+    has_any_plot = False
+    for key, caption in chart_specs:
+        fname = plot_names.get(key)
+        if fname:
+            lines.append(f"### {caption}")
+            lines.append(f"")
+            lines.append(f"![{caption}](plots/{fname})")
+            lines.append(f"")
+            has_any_plot = True
+        else:
+            lines.append(f"### {caption}")
+            lines.append("")
+            lines.append("*Chart unavailable (matplotlib not installed or generation failed).*")
+            lines.append("")
+    if not has_any_plot:
+        lines.append(
+            "> Install the `research` optional dependency (`pip install -e .[research]`) "
+            "to generate plots."
+        )
     lines.extend([
         "",
         "## Missingness và QC",
@@ -166,6 +364,10 @@ def _markdown(report, rows):
     for reason, count in list(report["exclusion_reason_counts"].items())[:20]:
         lines.append(f"| `{reason}` | {count} |")
     lines.extend([
+        "",
+        "> `historical_identity:provisional_observed_interval_only` phản ánh rằng identity",
+        "> chỉ là *observed interval* (không phải complete historical membership). Đây KHÔNG",
+        "> phải là lỗi trong tính toán market feature.",
         "",
         "## Per-symbol",
         "",
@@ -382,14 +584,26 @@ def build_m1_scale_quality_report(canonical_path, feature_config_path, *, root):
             "candidate_manifest": digest(candidate_manifest_path.read_bytes()),
             "feature_config": digest(feature_config_path.read_bytes()),
         },
+        # market_feature_stage_ready is independent from strict research gate.
+        # true iff canonical promotion succeeded AND market feature artifact was generated.
+        # Does NOT imply historical identity verified, financial PIT resolved,
+        # clustering sample approved, or research gate passing.
+        "market_feature_stage_ready": (
+            manifest.get("canonical_promotion_status") == "PASS"
+            and bool(features)
+        ),
+        "feature_stage_ready": False,  # deprecated alias: strict research gate (always FAIL here)
+        "research_stage_ready": False,  # strict gate (historical identity + PIT + policy)
     }
     output = root / "data" / "derived" / "m1_scale_quality" / report["report_id"]
     write_rows(output / "per_symbol.jsonl", rows)
     write_json(output / "report.json", report)
-    atomic_write(output / "report.md", _markdown(report, rows))
+    # Generate EDA plots (requires matplotlib; gracefully absent if unavailable)
+    plot_names = _generate_plots(report, rows, output / "plots")
+    atomic_write(output / "report.md", _markdown(report, rows, plot_names=plot_names))
     report["artifacts"] = {
         path.relative_to(output).as_posix(): digest(path.read_bytes())
-        for path in sorted(output.iterdir()) if path.is_file()
+        for path in sorted(output.rglob("*")) if path.is_file()
     }
     write_json(output / "manifest.json", report)
     return output, report
