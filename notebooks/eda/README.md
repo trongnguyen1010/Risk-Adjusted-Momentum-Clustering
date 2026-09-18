@@ -21,8 +21,9 @@ This folder contains inspection-only notebooks for the M1 Scale EDA.
 ## Quick start
 
 ```bash
-pip install -e .[research]
-jupyter notebook notebooks/eda/M1_SCALE_EDA.ipynb
+pip install -e ".[research]"
 ```
+
+Open `M1_SCALE_EDA.ipynb` using VS Code Jupyter, JupyterLab, or another compatible notebook environment.
 
 Edit `QUALITY_REPORT_DIR` in Cell 1 to point to the desired quality artifact.
