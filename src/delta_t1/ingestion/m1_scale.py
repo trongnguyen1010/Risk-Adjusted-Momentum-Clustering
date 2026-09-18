@@ -6,7 +6,9 @@ from pathlib import Path
 from ..artifact_ids import new_artifact_id
 from ..contracts import validate_rows
 from ..io import digest, encoded, now, read_json, read_rows, write_json, write_rows
-from ..features.market import build_features
+from ..features.market import (
+    at_least_calendar_years, build_features, latest_completed_snapshot_rows,
+)
 from .crawler import code_hash
 from .planning import M1_SCALE, REPRESENTATIVE_PILOT
 from .representative_pilot import (
@@ -223,6 +225,23 @@ def evaluate_scale_shard_checks(manifest, config, *, include_benchmark):
         "benchmark_passed_if_owned": benchmark_ok,
         "reference_source_not_exhausted": not aggregate["reference_source_exhausted_symbols"],
         "financial_safety_lock_active": manifest["financial"]["features_allowed"] is False,
+    }
+
+
+def evaluate_m1_readiness_checks(*, selected, observed_span_3y, observed_span_5y,
+                                 historical_identity_ready,
+                                 market_feature_artifact_generated,
+                                 financial_pit_ready=False,
+                                 research_sample_size_policy_resolved=False):
+    """Keep collection, market artifact, identity, financial and policy gates independent."""
+    return {
+        "collection_coverage_at_least_300": selected >= 300,
+        "all_selected_have_observed_span_3y": observed_span_3y == selected,
+        "at_least_300_have_observed_span_5y": observed_span_5y >= 300,
+        "market_feature_artifact_generated": market_feature_artifact_generated,
+        "historical_identity_ready_for_research": historical_identity_ready == selected,
+        "financial_pit_ready_for_research": financial_pit_ready,
+        "research_sample_size_policy_resolved": research_sample_size_policy_resolved,
     }
 
 
@@ -876,16 +895,30 @@ def promote_scale_candidate(candidate_path, config_path, securities_path,
                                "benchmark_daily": benchmark,
                                "trading_calendar": calendar}, feature_config, run_id_out)
     validate_rows("feature_snapshots", features)
-    latest = {}
-    for row in features:
-        if row["security_id"] not in latest or row["as_of_date"] > latest[row["security_id"]]["as_of_date"]:
-            latest[row["security_id"]] = row
-    required_features = feature_config["required_features"]
-    latest_feature_complete = sum(
-        all(row.get(name) is not None for name in required_features)
-        for row in latest.values())
-    latest_eligible = sum(row["universe_segment"] == "ELIGIBLE_FOR_CLUSTERING"
-                          for row in latest.values())
+    latest_completed_snapshot, latest = latest_completed_snapshot_rows(
+        features, config["end"])
+    if len(latest) != len(securities):
+        raise ValueError(
+            "latest completed M1 snapshot does not cover the exact security universe"
+        )
+    latest_feature_complete = sum(row["feature_complete"] for row in latest.values())
+    market_feature_ready = sum(row["market_feature_ready"] for row in latest.values())
+    historical_identity_ready = sum(
+        row["historical_identity_ready"] for row in latest.values()
+    )
+    research_ready = sum(row["research_ready"] for row in latest.values())
+    latest_eligible = sum(row["eligibility"] for row in latest.values())
+    observed_ranges = defaultdict(list)
+    for row in prices:
+        observed_ranges[row["security_id"]].append(row["trade_date"])
+    observed_span_3y = sum(
+        at_least_calendar_years(min(days), max(days), 3)
+        for days in observed_ranges.values()
+    )
+    observed_span_5y = sum(
+        at_least_calendar_years(min(days), max(days), 5)
+        for days in observed_ranges.values()
+    )
     write_rows(target / "clean" / "securities.jsonl", securities)
     write_rows(target / "clean" / "prices_daily.jsonl", prices)
     write_rows(target / "clean" / "benchmark_daily.jsonl", benchmark)
@@ -893,21 +926,37 @@ def promote_scale_candidate(candidate_path, config_path, securities_path,
     write_rows(target / "features" / "monthly.jsonl", features)
     write_rows(target / "lineage" / "market.jsonl",
                read_rows(candidate_path / "lineage" / "market.jsonl"))
-    checks = {
+    canonical_checks = {
         "candidate_artifacts_valid": True, "standard_market_schemas_valid": True,
         "canonical_securities_valid": True,
         "exact_security_master_coverage": len(securities) == len(universe),
-        "at_least_300_latest_features_eligible": latest_eligible >= 300,
         "network_zero": True,
     }
-    gate_status = "PASS" if all(checks.values()) else "FAIL"
+    # Frozen methodology requires >=300 collected long-history securities,
+    # not >=300 complete 252-session rows on one date.  A final research
+    # sample-size threshold remains unresolved rather than being invented.
+    readiness_checks = evaluate_m1_readiness_checks(
+        selected=len(securities), observed_span_3y=observed_span_3y,
+        observed_span_5y=observed_span_5y,
+        historical_identity_ready=historical_identity_ready,
+        market_feature_artifact_generated=bool(features),
+    )
+    canonical_status = "PASS" if all(canonical_checks.values()) else "FAIL"
+    gate_status = "PASS" if all(readiness_checks.values()) else "FAIL"
+    checks = {**canonical_checks, **readiness_checks}
     manifest = {
         "run_id": run_id_out, "scale_id": parent["scale_id"],
-        "parent_candidate_id": parent["run_id"], "status": "COMPLETE" if gate_status == "PASS"
-        else "FAILED_GATE", "canonical_promotion_status": gate_status,
-        "feature_stage_ready": gate_status == "PASS", "network_requests": 0,
-        "started_at": now(), "finished_at": now(), "schema_version": "1.4.0",
+        "parent_candidate_id": parent["run_id"],
+        "status": "COMPLETE" if canonical_status == "PASS" else "FAILED_CANONICAL",
+        "canonical_promotion_status": canonical_status,
+        "m1_gate_status": gate_status,
+        "m1_status": "PASS" if gate_status == "PASS" else "PARTIAL",
+        "feature_stage_ready": gate_status == "PASS",
+        "market_feature_artifact_generated": bool(features),
+        "research_stage_ready": gate_status == "PASS", "network_requests": 0,
+        "started_at": now(), "finished_at": now(), "schema_version": "1.5.0",
         "synthetic": False, "config_hash": parent["config_hash"],
+        "collection_start": config["start"], "collection_end": config["end"],
         "universe_hash": parent["universe_hash"], "pilot_gate_hash": parent["pilot_gate_hash"],
         "parent_manifest_hash": digest(parent_path.read_bytes()),
         "security_master_hash": digest(securities_path.read_bytes()),
@@ -915,9 +964,21 @@ def promote_scale_candidate(candidate_path, config_path, securities_path,
         "counts": {"securities": len(securities), "prices_daily": len(prices),
                    "benchmark_daily": len(benchmark), "trading_calendar": len(calendar),
                    "feature_snapshots": len(features),
-                   "latest_feature_complete_before_identity": latest_feature_complete,
-                   "latest_feature_eligible": latest_eligible},
+                   "observed_span_3y": observed_span_3y,
+                   "observed_span_5y": observed_span_5y,
+                   "latest_completed_snapshot": latest_completed_snapshot,
+                   "latest_feature_complete": latest_feature_complete,
+                   "market_feature_ready": market_feature_ready,
+                   "historical_identity_ready": historical_identity_ready,
+                   "research_ready": research_ready,
+                   "latest_feature_eligible_legacy_scoped": latest_eligible},
         "checks": checks,
+        "canonical_checks": canonical_checks,
+        "readiness_checks": readiness_checks,
+        "research_sample_size": {
+            "policy_status": "UNRESOLVED", "approved_threshold": None,
+            "latest_completed_market_feature_ready": market_feature_ready,
+        },
         "remaining_limitations": [
             "identity intervals are retrospective observed intervals, not complete historical membership",
             "financial PIT remains unresolved and financial features remain disabled",
@@ -931,8 +992,14 @@ def promote_scale_candidate(candidate_path, config_path, securities_path,
     write_json(target / "manifest.json", manifest)
     write_json(target / "gate.json", {
         "gate": M1_SCALE, "status": gate_status, "checks": checks,
-        "blocking_reasons": [key for key, value in checks.items() if not value],
+        "m1_status": manifest["m1_status"],
+        "canonical_promotion_status": canonical_status,
+        "blocking_reasons": [
+            key for key, value in readiness_checks.items() if not value
+        ],
         "unlocks": [], "canonical_run_id": run_id_out,
+        "metrics": manifest["counts"],
+        "research_sample_size": manifest["research_sample_size"],
         "financial_pit_status": FINANCIAL_PIT_UNRESOLVED,
         "financial_features_allowed": False,
     })

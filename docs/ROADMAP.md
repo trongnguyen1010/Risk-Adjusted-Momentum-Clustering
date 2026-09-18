@@ -8,17 +8,17 @@ Mục tiêu là canonical data có historical identity, price basis, point-in-ti
 - [x] Ba năm usable observed history và `REFERENCE_ONLY` policy.
 - [x] **SOURCE_SMOKE:** canonical run `source-smoke-20260916T122331Z-79427ec6` PASS; chỉ mở representative pilot, không mở scale.
 - [x] **REPRESENTATIVE_PILOT:** real run `representative-pilot-20260916T185530Z-410ffcba`, 55/55 securities usable >=5 năm; exact-hash QC replay PASS. Canonical pilot `canonical-pilot-20260917T062832Z-6748ac02` có 55/55 latest market snapshots eligible dưới `PILOT_OBSERVED_INTERVAL_ONLY`; financial PIT vẫn khóa feature.
-- [ ] **M1_SCALE:** acquisition 5 shard/500 mã, central mapping và EDA/QC đã chạy; 500/500 mã giữ >=3 năm, 484/500 giữ >=5 năm. Deadline collection coverage đạt, nhưng feature gate vẫn FAIL vì chỉ 168 latest rows feature-complete trước identity review, dưới ngưỡng >=300; không hạ gate để ép PASS.
+- [ ] **M1_SCALE:** acquisition 5 shard/500 mã, central mapping và EDA/QC đã chạy; 500/500 mã có observed calendar span >=3 năm, 484/500 có span >=5 năm. Collection coverage >=300 đã đạt và không bị đồng nhất với số row đủ 252-session feature tại một ngày. Latest completed-month market-feature readiness, historical identity readiness và strict research readiness được báo độc lập; identity provisional, financial PIT và research sample-size/density policy chưa duyệt nên M1 vẫn `PARTIAL`/research gate `FAIL`.
 - [ ] **EXTENDED_SCALE:** historical eligible universe, 5–15 năm, có thể >1.200 securities; không có cap 350 và chưa chạy.
 - [ ] Chốt financial taxonomy, publication/revision rules và paper-backed financial feature.
 - [ ] Chốt source mapping/version cho market và share counts sau real source evidence; không backfill current share count về lịch sử.
-- [x] Xuất offline EDA/coverage/data-quality artifact cho M1 scale; report `m1-scale-quality-20260918T130735Z-54038c13` kết luận `PARTIAL` và giữ per-symbol evidence.
+- [x] Xuất offline EDA/coverage/data-quality artifact cho M1 scale; report legacy `m1-scale-quality-20260918T130735Z-54038c13` được giữ immutable. Report mới dùng thuật ngữ observed span, session-density evidence, latest completed month và readiness tách biệt.
 
 ## M2 — Clustering Research
 
 - [x] Static K-Means deterministic baseline và label alignment/transition tracking.
 - [x] Tách cluster quality khỏi temporal/portfolio metrics ở architecture.
-- [ ] Freeze feature registry và development/validation protocol; active snapshot 1.4 không chứa Sharpe.
+- [ ] Freeze feature registry và development/validation protocol; active snapshot 1.5 không chứa Sharpe và tách readiness, còn formula market giữ nguyên baseline 1.4.
 - [x] Có implementation PCA + K-Means snapshot-only, lưu scaler/PCA parameters và explained variance; chưa có real comparison evidence.
 - [x] Có Ward/Agglomerative comparator deterministic; DBSCAN/GMM chờ protocol. Chưa có real comparator evidence.
 - [ ] Đánh giá cluster quality: Silhouette, Davies-Bouldin, Calinski-Harabasz, inertia, balance.

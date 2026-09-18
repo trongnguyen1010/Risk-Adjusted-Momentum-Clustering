@@ -12,7 +12,7 @@ Nhánh static baseline không được gọi là Dynamic Clustering dù có ARI,
 
 ## Universe và point-in-time
 
-Historical universe được tạo từ effective-dated `security_id`, không từ current ticker membership. Input tại snapshot phải có `available_at <= decision_at`. Real clustering yêu cầu ít nhất ba calendar years usable observed history; short history là `REFERENCE_ONLY`.
+Historical universe được tạo từ effective-dated `security_id`, không từ current ticker membership. Input tại snapshot phải có `available_at <= decision_at`. Real clustering yêu cầu ít nhất ba calendar years usable observed history; short history là `REFERENCE_ONLY`. Observed calendar span không tự chứng minh usable density; M1 báo span, session coverage, required-feature completeness, market readiness và identity readiness riêng. Monthly research gate chỉ dùng latest completed collection month.
 
 Không forward-fill giá, không đổi missing thành zero và không splice raw với adjusted price. Quarterly financial data dùng publication/availability và giữ restatement vintage.
 

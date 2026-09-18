@@ -55,13 +55,17 @@ Provider `report_id` không được dùng một mình để ghép cross-source.
 
 ## Feature eligibility
 
-Real run yêu cầu `minimum_history_years >= 3`, đo từ usable observed price đầu tiên trong cùng basis.
+Real run yêu cầu `minimum_history_years >= 3`, đo từ observed price usable đầu tiên trong cùng basis. Calendar span chỉ là evidence về range; density và required-feature window được báo riêng.
 
-- `ELIGIBLE_FOR_CLUSTERING`: history, identity, status và required features pass.
+- `feature_complete`: mọi required feature có giá trị tại snapshot.
+- `market_feature_ready`: feature complete, đủ history và market/status/metadata rules; không phụ thuộc provisional identity.
+- `historical_identity_ready`: identity đủ thẩm quyền cho historical universe; `provisional` luôn false.
+- `research_ready`: market-feature-ready và historical-identity-ready cùng pass.
+- `eligibility`/`universe_segment`: legacy/scoped selection contract được giữ để không silently redefine artifact cũ; strict research dùng `research_ready`.
 - `REFERENCE_ONLY`: security hợp lệ nhưng chưa đủ observed history.
 - `EXCLUDED`: fail rule khác.
 
-Row giữ history/observation/missing counts, `na_reason` và segment. Gap không bị nén/forward-fill. Active `feature_snapshots` 1.4 không chứa Sharpe/ROI. Immutable snapshot 1.3 có Sharpe chỉ đọc qua contract `feature_snapshots_legacy_1_3_0`; dữ liệu đó không được đưa lại vào active clustering. Sharpe chỉ thuộc portfolio evaluation.
+Row giữ history/observation/missing counts, `na_reason` và segment. Gap không bị nén/forward-fill. Active `feature_snapshots` 1.5 không chứa Sharpe/ROI. Immutable snapshot 1.3/1.4 chỉ đọc qua `feature_snapshots_legacy_1_3_0`/`feature_snapshots_legacy_1_4_0`; dữ liệu đó không được mutate. Sharpe chỉ thuộc portfolio evaluation.
 
 ## Quality và failure behavior
 

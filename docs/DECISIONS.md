@@ -1,6 +1,6 @@
 # Các quyết định còn hiệu lực
 
-Cập nhật 17/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation.
+Cập nhật 18/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation.
 
 | ID | Quyết định |
 |---|---|
@@ -23,7 +23,7 @@ Cập nhật 17/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-017 | Gate thật theo hierarchy `SOURCE_SMOKE → REPRESENTATIVE_PILOT → M1_SCALE`; source smoke không mở scale và synthetic không pass gate thật. `EXTENDED_SCALE` không có cap 350. |
 | ADR-018 | Market contract 1.4 thêm nullable `reference_price`, `ceiling_price`, `floor_price`; mọi equity price là VND/share, volume là shares, traded value là VND; multiplier cần evidence. |
 | ADR-019 | Reconciliation diễn ra ở field level theo semantic comparison key; không average. Source priority chỉ dùng khi compatible và policy approved/versioned; mọi decision giữ raw hashes. |
-| ADR-020 | Active feature snapshot 1.4 không sinh Sharpe. Snapshot 1.3 chỉ đọc qua explicit legacy compatibility; Sharpe tiếp tục ở portfolio metrics. |
+| ADR-020 | Active feature snapshot 1.5 không sinh Sharpe và tách `feature_complete`, `market_feature_ready`, `historical_identity_ready`, `research_ready`. Snapshot 1.3/1.4 chỉ đọc qua explicit legacy compatibility; Sharpe tiếp tục ở portfolio metrics. |
 | ADR-021 | M2 configs mặc định `portfolio_evaluation.enabled=false`; chỉ M3/frozen protocol được bật backtest/performance. |
 | ADR-022 | `shares_history` là optional canonical input với key `security_id + effective_date`; share counts khác nhau không bị giả định bằng nhau và current count không được backfill về lịch sử. |
 | ADR-023 | Market cap, valuation ratios và F/M/Z scores là derived/versioned analytics; vendor ratio chỉ để đối chiếu. EPS cần weighted-average shares hoặc documented vendor basis. |
@@ -33,6 +33,7 @@ Cập nhật 17/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-027 | **Pilot canonical identity scope:** current KBS stock/name/exchange snapshot chỉ bổ sung display name và exact pilot membership. `valid_from` lấy first accepted pilot price, không lấy listing date; status luôn `provisional_verified_for_pilot`. Scope này cho phép validate market features trên frozen pilot nhưng không được dùng như complete historical universe cho scale/backtest. |
 | ADR-028 | **M1 scale multi-machine contract:** 500 reviewed securities có tối thiểu 3 năm usable history được chia deterministic thành 5 immutable shard × 100 stable `security_id`; range thu thập chung dài 5–15 năm và đúng một shard sở hữu benchmark. Mỗi shard khóa config/universe/pilot-gate/assignment/code/job-plan/adapter hashes. Central verifier bắt buộc exact disjoint union và raw checksums; mapper/promoter chạy offline tập trung, fail khi duplicate canonical key và chỉ tính features sau merge. |
 | ADR-029 | **M1 cross-machine handoff và central QC replay:** resume vẫn exact byte-identity; handoff chỉ chấp nhận LF/CRLF-equivalent frozen text sau semantic equality, exact stored job plan/manifest jobs và full raw checksum replay. KBS row vi phạm OHLC constraint và CafeF auxiliary row vi phạm price-band bị quarantine với raw path/hash, không repair và không canonical-merge. Shard gate gốc được giữ nguyên; central feature gate không được hạ để ép PASS. |
+| ADR-030 | **M1 readiness/QC semantics:** collection coverage >=300, observed calendar span, feature completeness, market-feature readiness, historical-identity readiness, strict research readiness và financial PIT là trạng thái độc lập. `provisional` không tự làm market feature false nhưng luôn giữ historical identity/research false. Monthly M1 gate dùng latest completed collection month; partial current-month row vẫn được giữ. Không có quyết định frozen yêu cầu >=300 row đủ 252-session features cùng một ngày, nên threshold đó bị bỏ thay vì hạ; final research sample-size/density policy để `UNRESOLVED` và gate fail-closed. |
 
 ## Open decisions
 
@@ -47,6 +48,7 @@ Cập nhật 17/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | OPEN-07 | Comparator set và PCA protocol |
 | OPEN-08 | Final portfolio universe/ranking/tie policy |
 | OPEN-09 | Authority, history coverage và field semantics cho listed/outstanding/issued/treasury shares |
+| OPEN-10 | Approved usable-density và final research sample-size threshold cho clustering universe |
 
 Quyết định mới ghi: problem → alternatives → choice/reason → evidence → owner/date → affected contract/config/tests → remaining limits.
 
@@ -76,4 +78,8 @@ Problem: representative runner bị khóa đúng 50–60 mã và raw trên năm 
 
 ## ADR — M1 cross-machine handoff và central QC replay
 
-Problem: Windows checkout có thể đổi LF/CRLF của frozen JSON/source, làm byte hash khác dù assignment và deterministic job plan không đổi; shard-local gate cũng coi CafeF auxiliary truncation/price-band finding như primary-market failure. Choice: resume tiếp tục strict và không migrate run; central handoff chỉ chấp nhận hash của original/LF/CRLF form, đồng thời bắt buộc semantic equality, stored job-plan hash/content, exact manifest job set/definitions, adapter provenance và checksum của mọi raw artifact. Central mapper replay raw: invalid KBS/CafeF rows bị exclude có raw path/hash trong quarantine, không sửa hoặc backfill; CafeF không được dùng cho row đó. Shard gate FAIL vẫn giữ immutable và chỉ acquisition-complete handoff mới được central replay. Evidence: five runs của `m1-scale-20260917T080125Z-ad8cebe3`, handoff/candidate manifests ngày 18/09/2026. Remaining limit: M1 feature gate vẫn fail-closed nếu <300 latest market-feature rows đủ điều kiện hoặc identity chưa verified.
+Problem: Windows checkout có thể đổi LF/CRLF của frozen JSON/source, làm byte hash khác dù assignment và deterministic job plan không đổi; shard-local gate cũng coi CafeF auxiliary truncation/price-band finding như primary-market failure. Choice: resume tiếp tục strict và không migrate run; central handoff chỉ chấp nhận hash của original/LF/CRLF form, đồng thời bắt buộc semantic equality, stored job-plan hash/content, exact manifest job set/definitions, adapter provenance và checksum của mọi raw artifact. Central mapper replay raw: invalid KBS/CafeF rows bị exclude có raw path/hash trong quarantine, không sửa hoặc backfill; CafeF không được dùng cho row đó. Shard gate FAIL vẫn giữ immutable và chỉ acquisition-complete handoff mới được central replay. Evidence: five runs của `m1-scale-20260917T080125Z-ad8cebe3`, handoff/candidate manifests ngày 18/09/2026. Remaining limit: historical identity và financial PIT chưa verified; usable-density/research sample-size policy chưa được phê duyệt.
+
+## ADR — M1 readiness, calendar span và completed-month semantics
+
+Problem: M1 scale cố ý dùng identity `provisional`, nhưng feature builder gộp trạng thái này vào lỗi `metadata`, làm mọi market feature bị loại; QC gọi calendar range là “usable”; và row 15/09 của collection kết thúc 15/09 bị coi như completed month-end. Implementation cũng dùng threshold >=300 latest feature-complete dù ADR-012 chỉ khóa >=300 securities collected với long-history coverage. Alternatives là đổi identity thành verified, hạ threshold xuống kết quả hiện có, hoặc tách state đúng nghĩa. Choice: giữ nguyên identity provisional; feature snapshot 1.5 thêm bốn flag độc lập; legacy/scoped `eligibility` không bị silently redefine. Calendar range đổi tên `observed_span_3y/5y` và report thêm row/session density. M1 monthly research snapshot chỉ chọn tháng collection đã hoàn tất; partial-month row vẫn immutable. Threshold >=300 same-date complete features bị bỏ vì không có frozen-methodology backing, còn sample-size/density policy ghi `UNRESOLVED`. Gate vẫn fail-closed do identity, financial PIT và policy chưa duyệt. Evidence: code/tests và offline artifact mới sinh từ candidate immutable ngày 18/09/2026. Affected: feature snapshot 1.5, M1 promotion/gate/QC, docs/config/tests. Remaining limits: không đóng OPEN-04/05/10, không cho phép backtest và không thay raw/provider data.

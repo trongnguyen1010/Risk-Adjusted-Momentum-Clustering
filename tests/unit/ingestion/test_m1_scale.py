@@ -12,7 +12,8 @@ from delta_t1.ingestion.m1_scale import (
     M1_SCALE_SHARD, _compatible_text_hashes, _load_scale_security_master,
     _require_portable_hash, _unique_rows,
     build_scale_job_plan, dry_run_shard, load_scale_readiness,
-    evaluate_scale_shard_checks, load_assignment_index, validate_assignment,
+    evaluate_m1_readiness_checks, evaluate_scale_shard_checks,
+    load_assignment_index, validate_assignment,
     validate_pilot_gate,
 )
 from delta_t1.io import atomic_write, digest, read_json, write_json
@@ -136,6 +137,19 @@ class M1ScaleTests(unittest.TestCase):
             manifest, config("unused.json"), include_benchmark=True)
         self.assertTrue(all(checks.values()))
         self.assertNotIn("five_year_ratio_passed", checks)
+
+    def test_m1_readiness_checks_are_independent_and_fail_closed(self):
+        checks = evaluate_m1_readiness_checks(
+            selected=500, observed_span_3y=500, observed_span_5y=484,
+            historical_identity_ready=0,
+            market_feature_artifact_generated=True,
+        )
+        self.assertTrue(checks["collection_coverage_at_least_300"])
+        self.assertTrue(checks["market_feature_artifact_generated"])
+        self.assertFalse(checks["historical_identity_ready_for_research"])
+        self.assertFalse(checks["financial_pit_ready_for_research"])
+        self.assertFalse(checks["research_sample_size_policy_resolved"])
+        self.assertNotIn("at_least_300_latest_features_eligible", checks)
 
     def test_assignment_requires_exact_unique_known_security_ids(self):
         rows = universe_rows()

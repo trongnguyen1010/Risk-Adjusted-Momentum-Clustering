@@ -75,7 +75,7 @@ class FeatureRegistry:
 
 PIT_MARKET = "Source row available_at phải không sau decision_at; basis phải nhất quán."
 NO_FILL = "Thiếu bất kỳ observation bắt buộc nào thì trả None; không fill hoặc đổi thành zero."
-INTERNAL_BASELINE = "DELTA market baseline 1.4; cần literature lock trước final methodology."
+INTERNAL_BASELINE = "DELTA market baseline 1.5; công thức giữ nguyên 1.4, readiness được tách rõ."
 PROHIBITED_CLUSTER_INPUTS = {"sharpe_63", "sharpe_126", "roi"}
 
 
@@ -83,7 +83,7 @@ def _market(name: str, formula: str, lookback: str, *, cluster_eligible: bool = 
             source: tuple[str, ...] = ("prices_daily", "trading_calendar"),
             transform: str = "winsorize_then_snapshot_scale") -> FeatureDefinition:
     return FeatureDefinition(name=name, family="market" if cluster_eligible else "portfolio_legacy",
-                             version="1.4.0", formula=formula, required_source=source,
+                             version="1.5.0", formula=formula, required_source=source,
                              lookback=lookback, point_in_time_rule=PIT_MARKET,
                              missing_policy=NO_FILL, transform=transform,
                              cluster_eligible=cluster_eligible, reference=INTERNAL_BASELINE)

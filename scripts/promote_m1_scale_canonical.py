@@ -20,7 +20,10 @@ def main(argv=None):
         output, manifest = promote_scale_candidate(
             args.candidate, args.config, args.securities, args.feature_config,
             root=ROOT)
-        print(f"M1_SCALE={manifest['canonical_promotion_status']} network_requests=0")
+        print(
+            f"CANONICAL={manifest['canonical_promotion_status']} "
+            f"M1={manifest['m1_status']} network_requests=0"
+        )
         print(output / "manifest.json")
         return 0 if manifest["canonical_promotion_status"] == "PASS" else 2
     except (KeyError, OSError, TypeError, ValueError) as exc:
