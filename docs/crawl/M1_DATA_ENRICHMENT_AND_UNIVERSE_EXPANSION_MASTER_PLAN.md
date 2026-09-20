@@ -8,6 +8,40 @@
 
 ---
 
+## Execution Progress / Handoff
+
+Last updated: 2026-09-20T14:57:29+07:00
+Branch: `m1-scale-500-team-crawl`
+Base commit: `f7a17300ea8f84639fb3ff27fef9c8eb98e677e3`
+
+Current initiative: M1 Data Enrichment & Universe Expansion
+Last completed stage: A1 — Missing Session Audit
+Stage result: `PARTIAL`
+
+Latest run/artifact: `artifacts/data_enrichment/m1-a1-missing-session-audit-20260920T075252Z-3ba53a7e`
+
+Key evidence:
+
+- Baseline: `canonical-m1-scale-20260918T141019Z-7c003543`; 500 securities; 614,430 daily rows.
+- Baseline/latest market-feature-ready: 169 at completed snapshot `2026-08-28`; A1 independently reconciled 169.
+- Missing rows on the `PROVISIONAL_OBSERVED` calendar union: 199,784; not an official-exchange-calendar claim.
+- P0/P1/P2/P3/P4: 0 / 0 / 0 / 0 / 331. All non-ready securities remain P4 because identity/calendar evidence is provisional.
+- Exactly 1 missing: 12; <=5: 22; <=20: 69; theoretical maximum without new real evidence: 169.
+- Verifier: `PASS` (read-only); all six mandatory files and manifest hashes verified.
+
+Unresolved blockers:
+
+- Mandatory full `unittest discover` could not complete in this sandbox: the pre-existing SDK test writes through `TemporaryDirectory` and is blocked at `os.replace`. Targeted A1 tests (4/4) and `compileall` passed. This is recorded in the run artifact; no test was weakened.
+
+Next allowed stage: A1 remediation — rerun the required full project gate in an environment that permits temporary-directory atomic writes. A2 remains `NOT_STARTED`.
+
+| Stage | Status | Evidence / Run | Notes |
+|---|---|---|---|
+| A1 Missing Session Audit | PARTIAL | `m1-a1-missing-session-audit-20260920T075252Z-3ba53a7e` | Audit/verifier pass; full-suite environment gate unresolved. |
+| A2 Local Salvage | NOT_STARTED | — | Blocked until A1 required project gate completes. |
+
+---
+
 # 1. Mục đích
 
 Tài liệu này là master plan chính thức cho toàn bộ giai đoạn tiếp theo của Data Foundation.

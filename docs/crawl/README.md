@@ -121,3 +121,39 @@ Real data nên sống trong immutable local/shared data workspace theo run/batch
 - `docs/DATA_PIPELINE.md`: data đi qua các stage như thế nào.
 - `docs/crawl/*`: con người/agent thu thập dữ liệu như thế nào.
 - `docs/FEATURE_SYSTEM.md`: canonical data biến thành research features như thế nào.
+
+## Continue current execution
+
+Để tiếp tục initiative từ stage hiện tại, dùng:
+
+[CONTINUE_NEXT_STAGE_PROMPT.md](CONTINUE_NEXT_STAGE_PROMPT.md)
+
+Prompt này đọc `Execution Progress / Handoff` trong Master Plan,
+thực hiện đúng một next eligible stage, verify, update progress và STOP.
+Project đang tiếp tục theo initiative **M1 Data Enrichment & Universe Expansion**.
+
+Trước khi làm gì, hãy đọc theo thứ tự:
+
+1. `AGENTS.md`
+
+   * quy tắc agent, methodology, data invariants, model routing.
+
+2. `docs/crawl/M1_DATA_ENRICHMENT_AND_UNIVERSE_EXPANSION_MASTER_PLAN.md`
+
+   * source of truth cho toàn bộ initiative.
+   * xem mục `Execution Progress / Handoff` để biết:
+
+     * stage gần nhất đã hoàn thành,
+     * kết quả/verifier,
+     * artifact/run mới nhất,
+     * blocker còn lại,
+     * `Next allowed stage`.
+
+3. `docs/crawl/CONTINUE_NEXT_STAGE_PROMPT.md`
+
+   * paste nguyên prompt này vào một Codex session mới ở root repo.
+   * agent sẽ tự đọc progress, thực hiện đúng **một stage tiếp theo**, verify, update handoff rồi STOP.
+
+Nếu cần kiểm tra evidence của stage trước, mở artifact/report được link trong `Execution Progress / Handoff`.
+
+Không tự nhảy stage và không cần đọc lại lịch sử chat cũ.
