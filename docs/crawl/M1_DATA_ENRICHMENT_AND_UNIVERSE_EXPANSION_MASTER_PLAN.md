@@ -10,15 +10,15 @@
 
 ## Execution Progress / Handoff
 
-Last updated: 2026-09-22 (corrective stage)
+Last updated: 2026-09-23 (A5-R1 contract validation)
 Branch: `m1-scale-500-team-crawl`
-Base commit: `061ae0b1d56cd0dda9ea3e813202e9ed76cd9cbb`
+Base commit: `6c4187546615603ed4ae1e4c0a337d8ff2a758e3`
 
 Current initiative: M1 Data Enrichment & Universe Expansion
-Last completed stage: A6/A6.1 historical identity evidence; A5 is not complete
-Stage result: `BLOCKED / REMEDIATION REQUIRED`
+Last completed stage: A5-R1 CafeF Contract & Endpoint Validation
+Stage result: `PARTIAL / MANUAL_REVIEW_REQUIRED`
 
-Latest run/artifact: `canonical-m1-scale-enriched-v2-20260921T141356Z-ec87b5d8` (interim current-500 / identity-corrected evidence)
+Latest run/artifact: `m1-a5-r1-cafef-contract-20260922T174031Z-35a27f92`
 
 Key evidence:
 
@@ -26,16 +26,23 @@ Key evidence:
 - Baseline/latest market-feature-ready: 169 at completed snapshot `2026-08-28`; no recovery gain is accepted.
 - A2 executed: local salvage produced no accepted recovery. A3 pilot executed: no scalable primary path established.
 - A4 executed: 9 CafeF provider rows have diagnostic ratio matches, but remain non-promotable pending field/price-basis contract.
+- A5-R1 executed 11 bounded public CafeF requests across HOSE/HNX/UPCOM, an older corporate-action window, page 2, an explicit provider-published zero-volume row and invalid tickers.
+- `TradeHistoryNew.ashx` and `DataHistory/PriceHistory.ashx` are complementary, not equivalent. Field names/units/date behavior are versioned in `cafef-a5-r1-contract-1.0.0`.
+- Price-basis result remains `DIAGNOSTIC_ONLY`: CafeF adjusted values are not demonstrably equivalent to the current KBS/canonical `vendor_adjusted` basis, and no multiplier or transformation is approved.
+- CafeF rows remain non-promotable; canonical mutations, synthetic rows and imputed rows are all zero. The 20-before + 20-after rule is unchanged.
 - A6/A6.1 artifacts, Canonical Enriched v2, Feature Rebuild and EDA are preserved as interim current-500 / identity-corrected evidence; they are not final initiative outputs.
 - No forward/back-fill, interpolation, previous-close substitution, missing-to-zero, synthetic OHLC/volume, or zero-return session is allowed.
 - B0–B5 are NOT STARTED and B0 is blocked by the A5 remediation gate.
 - Corrective verifier: `PASS`; methodology auditor: `PASS`.
 
 Unresolved blockers:
-- CafeF historical endpoint/field/unit/price-basis contract is not approved.
+- CafeF OHLC/adjusted-price basis is not approved; CafeF adjustment methodology is undocumented in available evidence.
+- CafeF automated recovery/data rights remain `RIGHTS_NOT_VERIFIED`.
 - Recovery classification and cost/yield require a deterministic near-ready multi-source pilot.
 
-Next allowed stage: A5-R1 — CafeF Contract & Endpoint Validation.
+Manual review required: `YES` — price-basis/source-use acceptance is methodology-sensitive.
+
+Next allowed action: Manual review of the A5-R1 CafeF price-basis/source-use contract. A5-R2 remains `BLOCKED` and must not start until that review explicitly approves a promotable contract.
 
 | Stage | Status | Evidence / Run | Notes |
 |---|---|---|---|
@@ -43,7 +50,9 @@ Next allowed stage: A5-R1 — CafeF Contract & Endpoint Validation.
 | A2 Local Salvage | EXECUTED | A2 evidence | No accepted recovery. |
 | A3 Primary Recovery Pilot | EXECUTED | A3 evidence | No scalable primary-recovery path established. |
 | A4 Secondary Recovery Pilot | EXECUTED; REMEDIATION REQUIRED | A4 evidence | Nine diagnostic CafeF candidates; no approved canonical promotion. |
-| A5 Full Recovery Current 500 | BLOCKED / REMEDIATION REQUIRED | — | A5-R1 is required before a new pilot or full run. |
+| A5-R1 CafeF Contract Validation | PARTIAL / MANUAL_REVIEW_REQUIRED | `m1-a5-r1-cafef-contract-20260922T174031Z-35a27f92` | 11 requests; field contract versioned; price basis and rights unresolved; no promotion. |
+| A5-R2 Multi-source Near-Ready Pilot | BLOCKED | — | Requires explicit manual approval of a promotable CafeF contract. |
+| A5 Full Recovery Current 500 | BLOCKED / REMEDIATION REQUIRED | — | A5-R2/A5-R3 not executed. |
 | A6 / A6.1 Identity work | EXECUTED / EVIDENCE RETAINED | A6 evidence | Preserve identity evidence and audit it; not an A5 bypass. |
 | Canonical Enriched v2 / Feature Rebuild / EDA | INTERIM EVIDENCE | `canonical-m1-scale-enriched-v2-20260921T141356Z-ec87b5d8` | Current-500 identity-corrected outputs only. |
 | B0–B5 | NOT STARTED | — | B0 remains blocked. |
