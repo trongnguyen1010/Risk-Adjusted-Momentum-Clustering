@@ -309,18 +309,23 @@ def _validate_target(request, raw, mapped, cafef_by_date, primary, *, min_overla
         blockers.append("ADJUST_PRICE_UNAVAILABLE")
     result["validation_blockers"] = blockers
 
-    # NẾU KIỂM TRA THẤY KHỚP CHUẨN (MATCH):
-    if result["diagnostic_status"] == "MATCH":
-        # Mở cửa cho thông quan:
+    # Diagnostic compatibility is evidence, not an acceptance decision.  CafeF
+    # has no approved OHLC or price-basis contract yet, so a matching ratio
+    # must remain a candidate until every active blocker is resolved.
+    if result["diagnostic_status"] == "MATCH" and not blockers:
         result.update(
-            status="RECOVERED_SECONDARY_CONFIRMED", # Xác nhận phục hồi thành công từ nguồn phụ
-            reason=result["diagnostic_reason"], 
-            compatible=True                         # Cho phép nạp!
+            status="RECOVERED_SECONDARY_CONFIRMED",
+            reason=result["diagnostic_reason"],
+            compatible=True,
         )
-    # NẾU BỊ LỆCH GIÁ:
+    elif result["diagnostic_status"] == "MATCH":
+        result.update(
+            status="UNRESOLVED_MISSING",
+            reason="SECONDARY_ACCEPTANCE_BLOCKED",
+            compatible=False,
+        )
     elif result["diagnostic_status"] == "PRICE_BASIS_CONFLICT":
         result.update(status="PRICE_BASIS_CONFLICT", reason=result["diagnostic_reason"], compatible=False)
-    # CÁC TRƯỜNG HỢP CÒN LẠI:
     else:
         result.update(status="UNRESOLVED_MISSING", reason="PRICE_BASIS_ACCEPTANCE_POLICY_UNAPPROVED", compatible=False)
     return result

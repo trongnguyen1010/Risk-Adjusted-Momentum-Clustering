@@ -6,13 +6,10 @@ Current branch/workstream:
 
 `m1-scale-500-team-crawl`
 
-Your task is to execute EXACTLY ONE DELTA stage:
-
-# Stage A1 — Missing Session Audit
-
-After completing and verifying A1, update project progress/handoff and STOP.
-
-DO NOT continue to A2.
+Your task is to execute EXACTLY ONE DELTA stage: chính xác stage được ghi tại
+`Execution Progress / Handoff → Next allowed stage` trong Master Plan. Điều này
+bao gồm remediation substage như `A5-R1`; không suy ra B0 từ chuỗi stage tĩnh.
+Sau khi stage đó được verify, cập nhật handoff và STOP.
 
 ---
 

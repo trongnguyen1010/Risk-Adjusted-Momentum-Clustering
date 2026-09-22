@@ -6,6 +6,16 @@
 
 ---
 
+## Hiệu chỉnh methodology — trạng thái có hiệu lực
+
+Các mô tả dưới đây được giữ làm bằng chứng lịch sử, không phải quyết định nghiệm thu hiện hành. `diagnostic_status = MATCH` chỉ chứng minh tỷ số overlap KBS/CafeF tương thích trong mẫu, **không** chứng minh hợp đồng OHLC, price basis, đơn vị hay khả năng promote vào canonical. Do đó 9 hàng CafeF là **diagnostically compatible CafeF candidate observations**, không phải `RECOVERED_SECONDARY_CONFIRMED`, canonical-ready, hay sẵn sàng merge. `PRICE_BASIS_ACCEPTANCE_POLICY_UNAPPROVED` và `CAFEF_OHLC_CONTRACT_UNSUPPORTED` vẫn là blocker.
+
+**REJECTED / NOT APPROVED UNDER CURRENT METHODOLOGY:** Zero-Return Imputation, forward-fill/backward-fill, interpolation, previous-close substitution, `missing -> 0`, synthetic OHLC/volume, và mọi mục tiêu suy diễn như 169 -> 199 hoặc 169 -> 239. Provider-published row có matched volume bằng 0 chỉ được giữ làm source evidence; chỉ A5-R1 có thể xác định nó có đủ contract để được dùng hay không.
+
+Canonical Enriched v2, Feature Rebuild và Expanded EDA được giữ nếu checksum hợp lệ, nhưng chỉ là **INTERIM CURRENT-500 / IDENTITY-CORRECTED EVIDENCE**, không phải output cuối của initiative sau mở rộng universe.
+
+---
+
 ## 1. Tóm Tắt Điều Hành & Hiện Trạng Dữ Liệu (Data Readiness)
 
 Tập dữ liệu nền tảng Canonical M1 gồm **500 mã cổ phiếu** (614.430 dòng nến giá) được kiểm toán đối soát độc lập với lịch giao dịch của 3 Sở (HOSE, HNX, UPCOM). 
@@ -29,18 +39,18 @@ Tập dữ liệu nền tảng Canonical M1 gồm **500 mã cổ phiếu** (614.
 * **Hiện tượng giá đóng cửa trên nguồn thứ cấp (CafeF):** 
   * Với các phiên thực sự không có giao dịch (`Volume = 0`), CafeF tự động copy giá tham chiếu sang cột `ClosePrice` (giá hiển thị quy ước, không có giao dịch thực tế - Non-tradable).
   * Với các phiên có giao dịch thực tế (`Volume > 0`), CafeF lưu trữ đầy đủ cả giá thô (`ClosePrice`) và giá điều chỉnh sau chia tách (`AdjustPrice`). 
-  * Thử nghiệm Stage A4 đã chứng minh: Khi đối soát theo trường `AdjustPrice`, tỷ số giá giữa KBS và CafeF đạt độ khớp tiệm cận tuyệt đối 1.000, phục hồi thành công 9 hàng nến sạch.
+  * Thử nghiệm Stage A4 lưu 9 provider-published observations có ratio chẩn đoán gần 1.000 theo `AdjustPrice`; chúng vẫn là candidate evidence, không phải recovery được nghiệm thu.
 
 ### 1.3. Bảng tổng hợp lộ trình thực nghiệm từ Stage A1 đến Stage A6
 
 | Stage | Tên công đoạn | Nguồn dữ liệu | Quy mô xử lý | Kết quả phục hồi | Trạng thái | Kết luận cốt lõi |
 | :---:| :---| :---: | :---: | :---: | :---: | :---|
 | **A1** | **Missing Session Audit** | Toàn bộ Canonical 500 | 500 mã (614.430 dòng nến) | — | **`PASS`** | Định vị chính xác **331 mã cần fix** với 199.784 phiên thiếu. Toàn bộ xếp nhóm P4 theo lịch quan sát an toàn (`PROVISIONAL`). |
-| **A2** | **Local Raw Salvage** | Dữ liệu thô lưu trên máy | 34.491 file JSON (~210 MB) | **0** / 197.875 ứng viên | **`PASS`** | 100% bị từ chối. 196.571 dòng CafeF cũ không tương thích chuẩn giá điều chỉnh (`PRICE_BASIS_UNSUPPORTED`). |
+| **A2** | **Local Raw Salvage** | Dữ liệu thô lưu trên máy | 34.491 file JSON (~210 MB) | **0** / 197.875 ứng viên | **`EXECUTED`** | Local salvage đã chạy nhưng không tạo accepted recovery. |
 | **A3** | **Primary Recovery Pilot** | Nguồn sơ cấp KBS (Online) | 12 mã pilot (34 HTTP requests) | **0** / 68 phiên | **`PARTIAL`** | 100% thất bại: 60 phiên KBS phản hồi rỗng `[]`; 8 phiên KBS trả nến lỗi toán học (Close > High). |
-| **A4** | **Secondary Recovery Pilot**| Nguồn thứ cấp CafeF (Online)| 12 mã pilot (339 trang crawl) | **9** / 68 phiên | **`PARTIAL`** | **Đột phá sau chuẩn hóa cơ sở giá:** Phục hồi thành công **9 hàng nến sạch** (`RECOVERED_SECONDARY_CONFIRMED`) từ CafeF, sửa triệt để nến lỗi KHP. 42 phiên vướng biên an toàn; 13 phiên nguồn rỗng; 4 phiên lệch cơ sở cổ tức. |
-| **A5** | **Full Recovery Planning** | Toàn bộ 331 mã non-ready | 331 mã chia P0 -> P4 | Thiết kế 2 đợt quét | **`PLANNING`** | Ưu tiên Pass 1 (~300 phiên gần nhất) cứu trọn vẹn 70 mã Nhóm 1; phân loại Nhóm 2 kiệt thanh khoản sang `REFERENCE_ONLY`. |
-| **A6** | **Identity Recovery** | Quyết định niêm yết Sở GD | 5 mã chuyển sàn lớn | **5 / 5 mã** | **`PASS`** | Thu thập và xác thực pháp lý thành công 100% các quyết định niêm yết của Sở GD cho `BCM`, `CTR`, `LPB`, `SHB`, `VCG`. |
+| **A4** | **Secondary Recovery Pilot**| Nguồn thứ cấp CafeF (Online)| 12 mã pilot (339 trang crawl) | **9** candidate rows / 68 | **`EXECUTED; REMEDIATION REQUIRED`** | Ratio diagnostics match, nhưng CafeF field/price-basis contract chưa approved nên không row nào promotable. |
+| **A5** | **Full Recovery Planning** | Toàn bộ 331 mã non-ready | 331 mã chia P0 -> P4 | Chưa chạy full recovery | **`BLOCKED / REMEDIATION REQUIRED`** | Chờ A5-R1, không có giả định gain hay imputation. |
+| **A6** | **Identity Recovery** | Quyết định niêm yết Sở GD | 5 mã chuyển sàn lớn | Evidence retained | **`EXECUTED / EVIDENCE RETAINED`** | Giữ evidence và audit result; không dùng làm lý do bypass recovery contract. |
 | **A6.1** | **Transition Price Recovery** | Nguồn KBS HTTP (Sàn cũ) | 5 mã ứng viên A6 | **1.830 / 1.830 phiên** | **`PASS`** | Phục hồi thành công **1.830 hàng nến giá** trên sàn cũ (UPCOM/HNX) từ 01/01/2020 đến ngày chuyển sang HOSE. |
 
 ### 1.4. Phân loại cấu trúc 331 mã mục tiêu cần phục hồi
@@ -102,38 +112,38 @@ Hệ thống phân định rõ ràng giữa **Triệu chứng định lượng**
 
 * **Artifact Run ID:** `m1-a4-secondary-recovery-20260922T072831Z-a07c96fe`
 * **Đường dẫn thư mục:** [artifacts/data_enrichment/m1-a4-secondary-recovery-20260922T072831Z-a07c96fe/](file:///c:/Users/HP/Downloads/Phân cụm động lượng TTCK/artifacts/data_enrichment/m1-a4-secondary-recovery-20260922T072831Z-a07c96fe/)
-* **Trạng thái thực thi:** **`PARTIAL` (Đột phá: Phục hồi thành công 9 / 68 phiên nến sạch)**
+* **Trạng thái thực thi:** **`EXECUTED; REMEDIATION REQUIRED`** — 9 / 68 là candidate evidence, không là recovery được nghiệm thu.
 * **Quy mô thực thi:** 12 mã cổ phiếu pilot, 339 trang dữ liệu CafeF, 0 đột biến can thiệp trực tiếp (`canonical_mutations = 0`).
 
 #### 2.3.1. Bảng tổng hợp chỉ số kỹ thuật thực nghiệm Stage A4
 
 | Tiêu chí đối soát | Kết quả đạt được | Ý nghĩa kiểm soát & Kỹ thuật |
 |---|:---:|---|
-| **Số nến phục hồi thành công** | **9** / 68 phiên (100% nhóm đủ overlap) | Khai thông thành công đường ống phục hồi nguồn phụ |
+| **CafeF candidate có diagnostic MATCH** | **9** / 68 phiên | Bảo tồn evidence ratio; chưa có row nào được canonical acceptance |
 | **Trường giá so sánh từ CafeF** | `AdjustPrice` (Giá điều chỉnh sau chia tách) | Khử sạch độ lệch giá do cổ tức và thưởng cổ phiếu |
 | **Tỷ số đối soát (Median Ratio)** | **Tiệm cận tuyệt đối 1.000** (Sai số 0.00% – 0.04%) | Đạt chuẩn dung sai khắt khe (ngưỡng cho phép <= 2.0%) |
-| **Cơ chế chốt chặn nghiệm thu** | Tự động ghi nhận `RECOVERED_SECONDARY_CONFIRMED` | Tuân thủ bảo toàn dữ liệu khi kiểm định toán học MATCH |
-| **Trạng thái dữ liệu ứng viên** | Đã tạo nến sạch tại `secondary_recovery_candidates.parquet` | Sẵn sàng cho giai đoạn hợp nhất Canonical Enriched v3 |
+| **Cơ chế chốt chặn nghiệm thu** | Fail-closed khi contract còn blocker | `MATCH` không vượt qua `PRICE_BASIS_ACCEPTANCE_POLICY_UNAPPROVED` / `CAFEF_OHLC_CONTRACT_UNSUPPORTED` |
+| **Trạng thái dữ liệu ứng viên** | Giữ tại `secondary_recovery_candidates.parquet` | Source/diagnostic evidence, không sẵn sàng canonical merge |
 
-#### 2.3.2. Chi tiết 2 điểm nghẽn kỹ thuật đã được tháo gỡ tại `src/delta_t1/ingestion/secondary_recovery.py`
+#### 2.3.2. Regression đã được corrective stage loại bỏ tại `src/delta_t1/ingestion/secondary_recovery.py`
 1. **Chuẩn hóa trường so sánh cơ sở giá (Dòng 280):** Đổi từ `cafef_close_price` (giá thô) sang `cafef_adjust_price` (giá điều chỉnh sau chia tách). Nhờ đó, tỷ số đối soát giữa KBS và CafeF đạt mức tiệm cận tuyệt đối 1.000 (độ lệch chỉ 0.00% – 0.04%, thấp hơn rất nhiều so với ngưỡng dung sai 2.0%).
-2. **Khai thông chính sách nghiệm thu (Dòng 311–325):** Bổ sung nhánh xử lý tự động công nhận: khi `diagnostic_status == "MATCH"`, trạng thái được cập nhật thành **`RECOVERED_SECONDARY_CONFIRMED`** với `compatible = True` và bảo tồn lý do nghiệm thu `PRICE_BASIS_OVERLAP_COMPATIBLE`.
+2. **REJECTED / NOT APPROVED UNDER CURRENT METHODOLOGY:** Nhánh tự động đổi `diagnostic_status == "MATCH"` thành `RECOVERED_SECONDARY_CONFIRMED` đã bị loại bỏ. Diagnostic vẫn lưu ratio, samples, raw hash và provider row, nhưng row giữ `UNRESOLVED_MISSING` đến khi hợp đồng được phê duyệt.
 
-#### 2.3.3. Bảng dữ liệu chi tiết 9 hàng nến sạch được phục hồi thành công từ CafeF
+#### 2.3.3. Bảng 9 candidate observations tương thích chẩn đoán từ CafeF
 
-Toàn bộ 9 hàng nến sạch dưới đây đã được kiểm định toán học hai phía (20 phiên trước và 20 phiên sau), đạt chuẩn bảo toàn cấu trúc và được lưu trữ bất biến tại `secondary_recovery_candidates.parquet`:
+Chín hàng dưới đây được lưu bất biến tại `secondary_recovery_candidates.parquet`, cùng overlap, ratio và raw provenance. Chúng **chưa** đạt contract approval hoặc canonical promotion.
 
-| STT | Mã CP | Sàn GD | Ngày GD | Giá Đóng Cửa Thô (VND) | Giá Đóng Cửa Điều Chỉnh (VND) | Khối Lượng Khớp | Tỷ Số Đối Soát Trước | Tỷ Số Đối Soát Sau | Độ Lệch Tối Đa | Bản Chất Phục Hồi Thực Tế |
+| STT | Mã CP | Sàn GD | Ngày GD | Giá Đóng Cửa Thô (VND) | Giá Đóng Cửa Điều Chỉnh (VND) | Khối Lượng Khớp | Tỷ Số Đối Soát Trước | Tỷ Số Đối Soát Sau | Độ Lệch Tối Đa | Bản Chất Evidence Chẩn đoán |
 |:---:|:---:|:---:|:---:|---:|---:|---:|---:|---:|---:|---|
-| 1 | **HND** | UPCOM | 19/06/2026 | 10.300 | 10.300,0 | 0 cp | 1,00000 | 1,00000 | 0,000% | Phục hồi nến đứng giá tham chiếu thị trường |
-| 2 | **KHP** | HOSE | 13/01/2026 | 12.250 | 11.304,8 | 2.900 cp | 0,99998 | 0,99999 | 0,004% | **Sửa dứt điểm nến lỗi logic của KBS (Close < Low)** |
-| 3 | **NO1** | HOSE | 05/09/2023 | 7.900 | 6.420,2 | 0 cp | 1,00039 | 1,00039 | 0,008% | Phục hồi nến tham chiếu chuẩn sau điều chỉnh |
-| 4 | **NO1** | HOSE | 14/09/2023 | 7.990 | 6.493,3 | 0 cp | 1,00037 | 1,00040 | 0,008% | Phục hồi nến tham chiếu chuẩn sau điều chỉnh |
-| 5 | **SGB** | UPCOM | 12/07/2024 | 13.500 | 12.676,5 | 9 cp | 1,00042 | 1,00041 | 0,003% | Phục hồi phiên giao dịch lô lẻ có khớp lệnh thật |
-| 6 | **SGB** | UPCOM | 22/05/2026 | 12.100 | 12.100,0 | 0 cp | 1,00000 | 1,00000 | 0,000% | Phục hồi nến đứng giá tham chiếu |
-| 7 | **STK** | HOSE | 17/12/2025 | 16.750 | 15.227,4 | 0 cp | 0,99948 | 0,99948 | 0,003% | Phục hồi nến tham chiếu doanh nghiệp dệt may lớn |
-| 8 | **VNZ** | UPCOM | 05/03/2026 | 321.700 | 321.700,0 | 0 cp | 1,00000 | 1,00000 | 0,000% | Phục hồi nến tham chiếu cổ phiếu công nghệ VNZ |
-| 9 | **VNZ** | UPCOM | 19/03/2026 | 325.800 | 325.800,0 | 0 cp | 1,00000 | 1,00000 | 0,000% | Phục hồi nến tham chiếu cổ phiếu công nghệ VNZ |
+| 1 | **HND** | UPCOM | 19/06/2026 | 10.300 | 10.300,0 | 0 cp | 1,00000 | 1,00000 | 0,000% | Provider-published zero-volume candidate; diagnostic match only |
+| 2 | **KHP** | HOSE | 13/01/2026 | 12.250 | 11.304,8 | 2.900 cp | 0,99998 | 0,99999 | 0,004% | Provider-published candidate diagnostic; không sửa canonical KBS row |
+| 3 | **NO1** | HOSE | 05/09/2023 | 7.900 | 6.420,2 | 0 cp | 1,00039 | 1,00039 | 0,008% | Provider-published zero-volume candidate; diagnostic match only |
+| 4 | **NO1** | HOSE | 14/09/2023 | 7.990 | 6.493,3 | 0 cp | 1,00037 | 1,00040 | 0,008% | Provider-published zero-volume candidate; diagnostic match only |
+| 5 | **SGB** | UPCOM | 12/07/2024 | 13.500 | 12.676,5 | 9 cp | 1,00042 | 1,00041 | 0,003% | Provider-published candidate; diagnostic match only |
+| 6 | **SGB** | UPCOM | 22/05/2026 | 12.100 | 12.100,0 | 0 cp | 1,00000 | 1,00000 | 0,000% | Provider-published zero-volume candidate; diagnostic match only |
+| 7 | **STK** | HOSE | 17/12/2025 | 16.750 | 15.227,4 | 0 cp | 0,99948 | 0,99948 | 0,003% | Provider-published zero-volume candidate; diagnostic match only |
+| 8 | **VNZ** | UPCOM | 05/03/2026 | 321.700 | 321.700,0 | 0 cp | 1,00000 | 1,00000 | 0,000% | Provider-published zero-volume candidate; diagnostic match only |
+| 9 | **VNZ** | UPCOM | 19/03/2026 | 325.800 | 325.800,0 | 0 cp | 1,00000 | 1,00000 | 0,000% | Provider-published zero-volume candidate; diagnostic match only |
 
 #### 2.3.4. Báo cáo chi tiết & Bóc tách bản chất kỹ thuật 59 phiên chưa cứu
 
@@ -142,7 +152,7 @@ Trong 68 phiên pilot, 59 phiên chưa được nạp nến tự động đượ
 ```text
 TỔNG SỐ 68 PHIÊN PILOT KIỂM TRA TẠI STAGE A4
     │
-    ├── [ĐÃ CỨU] RECOVERED_SECONDARY_CONFIRMED ──→ 9 phiên (13.2%): Đạt chuẩn MATCH, phục hồi thành công
+    ├── [CANDIDATE] diagnostic MATCH ──→ 9 phiên (13.2%): chưa được approve để recovery
     │
     └── [CHƯA CỨU] 59 PHIÊN (86.8%) GỒM 3 NHÓM NGUYÊN NHÂN:
           │
@@ -170,14 +180,14 @@ Thuật toán Stage A4 bắt buộc phải có tối thiểu 20 phiên giao dị
 | **DDH** | UPCOM | 12 | 25/08/2026 – 15/09/2026 | 20 | **0 – 1** | Nằm sát ngày chốt dữ liệu (tháng 9/2026), phía sau không còn phiên để đối soát. | Mã kiệt thanh khoản Nhóm 2; gán `REFERENCE_ONLY`. |
 | **HLS** | UPCOM | 13 | 24/08/2026 – 15/09/2026 | 20 | **0 – 1** | Nằm sát ngày chốt dữ liệu, phía sau không còn phiên để đối chiếu hai phía. | Mã kiệt thanh khoản Nhóm 2; gán `REFERENCE_ONLY`. |
 | **POM** | UPCOM | 7 | 03/09/2026 – 15/09/2026 | 20 | **0 – 2** | Nằm sát ngày chốt dữ liệu, doanh nghiệp bị hạn chế giao dịch. | Mã Nhóm 2 bị xử phạt; gán `REFERENCE_ONLY`. |
-| **HND** | UPCOM | 2 | 07/01/2020 & 08/01/2020 | **3** | 20 | Nằm ngay tuần đầu tiên mở cửa sàn năm 2020, phía trước chỉ có 3 ngày giao dịch. | **Tỷ số giá thực tế rất khớp (1.0038)**. Xử lý bằng kiểm định 1 phía (One-sided overlap) hoặc Zero-Return. |
-| **HND** | UPCOM | 2 | 18/02/2020 & 21/02/2020 | 20 | **19** | Phía sau có 19 phiên quan sát (thiếu đúng 1 phiên để tròn 20). | Nới lỏng ngưỡng overlap hoặc nạp nến điều chỉnh. |
-| **IDV** | HNX | 1 | 13/01/2020 | **7** | 20 | Nằm ở tuần thứ 2 mở cửa sàn năm 2020, phía trước chỉ có 7 ngày giao dịch. | **Tỷ số giá thực tế rất khớp (1.0038)**. Xử lý bằng kiểm định 1 phía (One-sided overlap) hoặc Zero-Return. |
-| **IDV** | HNX | 1 | 18/08/2026 | 20 | **17** | Phía sau chỉ có 17 phiên giao dịch trước ngày chốt. | Áp dụng kiểm định 1 phía hoặc Zero-Return. |
-| **NO1** | HOSE | 1 | 20/08/2026 | 20 | **15** | Phía sau chỉ có 15 phiên trước ngày chốt dữ liệu. | Nến tham chiếu; áp dụng Zero-Return Imputation. |
-| **TVB** | HOSE | 1 | 18/08/2026 | 20 | **17** | Phía sau chỉ có 17 phiên trước ngày chốt dữ liệu. | Nến tham chiếu; áp dụng Zero-Return Imputation. |
-| **VNZ** | UPCOM | 1 | 14/08/2026 | 20 | **19** | Phía sau có 19 phiên (thiếu đúng 1 phiên để tròn 20). | Nến tham chiếu; áp dụng Zero-Return Imputation. |
-| **SGB** | UPCOM | 1 | 31/03/2025 | **19** | 20 | Phía trước có 19 phiên (thiếu đúng 1 phiên để tròn 20). | Nến tham chiếu; áp dụng Zero-Return Imputation. |
+| **HND** | UPCOM | 2 | 07/01/2020 & 08/01/2020 | **3** | 20 | Nằm ngay tuần đầu tiên mở cửa sàn năm 2020, phía trước chỉ có 3 ngày giao dịch. | Giữ fail-closed; one-sided evidence chỉ được nghiên cứu theo versioned policy ở A5-R1. |
+| **HND** | UPCOM | 2 | 18/02/2020 & 21/02/2020 | 20 | **19** | Phía sau có 19 phiên quan sát (thiếu đúng 1 phiên để tròn 20). | Giữ fail-closed. Chỉ A5-R1/R2 với methodology justification, tests, versioned policy và Sol auditor review mới có thể xét thay đổi acceptance policy. |
+| **IDV** | HNX | 1 | 13/01/2020 | **7** | 20 | Nằm ở tuần thứ 2 mở cửa sàn năm 2020, phía trước chỉ có 7 ngày giao dịch. | Giữ fail-closed; one-sided evidence chỉ được nghiên cứu theo versioned policy ở A5-R1. |
+| **IDV** | HNX | 1 | 18/08/2026 | 20 | **17** | Phía sau chỉ có 17 phiên giao dịch trước ngày chốt. | Giữ unresolved; không được tạo row địa phương. |
+| **NO1** | HOSE | 1 | 20/08/2026 | 20 | **15** | Phía sau chỉ có 15 phiên trước ngày chốt dữ liệu. | Giữ unresolved; Zero-Return Imputation bị từ chối. |
+| **TVB** | HOSE | 1 | 18/08/2026 | 20 | **17** | Phía sau chỉ có 17 phiên trước ngày chốt dữ liệu. | Giữ unresolved; Zero-Return Imputation bị từ chối. |
+| **VNZ** | UPCOM | 1 | 14/08/2026 | 20 | **19** | Phía sau có 19 phiên (thiếu đúng 1 phiên để tròn 20). | Giữ unresolved; Zero-Return Imputation bị từ chối. |
+| **SGB** | UPCOM | 1 | 31/03/2025 | **19** | 20 | Phía trước có 19 phiên (thiếu đúng 1 phiên để tròn 20). | Giữ unresolved; Zero-Return Imputation bị từ chối. |
 | **TỔNG** | — | **42** | — | — | — | **100% là do vướng quy tắc biên an toàn** | **Dữ liệu hoàn toàn sạch, không bị mất gốc** |
 
 ##### Chi tiết Nhóm 2: 13 phiên `MISSING_ON_SOURCE` (Nguồn phụ cũng không có dữ liệu)
@@ -204,19 +214,17 @@ Nguồn CafeF có nến cho ngày này, nhưng tỷ số giữa giá đóng cử
 
 ---
 
-### 2.4. Stage A5 — Kế Hoạch Phục Hồi Toàn Diện (Full Recovery Strategy & Transition)
+### 2.4. Stage A5 — BLOCKED / REMEDIATION REQUIRED
 
-Căn cứ vào kết quả thực nghiệm của Stage A4 và Mục 31 – 34 của Master Plan, kế hoạch thực thi Stage A5 được xây dựng với chiến lược 2 đợt quét (Two-Pass Strategy):
+Các đoạn kế hoạch cũ bên dưới chỉ là lịch sử. Chúng bị thay thế bởi A5-R1 → A5-R4 trong Master Plan. Không được chạy full recovery, không dùng 12 mã tùy ý làm pilot đại diện, không canonical-mutate, và không bắt đầu B0 trước khi remediation gate PASS.
 
 #### 2.4.1. Lượt 1: Recovery Pass 1 — Latest Window First (~300 phiên gần nhất)
 * **Ưu tiên cao nhất:** Quét và sửa sạch toàn bộ các phiên khuyết thiếu trong **cửa sổ ~300 phiên giao dịch gần nhất** (tương đương 1 năm hoạt động) nhằm giải quyết dứt điểm điểm nghẽn tính toán chỉ số **Momentum 252 ngày**.
 * **Đối tượng tập trung:** **70 mã thuộc Nhóm 1** (`missing_last_252 <= 20`).
 * **Giải pháp kết hợp 2 tầng (Two-Tier Hybrid Recovery):**
   * *Tầng 1 (Nguồn thứ cấp CafeF):* Nạp nến thay thế cho các phiên lỗi logic Provider (như KHP ngày 13/01/2026) và nến đứng giá có đủ 20 phiên overlap hai phía.
-  * *Tầng 2 (Kinh tế lượng Zero-Return Imputation):* Xử lý các phiên đứng giá thanh khoản còn lại hoặc phiên ở biên dữ liệu đầu/cuối chuỗi quan sát (`daily return = 0, volume = 0`).
-* **Hiệu quả thực tế kỳ vọng:**
-  * Cứu trọn vẹn nhóm thiếu `1 – 5 phiên`: Cứu được **30 mã** (nâng tập mẫu M2 từ 169 lên **199 mã**).
-  * Cứu trọn vẹn nhóm thiếu `6 – 20 phiên`: Cứu thêm **40 mã** (nâng tập mẫu M2 lên **239 mã sạch 100%**).
+  * *Tầng 2:* **REJECTED / NOT APPROVED UNDER CURRENT METHODOLOGY** — không tạo zero-return, `daily return = 0`, `volume = 0`, hay row thay thế cục bộ.
+* **Không có gain dự báo:** Các claim 169 -> 199 và 169 -> 239 bị loại bỏ; chỉ số sau A5-R2/R3 phải được đo từ real rows qua contract approved.
 
 #### 2.4.2. Lượt 2: Recovery Pass 2 — Historical Repair & Xử lý Nhóm 2
 * **Sửa lịch sử quá khứ (2020 – 2024):** Chỉ đào sâu lịch sử cho các mã thỏa mãn 5 tiêu chí: có danh tính hợp lệ, nhà cung cấp hỗ trợ đầy đủ, lịch sử đủ dài, có giá trị nghiên cứu và có khả năng thực tế bước vào mẫu cuối cùng.

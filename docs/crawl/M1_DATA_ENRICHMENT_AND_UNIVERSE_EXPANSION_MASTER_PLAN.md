@@ -10,32 +10,43 @@
 
 ## Execution Progress / Handoff
 
-Last updated: 2026-09-21
+Last updated: 2026-09-22 (corrective stage)
 Branch: `m1-scale-500-team-crawl`
-Base commit: `f7a17300ea8f84639fb3ff27fef9c8eb98e677e3`
+Base commit: `061ae0b1d56cd0dda9ea3e813202e9ed76cd9cbb`
 
 Current initiative: M1 Data Enrichment & Universe Expansion
-Last completed stage: A1 — Missing Session Audit
-Stage result: `PASS`
+Last completed stage: A6/A6.1 historical identity evidence; A5 is not complete
+Stage result: `BLOCKED / REMEDIATION REQUIRED`
 
-Latest run/artifact: `artifacts/data_enrichment/m1-a1-missing-session-audit-20260921T045214Z-b0e8d931`
+Latest run/artifact: `canonical-m1-scale-enriched-v2-20260921T141356Z-ec87b5d8` (interim current-500 / identity-corrected evidence)
 
 Key evidence:
 
 - Baseline: `canonical-m1-scale-20260918T141019Z-7c003543`; 500 securities; 614,430 daily rows.
-- Baseline/latest market-feature-ready: 169 at completed snapshot `2026-08-28`; A1 independently reconciled 169.
-- Missing rows on the `PROVISIONAL_OBSERVED` calendar union: 199,784; not an official-exchange-calendar claim.
-- P0/P1/P2/P3/P4: 0 / 0 / 0 / 0 / 331. All non-ready securities remain P4 because identity/calendar evidence is provisional.
-- Exactly 1 missing: 12; <=5: 22; <=20: 69; theoretical maximum without new real evidence: 169.
-- Verifier: `PASS` (read-only); all six mandatory files and manifest hashes verified.
-- Full-suite local validation: `python -m unittest discover -s tests -v` — 210/210 PASS in 29s; `compileall` PASS.
+- Baseline/latest market-feature-ready: 169 at completed snapshot `2026-08-28`; no recovery gain is accepted.
+- A2 executed: local salvage produced no accepted recovery. A3 pilot executed: no scalable primary path established.
+- A4 executed: 9 CafeF provider rows have diagnostic ratio matches, but remain non-promotable pending field/price-basis contract.
+- A6/A6.1 artifacts, Canonical Enriched v2, Feature Rebuild and EDA are preserved as interim current-500 / identity-corrected evidence; they are not final initiative outputs.
+- No forward/back-fill, interpolation, previous-close substitution, missing-to-zero, synthetic OHLC/volume, or zero-return session is allowed.
+- B0–B5 are NOT STARTED and B0 is blocked by the A5 remediation gate.
+- Corrective verifier: `PASS`; methodology auditor: `PASS`.
 
-Next allowed stage: A2 — Local Raw / Quarantine Salvage.
+Unresolved blockers:
+- CafeF historical endpoint/field/unit/price-basis contract is not approved.
+- Recovery classification and cost/yield require a deterministic near-ready multi-source pilot.
+
+Next allowed stage: A5-R1 — CafeF Contract & Endpoint Validation (only after this corrective verifier passes).
 
 | Stage | Status | Evidence / Run | Notes |
 |---|---|---|---|
-| A1 Missing Session Audit | PASS | `m1-a1-missing-session-audit-20260921T045214Z-b0e8d931` | Full-suite unittest 210/210 PASS verified on local environment. |
-| A2 Local Salvage | NOT_STARTED | — | Allowed after A1 PASS; must remain offline and preserve the canonical baseline. |
+| A1 Missing Session Audit | PASS | `m1-a1-missing-session-audit-20260921T045214Z-b0e8d931` | Baseline evidence retained. |
+| A2 Local Salvage | EXECUTED | A2 evidence | No accepted recovery. |
+| A3 Primary Recovery Pilot | EXECUTED | A3 evidence | No scalable primary-recovery path established. |
+| A4 Secondary Recovery Pilot | EXECUTED; REMEDIATION REQUIRED | A4 evidence | Nine diagnostic CafeF candidates; no approved canonical promotion. |
+| A5 Full Recovery Current 500 | BLOCKED / REMEDIATION REQUIRED | — | A5-R1 is required before a new pilot or full run. |
+| A6 / A6.1 Identity work | EXECUTED / EVIDENCE RETAINED | A6 evidence | Preserve identity evidence and audit it; not an A5 bypass. |
+| Canonical Enriched v2 / Feature Rebuild / EDA | INTERIM EVIDENCE | `canonical-m1-scale-enriched-v2-20260921T141356Z-ec87b5d8` | Current-500 identity-corrected outputs only. |
+| B0–B5 | NOT STARTED | — | B0 remains blocked. |
 
 ---
 
@@ -1567,6 +1578,64 @@ ready = 300
 Final value must result from real evidence.
 
 ---
+
+# A5 Remediation Track — mandatory before Workstream B
+
+Stage A5 is **BLOCKED / REMEDIATION REQUIRED**. It must not mutate canonical data,
+infer rows, or use imputation. B0 remains blocked until A5-R1 through the applicable
+pilot/report gates establish a deterministic, versioned recovery system.
+
+## A5-R1 — CafeF Contract & Endpoint Validation
+
+**No canonical mutation.** Validate each known public historical path, including
+`TradeHistoryNew.ashx` and `DataHistory/PriceHistory.ashx` where applicable; do not
+assume their semantics are equivalent. Record ticker/exchange identity, trade-date
+meaning, open/high/low/close/adjusted price, matched volume/value, negotiated
+volume/value, units, pagination, snapshot-versus-historical rows, corporate-action
+behavior and relation to the KBS canonical adjusted-price basis. Required outputs:
+`cafef_endpoint_comparison.json`, `cafef_field_contract.json`,
+`cafef_validation_evidence.jsonl`, `cafef_price_basis_diagnostics.csv`, and
+`stage_a5_r1_report.md`. PASS means the permitted fields, basis, limitations and
+acceptance contract are precise and versioned; it does not promote any row.
+
+## A5-R2 — Multi-source Near-Ready Recovery Pilot
+
+Derive the full near-ready cohort from latest A1/A5 evidence: all non-ready securities
+with <=20 missing sessions in the relevant latest feature window; never hard-code the
+count or choose 12 arbitrary symbols. For every target, try KBS first, then an
+**approved** CafeF historical path if no valid real KBS row exists, and validate it.
+Every target ends deterministically as `PRIMARY_REAL_ROW`, `SECONDARY_REAL_ROW`,
+`SECONDARY_PROVIDER_PUBLISHED_ZERO_VOLUME_ROW`, `NO_ROW_PRIMARY`,
+`NO_ROW_SECONDARY`, `PRICE_BASIS_CONFLICT`, `IDENTITY_CONFLICT`,
+`FIELD_CONTRACT_UNSUPPORTED`, `CALENDAR_OR_STATUS_STRUCTURAL`, or `UNRESOLVED`.
+Report target gaps, real rows per source, provider-published zero-volume rows, full
+contract passes, rejections, unresolved rows, securities improved, new
+Momentum252-complete securities, and market-feature-ready before/after. The existing
+20-before + 20-after rule remains fail-closed; any one-sided or corporate-action
+alternative needs explicit methodology justification, tests, versioned policy and Sol
+auditor review before it may accept a row.
+
+## A5-R3 — Full Current-500 Recovery
+
+May run only after A5-R2 demonstrates a valid deterministic path. Apply exactly the
+approved pilot rules to remaining recoverable current-500 gaps; do not change rules to
+improve yield. Attribute baseline ready + local salvage gain + KBS primary gain + CafeF
+secondary gain + identity recovery gain = current-500 final ready. No universe
+expansion gain belongs in this stage.
+
+## A5-R4 — Additional Source Discovery, only if required
+
+If KBS and approved CafeF paths remain insufficient, validate one additional provider
+at a time through source discovery, access/rights review, field/date/unit/price-basis
+validation, source smoke and recovery pilot. A provider is never active merely because
+it has more rows; do not bypass login, access control, anti-bot, CAPTCHA or paywalls.
+
+## Gate to Workstream B
+
+B0 may begin only when multi-source recovery semantics are frozen, no synthetic or
+imputed market rows are used, provider contracts are versioned, recovery/rejection is
+deterministic, unresolved gaps have explicit classifications, the near-ready pilot is
+complete, current-500 cost/yield is measured, and an A5 final report exists.
 
 # Stage A6 — Historical Identity Recovery
 
