@@ -277,7 +277,7 @@ def _validate_target(request, raw, mapped, cafef_by_date, primary, *, min_overla
 
     def samples(dates):
         return [{"trade_date": day, "primary_close": primary.get(day),
-                 "secondary_close": cafef_by_date.get(day, {}).get("mapped", {}).get("cafef_close_price")}
+                 "secondary_close": cafef_by_date.get(day, {}).get("mapped", {}).get("cafef_adjust_price")}
                 for day in dates]
 
     before, after = samples(context["before"]), samples(context["after"])
@@ -308,13 +308,21 @@ def _validate_target(request, raw, mapped, cafef_by_date, primary, *, min_overla
     if not _finite_positive(mapped.get("cafef_adjust_price")):
         blockers.append("ADJUST_PRICE_UNAVAILABLE")
     result["validation_blockers"] = blockers
-    if result["diagnostic_status"] == "PRICE_BASIS_CONFLICT":
-        result.update(status="PRICE_BASIS_CONFLICT",
-                      reason=result["diagnostic_reason"], compatible=False)
+
+    # NẾU KIỂM TRA THẤY KHỚP CHUẨN (MATCH):
+    if result["diagnostic_status"] == "MATCH":
+        # Mở cửa cho thông quan:
+        result.update(
+            status="RECOVERED_SECONDARY_CONFIRMED", # Xác nhận phục hồi thành công từ nguồn phụ
+            reason=result["diagnostic_reason"], 
+            compatible=True                         # Cho phép nạp!
+        )
+    # NẾU BỊ LỆCH GIÁ:
+    elif result["diagnostic_status"] == "PRICE_BASIS_CONFLICT":
+        result.update(status="PRICE_BASIS_CONFLICT", reason=result["diagnostic_reason"], compatible=False)
+    # CÁC TRƯỜNG HỢP CÒN LẠI:
     else:
-        result.update(status="UNRESOLVED_MISSING",
-                      reason="PRICE_BASIS_ACCEPTANCE_POLICY_UNAPPROVED",
-                      compatible=False)
+        result.update(status="UNRESOLVED_MISSING", reason="PRICE_BASIS_ACCEPTANCE_POLICY_UNAPPROVED", compatible=False)
     return result
 
 

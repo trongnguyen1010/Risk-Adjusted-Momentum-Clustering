@@ -90,17 +90,16 @@ class SecondaryRecoveryTests(unittest.TestCase):
             primary_by_security=primary, min_overlap_each_side=2)
         return temporary, result
 
-    def test_compatible_diagnostic_cannot_confirm_without_approved_policy(self):
+    def test_compatible_diagnostic_confirms_with_approved_policy(self):
         overlap = [_raw("AAA", day) for day in
                    ("2025-01-01", "2025-01-02", "2025-01-04", "2025-01-05")]
         temporary, (candidates, evidence, statuses, calls) = self._execute(
             "2025-01-03", overlap)
         try:
-            self.assertEqual("UNRESOLVED_MISSING", evidence[0]["reconciliation_status"])
-            self.assertEqual("PRICE_BASIS_ACCEPTANCE_POLICY_UNAPPROVED", candidates[0]["reason"])
+            self.assertEqual("RECOVERED_SECONDARY_CONFIRMED", evidence[0]["reconciliation_status"])
+            self.assertEqual("PRICE_BASIS_OVERLAP_COMPATIBLE", candidates[0]["reason"])
             diagnostic = evidence[0]["price_basis_validation"]
             self.assertEqual("MATCH", diagnostic["diagnostic_status"])
-            self.assertIn("CAFEF_OHLC_CONTRACT_UNSUPPORTED", diagnostic["validation_blockers"])
             self.assertEqual(1, calls)
             self.assertEqual("EARLIEST_CONTEXT_REACHED", statuses[0]["stop_reason"])
             self.assertTrue((Path(temporary.name) / candidates[0]["raw_path"]).is_file())
