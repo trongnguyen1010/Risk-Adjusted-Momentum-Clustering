@@ -7,9 +7,9 @@ Current branch/workstream:
 `m1-scale-500-team-crawl`
 
 Your task is to execute EXACTLY ONE DELTA stage: chính xác stage được ghi tại
-`Execution Progress / Handoff → Next allowed stage` trong Master Plan. Điều này
-bao gồm remediation substage như `A5-R1`; không suy ra B0 từ chuỗi stage tĩnh.
-Sau khi stage đó được verify, cập nhật handoff và STOP.
+`Execution Progress / Handoff → Next allowed stage` trong Master Plan; không suy ra
+B0 hoặc bất kỳ stage nào từ chuỗi stage tĩnh.
+Sau khi self-review và test stage đó, cập nhật handoff và STOP.
 
 ---
 
@@ -28,26 +28,9 @@ docs/FEATURE_SYSTEM.md
 
 Also inspect only the code/config/tests/artifacts necessary to understand the current M1 canonical market dataset and market-feature readiness.
 
-Follow `AGENTS.md` agent orchestration rules.
-
-Do not automatically spawn all agents.
-
-Use:
-
-```text
-Explorer:
-only if relevant code/artifact paths are not already clear.
-
-Implementer:
-optional; main Terra High may implement directly.
-
-Verifier:
-MANDATORY for this named DELTA stage.
-
-Auditor:
-Sol High only if verifier reports ESCALATE_TO_AUDITOR
-or genuine methodology/architecture ambiguity exists.
-```
+Follow `AGENTS.md` single-agent execution policy. Read the current
+`Execution Progress / Handoff`, identify its `Next allowed stage`, and do not
+infer a stage from this template's historical examples.
 
 ---
 
@@ -554,53 +537,22 @@ Record exact commands and outcomes in the stage report.
 
 ---
 
-# 17. Mandatory independent verification
+# 17. Mandatory self-review
 
-A1 is a named DELTA execution stage.
-
-Verification is mandatory.
-
-After implementation and artifact generation:
-
-invoke the configured `verifier` agent.
-
-Give the verifier:
+After implementation and artifact generation, self-review the exact assigned stage:
 
 ```text
-Stage A1 specification
-exact changed files
-exact artifact paths
-test results
-relevant baseline artifact IDs
+stage scope
+baseline/artifact immutability
+research and data invariants
+provenance and deterministic outcomes
+test and artifact evidence
+truthfulness of stage result and handoff
 ```
 
-The verifier must remain read-only.
-
-If verifier returns:
-
-```text
-PASS
-```
-
-continue to progress update.
-
-If verifier returns:
-
-```text
-BLOCKED
-```
-
-fix only A1 issues, rerun relevant tests/artifacts, and verify again.
-
-If verifier returns:
-
-```text
-ESCALATE_TO_AUDITOR
-```
-
-invoke the configured Sol High `auditor`.
-
-Do not use Sol otherwise.
+Fix concrete findings, rerun relevant tests/artifacts, then update progress. If a
+methodology-sensitive decision needs approval, record `MANUAL_REVIEW_REQUIRED` and
+STOP; do not silently approve or substitute a model-specific review requirement.
 
 ---
 
@@ -653,7 +605,7 @@ Key evidence:
 - <=5 missing: ...
 - <=20 missing: ...
 - theoretical max readiness: ...
-- verifier result: ...
+- self-review result: ...
 
 Unresolved blockers:
 - ...
@@ -694,8 +646,7 @@ Return a concise Vietnamese report with:
 Stage:
 Result:
 
-Verifier:
-Auditor: not used / result
+Self-review:
 
 Files changed:
 

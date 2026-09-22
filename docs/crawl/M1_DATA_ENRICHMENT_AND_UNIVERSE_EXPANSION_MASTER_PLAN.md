@@ -3,7 +3,7 @@
 > **Project:** Risk-Adjusted Momentum Clustering for Vietnamese Stocks  
 > **Scope:** M1 Data Foundation → M2 Research Dataset  
 > **Document type:** Master Execution Plan / Source of Truth  
-> **Execution model:** Plan → Implement one stage → Audit → Approve → Next stage  
+> **Execution model:** Read handoff → Implement one stage → Test → Self-review → Update handoff → Stop
 > **Core principle:** mở rộng dữ liệu mạnh nhất có thể nhưng không đánh đổi tính đúng đắn, khả năng audit và methodology.
 
 ---
@@ -35,7 +35,7 @@ Unresolved blockers:
 - CafeF historical endpoint/field/unit/price-basis contract is not approved.
 - Recovery classification and cost/yield require a deterministic near-ready multi-source pilot.
 
-Next allowed stage: A5-R1 — CafeF Contract & Endpoint Validation (only after this corrective verifier passes).
+Next allowed stage: A5-R1 — CafeF Contract & Endpoint Validation.
 
 | Stage | Status | Evidence / Run | Notes |
 |---|---|---|---|
@@ -1612,8 +1612,8 @@ Report target gaps, real rows per source, provider-published zero-volume rows, f
 contract passes, rejections, unresolved rows, securities improved, new
 Momentum252-complete securities, and market-feature-ready before/after. The existing
 20-before + 20-after rule remains fail-closed; any one-sided or corporate-action
-alternative needs explicit methodology justification, tests, versioned policy and Sol
-auditor review before it may accept a row.
+alternative needs explicit methodology justification, tests, versioned policy and
+`MANUAL_REVIEW_REQUIRED` before it may accept a row.
 
 ## A5-R3 — Full Current-500 Recovery
 
@@ -3112,9 +3112,9 @@ Where did this value come from?
 
 ---
 
-# 80. Agent Execution Contract
+# 80. Single-agent Execution Contract
 
-Every agent must:
+Every session must:
 
 ```text
 1. Read this master plan.
@@ -3123,22 +3123,22 @@ Every agent must:
 
 3. Inspect current stage inputs.
 
-4. Implement ONLY assigned stage.
+4. Identify `Next allowed stage` from Execution Progress / Handoff and implement ONLY that stage.
 
 5. Run minimal relevant tests.
 
 6. Generate required artifacts.
 
-7. Produce stage report.
+7. Self-review the stage contract, evidence, invariants and result.
 
-8. STOP.
+8. Update Execution Progress / Handoff and STOP.
 ```
 
 Agent must not automatically continue to next stage.
 
 ---
 
-# 81. Agent Must Not
+# 81. Session Must Not
 
 ```text
 change methodology
@@ -3210,18 +3210,21 @@ One of:
 ```text
 PASS
 PARTIAL
+BLOCKED
 FAIL
+DEFERRED
+MANUAL_REVIEW_REQUIRED
 ```
 
-## STOP
+## Self-review and STOP
 
-Wait for independent audit.
+Record self-review findings and update handoff. Do not automatically continue.
 
 ---
 
-# 83. Audit Contract
+# 83. Manual-review trigger
 
-Reviewer must verify:
+Before treating any methodology-sensitive proposal as approved, assess:
 
 ```text
 Did agent stay inside stage scope?
@@ -3253,95 +3256,28 @@ Did market priority only affect acquisition?
 Were unresolved issues reported honestly?
 ```
 
-Only after audit is next-stage prompt allowed.
+If approval is needed for a change to methodology, price basis, identity, expected
+sessions, PIT semantics, research eligibility, or a final freeze, mark
+`MANUAL_REVIEW_REQUIRED` and STOP. The user decides whether and how to review it.
 
 ---
 
 # 84. Official Execution Sequence
 
 ```text
-A0
-Freeze Baseline
+READ EXECUTION PROGRESS / HANDOFF
         ↓
-AUDIT
-
-A1
-Missing Session Audit
+READ NEXT ALLOWED STAGE
         ↓
-AUDIT
-
-A2
-Local Raw / Quarantine Salvage
+IMPLEMENT EXACTLY ONE STAGE
         ↓
-AUDIT
-
-A3
-Primary Provider Recovery Pilot
+RUN RELEVANT TESTS
         ↓
-AUDIT
-
-A4
-Secondary Provider Recovery Pilot
+SELF-REVIEW AGAINST STAGE CONTRACT
         ↓
-AUDIT
-
-A5
-Full Recovery Current 500
+UPDATE HANDOFF
         ↓
-AUDIT
-
-A6
-Historical Identity Recovery
-        ↓
-AUDIT
-
-B0
-Universe Candidate Discovery
-        ↓
-AUDIT
-
-B1
-Market Priority Ranking
-        ↓
-AUDIT
-
-B2
-Expansion Source Smoke
-        ↓
-AUDIT
-
-B3
-Representative Expansion Pilot
-        ↓
-AUDIT
-
-B4
-Scale Total Universe to ~1,000
-        ↓
-AUDIT
-
-B5
-Optional Scale to 1,200+
-        ↓
-AUDIT
-
-CANONICAL
-Generate Enriched Canonical v2
-        ↓
-AUDIT
-
-FEATURES
-Recompute Features
-        ↓
-AUDIT
-
-EDA
-Run Expanded EDA
-        ↓
-AUDIT
-
-SAMPLE
-Freeze M2 Research Sample
+STOP
 ```
 
 ---
@@ -3814,11 +3750,11 @@ Never reverse this order only to increase ticker count.
 
 ---
 
-# 101. Final Agent Instruction
+# 101. Final Session Instruction
 
 This document is the authoritative master plan.
 
-Agents must never execute the entire initiative in a single task.
+One session must never execute the entire initiative in a single task.
 
 Every future task will explicitly specify one stage.
 
@@ -3827,19 +3763,21 @@ Execution pattern:
 ```text
 READ MASTER PLAN
 ↓
-READ CURRENT TASK
+READ CURRENT HANDOFF
 ↓
-IMPLEMENT ONLY ASSIGNED STAGE
+READ NEXT ALLOWED STAGE
+↓
+IMPLEMENT ONLY THAT STAGE
 ↓
 RUN RELEVANT TESTS
+↓
+SELF-REVIEW
 ↓
 GENERATE ARTIFACTS
 ↓
 REPORT EVIDENCE
 ↓
 STOP
-↓
-WAIT FOR AUDIT
 ```
 
-Only after audit may the next stage begin.
+Only the current Handoff may identify a subsequent stage.

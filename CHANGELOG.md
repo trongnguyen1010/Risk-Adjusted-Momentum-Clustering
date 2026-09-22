@@ -1,5 +1,7 @@
 # Chưa phát hành — REPRESENTATIVE_PILOT readiness (2026-09-16)
 
+- Tạm thời gỡ repository-level multi-agent Codex orchestration. DELTA dùng single-agent session do người dùng chọn model, self-review và one-stage execution.
+
 - Corrective A5 recovery semantics: CafeF ratio `MATCH` chỉ là diagnostic evidence, không phải canonical acceptance. CafeF OHLC/price-basis contract vẫn fail-closed; cấm zero-return/forward-fill/previous-close/missing-to-zero và không canonical-mutate baseline. A5 chuyển sang remediation gate A5-R1 trước khi B0 được phép bắt đầu.
 
 - Sửa M1 correctness semantics: feature snapshot 1.5 tách feature completeness, market-feature readiness, historical-identity readiness và strict research readiness; identity `provisional` vẫn hiển thị/fail historical research nhưng không tự làm market feature false. M1 QC đổi “usable 3y/5y” thành observed span, thêm session-density/reason distributions và chọn latest completed month (không coi partial 15/09 là month-end). Bỏ implementation-only gate >=300 same-date complete features vì frozen requirement là >=300 collected long-history securities; research sample-size/density policy giữ `UNRESOLVED`, identity/financial PIT tiếp tục fail-closed. Raw/candidate/legacy artifacts không bị sửa và offline regeneration có `network_requests=0`.

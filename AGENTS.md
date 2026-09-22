@@ -37,7 +37,7 @@
 
 ## Testing requirements
 
-- Trước và sau mỗi phase: `python -m unittest discover -s tests -v` và `python -m compileall -q src tests scripts run.py`.
+- Chạy targeted tests cho subsystem bị ảnh hưởng và `python -m compileall -q src tests scripts run.py`. Chạy full repository gate khi stage hoặc thay đổi code/data/research warrant; tránh lặp full suite khi chỉ sửa documentation/configuration.
 - Thay pipeline phải chạy `configs/data/synthetic_smoke.example.json`; source smoke template phải tiếp tục fail-closed. Thay web phải chạy `node --check web/app.js`.
 - Giữ và migrate assertion cũ. Không xóa/giảm test để làm migration pass.
 - Kiểm tra import cũ, JSON config/schema và Markdown link trước khi xóa file superseded.
@@ -53,110 +53,43 @@
 
 Không hard-code feature validity bằng prefix; không sinh Sharpe trong active feature snapshot; không duplicate metrics trong model; không đặt placeholder thành kết quả; không crawl lớn trước source/pilot gates; không bypass login/anti-bot/paywall/access control; không thêm microservice, broker, Kubernetes, auth/news/sentiment/database migration ngoài active milestone.
 
-## Agent orchestration and usage policy
+## Single-agent execution policy
 
-Main/default model: GPT-5.6 Terra High
-
-Default spawned agent: GPT-5.6 Terra High
-
-Main agent là orchestrator. Với mỗi task, dùng routing sau:
+DELTA currently uses a single-agent execution workflow. Người dùng tự chọn model cho
+mỗi Codex session theo độ khó; repository không prescribe hoặc pin model.
 
 ```text
 UNDERSTAND TASK
         ↓
 READ ONLY NECESSARY CONTEXT
         ↓
-CAN MAIN AGENT SAFELY DO IT?
-        │
-        ├── YES → do it directly
-        │           ↓
-        │     NAMED DELTA STAGE?
-        │           │
-        │           ├── YES → verifier
-        │           └── NO  → STOP
-        │
-        └── NO
-             ↓
-      NEED CODEBASE DISCOVERY?
-        │
-        ├── YES → explorer
-        └── NO  → skip explorer
-             ↓
-         implementer
-             ↓
-          verifier
-             ↓
-     methodology ambiguity?
-        │
-        ├── NO → STOP
-        └── YES
-             ↓
-          auditor
-             ↓
-            STOP
-```
-
-Usage-efficiency rules:
-
-1. Không spawn subagent nếu main Terra High agent có thể hoàn thành task an toàn.
-2. Với mọi named DELTA execution stage (A0–A6, B0–B5, Canonical Enriched v2,
-   Feature Rebuild, Expanded EDA, Freeze M2 Sample), verification là bắt buộc
-   kể cả khi main agent tự thực hiện implementation.
-   Implementer subagent là optional; verifier thì không optional.
-3. Không tự động spawn toàn bộ roles.
-4. Explorer là optional và phải bỏ qua khi đã biết file hoặc symbol liên quan.
-5. Không yêu cầu hai agent độc lập giải cùng một implementation problem trừ khi cần independent verification rõ ràng.
-6. Tránh để nhiều agent đọc lại toàn bộ repository.
-7. Parent agent nên hand off exact stage spec, exact paths và relevant context khi có thể.
-8. Mỗi cycle chỉ một implementation stage.
-9. Implementer phải STOP sau stage được giao.
-10. Verifier read-only và không được âm thầm sửa implementation.
-11. Auditor chỉ dùng để escalation.
-12. Không dùng Sol cho ordinary coding, boilerplate, docs updates, test writing hoặc routine verification.
-13. Giữ concurrency thấp; workflow bình thường chỉ có tối đa một active implementation path.
-14. Không poll local crawl dài bằng agents.
-15. Crawl dài chạy local và review từ artifacts/logs tạo ra.
-16. Preserve evidence thay vì repeatedly recomputing expensive work.
-
-Auditor (Sol) normally chỉ được gọi khi có ít nhất một điều kiện sau:
-
-```text
-methodology changed
-research invariant touched
-canonical semantics changed
-expected-session semantics ambiguous
-historical identity semantics changed
-financial PIT logic changed
-price-basis reconciliation changed
-unit/reconciliation policy changed
-research eligibility changed
-M2 methodology decision
-final canonical freeze
-final research sample freeze
-large cross-module architecture change
-unexpected regression with unclear cause
-tests and generated research evidence disagree
-an implementation proposes weakening the 100% observation rule
-```
-
-Routine implementation không yêu cầu Sol.
-
-DELTA stage workflow:
-
-```text
-MASTER PLAN
-    ↓
-ONE STAGE
-    ↓
-IMPLEMENT
-    ↓
-VERIFY
-    ↓
-AUDIT ONLY IF NECESSARY
-    ↓
-REPORT
-    ↓
+IDENTIFY EXACT CURRENT STAGE
+        ↓
+IMPLEMENT ONLY THAT STAGE
+        ↓
+RUN RELEVANT TESTS
+        ↓
+SELF-REVIEW AGAINST THE STAGE CONTRACT
+        ↓
+UPDATE EXECUTION PROGRESS / HANDOFF
+        ↓
 STOP
 ```
 
-Không tự động tiếp tục sang DELTA stage kế tiếp.
+Rules:
+
+1. Chỉ thực hiện một DELTA stage mỗi session, trừ khi người dùng yêu cầu rõ khác đi.
+2. Không tự động tiếp tục sang stage kế tiếp.
+3. Không spawn hoặc delegate cho subagent.
+4. Không đọc lại toàn repository khi đã biết exact path.
+5. Tránh phân tích trùng lặp hoặc implementation thay thế khi không cần thiết.
+6. Preserve evidence thay vì recompute expensive work.
+7. Long crawl chạy local; không continuously poll.
+8. Self-review là bắt buộc trước khi đánh dấu stage complete.
+9. Evidence, tests và artifacts quyết định `PASS`/`PARTIAL`/`BLOCKED`/`FAIL`, không phải code existence.
+
+Nếu stage đề xuất thay đổi methodology-sensitive — gồm nới 100% observation rule,
+price-basis acceptance, inferred provider transformation, expected-session semantics,
+historical identity, financial PIT, research eligibility, M2 methodology, hoặc final
+canonical/research-sample freeze — phải ghi rõ `MANUAL_REVIEW_REQUIRED` và STOP khi
+cần approval. Người dùng quyết định model hoặc cách review; repository không pin model.
