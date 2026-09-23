@@ -9,6 +9,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "src"))
+
+from delta_t1.ingestion.sources.cafef import PRICE_HISTORY_ENDPOINT
 
 
 def _load(name, relative_path):
@@ -36,8 +39,9 @@ class FakeClient:
         item = self.responses[min(self.calls - 1, len(self.responses) - 1)]
         if isinstance(item, Exception):
             raise item
-        status, body = item
-        return RUNNER.HttpResponse(status, {}, body, f"{url}?fake={self.calls}")
+        status, body, *optional_headers = item
+        headers = optional_headers[0] if optional_headers else {}
+        return RUNNER.HttpResponse(status, headers, body, f"{url}?fake={self.calls}")
 
 
 RAW_BODY = json.dumps({
@@ -56,8 +60,14 @@ class CafeFC1SoloPlanTests(unittest.TestCase):
         self.assertEqual(list(range(1, 28)), [int(row["execution_order"]) for row in rows])
         self.assertEqual("CAFEF_C1_SOLO_PRIORITY_V2", manifest["priority_policy"])
         self.assertEqual("2026-09-23", contract["collection_end_date"])
-        self.assertEqual("CAFEF_C1_SOLO_RAW_CONTRACT_V2_1", contract["contract_version"])
+        self.assertEqual("CAFEF_C1_SOLO_RAW_CONTRACT_V2_2", contract["contract_version"])
         self.assertTrue(all(RUNNER.identity_request_segments(row) for row in rows))
+
+    def test_active_endpoint_matches_verified_adapter_contract(self):
+        _rows, _manifest, contract, _failure, _resume = RUNNER.load_frozen_plan(PLAN_DIR)
+        expected = "https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx"
+        self.assertEqual(expected, PRICE_HISTORY_ENDPOINT)
+        self.assertEqual(PRICE_HISTORY_ENDPOINT, contract["request_surface"]["base_url"])
 
     def test_planner_outputs_are_byte_deterministic(self):
         first = ROOT / "tmp/cafef_c1_solo_deterministic_first"
@@ -202,6 +212,29 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         )
         return run_dir, client
 
+    def _run_rejected(self, run_id, body, expected_exception=RUNNER.RunnerError, status=200):
+        client = FakeClient([(status, body, {"Content-Type": "application/json; charset=utf-8"})])
+        with self.assertRaises(expected_exception):
+            RUNNER.run_solo(
+                plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
+                run_id=run_id, max_requests=1, only_ticker="FPT", client=client,
+                sleep=lambda _seconds: None, now=self.now,
+            )
+        run_dir = self.artifact_root / run_id
+        evidence = [
+            path for path in (run_dir / "failure_raw").rglob("*.json")
+            if not path.name.endswith(".meta.json")
+        ]
+        self.assertEqual(1, len(evidence))
+        self.assertEqual(body, evidence[0].read_bytes())
+        metadata = json.loads(RUNNER.metadata_output_path(evidence[0]).read_text(encoding="utf-8"))
+        self.assertEqual("REJECTED", metadata["semantic_status"])
+        self.assertEqual("application/json; charset=utf-8", metadata["response_content_type"])
+        self.assertEqual(RUNNER.sha256_bytes(body), metadata["sha256"])
+        progress = json.loads((run_dir / "progress.json").read_text(encoding="utf-8"))
+        self.assertEqual({}, progress["completed"])
+        return run_dir, client, metadata
+
     def test_refuses_without_execute(self):
         with self.assertRaisesRegex(RUNNER.RunnerError, "--execute"):
             RUNNER.run_solo(plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=False)
@@ -214,6 +247,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         self.assertIn(b"GiaDieuChinh", raw_files[0].read_bytes())
         self.assertFalse((run_dir / "canonical").exists())
         self.assertFalse((run_dir / "features").exists())
+        self.assertFalse((run_dir / "failure_raw").exists())
         entry = json.loads((run_dir / "request_log.jsonl").read_text(encoding="utf-8").splitlines()[0])
         self.assertEqual("HOSE", entry["exchange"])
         self.assertEqual("HOSE", entry["request_params"]["ExchangeType"])
@@ -269,6 +303,12 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
                 progress = json.loads((self.artifact_root / run_id / "progress.json").read_text(encoding="utf-8"))
                 self.assertEqual("STOPPED_ACCESS_CONTROL", progress["status"])
                 self.assertEqual(1, client.calls)
+                evidence = [
+                    path for path in (self.artifact_root / run_id / "failure_raw").rglob("*.json")
+                    if not path.name.endswith(".meta.json")
+                ]
+                self.assertEqual(1, len(evidence))
+                self.assertEqual(b"Access denied", evidence[0].read_bytes())
 
     def test_live_request_builder_sends_literal_exchange_labels(self):
         for ticker, exchange in (("FPT", "HOSE"), ("PVS", "HNX"), ("ACV", "UPCOM")):
@@ -295,29 +335,37 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
 
     def test_invalid_success_is_not_saved_as_completed_raw(self):
         invalid = json.dumps({"Success": False, "Data": {"Data": [], "TotalCount": 0}}).encode()
-        with self.assertRaisesRegex(RUNNER.RunnerError, "Success=true"):
-            RUNNER.run_solo(
-                plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-                run_id="invalid-success", max_requests=1, only_ticker="FPT",
-                client=FakeClient([(200, invalid)]), sleep=lambda _seconds: None, now=self.now,
-            )
-        run_dir = self.artifact_root / "invalid-success"
+        run_dir, _client, metadata = self._run_rejected("invalid-success", invalid)
         self.assertFalse((run_dir / "raw").exists())
         progress = json.loads((run_dir / "progress.json").read_text(encoding="utf-8"))
         self.assertEqual({}, progress["completed"])
+        self.assertEqual("REJECTED", metadata["semantic_status"])
+
+    def test_malformed_json_is_preserved_as_failure_evidence(self):
+        run_dir, _client, _metadata = self._run_rejected("malformed-json", b"{not-json")
+        progress = json.loads((run_dir / "progress.json").read_text(encoding="utf-8"))
+        self.assertEqual("FAILED", progress["status"])
+
+    def test_invalid_total_count_is_preserved_as_failure_evidence(self):
+        invalid = json.dumps({"Success": True, "Data": {"Data": [], "TotalCount": -1}}).encode()
+        self._run_rejected("invalid-total-count", invalid)
+
+    def test_invalid_ngay_is_preserved_as_failure_evidence(self):
+        invalid = json.dumps({
+            "Success": True,
+            "Data": {"Data": [{"Ngay": "2026-09-23"}], "TotalCount": 1},
+        }).encode()
+        self._run_rejected("invalid-ngay", invalid)
 
     def test_positive_total_with_empty_page_fails_closed(self):
         invalid = json.dumps({"Success": True, "Data": {"Data": [], "TotalCount": 1}}).encode()
-        with self.assertRaisesRegex(RUNNER.RunnerError, "empty page"):
-            RUNNER.run_solo(
-                plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-                run_id="invalid-empty-page", max_requests=1, only_ticker="FPT",
-                client=FakeClient([(200, invalid)]), sleep=lambda _seconds: None, now=self.now,
-            )
-        self.assertFalse((self.artifact_root / "invalid-empty-page/raw").exists())
+        run_dir, _client, _metadata = self._run_rejected("invalid-empty-page", invalid)
+        self.assertFalse((run_dir / "raw").exists())
 
     def test_transient_retry_is_bounded(self):
-        client = FakeClient([(503, b"temporary"), (503, b"temporary")])
+        first = b"temporary-one"
+        final = b"temporary-final"
+        client = FakeClient([(503, first), (503, final)])
         with self.assertRaises(RUNNER.TransientRequestError):
             RUNNER.run_solo(
                 plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
@@ -325,6 +373,42 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
                 sleep=lambda _seconds: None, now=self.now,
             )
         self.assertEqual(2, client.calls)
+        run_dir = self.artifact_root / "bounded-retry"
+        evidence = [
+            path for path in (run_dir / "failure_raw").rglob("*.json")
+            if not path.name.endswith(".meta.json")
+        ]
+        self.assertEqual(1, len(evidence))
+        self.assertEqual(final, evidence[0].read_bytes())
+        metadata = json.loads(RUNNER.metadata_output_path(evidence[0]).read_text(encoding="utf-8"))
+        self.assertEqual(2, metadata["attempts"])
+
+    def test_transport_failure_does_not_fabricate_response_file(self):
+        client = FakeClient([RUNNER.TransientRequestError("connection failed")])
+        with self.assertRaises(RUNNER.TransientRequestError):
+            RUNNER.run_solo(
+                plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
+                run_id="transport-failure", max_requests=1, only_ticker="FPT", client=client,
+                sleep=lambda _seconds: None, now=self.now,
+            )
+        run_dir = self.artifact_root / "transport-failure"
+        self.assertEqual(2, client.calls)
+        self.assertFalse((run_dir / "failure_raw").exists())
+        failure = json.loads((run_dir / "failures.jsonl").read_text(encoding="utf-8").splitlines()[0])
+        self.assertEqual("TransientRequestError", failure["error_type"])
+
+    def test_failed_request_is_retried_on_resume_not_skipped(self):
+        invalid = json.dumps({"Success": False, "Data": {"Data": [], "TotalCount": 0}}).encode()
+        run_dir, _client, _metadata = self._run_rejected("resume-failed", invalid)
+        resumed_client = FakeClient([(200, RAW_BODY)])
+        RUNNER.run_solo(
+            plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
+            resume=True, run_id=run_dir.name, max_requests=1, only_ticker="FPT",
+            client=resumed_client, sleep=lambda _seconds: None, now=self.now,
+        )
+        self.assertEqual(1, resumed_client.calls)
+        progress = json.loads((run_dir / "progress.json").read_text(encoding="utf-8"))
+        self.assertEqual(1, len(progress["completed"]))
 
     def test_duplicate_untracked_raw_is_not_overwritten(self):
         rows, manifest, contract, _failure, _resume = RUNNER.load_frozen_plan(PLAN_DIR)

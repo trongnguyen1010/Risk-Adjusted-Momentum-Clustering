@@ -7,7 +7,7 @@ branch: m1-cafef-primary-experiment
 forked_from_branch: m1-scale-500-team-crawl
 fork_base_commit: e886f68875fb5c079e57c9b51cae9e6bf5a8047b
 current_experiment: CafeF Primary Data Foundation Experiment
-last_completed_stage: C1-SOLO-RUNNER-FIX
+last_completed_stage: C1-SOLO-FINAL-CLEANUP
 c0_result: COMPLETED / USER_APPROVED
 c1_prep_v1_status: SUPERSEDED / HISTORICAL_ONLY
 c1_execution_model: SINGLE_LOCAL_RUNNER
@@ -20,15 +20,20 @@ c1_actual_crawl_executed: NO
 data_crawl_executed: NO
 market_data_requests_for_experiment: 0
 market_data_requests_in_corrective_stage: 0
+actual_market_data_requests: 0
+actual_crawl_executed: NO
 c1_solo_runner_contract_corrected: YES
 exchange_type_contract_aligned: YES
 historical_identity_interval_routing: YES
 envelope_success_validation: YES
+verified_pricehistory_endpoint_aligned: YES
+failed_response_evidence_preserved: YES
 canonical_mutation: NO
+canonical_mutations: 0
 feature_rebuild: NO
 five_worker_execution: DEFERRED_TO_C4_PREP_SCALE
 why: C1-PREP v1 was preserved as history; the active representative pilot now uses one frozen resumable local run
-next_allowed_action: USER MANUAL REVIEW OF CORRECTED C1-SOLO RUNNER
+next_allowed_action: USER MANUAL REVIEW BEFORE C1-SOLO EXECUTION
 after_explicit_user_approval: USER MAY RUN C1-SOLO LOCALLY
 c1_prep_solo_crawl_execution: NO
 user_manual_review_required: YES
@@ -420,7 +425,7 @@ C0 không chọn outcome.
 ## 17. Current status / Handoff
 
 ```yaml
-stage: C1-SOLO-RUNNER-FIX
+stage: C1-SOLO-FINAL-CLEANUP
 status: COMPLETED / USER_MANUAL_REVIEW_REQUIRED
 documents:
   - docs/crawl/CAFEF_PRIMARY_EXPERIMENT_PLAN.md
@@ -433,10 +438,14 @@ solo_runner: scripts/run_cafef_c1_solo.py
 execution_model: SINGLE_LOCAL_RUNNER
 data_crawl_executed: NO
 market_data_requests_for_experiment: 0
+actual_market_data_requests: 0
+actual_crawl_executed: NO
 c1_solo_runner_contract_corrected: YES
 exchange_type_contract_aligned: YES
 historical_identity_interval_routing: YES
 envelope_success_validation: YES
+verified_pricehistory_endpoint_aligned: YES
+failed_response_evidence_preserved: YES
 canonical_mutations: 0
 feature_rebuild: NO
 five_worker_execution: DEFERRED_TO_C4_PREP_SCALE
@@ -445,11 +454,11 @@ parallel_requests: NO
 collection_end_date: 2026-09-23
 history_policy: FULL_AVAILABLE_UP_TO_MAX_15Y
 priority_policy: CAFEF_C1_SOLO_PRIORITY_V2
-next_allowed_action: USER MANUAL REVIEW OF CORRECTED C1-SOLO RUNNER
+next_allowed_action: USER MANUAL REVIEW BEFORE C1-SOLO EXECUTION
 forbidden_until_explicit_approval:
   - any crawl
   - C1-SOLO
 after_explicit_user_approval: USER MAY RUN C1-SOLO LOCALLY
 ```
 
-STOP after C1-SOLO-RUNNER-FIX. Do not execute C1-SOLO without explicit user approval.
+STOP after C1-SOLO-FINAL-CLEANUP. Do not execute C1-SOLO without explicit user approval.

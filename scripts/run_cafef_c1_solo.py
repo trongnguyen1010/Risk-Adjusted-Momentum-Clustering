@@ -42,11 +42,14 @@ class RunnerError(RuntimeError):
     pass
 
 
-class AccessControlStop(RunnerError):
-    pass
+class ReceivedResponseError(RunnerError):
+    def __init__(self, message: str, *, response: HttpResponse | None = None, attempts: int | None = None):
+        super().__init__(message)
+        self.response = response
+        self.attempts = attempts
 
 
-class TransientRequestError(RunnerError):
+class AccessControlStop(ReceivedResponseError):
     pass
 
 
@@ -56,6 +59,14 @@ class HttpResponse:
     headers: dict[str, str]
     body: bytes
     url: str
+
+
+class TransientRequestError(ReceivedResponseError):
+    pass
+
+
+class HttpResponseRejected(ReceivedResponseError):
+    pass
 
 
 class UrlLibClient:
@@ -78,6 +89,8 @@ class UrlLibClient:
                 )
         except urllib.error.HTTPError as exc:
             body = exc.read(max_bytes + 1)
+            if len(body) > max_bytes:
+                raise RunnerError("response exceeds frozen maximum_response_bytes")
             return HttpResponse(int(exc.code), dict(exc.headers.items()), body, full_url)
         except (urllib.error.URLError, TimeoutError) as exc:
             raise TransientRequestError(str(exc)) from exc
@@ -101,7 +114,7 @@ def stable_json_bytes(value: object) -> bytes:
 
 def atomic_write(path: Path, data: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    fd, name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    fd, name = tempfile.mkstemp(prefix=".tmp.", dir=path.parent)
     try:
         with os.fdopen(fd, "wb") as stream:
             stream.write(data)
@@ -240,6 +253,89 @@ def metadata_output_path(raw_path: Path) -> Path:
     return raw_path.with_suffix(".meta.json")
 
 
+def failure_raw_output_path(
+    run_dir: Path,
+    ticker: str,
+    exchange: str,
+    interval_effective_from: date,
+    interval_effective_to: date | None,
+    start: date,
+    end: date,
+    page: int,
+    digest: str,
+) -> Path:
+    interval_label = f"identity_{interval_effective_from.isoformat()}_{interval_effective_to.isoformat() if interval_effective_to else 'OPEN'}"
+    return (
+        run_dir / "failure_raw" / ticker / exchange / interval_label
+        / f"{start.isoformat()}_{end.isoformat()}" / f"page_{page:04d}_{digest[:16]}.json"
+    )
+
+
+def _response_content_type(response: HttpResponse) -> str | None:
+    return next((value for key, value in response.headers.items() if key.lower() == "content-type"), None)
+
+
+def _preserve_failed_response(
+    *,
+    run_dir: Path,
+    row: dict[str, str],
+    segment: dict,
+    start: date,
+    end: date,
+    page: int,
+    page_size: int,
+    key: str,
+    params: dict[str, str],
+    response: HttpResponse,
+    attempts: int | None,
+    contract_version: str,
+    error: Exception,
+    fetched_at: str,
+) -> dict:
+    digest = sha256_bytes(response.body)
+    evidence_path = failure_raw_output_path(
+        run_dir, segment["ticker"], segment["exchange"],
+        segment["interval_effective_from"], segment["interval_effective_to"],
+        start, end, page, digest,
+    )
+    if evidence_path.exists():
+        if sha256_file(evidence_path) != digest:
+            raise RunnerError(f"refusing to overwrite different failure evidence: {evidence_path}")
+    else:
+        atomic_write(evidence_path, response.body)
+    entry = {
+        "request_key": key,
+        "security_id": row["security_id"],
+        "ticker": segment["ticker"],
+        "exchange": segment["exchange"],
+        "identity_interval_effective_from": segment["interval_effective_from"].isoformat(),
+        "identity_interval_effective_to": segment["interval_effective_to"].isoformat() if segment["interval_effective_to"] else None,
+        "requested_start": start.isoformat(),
+        "requested_end": end.isoformat(),
+        "page": page,
+        "page_size": page_size,
+        "request_url": response.url,
+        "request_params": params,
+        "http_status": response.status,
+        "response_content_type": _response_content_type(response),
+        "fetched_at": fetched_at,
+        "byte_size": len(response.body),
+        "sha256": digest,
+        "failure_raw_path": evidence_path.relative_to(run_dir).as_posix(),
+        "error_type": type(error).__name__,
+        "error_message": str(error),
+        "contract_version": contract_version,
+        "semantic_status": "REJECTED",
+        "attempts": attempts,
+        "access_control_stop": isinstance(error, AccessControlStop),
+    }
+    sidecar_path = metadata_output_path(evidence_path)
+    if not sidecar_path.exists():
+        atomic_write(sidecar_path, stable_json_bytes(entry))
+    append_jsonl(run_dir / "failures.jsonl", entry)
+    return entry
+
+
 def request_key(row: dict[str, str], segment: dict, start: date, end: date, page: int) -> str:
     interval_end = segment["interval_effective_to"].isoformat() if segment["interval_effective_to"] else "OPEN"
     return "|".join([
@@ -346,11 +442,13 @@ def _request_with_retry(
             response = client.get(url, params, float(policy["timeout_seconds"]), int(policy["maximum_response_bytes"]))
             access_reason = _access_control_reason(response, contract)
             if access_reason:
-                raise AccessControlStop(access_reason)
+                raise AccessControlStop(access_reason, response=response, attempts=attempt)
             if response.status in retryable_status:
-                raise TransientRequestError(f"HTTP_{response.status}")
+                raise TransientRequestError(f"HTTP_{response.status}", response=response, attempts=attempt)
             if response.status != 200:
-                raise RunnerError(f"non-success HTTP status {response.status}")
+                raise HttpResponseRejected(
+                    f"non-success HTTP status {response.status}", response=response, attempts=attempt
+                )
             return response, attempt
         except AccessControlStop:
             raise
@@ -360,7 +458,12 @@ def _request_with_retry(
                 break
             backoffs = policy["transient_backoff_seconds"]
             sleep(float(backoffs[min(attempt - 1, len(backoffs) - 1)]))
-    raise TransientRequestError(f"bounded retry exhausted after {attempts} attempts: {last_error}")
+    final_response = last_error.response if isinstance(last_error, ReceivedResponseError) else None
+    raise TransientRequestError(
+        f"bounded retry exhausted after {attempts} attempts: {last_error}",
+        response=final_response,
+        attempts=attempts,
+    )
 
 
 def _new_run_id(plan_hash: str, now: datetime) -> str:
@@ -459,11 +562,13 @@ def run_solo(
     requests_this_invocation = 0
     interval = float(contract["request_policy"]["minimum_request_interval_seconds"])
     last_request_at: float | None = None
+    failure_evidence: dict | None = None
     try:
         for row in rows:
             for segment, range_start, range_end in iter_identity_calendar_ranges(row):
                 page = 1
                 expected_pages: int | None = None
+                expected_total_count: int | None = None
                 seen_dates: set[str] = set()
                 while expected_pages is None or page <= expected_pages:
                     if max_requests is not None and requests_this_invocation >= max_requests:
@@ -477,6 +582,7 @@ def run_solo(
                             raise RunnerError(f"completed raw checksum invalid: {key}")
                         seen_dates.update(prior.get("row_dates", []))
                         expected_pages = int(prior["expected_pages"])
+                        expected_total_count = int(prior["total_count"])
                         page += 1
                         continue
                     raw_path = raw_output_path(
@@ -498,6 +604,7 @@ def run_solo(
                         atomic_write(run_dir / "progress.json", stable_json_bytes(progress))
                         seen_dates.update(recovered.get("row_dates", []))
                         expected_pages = int(recovered["expected_pages"])
+                        expected_total_count = int(recovered["total_count"])
                         page += 1
                         continue
                     if last_request_at is not None:
@@ -506,18 +613,44 @@ def run_solo(
                         segment, range_start, range_end, page,
                         int(contract["request_surface"]["page_size"]),
                     )
-                    response, attempts = _request_with_retry(http, contract["request_surface"]["base_url"], params, contract, sleep)
-                    last_request_at = time.monotonic()
-                    requests_this_invocation += 1
-                    rows_data, total_count = _parse_envelope(response.body)
-                    if len(rows_data) > int(contract["request_surface"]["page_size"]):
-                        raise RunnerError("PriceHistory response exceeds frozen page_size")
-                    diagnostics = _row_diagnostics(rows_data, range_start, range_end, seen_dates)
-                    expected_pages = (total_count + int(contract["request_surface"]["page_size"]) - 1) // int(contract["request_surface"]["page_size"])
-                    if total_count > 0 and not rows_data and page <= expected_pages:
-                        raise RunnerError("PriceHistory returned an empty page inside the validated page range")
-                    if expected_pages > int(contract["request_surface"]["max_pages_per_range"]):
-                        raise RunnerError("validated TotalCount exceeds frozen max_pages_per_range")
+                    response: HttpResponse | None = None
+                    attempts: int | None = None
+                    failure_evidence = None
+                    try:
+                        response, attempts = _request_with_retry(
+                            http, contract["request_surface"]["base_url"], params, contract, sleep
+                        )
+                        last_request_at = time.monotonic()
+                        requests_this_invocation += 1
+                        rows_data, total_count = _parse_envelope(response.body)
+                        if len(rows_data) > int(contract["request_surface"]["page_size"]):
+                            raise RunnerError("PriceHistory response exceeds frozen page_size")
+                        if expected_total_count is not None and total_count != expected_total_count:
+                            raise RunnerError("PriceHistory TotalCount changed within a paginated range")
+                        diagnostics = _row_diagnostics(rows_data, range_start, range_end, seen_dates)
+                        expected_pages = (total_count + int(contract["request_surface"]["page_size"]) - 1) // int(contract["request_surface"]["page_size"])
+                        expected_total_count = total_count
+                        if total_count > 0 and not rows_data and page <= expected_pages:
+                            raise RunnerError("PriceHistory returned an empty page inside the validated page range")
+                        if expected_pages > int(contract["request_surface"]["max_pages_per_range"]):
+                            raise RunnerError("validated TotalCount exceeds frozen max_pages_per_range")
+                    except Exception as request_error:
+                        rejected_response = response
+                        rejected_attempts = attempts
+                        if isinstance(request_error, ReceivedResponseError):
+                            rejected_response = rejected_response or request_error.response
+                            rejected_attempts = rejected_attempts or request_error.attempts
+                        if rejected_response is not None:
+                            failure_evidence = _preserve_failed_response(
+                                run_dir=run_dir, row=row, segment=segment,
+                                start=range_start, end=range_end, page=page,
+                                page_size=int(contract["request_surface"]["page_size"]),
+                                key=key, params=params, response=rejected_response,
+                                attempts=rejected_attempts,
+                                contract_version=contract["contract_version"],
+                                error=request_error, fetched_at=now().isoformat(),
+                            )
+                        raise
                     atomic_write(raw_path, response.body)
                     digest = sha256_bytes(response.body)
                     relative = raw_path.relative_to(run_dir).as_posix()
@@ -561,13 +694,14 @@ def run_solo(
         atomic_write(run_dir / "manifest.json", stable_json_bytes(identity))
         return run_dir
     except Exception as exc:
-        failure = {
-            "failed_at": now().isoformat(),
-            "error_type": type(exc).__name__,
-            "message": str(exc),
-            "access_control_stop": isinstance(exc, AccessControlStop),
-        }
-        append_jsonl(run_dir / "failures.jsonl", failure)
+        if failure_evidence is None:
+            failure = {
+                "failed_at": now().isoformat(),
+                "error_type": type(exc).__name__,
+                "message": str(exc),
+                "access_control_stop": isinstance(exc, AccessControlStop),
+            }
+            append_jsonl(run_dir / "failures.jsonl", failure)
         progress["status"] = "STOPPED_ACCESS_CONTROL" if isinstance(exc, AccessControlStop) else "FAILED"
         atomic_write(run_dir / "progress.json", stable_json_bytes(progress))
         raise
