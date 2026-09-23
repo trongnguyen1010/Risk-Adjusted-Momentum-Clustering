@@ -10,15 +10,15 @@
 
 ## Execution Progress / Handoff
 
-Last updated: 2026-09-23 (A5-R1 contract validation)
+Last updated: 2026-09-23 (A5-R1.1 CafeF deep discovery)
 Branch: `m1-scale-500-team-crawl`
-Base commit: `6c4187546615603ed4ae1e4c0a337d8ff2a758e3`
+Reference HEAD: `d424de63d2cfe1197e9f3c96a505e3d17b8723f2`
 
 Current initiative: M1 Data Enrichment & Universe Expansion
-Last completed stage: A5-R1 CafeF Contract & Endpoint Validation
+Last completed stage: A5-R1.1 CafeF Deep Discovery & Evidence Expansion
 Stage result: `PARTIAL / MANUAL_REVIEW_REQUIRED`
 
-Latest run/artifact: `m1-a5-r1-cafef-contract-20260922T174031Z-35a27f92`
+Latest run/artifact: `m1-a5-r1-1-cafef-deep-discovery-20260922T185753Z-326612f7`
 
 Key evidence:
 
@@ -28,21 +28,31 @@ Key evidence:
 - A4 executed: 9 CafeF provider rows have diagnostic ratio matches, but remain non-promotable pending field/price-basis contract.
 - A5-R1 executed 11 bounded public CafeF requests across HOSE/HNX/UPCOM, an older corporate-action window, page 2, an explicit provider-published zero-volume row and invalid tickers.
 - `TradeHistoryNew.ashx` and `DataHistory/PriceHistory.ashx` are complementary, not equivalent. Field names/units/date behavior are versioned in `cafef-a5-r1-contract-1.0.0`.
-- Price-basis result remains `DIAGNOSTIC_ONLY`: CafeF adjusted values are not demonstrably equivalent to the current KBS/canonical `vendor_adjusted` basis, and no multiplier or transformation is approved.
+- A5-R1.1 used Computer Use plus 47 bounded public requests in total (45 immutable raw responses in the final artifact and two schema-confirmation GETs) across FPT, VNM, VCB, PVS, ACV, HND and KHP.
+- Sample market history returned January-2020 rows across HOSE/HNX/UPCOM. This is a 5+ year signal for the sample, not a current-500 completeness claim.
+- Price-basis result remains `DIAGNOSTIC_ONLY`: CafeF adjusted values are not demonstrably equivalent to the current KBS/canonical `vendor_adjusted` basis, and no multiplier or transformation is approved. `PRICE_BASIS_UNRESOLVED` remains in force.
+- Financial BS/IS summary history is substantial in the five-company probe (44–86 quarterly periods and 14–21 annual periods). Cash Flow is visible in the UI, but the live `reportType=LCTT` summary request returned an empty payload for every sample.
+- CafeF document rows expose document IDs, scope and audit/review labels, including same-period initial/reviewed documents. They do not expose verified first-public time, timezone, supersession, or a stable fact-to-document join.
+- Financial conclusions are separate: `FINANCIAL_DATA_AVAILABILITY=PARTIAL`, `FINANCIAL_HISTORY_COVERAGE=SAMPLE_ONLY`, `FINANCIAL_PIT_READINESS=NOT_READY`; historical facts remain excluded from research/backtest.
+- Corporate-action, first-trading-date/current-capital and HOSE holiday-notice evidence is useful with limitations; no complete historical capital/status series or price transform is approved.
 - CafeF rows remain non-promotable; canonical mutations, synthetic rows and imputed rows are all zero. The 20-before + 20-after rule is unchanged.
 - A6/A6.1 artifacts, Canonical Enriched v2, Feature Rebuild and EDA are preserved as interim current-500 / identity-corrected evidence; they are not final initiative outputs.
 - No forward/back-fill, interpolation, previous-close substitution, missing-to-zero, synthetic OHLC/volume, or zero-return session is allowed.
 - B0–B5 are NOT STARTED and B0 is blocked by the A5 remediation gate.
-- Corrective verifier: `PASS`; methodology auditor: `PASS`.
+- Prior A5-R1 corrective verifier/methodology-auditor PASS evidence is preserved; A5-R1.1 was self-reviewed without delegating or executing another stage.
 
 Unresolved blockers:
 - CafeF OHLC/adjusted-price basis is not approved; CafeF adjustment methodology is undocumented in available evidence.
 - CafeF automated recovery/data rights remain `RIGHTS_NOT_VERIFIED`.
-- Recovery classification and cost/yield require a deterministic near-ready multi-source pilot.
+- `FACT_DOCUMENT_JOIN_UNRESOLVED` and `REVISION_CHAIN_UNRESOLVED`.
+- Financial `available_at`, timezone, stable report/version identity and complete period boundaries remain unresolved.
+- Cash Flow fact endpoint/coverage and Q2/Q3 duration semantics remain unresolved.
 
 Manual review required: `YES` — price-basis/source-use acceptance is methodology-sensitive.
 
-Next allowed action: Manual review of the A5-R1 CafeF price-basis/source-use contract. A5-R2 remains `BLOCKED` and must not start until that review explicitly approves a promotable contract.
+Next allowed market action: `A5-R4 — Additional Market Source Discovery`, after manual review. A5-R2 remains `BLOCKED` because no promotable CafeF market-recovery contract exists.
+
+Next allowed financial action: `F0 — Financial Source Re-discovery`. F1/F2 are planned gates only and were not executed.
 
 | Stage | Status | Evidence / Run | Notes |
 |---|---|---|---|
@@ -51,11 +61,15 @@ Next allowed action: Manual review of the A5-R1 CafeF price-basis/source-use con
 | A3 Primary Recovery Pilot | EXECUTED | A3 evidence | No scalable primary-recovery path established. |
 | A4 Secondary Recovery Pilot | EXECUTED; REMEDIATION REQUIRED | A4 evidence | Nine diagnostic CafeF candidates; no approved canonical promotion. |
 | A5-R1 CafeF Contract Validation | PARTIAL / MANUAL_REVIEW_REQUIRED | `m1-a5-r1-cafef-contract-20260922T174031Z-35a27f92` | 11 requests; field contract versioned; price basis and rights unresolved; no promotion. |
-| A5-R2 Multi-source Near-Ready Pilot | BLOCKED | — | Requires explicit manual approval of a promotable CafeF contract. |
+| A5-R1.1 CafeF Deep Discovery | PARTIAL / MANUAL_REVIEW_REQUIRED | `m1-a5-r1-1-cafef-deep-discovery-20260922T185753Z-326612f7` | Computer Use + bounded public evidence; market cross-check only; financial raw only; PIT not ready. |
+| A5-R2 Multi-source Near-Ready Pilot | BLOCKED | — | No explicit, versioned and promotable market-recovery contract exists. |
+| A5-R3 Full Current-500 Recovery | NOT_STARTED | — | May follow only a successful A5-R2. |
+| A5-R4 Additional Market Source Discovery | NOT_STARTED / NEXT_ALLOWED_AFTER_MANUAL_REVIEW | — | Selected next market action; not executed in A5-R1.1. |
 | A5 Full Recovery Current 500 | BLOCKED / REMEDIATION REQUIRED | — | A5-R2/A5-R3 not executed. |
 | A6 / A6.1 Identity work | EXECUTED / EVIDENCE RETAINED | A6 evidence | Preserve identity evidence and audit it; not an A5 bypass. |
 | Canonical Enriched v2 / Feature Rebuild / EDA | INTERIM EVIDENCE | `canonical-m1-scale-enriched-v2-20260921T141356Z-ec87b5d8` | Current-500 identity-corrected outputs only. |
-| B0–B5 | NOT STARTED | — | B0 remains blocked. |
+| F0–F2 Financial/PIT remediation | NOT_STARTED | — | F0 is next allowed financial action; financial raw remains PIT-ineligible. |
+| B0–B5 | NOT_STARTED / BLOCKED BY A5 GATE | — | B0 remains blocked. |
 
 ---
 
@@ -1591,8 +1605,19 @@ Final value must result from real evidence.
 # A5 Remediation Track — mandatory before Workstream B
 
 Stage A5 is **BLOCKED / REMEDIATION REQUIRED**. It must not mutate canonical data,
-infer rows, or use imputation. B0 remains blocked until A5-R1 through the applicable
-pilot/report gates establish a deterministic, versioned recovery system.
+infer rows, or use imputation. B0 remains blocked until the applicable remediation,
+manual-decision and pilot/report gates establish a deterministic, versioned recovery
+system.
+
+Effective remediation sequence:
+
+```text
+A5-R1 CafeF Contract & Endpoint Validation
+  -> A5-R1.1 CafeF Deep Discovery & Evidence Expansion
+  -> MANUAL REVIEW / DECISION GATE
+       -> promotable market contract exists: A5-R2 -> successful pilot: A5-R3
+       -> no promotable market contract: A5-R4
+```
 
 ## A5-R1 — CafeF Contract & Endpoint Validation
 
@@ -1606,6 +1631,49 @@ behavior and relation to the KBS canonical adjusted-price basis. Required output
 `cafef_validation_evidence.jsonl`, `cafef_price_basis_diagnostics.csv`, and
 `stage_a5_r1_report.md`. PASS means the permitted fields, basis, limitations and
 acceptance contract are precise and versioned; it does not promote any row.
+
+## A5-R1.1 — CafeF Deep Discovery & Evidence Expansion
+
+### Goal
+
+Expand CafeF evidence across historical market data; financial statements; financial
+documents and PIT timing; corporate actions; security identity and capital history;
+suspension, delisting and trading-status evidence; and trading-calendar notices.
+This is an evidence/discovery stage. It does not mutate canonical data, recover missing
+market rows, approve price transformations, crawl the full current-500 universe, start
+universe expansion, or create PIT financial facts without verified timing.
+
+### Inputs
+
+- A5-R1 artifacts and the current canonical baseline;
+- existing CafeF source documentation and P0 Financial PIT evidence;
+- legitimate public CafeF UI and endpoints.
+
+### Required outputs
+
+`cafef_surface_catalog.json`, `cafef_endpoint_catalog.json`,
+`cafef_field_catalog.csv`, `cafef_market_contract_extension.json`,
+`cafef_financial_contract_draft.json`, `cafef_financial_coverage_probe.csv`,
+`cafef_pit_timing_evidence.jsonl`, `cafef_revision_evidence.jsonl`,
+`cafef_fact_document_join_evidence.jsonl`,
+`cafef_corporate_action_contract.json`, `cafef_identity_capital_evidence.jsonl`,
+`cafef_status_calendar_evidence.jsonl`, `cafef_deep_discovery_report.md`, and
+`manifest.json`.
+
+### Market decision gate
+
+A5-R2 may start only if discovery plus manual review establishes an explicit,
+versioned and promotable recovery contract. If CafeF remains non-promotable, A5-R2
+stays BLOCKED and the next market action is A5-R4 — Additional Market Source
+Discovery. Historical A5-R1 evidence remains immutable and is not rewritten.
+
+### Financial decision gate
+
+Financial findings are evaluated separately from market recovery. The stage reports
+`FINANCIAL_DATA_AVAILABILITY`, `FINANCIAL_HISTORY_COVERAGE` and
+`FINANCIAL_PIT_READINESS` independently. Historical financial facts may not enter
+research/backtest until period identity, report identity, `available_at`, timezone
+semantics, and revision/version safety are sufficiently resolved.
 
 ## A5-R2 — Multi-source Near-Ready Recovery Pilot
 
@@ -1632,7 +1700,7 @@ improve yield. Attribute baseline ready + local salvage gain + KBS primary gain 
 secondary gain + identity recovery gain = current-500 final ready. No universe
 expansion gain belongs in this stage.
 
-## A5-R4 — Additional Source Discovery, only if required
+## A5-R4 — Additional Market Source Discovery, only if required
 
 If KBS and approved CafeF paths remain insufficient, validate one additional provider
 at a time through source discovery, access/rights review, field/date/unit/price-basis
@@ -2452,6 +2520,31 @@ Required rule:
 ```text
 available_at <= decision_at
 ```
+
+## Financial/PIT Remediation Track — planned, not executed by A5-R1.1
+
+### F0 — Financial Source Re-discovery
+
+Compare CafeF and other legitimate candidate sources for historical coverage,
+publication timing, report identity, revision semantics and PIT capability.
+
+### F1 — Historical Financial Coverage Pilot
+
+Measure actual representative-sample coverage before any large crawl. Required
+metrics include securities tested; quarterly and annual periods; BS, IS and CF
+coverage; consolidated/separate availability; oldest/newest period; and
+missing-period distribution.
+
+### F2 — Financial PIT Timing & Revision Validation
+
+Validate `published_at`, `available_at`, timezone, report/version identity,
+revision/restatement chronology and the fact-to-document relationship before any
+historical financial features are allowed.
+
+F3/F4 are intentionally not designed or executed until later evidence justifies
+them. The existing rule remains: financial raw may exist while PIT is unresolved,
+and financial work does not block current market enrichment unless M2 explicitly
+requires fundamental features.
 
 ---
 
