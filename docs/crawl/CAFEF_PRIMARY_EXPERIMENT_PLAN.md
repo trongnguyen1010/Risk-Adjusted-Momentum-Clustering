@@ -7,18 +7,25 @@ branch: m1-cafef-primary-experiment
 forked_from_branch: m1-scale-500-team-crawl
 fork_base_commit: e886f68875fb5c079e57c9b51cae9e6bf5a8047b
 current_experiment: CafeF Primary Data Foundation Experiment
-last_completed_stage: C0
-c0_result: PLANNED / USER_MANUAL_REVIEW_REQUIRED
+last_completed_stage: C1-PREP
+c0_result: COMPLETED / USER_APPROVED
+c1_prep_result: COMPLETED / USER_MANUAL_REVIEW_REQUIRED
+crawl_plan_version: cafef-c1-prep-v1
+pilot_security_count: 71
+collection_end_date: 2026-09-23
+history_policy: FULL_AVAILABLE_UP_TO_MAX_15Y
+priority_policy: CAFEF_ACQUISITION_PRIORITY_V1
+worker_count: 5
 data_crawl_executed: NO
 market_data_requests_for_experiment: 0
+market_data_requests_in_c1_prep: 0
 canonical_mutation: NO
 feature_rebuild: NO
-five_worker_crawl_plan_created: NO
-why: must wait for user review of C0
-next_allowed_action: USER MANUAL REVIEW OF C0
-after_explicit_user_approval_only: C1-PREP — Five-Worker Crawl Planning
+five_worker_crawl_plan_created: YES
+why: C0 was approved; C1-PREP plan is complete and requires review before execution
+next_allowed_action: USER MANUAL REVIEW OF C1 CRAWL PLAN
+after_explicit_user_approval_only: C1 — Representative CafeF Raw-Market Acquisition
 c1_prep_crawl_execution: NO
-after_c1_prep: USER MANUAL REVIEW REQUIRED AGAIN
 user_manual_review_required: YES
 ```
 
@@ -398,23 +405,30 @@ C0 không chọn outcome.
 ## 17. Current status / Handoff
 
 ```yaml
-stage: C0
-status: PLANNED / USER_MANUAL_REVIEW_REQUIRED
+stage: C1-PREP
+status: COMPLETED / USER_MANUAL_REVIEW_REQUIRED
 documents:
   - docs/crawl/CAFEF_PRIMARY_EXPERIMENT_PLAN.md
   - docs/crawl/CAFEF_PRIMARY_MIGRATION_AUDIT.md
-executable_code_changed: NO
+  - docs/crawl/CAFEF_PRIMARY_C1_CRAWL_PLAN.md
+planning_artifact_directory: docs/crawl/plans/cafef_c1_prep_v1
+offline_planner: scripts/plan_cafef_c1_workers.py
+executable_code_changed: OFFLINE_PLANNER_ONLY
 data_crawl_executed: NO
 market_data_requests_for_experiment: 0
 canonical_mutations: 0
 feature_rebuild: NO
-five_worker_crawl_plan_created: NO
-next_allowed_action: USER MANUAL REVIEW OF C0
+five_worker_crawl_plan_created: YES
+pilot_security_count: 71
+worker_count: 5
+collection_end_date: 2026-09-23
+history_policy: FULL_AVAILABLE_UP_TO_MAX_15Y
+priority_policy: CAFEF_ACQUISITION_PRIORITY_V1
+next_allowed_action: USER MANUAL REVIEW OF C1 CRAWL PLAN
 forbidden_until_explicit_approval:
-  - C1-PREP
   - any crawl
-after_c0_approval: C1-PREP ONLY
-after_c1_prep: USER MANUAL REVIEW REQUIRED AGAIN
+  - C1
+after_c1_prep_approval: C1 ONLY
 ```
 
-STOP after C0. Do not execute C1-PREP.
+STOP after C1-PREP. Do not execute C1.

@@ -1,0 +1,143 @@
+{
+  "adapter_version": "cafef-research-demo-4",
+  "approved_execution_commit": "PLAN_INPUT_UNRESOLVED",
+  "artifact_layout": "artifacts/cafef_primary/<c1_run_id>/{plan,worker_01,worker_02,worker_03,worker_04,worker_05,merge}",
+  "branch": "m1-cafef-primary-experiment",
+  "collection_end_date": "2026-09-23",
+  "contract_version": "CAFEF_C1_RAW_CRAWL_CONTRACT_V1",
+  "excluded_surface": {
+    "c1_status": "PLAN_INPUT_UNRESOLVED_NOT_IN_REQUIRED_C1_PLAN",
+    "endpoint": "TradeHistoryNew.ashx",
+    "reason": "existing bounded adapter has no date-range parameter and a 100-page ceiling; full 15-year coverage cannot be frozen offline"
+  },
+  "field_contract_version": "CAFEF_C1_PRICE_HISTORY_RAW_CANDIDATE_V1",
+  "field_semantics": {
+    "GiaCaoNhat": "RAW_CANDIDATE_HIGH_VND_PER_SHARE_X1000_PENDING_C1_GATE",
+    "GiaDieuChinh": "PROVIDER_ADJUSTED_VALIDATION_ONLY_NEVER_DELTA_RESEARCH_PRICE",
+    "GiaDongCua": "RAW_CANDIDATE_CLOSE_VND_PER_SHARE_X1000_PENDING_C1_GATE",
+    "GiaMoCua": "RAW_CANDIDATE_OPEN_VND_PER_SHARE_X1000_PENDING_C1_GATE",
+    "GiaThapNhat": "RAW_CANDIDATE_LOW_VND_PER_SHARE_X1000_PENDING_C1_GATE",
+    "GiaTriKhopLenh": "MATCHED_VALUE_BILLION_VND_X1E9",
+    "GtThoaThuan": "NEGOTIATED_VALUE_BILLION_VND_X1E9",
+    "KLThoaThuan": "NEGOTIATED_VOLUME_SHARES",
+    "KhoiLuongKhopLenh": "MATCHED_VOLUME_SHARES"
+  },
+  "hard_lower_date_boundary": "2011-09-23",
+  "history_policy": "FULL_AVAILABLE_UP_TO_MAX_15Y",
+  "identity_rule": "USE_SECURITY_ID_AND_EVIDENCE_BACKED_INTERVALS; NEVER_CONCATENATE_WITHOUT_EVIDENCE",
+  "manual_gates": [
+    "USER_APPROVES_COMPLETE_C1_PLAN",
+    "RIGHTS_EXECUTION_RISK_EXPLICITLY_ACCEPTED",
+    "PLAN_INPUT_UNRESOLVED_IDENTITY_ITEMS_RESOLVED_OR_EXCLUDED_BY_APPROVED_REVISION",
+    "EXECUTION_COMMIT_FROZEN"
+  ],
+  "maximum_history_years": 15,
+  "plan_id": "cafef-c1-prep-v1",
+  "plan_input_unresolved": [
+    "LIQUIDITY_AND_TRADED_VALUE_PERSISTENCE_ARTIFACT",
+    "ACTIVE_TRADING_FREQUENCY_ARTIFACT",
+    "VERIFIED_INDEX_MEMBERSHIP_ARTIFACT",
+    "VERIFIED_MARKET_CAP_OR_SIZE_ARTIFACT",
+    "POPULARITY_SIGNAL",
+    "LIQUIDITY_BAND_REPRESENTATION_PROOF",
+    "VCB_CANONICAL_SECURITY_ID_AND_LISTING_BOUNDARY",
+    "THIRTEEN_PARTIAL_IDENTITY_START_BOUNDARIES",
+    "TRADEHISTORY_FULL_15Y_PAGINATION_CONTRACT",
+    "APPROVED_EXECUTION_COMMIT"
+  ],
+  "planning_base_commit": "8a7ebd9217ddc7de363d28906d7d2966c25e1213",
+  "priority_policy": "CAFEF_ACQUISITION_PRIORITY_V1",
+  "raw_only": {
+    "adjust_price_role": "VALIDATION_ONLY",
+    "adjustment_factor_build": false,
+    "canonical_write": false,
+    "feature_build": false,
+    "research_price_build": false
+  },
+  "request_policy": {
+    "anti_bot_bypass": false,
+    "auth_bypass": false,
+    "captcha_bypass": false,
+    "cloudflare_bypass": false,
+    "maximum_attempts": 2,
+    "min_interval_seconds": 5.0,
+    "per_worker_concurrency": 1,
+    "retryable": [
+      "NETWORK_TIMEOUT",
+      "HTTP_500",
+      "HTTP_502",
+      "HTTP_503",
+      "HTTP_504"
+    ],
+    "stop_without_evasion": [
+      "HTTP_401",
+      "HTTP_403",
+      "HTTP_429",
+      "CAPTCHA",
+      "CLOUDFLARE_CHALLENGE",
+      "AUTH_REQUIRED"
+    ],
+    "timeout_seconds": 20,
+    "transient_retry_backoff_seconds": [
+      10
+    ]
+  },
+  "request_surface": {
+    "date_format": "MM/DD/YYYY",
+    "duplicate_date_policy": "RETAIN_RAW_AND_FLAG_DUPLICATE_DATE",
+    "early_empty_policy": "PROVIDER_EMPTY_RESPONSE_UNRESOLVED",
+    "no_endless_empty_page_iteration": true,
+    "no_silent_page_skipping": true,
+    "observed_ordering": "NEWEST_FIRST",
+    "out_of_window_policy": "RETAIN_RAW_EVIDENCE_EXCLUDE_FROM_NORMALIZED_CANDIDATES",
+    "page_index_origin": 1,
+    "page_iteration": "PAGE_1_THROUGH_CEIL_TOTALCOUNT_DIV_20",
+    "page_size": 20,
+    "parameters": [
+      "ExchangeType",
+      "Symbol",
+      "StartDate",
+      "EndDate",
+      "PageIndex",
+      "PageSize"
+    ],
+    "range_iteration": "NON_OVERLAPPING_CALENDAR_YEAR_CHUNKS_OLDEST_TO_NEWEST",
+    "required_endpoint": "DataHistory/PriceHistory.ashx",
+    "role": "RAW_OHLC_CANDIDATE_AND_MATCHED_NEGOTIATED_COMPONENT_EVIDENCE",
+    "stop_condition": "EXACT_EXPECTED_PAGE_COUNT_FROM_VALIDATED_TOTALCOUNT",
+    "total_count_field": "Data.TotalCount"
+  },
+  "research_eligibility_effect": "NONE",
+  "resume_behavior": {
+    "completed_request": "VERIFY_CHECKSUM_AND_SKIP",
+    "failed_transient_request": "RETRY_WITHIN_REMAINING_BUDGET",
+    "methodology_or_access_failure": "NO_AUTOMATIC_RETRY",
+    "single_ticker_failure": "RECORD_AND_CONTINUE_OTHER_APPROVED_TICKERS"
+  },
+  "resume_requires_exact_match": [
+    "plan_id",
+    "worker_assignment_hash",
+    "config_hash",
+    "source_contract_version",
+    "code_commit",
+    "history_boundary",
+    "collection_end_date",
+    "raw_file_checksum_state"
+  ],
+  "status": "PLANNING_ONLY_USER_MANUAL_REVIEW_REQUIRED",
+  "universe_snapshot": "cafef_c1_selected_pilot.csv",
+  "worker_assignment_hashes": {
+    "worker_01": "85b729e2d2a07460c194d1f781260ed89630a029ae7840ec863ba7582f9c9de4",
+    "worker_02": "9647beac4a9b5af398f54311c11fe384149a8ac40841a70ea748ad4cc1089abc",
+    "worker_03": "bb2bad7baf8181b10d8fa1de268b4cff522ba8c049742434c3c864dabed5c8ff",
+    "worker_04": "8115ba837698d65401a76efc4abbdca1a9cf52feb6deae38b5f2b7ac928ac5eb",
+    "worker_05": "503936a3bd3239783e02a62454849dd75b1c9e7251620297a47cd0c4419d8a08"
+  },
+  "worker_files": [
+    "raw/",
+    "request_log.jsonl",
+    "failures.jsonl",
+    "resume_state.json",
+    "manifest.json"
+  ]
+}
