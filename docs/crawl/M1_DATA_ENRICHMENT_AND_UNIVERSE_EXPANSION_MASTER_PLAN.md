@@ -10,15 +10,15 @@
 
 ## Execution Progress / Handoff
 
-Last updated: 2026-09-23 (A5-R1.1 CafeF deep discovery)
+Last updated: 2026-09-23 (A5-R4 additional market source discovery)
 Branch: `m1-scale-500-team-crawl`
-Reference HEAD: `d424de63d2cfe1197e9f3c96a505e3d17b8723f2`
+Base commit: `390b75f0ab0b90ae72aab3e469a1544b042f985b`
 
 Current initiative: M1 Data Enrichment & Universe Expansion
-Last completed stage: A5-R1.1 CafeF Deep Discovery & Evidence Expansion
+Last completed stage: A5-R4 Additional Market Source Discovery
 Stage result: `PARTIAL / MANUAL_REVIEW_REQUIRED`
 
-Latest run/artifact: `m1-a5-r1-1-cafef-deep-discovery-20260922T185753Z-326612f7`
+Latest run/artifact: `m1-a5-r4-additional-market-source-discovery-20260923T092722Z-5cc124b7`
 
 Key evidence:
 
@@ -36,21 +36,29 @@ Key evidence:
 - Financial conclusions are separate: `FINANCIAL_DATA_AVAILABILITY=PARTIAL`, `FINANCIAL_HISTORY_COVERAGE=SAMPLE_ONLY`, `FINANCIAL_PIT_READINESS=NOT_READY`; historical facts remain excluded from research/backtest.
 - Corporate-action, first-trading-date/current-capital and HOSE holiday-notice evidence is useful with limitations; no complete historical capital/status series or price transform is approved.
 - CafeF rows remain non-promotable; canonical mutations, synthetic rows and imputed rows are all zero. The 20-before + 20-after rule is unchanged.
+- A5-R4 built a ten-source inventory before live requests and shortlisted FiinGroup API Datafeed, VCI and DNSE Entrade. SSI, MAS, VNDIRECT DChart and official exchange sites were rejected before smoke for insufficient current contract evidence; KBS, CafeF and TCBS were not repeated blindly.
+- Computer Use verified FiinGroup's official raw/adjusted fields and adjustment-ratio surface, plus current Vnstock client/source and rights documentation. FiinGroup remained documentation-only because API access is `PAID_ACCESS + AUTH_REQUIRED`.
+- VCI and DNSE Entrade were live-smoked sequentially on FPT, BAB, ACV, PVS, HND and KHP across 2020, recent and FPT corporate-action windows. All 12 source/ticker depth probes returned January-2020 rows, a sample-only 5+ year signal.
+- VCI and DNSE expose real OHLCV, but both are `BASIS_INCOMPATIBLE` with the current KBS/canonical adjusted basis in material bounded cases. Neither underlying provider supplied an authoritative adjustment methodology; no transform or multiplier was inferred.
+- VCI access remains `PUBLIC_ACCESS_RIGHTS_UNCLEAR + CLIENT_LICENSE_RESTRICTED`; DNSE remains `PUBLIC_ACCESS_RIGHTS_UNCLEAR`; FiinGroup remains contract-dependent. No finalist is recovery-ready or promotable.
+- A5-R4 preserved 30 bounded smoke attempts/responses plus two pre-artifact exploratory public-data requests. Canonical mutations = 0; synthetic/imputed rows = 0; no recovery or feature rebuild ran.
 - A6/A6.1 artifacts, Canonical Enriched v2, Feature Rebuild and EDA are preserved as interim current-500 / identity-corrected evidence; they are not final initiative outputs.
 - No forward/back-fill, interpolation, previous-close substitution, missing-to-zero, synthetic OHLC/volume, or zero-return session is allowed.
 - B0–B5 are NOT STARTED and B0 is blocked by the A5 remediation gate.
-- Prior A5-R1 corrective verifier/methodology-auditor PASS evidence is preserved; A5-R1.1 was self-reviewed without delegating or executing another stage.
+- Prior A5-R1 corrective verifier/methodology-auditor PASS evidence is preserved; A5-R1.1 and A5-R4 were self-reviewed without delegating or executing another stage.
 
 Unresolved blockers:
 - CafeF OHLC/adjusted-price basis is not approved; CafeF adjustment methodology is undocumented in available evidence.
 - CafeF automated recovery/data rights remain `RIGHTS_NOT_VERIFIED`.
+- VCI and DNSE price-adjustment methodology and compatibility with the canonical KBS basis are not documented; VCI volume inclusion semantics also differ in tested FPT rows.
+- VCI/DNSE data-use, storage and automation rights remain unresolved. FiinGroup requires a paid authenticated contract and live entitlement/history verification.
 - `FACT_DOCUMENT_JOIN_UNRESOLVED` and `REVISION_CHAIN_UNRESOLVED`.
 - Financial `available_at`, timezone, stable report/version identity and complete period boundaries remain unresolved.
 - Cash Flow fact endpoint/coverage and Q2/Q3 duration semantics remain unresolved.
 
 Manual review required: `YES` — price-basis/source-use acceptance is methodology-sensitive.
 
-Next allowed market action: `A5-R4 — Additional Market Source Discovery`, after manual review. A5-R2 remains `BLOCKED` because no promotable CafeF market-recovery contract exists.
+Next allowed market action: `MANUAL REVIEW OF FIINGROUP / VCI / DNSE MARKET CONTRACT EVIDENCE`. A5-R2 remains `BLOCKED`; it may not start unless a later review approves an explicit, versioned and promotable provider contract.
 
 Next allowed financial action: `F0 — Financial Source Re-discovery`. F1/F2 are planned gates only and were not executed.
 
@@ -64,7 +72,7 @@ Next allowed financial action: `F0 — Financial Source Re-discovery`. F1/F2 are
 | A5-R1.1 CafeF Deep Discovery | PARTIAL / MANUAL_REVIEW_REQUIRED | `m1-a5-r1-1-cafef-deep-discovery-20260922T185753Z-326612f7` | Computer Use + bounded public evidence; market cross-check only; financial raw only; PIT not ready. |
 | A5-R2 Multi-source Near-Ready Pilot | BLOCKED | — | No explicit, versioned and promotable market-recovery contract exists. |
 | A5-R3 Full Current-500 Recovery | NOT_STARTED | — | May follow only a successful A5-R2. |
-| A5-R4 Additional Market Source Discovery | NOT_STARTED / NEXT_ALLOWED_AFTER_MANUAL_REVIEW | — | Selected next market action; not executed in A5-R1.1. |
+| A5-R4 Additional Market Source Discovery | PARTIAL / MANUAL_REVIEW_REQUIRED | `m1-a5-r4-additional-market-source-discovery-20260923T092722Z-5cc124b7` | Ten candidates inventoried; FiinGroup documented, VCI/DNSE live-smoked; no compatible, rights-cleared recovery source. |
 | A5 Full Recovery Current 500 | BLOCKED / REMEDIATION REQUIRED | — | A5-R2/A5-R3 not executed. |
 | A6 / A6.1 Identity work | EXECUTED / EVIDENCE RETAINED | A6 evidence | Preserve identity evidence and audit it; not an A5 bypass. |
 | Canonical Enriched v2 / Feature Rebuild / EDA | INTERIM EVIDENCE | `canonical-m1-scale-enriched-v2-20260921T141356Z-ec87b5d8` | Current-500 identity-corrected outputs only. |
@@ -1700,12 +1708,54 @@ improve yield. Attribute baseline ready + local salvage gain + KBS primary gain 
 secondary gain + identity recovery gain = current-500 final ready. No universe
 expansion gain belongs in this stage.
 
-## A5-R4 — Additional Market Source Discovery, only if required
+## A5-R4 — Additional Market Source Discovery
 
-If KBS and approved CafeF paths remain insufficient, validate one additional provider
-at a time through source discovery, access/rights review, field/date/unit/price-basis
-validation, source smoke and recovery pilot. A provider is never active merely because
-it has more rows; do not bypass login, access control, anti-bot, CAPTCHA or paywalls.
+### Goal
+
+Discover legitimate additional Vietnamese listed-equity daily market sources and run
+a bounded contract smoke when KBS and CafeF remain non-promotable. Separate underlying
+provider from acquisition client and evaluate HOSE/HNX/UPCOM identity, dates, OHLC,
+volume, history depth, range/pagination behavior, units, raw/adjusted semantics,
+price-basis compatibility, access and data-use rights.
+
+### Inputs
+
+- current KBS/canonical `vendor_adjusted` baseline and its price-basis diagnostics;
+- A5-R1/A5-R1.1 CafeF evidence and existing source-selection documentation;
+- legitimate public provider/client documentation and bounded public endpoints;
+- prior access-control and rights findings, which must not be bypassed or retried blindly.
+
+### Required outputs
+
+`additional_market_source_candidates.json`, `additional_market_source_shortlist.json`,
+`source_access_matrix.csv`, `source_endpoint_catalog.json`,
+`source_field_contracts.json`, `source_price_basis_diagnostics.csv`,
+`source_history_depth_probe.csv`, `source_smoke_evidence.jsonl`,
+`source_rejection_reasons.json`, `stage_a5_r4_report.md`, immutable raw responses where
+practical, and `manifest.json`.
+
+### Pass gate
+
+`PASS / CANDIDATE_FOUND` requires exact provider and security identity, real daily OHLCV,
+adequate observed history, deterministic requests, known units and semantics, an
+authoritatively documented price basis compatible with canonical, preserved provenance,
+and acceptable access/data-use rights. A technically promising source with unresolved
+methodology or rights remains `MANUAL_REVIEW_REQUIRED`, not production-approved.
+
+### Partial/failure gate
+
+If no source satisfies the full contract, report each candidate as
+`MANUAL_REVIEW_REQUIRED`, `DIAGNOSTIC_ONLY`, `ACCESS_BLOCKED`, `BASIS_UNRESOLVED`,
+`INSUFFICIENT_HISTORY`, `INSUFFICIENT_FIELDS` or `REJECTED`. Do not loosen methodology,
+average providers, infer scaling/adjustment factors, or treat row absence as a trading
+status. Targeted contract review may follow; blind endpoint discovery should not.
+
+### No canonical mutation and relationship to A5-R2
+
+A5-R4 is evidence-only: no missing row recovery, canonical write, synthetic/imputed row,
+feature rebuild, A5-R2 pilot or current-500 crawl is permitted. Even a strong candidate
+must first pass a separate manual review of its versioned provider contract. A5-R2 stays
+blocked until that later decision explicitly approves the source.
 
 ## Gate to Workstream B
 
