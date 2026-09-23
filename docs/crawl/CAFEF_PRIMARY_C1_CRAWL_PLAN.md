@@ -26,8 +26,8 @@ actual_market_data_requests: 0
 actual_crawl_executed: NO
 canonical_mutations: 0
 feature_rebuild: NO
-next_allowed_action: USER MANUAL REVIEW OF C1 CRAWL PLAN
-after_explicit_user_approval_only: C1 — Representative CafeF Raw-Market Acquisition
+next_allowed_action: NONE_HISTORICAL_ONLY
+active_plan: cafef_c1_solo_v2
 ```
 
 C0 đã được người dùng phê duyệt. C1-PREP chỉ đóng băng universe, priority, history,

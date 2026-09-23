@@ -21,7 +21,7 @@ from pathlib import Path
 
 
 PLAN_ID = "cafef-c1-solo-v2"
-PLAN_VERSION = "2.0.0"
+PLAN_VERSION = "2.1.0"
 PRIORITY_POLICY = "CAFEF_C1_SOLO_PRIORITY_V2"
 COLLECTION_END = date(2026, 9, 23)
 HARD_LOWER_BOUND = date(2011, 9, 23)
@@ -214,7 +214,7 @@ def _contract() -> dict:
     return {
         "plan_id": PLAN_ID,
         "plan_version": PLAN_VERSION,
-        "contract_version": "CAFEF_C1_SOLO_RAW_CONTRACT_V2",
+        "contract_version": "CAFEF_C1_SOLO_RAW_CONTRACT_V2_1",
         "status": "PLANNING_ONLY_USER_MANUAL_REVIEW_REQUIRED",
         "priority_policy": PRIORITY_POLICY,
         "execution_model": "SINGLE_LOCAL_RUNNER",
@@ -236,8 +236,11 @@ def _contract() -> dict:
             "ordering": "NEWEST_FIRST",
             "total_count_field": "Data.TotalCount",
             "rows_field": "Data.Data",
+            "success_field": "Success",
+            "success_required": "EXACT_TRUE",
             "range_iteration": "NON_OVERLAPPING_CALENDAR_YEAR_CHUNKS_OLDEST_TO_NEWEST",
             "page_stop": "CEIL_VALIDATED_TOTALCOUNT_DIV_PAGE_SIZE",
+            "total_count_consistency": "NON_NEGATIVE_INTEGER_ZERO_REQUIRES_EMPTY_ROWS",
             "max_pages_per_range": 20,
             "duplicate_date_policy": "RETAIN_RAW_AND_LOG_DUPLICATE_DATE",
             "out_of_window_policy": "RETAIN_RAW_AND_LOG_OUT_OF_WINDOW",
@@ -263,6 +266,14 @@ def _contract() -> dict:
             "GiaDieuChinh_AdjustPrice": "PRESERVE_RAW_PROVIDER_BYTES_VALIDATION_ONLY",
         },
         "identity_policy": "EVIDENCE_BACKED_SECURITY_INTERVALS_ONLY",
+        "identity_interval_routing": {
+            "exchange_type": "LITERAL_INTERVAL_EXCHANGE_HOSE_HNX_UPCOM",
+            "request_window": "INTERSECTION_TARGET_WINDOW_AND_IDENTITY_INTERVAL",
+            "empty_intersection": "SKIP",
+            "empty_identity_intervals": "FAIL_CLOSED",
+            "raw_path_context": "TICKER_EXCHANGE_IDENTITY_INTERVAL_RANGE_PAGE",
+            "request_key_context": "SECURITY_TICKER_EXCHANGE_IDENTITY_INTERVAL_RANGE_PAGE",
+        },
         "excluded_unresolved": ["VCB_CANONICAL_SECURITY_ID_AND_LISTING_BOUNDARY"],
         "manual_gate": "USER_EXPLICIT_APPROVAL_REQUIRED_BEFORE_C1_SOLO",
     }
@@ -287,9 +298,9 @@ def _failure_policy() -> dict:
 def _resume_contract() -> dict:
     return {
         "plan_id": PLAN_ID,
-        "contract_version": "CAFEF_C1_SOLO_RESUME_V2",
+        "contract_version": "CAFEF_C1_SOLO_RESUME_V2_1",
         "resume_requires_exact_match": [
-            "plan_hash", "contract_version", "code_version", "collection_end_date",
+            "plan_hash", "contract_version", "resume_contract_version", "code_version", "collection_end_date",
             "hard_lower_date_boundary", "raw_file_checksum_state",
         ],
         "completed_valid_request": "VERIFY_SHA256_AND_SKIP",
@@ -327,7 +338,7 @@ def build_plan(root: Path, output_dir: Path) -> dict:
     manifest = {
         "plan_id": PLAN_ID,
         "plan_version": PLAN_VERSION,
-        "stage": "C1-PREP-SOLO",
+        "stage": "C1-SOLO-RUNNER-FIX",
         "status": "COMPLETED_USER_MANUAL_REVIEW_REQUIRED",
         "execution_model": "SINGLE_LOCAL_RUNNER",
         "priority_policy": PRIORITY_POLICY,
@@ -350,7 +361,11 @@ def build_plan(root: Path, output_dir: Path) -> dict:
         "canonical_mutations": 0,
         "feature_rebuild": False,
         "five_worker_execution": "DEFERRED_TO_C4_PREP_SCALE",
-        "next_allowed_action": "USER MANUAL REVIEW OF C1-SOLO PLAN AND RUNNER",
+        "runner_contract_corrected": True,
+        "exchange_type_contract_aligned": True,
+        "historical_identity_interval_routing": True,
+        "envelope_success_validation": True,
+        "next_allowed_action": "USER MANUAL REVIEW OF CORRECTED C1-SOLO RUNNER",
     }
     _atomic_write(output_dir / "manifest.json", _stable_json(manifest))
     return manifest
