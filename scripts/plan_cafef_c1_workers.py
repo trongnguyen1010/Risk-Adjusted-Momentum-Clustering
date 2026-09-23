@@ -1,7 +1,8 @@
-"""Build the offline-only CafeF C1 planning artifacts.
+"""DEPRECATED_FOR_C1 / FUTURE_C4_SCALE_REFERENCE_ONLY.
 
-This module reads repository metadata only.  It deliberately contains no HTTP
-client, crawler, provider call, or market-data acquisition path.
+This historical planner produced the superseded C1-PREP v1 evidence. It reads
+repository metadata only and deliberately contains no HTTP client, crawler, provider
+call, or market-data acquisition path. Do not use it for active C1-SOLO execution.
 """
 
 from __future__ import annotations

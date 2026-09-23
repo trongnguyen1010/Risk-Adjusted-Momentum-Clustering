@@ -5,6 +5,8 @@ import sys
 import unittest
 from pathlib import Path
 
+# HISTORICAL_ONLY / FUTURE_C4_SCALE_REFERENCE_ONLY: these tests preserve the
+# superseded C1-PREP v1 five-worker planning evidence. They are not active C1 tests.
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "scripts/plan_cafef_c1_workers.py"

@@ -7,25 +7,26 @@ branch: m1-cafef-primary-experiment
 forked_from_branch: m1-scale-500-team-crawl
 fork_base_commit: e886f68875fb5c079e57c9b51cae9e6bf5a8047b
 current_experiment: CafeF Primary Data Foundation Experiment
-last_completed_stage: C1-PREP
+last_completed_stage: C1-PREP-SOLO
 c0_result: COMPLETED / USER_APPROVED
-c1_prep_result: COMPLETED / USER_MANUAL_REVIEW_REQUIRED
-crawl_plan_version: cafef-c1-prep-v1
-pilot_security_count: 71
+c1_prep_v1_status: SUPERSEDED / HISTORICAL_ONLY
+c1_execution_model: SINGLE_LOCAL_RUNNER
+c1_solo_plan_version: cafef_c1_solo_v2
+pilot_security_count: 27
 collection_end_date: 2026-09-23
 history_policy: FULL_AVAILABLE_UP_TO_MAX_15Y
-priority_policy: CAFEF_ACQUISITION_PRIORITY_V1
-worker_count: 5
+priority_policy: CAFEF_C1_SOLO_PRIORITY_V2
+c1_actual_crawl_executed: NO
 data_crawl_executed: NO
 market_data_requests_for_experiment: 0
-market_data_requests_in_c1_prep: 0
+market_data_requests_in_corrective_stage: 0
 canonical_mutation: NO
 feature_rebuild: NO
-five_worker_crawl_plan_created: YES
-why: C0 was approved; C1-PREP plan is complete and requires review before execution
-next_allowed_action: USER MANUAL REVIEW OF C1 CRAWL PLAN
-after_explicit_user_approval_only: C1 — Representative CafeF Raw-Market Acquisition
-c1_prep_crawl_execution: NO
+five_worker_execution: DEFERRED_TO_C4_PREP_SCALE
+why: C1-PREP v1 was preserved as history; the active representative pilot now uses one frozen resumable local run
+next_allowed_action: USER MANUAL REVIEW OF C1-SOLO PLAN AND RUNNER
+after_explicit_user_approval: USER MAY RUN C1-SOLO LOCALLY
+c1_prep_solo_crawl_execution: NO
 user_manual_review_required: YES
 ```
 
@@ -317,11 +318,13 @@ No crawl worker writes canonical or research-price tables.
 | Stage | Scope | Execution in this task | Exit condition |
 |---|---|---|---|
 | C0 | Architecture audit, raw contract assessment, migration/test plan | COMPLETED AS PLAN | `USER_MANUAL_REVIEW_REQUIRED` |
-| C1-PREP | Produce detailed five-worker crawl assignment and frozen contracts | NOT EXECUTED | second user manual review |
-| C1 | Representative CafeF raw-market acquisition | NOT AUTHORIZED | reviewed crawl plan + explicit approval |
+| C1-PREP v1 | Historical five-worker planning evidence | SUPERSEDED / HISTORICAL_ONLY | retained; do not execute |
+| C1-PREP-SOLO | Freeze 25–30 security plan and prepare one resumable local runner | COMPLETED AS PLAN | user manual review |
+| C1-SOLO | Representative CafeF raw-market acquisition | NOT AUTHORIZED | reviewed solo plan + explicit approval |
 | C2 | Corporate-action evidence and DELTA adjustment prototype | NOT AUTHORIZED | reviewed event/policy contract |
 | C3 | KBS-vs-CafeF comparative audit | NOT AUTHORIZED | measured comparable outputs |
-| C4 | Current-500 CafeF-primary acquisition | NOT AUTHORIZED | C1–C3 gates pass + explicit approval |
+| C4-PREP-SCALE | Multi-worker scale planning for approximately 500+ securities | NOT AUTHORIZED | C1–C3 methodology gates pass + explicit approval |
+| C4 | Five-worker scale acquisition | NOT AUTHORIZED | approved C4-PREP-SCALE assignments |
 | C5 | Research-price/feature rebuild and comparative EDA | NOT AUTHORIZED | versioned derivation and complete QA |
 | C6 | Architecture decision | NOT AUTHORIZED | evidence-backed GO/NO-GO |
 
@@ -332,22 +335,30 @@ C0
  ↓ GATE 0 — USER MANUAL REVIEW; no inferred approval
 explicit user approval
  ↓
-C1-PREP only — creates detailed five-worker plan; performs zero crawl
- ↓ GATE 2 — USER MANUAL REVIEW OF COMPLETE ASSIGNMENT
+C1-PREP v1 — superseded historical five-worker plan; never execute for C1
+ ↓
+C1-PREP-SOLO — one frozen pilot + one resumable local runner; performs zero crawl
+ ↓ GATE 2 — USER MANUAL REVIEW OF SOLO PLAN AND RUNNER
 explicit user approval
  ↓ GATE 3
-actual C1 crawl may begin
+actual C1-SOLO crawl may begin locally
 ```
 
 Later stage order may be refined by evidence, but no crawl stage is authorized
 automatically.
 
-## 14. Future five-worker workflow design
+## 14. Future five-worker workflow design — C4-PREP-SCALE only
+
+Five-worker planning is explicitly deferred until the CafeF-primary path survives C1,
+C2 and C3 methodology gates and the target expands to approximately 500+ securities.
+Only `C4-PREP-SCALE` may create executable worker assignments. The deterministic
+work-estimation and bin-packing ideas in `scripts/plan_cafef_c1_workers.py` may be
+reused then; that script and its v1 artifacts are not active C1 execution inputs.
 
 C0 defines construction principles only; it creates no executable assignment and no
 ticker lists.
 
-C1-PREP must:
+C4-PREP-SCALE must:
 
 - freeze universe, exact `security_id`/ticker/exchange snapshot, date range, endpoint,
   raw contract and config hash;
@@ -405,30 +416,32 @@ C0 không chọn outcome.
 ## 17. Current status / Handoff
 
 ```yaml
-stage: C1-PREP
+stage: C1-PREP-SOLO
 status: COMPLETED / USER_MANUAL_REVIEW_REQUIRED
 documents:
   - docs/crawl/CAFEF_PRIMARY_EXPERIMENT_PLAN.md
   - docs/crawl/CAFEF_PRIMARY_MIGRATION_AUDIT.md
   - docs/crawl/CAFEF_PRIMARY_C1_CRAWL_PLAN.md
-planning_artifact_directory: docs/crawl/plans/cafef_c1_prep_v1
-offline_planner: scripts/plan_cafef_c1_workers.py
-executable_code_changed: OFFLINE_PLANNER_ONLY
+planning_artifact_directory: docs/crawl/plans/cafef_c1_solo_v2
+historical_planning_artifact_directory: docs/crawl/plans/cafef_c1_prep_v1
+offline_planner: scripts/plan_cafef_c1_solo.py
+solo_runner: scripts/run_cafef_c1_solo.py
+execution_model: SINGLE_LOCAL_RUNNER
 data_crawl_executed: NO
 market_data_requests_for_experiment: 0
 canonical_mutations: 0
 feature_rebuild: NO
-five_worker_crawl_plan_created: YES
-pilot_security_count: 71
-worker_count: 5
+five_worker_execution: DEFERRED_TO_C4_PREP_SCALE
+pilot_security_count: 27
+parallel_requests: NO
 collection_end_date: 2026-09-23
 history_policy: FULL_AVAILABLE_UP_TO_MAX_15Y
-priority_policy: CAFEF_ACQUISITION_PRIORITY_V1
-next_allowed_action: USER MANUAL REVIEW OF C1 CRAWL PLAN
+priority_policy: CAFEF_C1_SOLO_PRIORITY_V2
+next_allowed_action: USER MANUAL REVIEW OF C1-SOLO PLAN AND RUNNER
 forbidden_until_explicit_approval:
   - any crawl
-  - C1
-after_c1_prep_approval: C1 ONLY
+  - C1-SOLO
+after_explicit_user_approval: USER MAY RUN C1-SOLO LOCALLY
 ```
 
-STOP after C1-PREP. Do not execute C1.
+STOP after C1-PREP-SOLO. Do not execute C1-SOLO without explicit user approval.

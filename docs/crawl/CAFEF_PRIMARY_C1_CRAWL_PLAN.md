@@ -1,10 +1,20 @@
 # CafeF Primary C1 Crawl Plan
 
+> **STATUS: SUPERSEDED BY C1-PREP-SOLO / `cafef_c1_solo_v2`.** This five-worker
+> plan is retained only as historical architecture/planning evidence and possible
+> input to `C4-PREP-SCALE`. Five-worker execution was premature for the representative
+> experiment. **DO NOT EXECUTE `worker_01` … `worker_05` FOR C1.** The active C1 source
+> of truth is `docs/crawl/plans/cafef_c1_solo_v2/` plus
+> `scripts/run_cafef_c1_solo.py`.
+
 ## Execution status
 
 ```yaml
 stage: C1-PREP — Five-Worker CafeF Crawl Planning
-result: COMPLETED / USER_MANUAL_REVIEW_REQUIRED
+result: SUPERSEDED / HISTORICAL_ONLY
+superseded_reason: FIVE_WORKER_EXECUTION_PREMATURE_FOR_REPRESENTATIVE_EXPERIMENT
+future_use: C4_PREP_SCALE_ARCHITECTURE_REFERENCE_ONLY
+execution_allowed: NO
 plan_id: cafef-c1-prep-v1
 priority_policy: CAFEF_ACQUISITION_PRIORITY_V1
 pilot_security_count: 71
