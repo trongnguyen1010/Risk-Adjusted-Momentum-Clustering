@@ -600,3 +600,14 @@ canonical_baseline_overwritten: NO
 scale_crawl: NO
 next_allowed_action: RESOLVE_ONLY_REPORTED_CAFEF_MISSING_SESSION_BLOCKERS
 ```
+# C3-R2 LOCAL TRADEHISTORY RAW REUSE
+
+This evidence-only stage reuses pre-existing M1 shard, representative-pilot,
+and source-smoke CafeF `TradeHistoryNew.ashx` raw pages from the reviewed
+external local evidence root before considering any recrawl. Missing rows on
+`PriceHistory.ashx` are therefore not treated as missing at the CafeF provider
+level. Exact copies from older runs are collapsed; differing same-date provider
+observations remain fail-closed and are excluded from automatic endpoint
+recommendations. Network fallback is planned only, never executed in C3-R2.
+The resulting index is an external-local-evidence dependency, not canonical
+data and not a portable raw-data dependency.
