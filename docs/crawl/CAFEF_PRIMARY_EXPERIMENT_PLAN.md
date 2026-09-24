@@ -7,7 +7,7 @@ branch: m1-cafef-primary-experiment
 forked_from_branch: m1-scale-500-team-crawl
 fork_base_commit: e886f68875fb5c079e57c9b51cae9e6bf5a8047b
 current_experiment: CafeF Primary Data Foundation Experiment
-last_completed_stage: C1-HISTORY-POLICY-V3
+last_completed_stage: C3-CAFEF-PRIMARY-SELF-SUFFICIENCY-AUDIT
 c0_result: COMPLETED / USER_APPROVED
 c1_prep_v1_status: SUPERSEDED / HISTORICAL_ONLY
 c1_execution_model: SINGLE_LOCAL_RUNNER
@@ -25,13 +25,13 @@ valid_completed_old_history: REUSED_WHERE_COMPLETE
 partial_old_history: NOT_AUTOMATICALLY_REUSED
 active_plan: cafef-c1-history-v3
 priority_policy: CAFEF_C1_SOLO_PRIORITY_V2
-c1_actual_crawl_executed: INVALID_PRE_FIX_RUN_OCCURRED_AND_DELETED
-data_crawl_executed: INVALID_PRE_FIX_RUN_OCCURRED_AND_DELETED
-market_data_requests_for_experiment: PRE_FIX_LIVE_RUN_OCCURRED_COUNT_NOT_RETAINED
+c1_actual_crawl_executed: COMPLETED_CAFEF_C1_BASE5Y_MAIN
+data_crawl_executed: YES
+market_data_requests_for_experiment: 1259
 market_data_requests_in_corrective_stage: 0
 actual_market_data_requests_in_corrective_stage: 0
 actual_crawl_executed_in_corrective_stage: NO
-actual_valid_c1_crawl_executed: NO
+actual_valid_c1_crawl_executed: YES
 c1_solo_runner_contract_corrected: YES
 exchange_type_contract_aligned: YES
 historical_identity_interval_routing: YES
@@ -54,8 +54,8 @@ canonical_mutations: 0
 feature_rebuild: NO
 five_worker_execution: DEFERRED_TO_C4_PREP_SCALE
 why: C1-PREP v1 was preserved as history; the active representative pilot now uses one frozen resumable local run
-next_allowed_action: USER MANUAL REVIEW OF V3 PLAN
-after_explicit_user_approval: RUN BASE_5Y CRAWL ONLY FOR CRAWL_REQUIRED SECURITIES
+next_allowed_action: USER MANUAL REVIEW OF C3 FIELD READINESS AND PRICE BASIS
+after_explicit_user_approval: APPROVE_OR_REJECT_CAFEF_RAW_OHLC_MAPPING_AND_PLAN_MISSING_DOMAINS
 c1_prep_solo_crawl_execution: NO
 user_manual_review_required: YES
 ```
@@ -350,9 +350,9 @@ No crawl worker writes canonical or research-price tables.
 | C0 | Architecture audit, raw contract assessment, migration/test plan | COMPLETED AS PLAN | `USER_MANUAL_REVIEW_REQUIRED` |
 | C1-PREP v1 | Historical five-worker planning evidence | SUPERSEDED / HISTORICAL_ONLY | retained; do not execute |
 | C1-PREP-SOLO | Freeze 25–30 security plan and prepare one resumable local runner | COMPLETED AS PLAN | user manual review |
-| C1-SOLO | Representative CafeF raw-market acquisition | NOT AUTHORIZED | reviewed solo plan + explicit approval |
-| C2 | Corporate-action evidence and DELTA adjustment prototype | NOT AUTHORIZED | reviewed event/policy contract |
-| C3 | KBS-vs-CafeF comparative audit | NOT AUTHORIZED | measured comparable outputs |
+| C1-SOLO | Representative CafeF raw-market acquisition | COMPLETED | offline quarter/page/checksum audit PASS for 27/27 |
+| C2 | Normalized CafeF candidates and corporate-action diagnostics | PARTIAL | 33,259 candidates built; event documents/terms not acquired |
+| C3 | CafeF-primary self-sufficiency and field-coverage audit | COMPLETED / MANUAL_REVIEW_REQUIRED | KBS comparator waived by user; canonical readiness remains fail-closed |
 | C4-PREP-SCALE | Multi-worker scale planning for approximately 500+ securities | NOT AUTHORIZED | C1–C3 methodology gates pass + explicit approval |
 | C4 | Five-worker scale acquisition | NOT AUTHORIZED | approved C4-PREP-SCALE assignments |
 | C5 | Research-price/feature rebuild and comparative EDA | NOT AUTHORIZED | versioned derivation and complete QA |
@@ -443,11 +443,51 @@ Quyết định dựa trên measured coverage, adjustment completeness, reproduc
 identity/calendar integrity, rights/access viability, conflict burden và feature impact.
 C0 không chọn outcome.
 
-## 17. Current status / Handoff
+## 17. Kết quả C1 hậu crawl, C2 và C3 offline
+
+Run `cafef-c1-base5y-main` đã hoàn tất 1.259 request cho 17 mã; 10 mã còn lại dùng
+long-history V2.3 đã checksum-validate. Pipeline offline
+`scripts/run_cafef_c2_c3_offline.py` không gọi mạng, không sửa raw và không ghi
+canonical.
+
+Kết quả local `artifacts/cafef_primary/cafef-c2-c3-offline-20260924/`:
+
+- 27/27 mã PASS audit quarter/page/progress/raw SHA/sidecar SHA;
+- 33.259 provider-qualified market candidates, 0 conflicting duplicate date;
+- 15 mã `PASS_RAW_CANDIDATE`, 12 mã cần review;
+- 11 row phải quarantine vì OHLC bất khả thi, gồm bốn row có `high=0` dù vẫn có
+  volume; raw giữ nguyên và không repair;
+- CTR không có observation cho interval UPCOM `2021-09-23 → 2022-02-22`; SHB không
+  có observation cho interval HNX `2021-09-23 → 2021-10-10` dù request hợp lệ;
+- 27/27 có observed-span evidence ít nhất ba năm; đây không thay thế official-session
+  calendar hay price-basis approval;
+- 183 discontinuity candidates chỉ là diagnostic, không phải corporate-action proof.
+
+C3 không chạy comparator KBS theo quyết định người dùng. Thay vào đó, C3 kiểm tra
+khả năng tự cung cấp dữ liệu của raw `PriceHistory` hiện có:
+
+| Table | Evidence hiện có | Canonical-fillable fields | Kết luận |
+|---|---:|---:|---|
+| `securities` | 12/17 | 10/17 | thiếu company name, authoritative availability/identity metadata |
+| `prices_daily` | 17/20 | 9/20 | candidate-only; OHLC basis, adjusted method và component policy chưa duyệt |
+| `trading_calendar` | 6/11 diagnostic | 0/11 | observed union không phải official calendar |
+| `shares_history` | 0/10 | 0/10 | không có trong PriceHistory |
+| `benchmark_daily` | 0/10 | 0/10 | page snapshot VNINDEX không phải historical benchmark series |
+| `corporate_actions` | 0/16 | 0/16 | chưa acquire event document/terms |
+| `financial_reports` | 0/18 | 0/18 | chưa acquire PIT report metadata |
+| `financial_facts` | 0/12 | 0/12 | chưa acquire financial facts |
+
+Kết luận: CafeF `PriceHistory` hiện đủ tốt để làm **primary raw market candidate** sau
+row quarantine, nhưng chưa đủ để một mình fill toàn bộ M1 canonical tables. Việc bỏ KBS
+comparison không tự giải quyết price basis, calendar, corporate actions, shares hoặc
+financial PIT. Mapping OHLC vào `raw_*` là methodology-sensitive và tiếp tục cần manual
+approval.
+
+## 18. Current status / Handoff
 
 ```yaml
-stage: C1-HISTORY-POLICY-V3
-status: COMPLETED / USER_MANUAL_REVIEW_REQUIRED
+stage: C3-CAFEF-PRIMARY-SELF-SUFFICIENCY-AUDIT
+status: PARTIAL / MANUAL_REVIEW_REQUIRED
 documents:
   - docs/crawl/CAFEF_PRIMARY_EXPERIMENT_PLAN.md
   - docs/crawl/CAFEF_PRIMARY_MIGRATION_AUDIT.md
@@ -457,11 +497,11 @@ historical_planning_artifact_directory: docs/crawl/plans/cafef_c1_prep_v1
 offline_planner: scripts/plan_cafef_c1_solo.py
 solo_runner: scripts/run_cafef_c1_solo.py
 execution_model: SINGLE_LOCAL_RUNNER
-data_crawl_executed: INVALID_PRE_FIX_RUN_OCCURRED_AND_DELETED
-market_data_requests_for_experiment: PRE_FIX_LIVE_RUN_OCCURRED_COUNT_NOT_RETAINED
+data_crawl_executed: YES
+market_data_requests_for_experiment: 1259
 actual_market_data_requests_in_corrective_stage: 0
 actual_crawl_executed_in_corrective_stage: NO
-actual_valid_c1_crawl_executed: NO
+actual_valid_c1_crawl_executed: YES
 c1_solo_runner_contract_corrected: YES
 exchange_type_contract_aligned: YES
 historical_identity_interval_routing: YES
@@ -496,11 +536,25 @@ valid_completed_old_history: REUSED_WHERE_COMPLETE
 partial_old_history: NOT_AUTOMATICALLY_REUSED
 active_plan: cafef-c1-history-v3
 priority_policy: CAFEF_C1_SOLO_PRIORITY_V2
-next_allowed_action: USER MANUAL REVIEW OF V3 PLAN
+postcrawl_raw_audit: PASS_27_OF_27
+normalized_market_candidates: 33259
+raw_candidate_pass_tickers: 15
+raw_candidate_warning_tickers: 12
+quarantined_provider_rows: 11
+identity_intervals_without_observations: 2
+c2_status: PARTIAL_EVENT_DOCUMENTS_NOT_ACQUIRED
+c3_kbs_comparison: WAIVED_BY_USER_NOT_EXECUTED
+c3_status: COMPLETED_MANUAL_REVIEW_REQUIRED
+cafef_primary_market_candidate_viable: YES
+cafef_canonical_ready: NO
+full_m1_table_coverage: NO
+next_allowed_action: USER MANUAL REVIEW OF C3 FIELD READINESS AND PRICE BASIS
 forbidden_until_explicit_approval:
-  - any crawl
-  - C1-SOLO
-after_explicit_user_approval: RUN BASE_5Y CRAWL ONLY FOR CRAWL_REQUIRED SECURITIES
+  - canonical promotion of CafeF OHLC
+  - research-price derivation
+  - feature rebuild
+after_explicit_user_approval: APPROVE_OR_REJECT_CAFEF_RAW_OHLC_MAPPING_AND_PLAN_MISSING_DOMAINS
 ```
 
-STOP after C1-HISTORY-POLICY-V3. Do not execute the V3 BASE crawl without explicit user approval.
+STOP after C3. Do not promote CafeF candidates or rebuild features without explicit
+price-basis and missing-domain decisions.

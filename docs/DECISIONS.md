@@ -1,6 +1,6 @@
 # Các quyết định còn hiệu lực
 
-Cập nhật 18/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation.
+Cập nhật 24/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation.
 
 | ID | Quyết định |
 |---|---|
@@ -36,6 +36,7 @@ Cập nhật 18/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-030 | **M1 readiness/QC semantics:** collection coverage >=300, observed calendar span, feature completeness, market-feature readiness, historical-identity readiness, strict research readiness và financial PIT là trạng thái độc lập. `provisional` không tự làm market feature false nhưng luôn giữ historical identity/research false. Monthly M1 gate dùng latest completed collection month; partial current-month row vẫn được giữ. Không có quyết định frozen yêu cầu >=300 row đủ 252-session features cùng một ngày, nên threshold đó bị bỏ thay vì hạ; final research sample-size/density policy để `UNRESOLVED` và gate fail-closed. |
 | ADR-031 | **`market_feature_stage_ready` vs `research_stage_ready` semantics:** `market_feature_stage_ready = true` khi và chỉ khi canonical promotion = PASS VÀ market feature artifact được sinh thành công. Không phụ thuộc vào historical identity, financial PIT, sample-size policy hay research gate. `feature_stage_ready` (deprecated alias) = strict research gate = False khi còn blocker. `research_stage_ready` = strict gate tương đương. Hai khái niệm độc lập và phải được test độc lập. `market_feature_stage_ready = true` KHÔNG mở M2, KHÔNG xác nhận identity, KHÔNG resolve PIT, KHÔNG approve sample-size. `observed_session_coverage` trong machine field giữ nguyên nhưng label trong report phải là `coverage_vs_observed_exchange_sessions` và phải ghi rõ đây là relative to *observed canonical exchange-session union*, KHÔNG phải official HOSE/HNX/UPCOM exchange calendar. |
 | ADR-032 | **A5 recovery acceptance restoration:** CafeF `diagnostic_status=MATCH` chỉ là evidence ratio tương thích, không phải canonical acceptance. Khi field/price-basis contract chưa approved, candidate phải fail-closed dù provider có row hoặc volume bằng 0. Cấm zero-return imputation, forward/back-fill, interpolation, previous-close substitution, missing-to-zero và synthetic market rows. A5-R1 phải version contract trước A5-R2/R3; B0 bị block đến khi recovery semantics/determinism/evidence được chốt. |
+| ADR-033 | **CafeF-primary C3 không dùng KBS comparator:** theo quyết định owner ngày 24/09/2026, branch CafeF đánh giá self-sufficiency trực tiếp từ raw CafeF và không dùng KBS làm acceptance comparator vì KBS thiếu phiên. Quyết định này không approve CafeF price basis. `PriceHistory` chỉ tạo provider-qualified candidates; 11 row OHLC lỗi bị quarantine, CTR/SHB có old-exchange coverage gap, corporate-action/calendar/benchmark/shares/financial domains còn thiếu. Canonical promotion và feature rebuild tiếp tục fail-closed chờ manual review. |
 
 ## Open decisions
 
@@ -89,3 +90,19 @@ Problem: M1 scale cố ý dùng identity `provisional`, nhưng feature builder g
 ## ADR — market_feature_stage_ready vs feature_stage_ready và session coverage label
 
 Problem: `feature_stage_ready` trong canonical manifest M1 bị gắn với strict research gate (`gate_status == "PASS"`), tạo ra sự nhầm lẫn: khi feature artifact đã được sinh thành công mà gate vẫn FAIL (do historical identity provisional / financial PIT unresolved / sample-size policy unresolved), field này = False dù market feature analysis hoàn toàn khả thi. Ngoài ra, `observed_session_coverage` không ghi rõ denominator là observed canonical session union, không phải official exchange calendar, có thể hiểu nhầm là coverage hoàn toàn của HOSE/HNX/UPCOM. Alternatives: đổi gate thành PASS (bị cấm—hạ gate), xóa field (phá compatibility), hoặc tách thành hai concept rõ ràng. Choice: thêm `market_feature_stage_ready` = canonical promotion PASS AND feature artifact generated; giữ `feature_stage_ready` như deprecated alias = strict gate (không thay đổi giá trị); `research_stage_ready` giữ nguyên = strict gate. Hai khái niệm độc lập và được test độc lập. Session coverage label trong report markdown đổi thành `coverage_vs_observed_exchange_sessions` kèm disclaimer; machine field name `observed_session_coverage` giữ nguyên để không phá per_symbol.jsonl schema. Evidence: canonical run `canonical-m1-scale-20260918T141019Z-7c003543`, focused tests A-G, và offline regeneration ngày 18/09/2026. Owner/date: project owner, 18/09/2026. Affected: `m1_scale.py`, `m1_scale_quality.py`, tests, `DECISIONS.md`, quality report markdown. Remaining limits: `market_feature_stage_ready = true` KHÔNG mở M2, KHÔNG approve research sample-size, KHÔNG unlock backtest; ba research blockers vẫn fail-closed.
+
+## ADR — CafeF-primary C3 self-sufficiency thay KBS comparator
+
+Problem: KBS thiếu phiên nên owner không muốn dùng KBS làm acceptance comparator cho
+nhánh CafeF. Alternatives gồm tiếp tục KBS-vs-CafeF, coi CafeF tự động canonical-ready,
+hoặc đánh giá self-sufficiency theo contract hiện tại. Choice: bỏ comparator KBS riêng
+trên branch này và chạy offline C3 field-by-field trên checksummed CafeF raw. CafeF được
+coi là primary **candidate** khi C1 integrity pass, nhưng không tự động thành canonical
+source. Evidence: run `cafef-c2-c3-offline-20260924` có 27/27 raw audit PASS, 33.259
+candidate rows, 11 row OHLC cần quarantine, và hai identity intervals CTR/SHB không có
+observation. C2 chỉ tạo 183 discontinuity diagnostics vì chưa có event documents/terms.
+Owner/date: project owner, 24/09/2026. Affected: CafeF offline audit config/module/script,
+tests và experiment handoff. Remaining limits: price basis, volume/value policy,
+authoritative calendar, benchmark, corporate actions, shares history và financial PIT
+vẫn unresolved; canonical promotion, research-price derivation và feature rebuild phải
+fail-closed đến manual review.

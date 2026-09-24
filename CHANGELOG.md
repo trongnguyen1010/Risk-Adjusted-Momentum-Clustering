@@ -1,5 +1,12 @@
 # Chưa phát hành — REPRESENTATIVE_PILOT readiness (2026-09-16)
 
+- Hoàn tất offline CafeF C1 hậu crawl/C2/C3 cho pilot 27 mã: 27/27 raw audit PASS,
+  33.259 normalized market candidates, 11 provider rows cần quarantine và hai identity
+  intervals CTR/SHB không có observation. C3 dùng CafeF self-sufficiency audit theo
+  owner decision, không chạy KBS comparator; kết quả `PARTIAL_MANUAL_REVIEW_REQUIRED`
+  vì price basis, corporate actions, calendar, benchmark, shares và financial PIT chưa
+  đủ cho canonical. Không network, canonical mutation hoặc feature rebuild.
+
 - Tạm thời gỡ repository-level multi-agent Codex orchestration. DELTA dùng single-agent session do người dùng chọn model, self-review và one-stage execution.
 
 - Corrective A5 recovery semantics: CafeF ratio `MATCH` chỉ là diagnostic evidence, không phải canonical acceptance. CafeF OHLC/price-basis contract vẫn fail-closed; cấm zero-return/forward-fill/previous-close/missing-to-zero và không canonical-mutate baseline. A5 chuyển sang remediation gate A5-R1 trước khi B0 được phép bắt đầu.
