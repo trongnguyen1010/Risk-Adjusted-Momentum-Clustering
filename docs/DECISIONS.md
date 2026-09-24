@@ -37,6 +37,7 @@ Cập nhật 24/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-031 | **`market_feature_stage_ready` vs `research_stage_ready` semantics:** `market_feature_stage_ready = true` khi và chỉ khi canonical promotion = PASS VÀ market feature artifact được sinh thành công. Không phụ thuộc vào historical identity, financial PIT, sample-size policy hay research gate. `feature_stage_ready` (deprecated alias) = strict research gate = False khi còn blocker. `research_stage_ready` = strict gate tương đương. Hai khái niệm độc lập và phải được test độc lập. `market_feature_stage_ready = true` KHÔNG mở M2, KHÔNG xác nhận identity, KHÔNG resolve PIT, KHÔNG approve sample-size. `observed_session_coverage` trong machine field giữ nguyên nhưng label trong report phải là `coverage_vs_observed_exchange_sessions` và phải ghi rõ đây là relative to *observed canonical exchange-session union*, KHÔNG phải official HOSE/HNX/UPCOM exchange calendar. |
 | ADR-032 | **A5 recovery acceptance restoration:** CafeF `diagnostic_status=MATCH` chỉ là evidence ratio tương thích, không phải canonical acceptance. Khi field/price-basis contract chưa approved, candidate phải fail-closed dù provider có row hoặc volume bằng 0. Cấm zero-return imputation, forward/back-fill, interpolation, previous-close substitution, missing-to-zero và synthetic market rows. A5-R1 phải version contract trước A5-R2/R3; B0 bị block đến khi recovery semantics/determinism/evidence được chốt. |
 | ADR-033 | **CafeF-primary C3 không dùng KBS comparator:** theo quyết định owner ngày 24/09/2026, branch CafeF đánh giá self-sufficiency trực tiếp từ raw CafeF và không dùng KBS làm acceptance comparator vì KBS thiếu phiên. Quyết định này không approve CafeF price basis. `PriceHistory` chỉ tạo provider-qualified candidates; 11 row OHLC lỗi bị quarantine, CTR/SHB có old-exchange coverage gap, corporate-action/calendar/benchmark/shares/financial domains còn thiếu. Canonical promotion và feature rebuild tiếp tục fail-closed chờ manual review. |
+| ADR-034 | **CafeF C3-R1 canonical market contract:** owner chấp nhận `GiaDieuChinh × 1000` làm `adj_close` với `adjustment_basis=vendor_adjusted`, chỉ như research-price proxy; provider OHLC giữ staging-only và canonical `raw_* = null`. Total volume/value là tổng matched + negotiated chỉ khi cả hai component non-null/non-negative. 11 row lỗi bị loại không repair. Historical market availability dùng giả định 17:00 +07; identity pilot dùng effective-from availability và vẫn provisional. Reviewed shared-session calendar và VNINDEX price index được reuse, chỉ extension benchmark có đúng một public request. Non-market domains được defer. Pilot C3-R1 là `PARTIAL_MANUAL_REVIEW_REQUIRED` vì gap phiên CafeF làm `mom_252` và market-feature gate đạt 0/27; cấm fill hoặc nén timeline. |
 
 ## Open decisions
 
@@ -106,3 +107,31 @@ tests và experiment handoff. Remaining limits: price basis, volume/value policy
 authoritative calendar, benchmark, corporate actions, shares history và financial PIT
 vẫn unresolved; canonical promotion, research-price derivation và feature rebuild phải
 fail-closed đến manual review.
+
+## ADR — CafeF C3-R1 vendor-adjusted canonical market pilot
+
+Problem: C3 đã chứng minh raw integrity nhưng chưa có price basis, total-activity,
+availability, calendar và benchmark contract đủ để thử canonical market pipeline.
+Alternatives gồm tiếp tục chặn toàn bộ, tự tái dựng corporate actions, hoặc chấp nhận
+bounded vendor-adjusted proxy. Choice: `GiaDieuChinh × 1000` được map vào `adj_close`
+với `vendor_adjusted`; không tuyên bố split-only/total-return. Provider OHLC không đi vào
+canonical `raw_*`. Volume và traded value chỉ cộng matched + negotiated khi cả hai
+component có evidence; missing giữ null. Eleven invalid rows bị quarantine và không sửa.
+Historical `available_at` là 17:00 +07 theo
+`CAFEF_EOD_AVAILABILITY_ASSUMPTION_V1`; identity vẫn
+`provisional_verified_for_pilot` theo effective-from assumption.
+
+Reviewed canonical security/calendar/VNINDEX evidence được reuse; VNINDEX chỉ được nối
+đến 23/09/2026 bằng một bounded public benchmark request. Calendar là
+`BENCHMARK_DERIVED_RESEARCH_CALENDAR_V1`, áp shared sessions cho HOSE/HNX/UPCOM và
+không được gọi là official. Shares, corporate actions và financial domains được defer
+vì active market features không phụ thuộc chúng. Dry-run tạo đủ snapshot cho 27 mã,
+nhưng CafeF thiếu hai open sessions 29–30/01/2026 ở mọi mã và còn thiếu 13 sessions
+02–25/02/2026 ở ACV/QNS/VEA/VGI. Vì `mom_252` yêu cầu full real window, coverage là
+0/27 và stage giữ `PARTIAL_MANUAL_REVIEW_REQUIRED`; không ffill, interpolate, zero
+return hay timeline compression. Evidence: immutable local artifact
+`cafef-canonical-market-pilot-v1`, quality report và output hashes ngày 24/09/2026.
+Affected: canonical builder/config/tests, CafeF experiment plan và feature readiness.
+Remaining limits: cần resolve đúng các missing sessions; CTR old UPCOM và SHB old HNX
+vẫn là structural coverage exceptions; historical identity, financial PIT và rights
+không được nâng cấp bởi quyết định này.

@@ -558,3 +558,45 @@ after_explicit_user_approval: APPROVE_OR_REJECT_CAFEF_RAW_OHLC_MAPPING_AND_PLAN_
 
 STOP after C3. Do not promote CafeF candidates or rebuild features without explicit
 price-basis and missing-domain decisions.
+
+## 19. Kết quả C3-R1 — Canonical market contract và 27-security pilot
+
+Owner đã phê duyệt price-basis và missing-domain decisions cho đúng stage C3-R1.
+Builder mới tạo immutable local artifact
+`artifacts/cafef_primary/cafef-canonical-market-pilot-v1/` mà không overwrite baseline:
+
+- `GiaDieuChinh × 1000 → adj_close`, `adjustment_basis=vendor_adjusted`; canonical
+  `raw_open/high/low/close=null`, provider OHLC vẫn ở staging;
+- 33.248 canonical price rows; 11 quarantine rows không giao với canonical;
+- 30 security interval rows cho 27 stable securities, giữ nguyên BCM/CTR/SHB history;
+- 3.738 shared-session calendar rows và 1.244 VNINDEX price-index rows;
+- calendar/security/benchmark reuse reviewed local evidence; đúng một public VNINDEX
+  extension request, không crawl lại CafeF và không dùng KBS equity comparator;
+- schemas, uniqueness, identity relation, calendar relation và no-imputation đều PASS;
+- CTR old UPCOM và SHB old HNX vẫn là
+  `UNRESOLVED_IDENTITY_INTERVAL_NO_OBSERVATIONS`;
+- shares/corporate-actions/financial reports/facts là
+  `DEFERRED_NOT_REQUIRED_FOR_CURRENT_MARKET_PIPELINE`.
+
+Feature dry-run chạy đủ 27 mã và giữ nguyên tám required features. Bảy feature có
+27/27 non-null; `mom_252` có 0/27 vì CafeF thiếu open sessions 29–30/01/2026 cho mọi
+mã, và ACV/QNS/VEA/VGI còn thiếu 02–13 cùng 23–25/02/2026. Missing giữ `None`, không
+fill hoặc nén timeline. Vì vậy `market_feature_ready=0/27`, `research_ready=0/27` và
+stage là `PARTIAL_MANUAL_REVIEW_REQUIRED`, không được ép PASS.
+
+```yaml
+stage: C3-R1_CAFEF_CANONICAL_MARKET_CONTRACT
+status: PARTIAL_MANUAL_REVIEW_REQUIRED
+canonical_prices_daily: 33248
+quarantined_rows: 11
+security_interval_rows: 30
+trading_calendar_rows: 3738
+benchmark_rows: 1244
+network_requests: 1
+feature_dry_run: PASS
+market_feature_ready: 0/27
+research_ready: 0/27
+canonical_baseline_overwritten: NO
+scale_crawl: NO
+next_allowed_action: RESOLVE_ONLY_REPORTED_CAFEF_MISSING_SESSION_BLOCKERS
+```

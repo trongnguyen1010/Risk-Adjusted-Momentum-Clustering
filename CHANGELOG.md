@@ -1,5 +1,12 @@
 # Chưa phát hành — REPRESENTATIVE_PILOT readiness (2026-09-16)
 
+- Thêm C3-R1 CafeF canonical market pilot: chấp nhận `GiaDieuChinh` làm
+  `vendor_adjusted` research proxy, giữ raw OHLC staging-only, null-safe total activity,
+  11-row quarantine, pilot identity/calendar/VNINDEX reuse và đúng một bounded benchmark
+  request. Canonical schemas/relations PASS với 33.248 price rows, nhưng stage giữ
+  `PARTIAL_MANUAL_REVIEW_REQUIRED`: CafeF thiếu sessions trong cửa sổ 253 phiên nên
+  `mom_252` và `market_feature_ready` đạt 0/27; không fill hoặc hạ required-feature gate.
+
 - Hoàn tất offline CafeF C1 hậu crawl/C2/C3 cho pilot 27 mã: 27/27 raw audit PASS,
   33.259 normalized market candidates, 11 provider rows cần quarantine và hai identity
   intervals CTR/SHB không có observation. C3 dùng CafeF self-sufficiency audit theo
