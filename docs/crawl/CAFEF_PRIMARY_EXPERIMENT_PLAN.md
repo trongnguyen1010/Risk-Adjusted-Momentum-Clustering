@@ -611,3 +611,15 @@ observations remain fail-closed and are excluded from automatic endpoint
 recommendations. Network fallback is planned only, never executed in C3-R2.
 The resulting index is an external-local-evidence dependency, not canonical
 data and not a portable raw-data dependency.
+# C4 — TRADEHISTORYNEW 500-SECURITY MARKET SOURCE EVALUATION
+
+C4 treats the reviewed 500-security M1 universe as the breadth evaluation and
+keeps the 27-security PriceHistory comparison as a deep-validation subset.
+Complete PriceHistory-to-TradeHistory reconciliation is no longer a prerequisite
+for measuring TradeHistoryNew breadth. `AdjustPrice` is the frozen vendor-adjusted
+research-price field; `ClosePrice` is the provider-published raw close. Historical
+Open, High, and Low are unavailable on TradeHistoryNew, are not required by the
+current feature set, and may be supplied only by a future versioned enrichment.
+The evaluation uses no imputation, keeps strict missing sessions and conflicts,
+and has no arbitrary readiness target. C4 is offline and does not promote its
+experimental candidate into production canonical data.
