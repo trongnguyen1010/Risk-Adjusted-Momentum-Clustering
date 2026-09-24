@@ -7,14 +7,23 @@ branch: m1-cafef-primary-experiment
 forked_from_branch: m1-scale-500-team-crawl
 fork_base_commit: e886f68875fb5c079e57c9b51cae9e6bf5a8047b
 current_experiment: CafeF Primary Data Foundation Experiment
-last_completed_stage: C1-SOLO-RANGE-CONTRACT-FIX
+last_completed_stage: C1-HISTORY-POLICY-V3
 c0_result: COMPLETED / USER_APPROVED
 c1_prep_v1_status: SUPERSEDED / HISTORICAL_ONLY
 c1_execution_model: SINGLE_LOCAL_RUNNER
 c1_solo_plan_version: cafef_c1_solo_v2
 pilot_security_count: 27
 collection_end_date: 2026-09-23
-history_policy: FULL_AVAILABLE_UP_TO_MAX_15Y
+history_policy: HISTORY_POLICY_V3
+default_history_tier: BASE_5Y
+base_history_lower_bound: 2021-09-23
+deep_history_tier: DEEP_10Y_DETERMINISTIC_STRATIFIED
+long_history_tier: LONG_15Y_VALIDATION_ONLY
+old_15y_for_all_policy: SUPERSEDED
+old_v2_3_run: STOPPED_NOT_RESUMABLE_AS_V3
+valid_completed_old_history: REUSED_WHERE_COMPLETE
+partial_old_history: NOT_AUTOMATICALLY_REUSED
+active_plan: cafef-c1-history-v3
 priority_policy: CAFEF_C1_SOLO_PRIORITY_V2
 c1_actual_crawl_executed: INVALID_PRE_FIX_RUN_OCCURRED_AND_DELETED
 data_crawl_executed: INVALID_PRE_FIX_RUN_OCCURRED_AND_DELETED
@@ -33,17 +42,20 @@ range_contract_finding: LONG_RANGE_SILENT_TRUNCATION_CONFIRMED_BY_LIVE_ACB_SAMPL
 old_range_policy: NON_OVERLAPPING_CALENDAR_YEAR_CHUNKS
 old_range_policy_status: INVALID_FOR_C1_COMPLETENESS
 new_range_policy: NON_OVERLAPPING_CALENDAR_QUARTER_INTERSECTIONS
-quarter_range_count: 1457
-estimated_total_requests: 5723
+existing_long_history_complete_count: 10
+base5y_reused_count: 10
+base5y_crawl_required_count: 17
+base5y_quarter_range_count: 359
+base5y_estimated_requests: 1360
 request_estimate_label: ESTIMATE_NOT_ACTUAL
-old_local_crawl_artifacts: DELETED_BY_USER_REQUEST
+old_local_crawl_artifacts: STOPPED_V2_3_SOURCE_ARTIFACT_PRESERVED
 canonical_mutation: NO
 canonical_mutations: 0
 feature_rebuild: NO
 five_worker_execution: DEFERRED_TO_C4_PREP_SCALE
 why: C1-PREP v1 was preserved as history; the active representative pilot now uses one frozen resumable local run
-next_allowed_action: USER MANUAL REVIEW AND SMALL LIVE QUARTER SANITY RUN
-after_explicit_user_approval: USER MAY RUN NEW C1-SOLO MAIN RUN
+next_allowed_action: USER MANUAL REVIEW OF V3 PLAN
+after_explicit_user_approval: RUN BASE_5Y CRAWL ONLY FOR CRAWL_REQUIRED SECURITIES
 c1_prep_solo_crawl_execution: NO
 user_manual_review_required: YES
 ```
@@ -434,7 +446,7 @@ C0 không chọn outcome.
 ## 17. Current status / Handoff
 
 ```yaml
-stage: C1-SOLO-RANGE-CONTRACT-FIX
+stage: C1-HISTORY-POLICY-V3
 status: COMPLETED / USER_MANUAL_REVIEW_REQUIRED
 documents:
   - docs/crawl/CAFEF_PRIMARY_EXPERIMENT_PLAN.md
@@ -460,23 +472,35 @@ range_contract_finding: LONG_RANGE_SILENT_TRUNCATION_CONFIRMED_BY_LIVE_ACB_SAMPL
 old_range_policy: NON_OVERLAPPING_CALENDAR_YEAR_CHUNKS
 old_range_policy_status: INVALID_FOR_C1_COMPLETENESS
 new_range_policy: NON_OVERLAPPING_CALENDAR_QUARTER_INTERSECTIONS
-quarter_range_count: 1457
-estimated_total_requests: 5723
+existing_long_history_complete_count: 10
+base5y_reused_count: 10
+base5y_crawl_required_count: 17
+base5y_quarter_range_count: 359
+base5y_estimated_requests: 1360
 request_estimate_label: ESTIMATE_NOT_ACTUAL
-old_local_crawl_artifacts: DELETED_BY_USER_REQUEST
+old_local_crawl_artifacts: STOPPED_V2_3_SOURCE_ARTIFACT_PRESERVED
 canonical_mutations: 0
 feature_rebuild: NO
 five_worker_execution: DEFERRED_TO_C4_PREP_SCALE
 pilot_security_count: 27
 parallel_requests: NO
 collection_end_date: 2026-09-23
-history_policy: FULL_AVAILABLE_UP_TO_MAX_15Y
+history_policy: HISTORY_POLICY_V3
+default_history_tier: BASE_5Y
+base_history_lower_bound: 2021-09-23
+deep_history_tier: DEEP_10Y_DETERMINISTIC_STRATIFIED
+long_history_tier: LONG_15Y_VALIDATION_ONLY
+old_15y_for_all_policy: SUPERSEDED
+old_v2_3_run: STOPPED_NOT_RESUMABLE_AS_V3
+valid_completed_old_history: REUSED_WHERE_COMPLETE
+partial_old_history: NOT_AUTOMATICALLY_REUSED
+active_plan: cafef-c1-history-v3
 priority_policy: CAFEF_C1_SOLO_PRIORITY_V2
-next_allowed_action: USER MANUAL REVIEW AND SMALL LIVE QUARTER SANITY RUN
+next_allowed_action: USER MANUAL REVIEW OF V3 PLAN
 forbidden_until_explicit_approval:
   - any crawl
   - C1-SOLO
-after_explicit_user_approval: USER MAY RUN NEW C1-SOLO MAIN RUN
+after_explicit_user_approval: RUN BASE_5Y CRAWL ONLY FOR CRAWL_REQUIRED SECURITIES
 ```
 
-STOP after C1-SOLO-RANGE-CONTRACT-FIX. Do not execute C1-SOLO without explicit user approval.
+STOP after C1-HISTORY-POLICY-V3. Do not execute the V3 BASE crawl without explicit user approval.

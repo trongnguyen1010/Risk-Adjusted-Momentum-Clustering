@@ -385,6 +385,8 @@ def build_plan(root: Path, output_dir: Path) -> dict:
         "plan_version": PLAN_VERSION,
         "stage": "C1-SOLO-RANGE-CONTRACT-FIX",
         "status": "COMPLETED_USER_MANUAL_REVIEW_REQUIRED",
+        "active_acquisition_status": "SUPERSEDED_FOR_ACTIVE_BASE_ACQUISITION",
+        "superseded_by": "cafef-c1-history-v3",
         "execution_model": "SINGLE_LOCAL_RUNNER",
         "priority_policy": PRIORITY_POLICY,
         "selection_policy": "EXPLICIT_REVIEWABLE_MANUAL_SEEDS_FROM_CORRECTIVE_BRIEF_AND_EXISTING_PROJECT_EVIDENCE_STABLE_TICKER_TIEBREAK",

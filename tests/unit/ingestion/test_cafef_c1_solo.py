@@ -23,9 +23,10 @@ def _load(name, relative_path):
     return module
 
 
-PLANNER = _load("plan_cafef_c1_solo", "scripts/plan_cafef_c1_solo.py")
+PLANNER = _load("plan_cafef_c1_history_v3", "scripts/plan_cafef_c1_history_v3.py")
 RUNNER = _load("run_cafef_c1_solo", "scripts/run_cafef_c1_solo.py")
-PLAN_DIR = ROOT / "docs/crawl/plans/cafef_c1_solo_v2"
+V2_PLAN_DIR = ROOT / "docs/crawl/plans/cafef_c1_solo_v2"
+PLAN_DIR = ROOT / "docs/crawl/plans/cafef_c1_history_v3"
 
 
 class FakeClient:
@@ -61,17 +62,17 @@ class CafeFC1SoloPlanTests(unittest.TestCase):
         self.assertEqual(list(range(1, 28)), [int(row["execution_order"]) for row in rows])
         self.assertEqual("CAFEF_C1_SOLO_PRIORITY_V2", manifest["priority_policy"])
         self.assertEqual("2026-09-23", contract["collection_end_date"])
-        self.assertEqual("CAFEF_C1_SOLO_RAW_CONTRACT_V2_3", contract["contract_version"])
-        self.assertEqual("CAFEF_C1_SOLO_RESUME_V2_3", resume["contract_version"])
+        self.assertEqual("CAFEF_C1_SOLO_RAW_CONTRACT_V3_0", contract["contract_version"])
+        self.assertEqual("CAFEF_C1_SOLO_RESUME_V3_0", resume["contract_version"])
         self.assertEqual(
             "NON_OVERLAPPING_CALENDAR_QUARTER_INTERSECTIONS_OLDEST_TO_NEWEST",
             contract["request_surface"]["range_iteration"],
         )
-        self.assertEqual(5723, manifest["estimated_total_requests"])
-        with (PLAN_DIR / "cafef_c1_solo_request_estimates.csv").open(encoding="utf-8", newline="") as stream:
-            estimates = list(csv.DictReader(stream))
-        self.assertEqual(1457, sum(int(row["range_chunk_count"]) for row in estimates))
-        self.assertEqual(5723, sum(int(row["estimated_requests"]) for row in estimates))
+        self.assertEqual("HISTORY_POLICY_V3", contract["history_policy"])
+        self.assertEqual(10, manifest["base5y_reused_count"])
+        self.assertEqual(17, manifest["base5y_crawl_required_count"])
+        self.assertEqual(359, manifest["base5y_quarter_range_count"])
+        self.assertEqual(1360, manifest["base5y_estimated_requests"])
         self.assertTrue(all(RUNNER.identity_request_segments(row) for row in rows))
 
     def test_active_endpoint_matches_verified_adapter_contract(self):
@@ -80,30 +81,44 @@ class CafeFC1SoloPlanTests(unittest.TestCase):
         self.assertEqual(expected, PRICE_HISTORY_ENDPOINT)
         self.assertEqual(PRICE_HISTORY_ENDPOINT, contract["request_surface"]["base_url"])
 
+    def test_v3_preserves_the_v2_logical_pilot(self):
+        with (V2_PLAN_DIR / "cafef_c1_solo_execution_order.csv").open(encoding="utf-8", newline="") as stream:
+            old_rows = list(csv.DictReader(stream))
+        with (PLAN_DIR / "cafef_c1_history_v3_plan.csv").open(encoding="utf-8", newline="") as stream:
+            new_rows = list(csv.DictReader(stream))
+        fields = [
+            "execution_order", "security_id", "ticker", "exchange", "pilot_role", "priority_tier",
+            "identity_intervals", "methodology_edge_case", "known_evidence_tags",
+        ]
+        self.assertEqual(
+            [{field: row[field] for field in fields} for row in old_rows],
+            [{field: row[field] for field in fields} for row in new_rows],
+        )
+
     def test_planner_outputs_are_byte_deterministic(self):
         first = ROOT / "tmp/cafef_c1_solo_deterministic_first"
         second = ROOT / "tmp/cafef_c1_solo_deterministic_second"
         shutil.rmtree(first, ignore_errors=True)
         shutil.rmtree(second, ignore_errors=True)
-        PLANNER.build_plan(ROOT, first)
-        PLANNER.build_plan(ROOT, second)
+        PLANNER.build_plan(V2_PLAN_DIR, first, [], None)
+        PLANNER.build_plan(V2_PLAN_DIR, second, [], None)
         first_files = {path.name: path.read_bytes() for path in first.iterdir()}
         second_files = {path.name: path.read_bytes() for path in second.iterdir()}
         self.assertEqual(first_files, second_files)
 
-    def test_history_is_at_most_fifteen_calendar_years_and_end_is_frozen(self):
-        with (PLAN_DIR / "cafef_c1_solo_execution_order.csv").open(encoding="utf-8", newline="") as stream:
+    def test_base_history_is_at_most_five_calendar_years_and_end_is_frozen(self):
+        with (PLAN_DIR / "cafef_c1_history_v3_plan.csv").open(encoding="utf-8", newline="") as stream:
             rows = list(csv.DictReader(stream))
         for row in rows:
-            start = datetime.fromisoformat(row["target_start"]).date()
-            end = datetime.fromisoformat(row["target_end"]).date()
+            start = datetime.fromisoformat(row["base_5y_target_start"]).date()
+            end = datetime.fromisoformat(row["base_5y_target_end"]).date()
             self.assertEqual(datetime(2026, 9, 23).date(), end)
-            self.assertGreaterEqual(start, datetime(end.year - 15, end.month, end.day).date())
+            self.assertGreaterEqual(start, datetime(end.year - 5, end.month, end.day).date())
             self.assertEqual("YES", row["crawl_allowed"])
         by_ticker = {row["ticker"]: row for row in rows}
-        self.assertEqual("2018-07-10", by_ticker["BCM"]["target_start"])
-        self.assertEqual("2018-12-06", by_ticker["CTR"]["target_start"])
-        self.assertEqual("2011-09-23", by_ticker["SHB"]["target_start"])
+        self.assertEqual("2021-09-23", by_ticker["BCM"]["base_5y_target_start"])
+        self.assertEqual("2021-09-23", by_ticker["CTR"]["base_5y_target_start"])
+        self.assertEqual("2021-09-23", by_ticker["SHB"]["base_5y_target_start"])
 
     def test_full_year_is_split_into_calendar_quarters(self):
         ranges = RUNNER.iter_calendar_quarter_intersections(
@@ -174,7 +189,7 @@ class CafeFC1SoloPlanTests(unittest.TestCase):
                     )
 
     def test_transfer_identity_intervals_control_bcm_ctr_and_shb_routing(self):
-        with (PLAN_DIR / "cafef_c1_solo_execution_order.csv").open(encoding="utf-8", newline="") as stream:
+        with (V2_PLAN_DIR / "cafef_c1_solo_execution_order.csv").open(encoding="utf-8", newline="") as stream:
             by_ticker = {row["ticker"]: row for row in csv.DictReader(stream)}
         bcm = RUNNER.identity_request_segments(by_ticker["BCM"])
         self.assertEqual(
@@ -275,7 +290,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
             execute=True,
             run_id=run_id,
             max_requests=1,
-            only_ticker="FPT",
+            only_ticker="MBB",
             client=client,
             sleep=lambda _seconds: None,
             now=self.now,
@@ -287,7 +302,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         with self.assertRaises(expected_exception):
             RUNNER.run_solo(
                 plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-                run_id=run_id, max_requests=1, only_ticker="FPT", client=client,
+                run_id=run_id, max_requests=1, only_ticker="MBB", client=client,
                 sleep=lambda _seconds: None, now=self.now,
             )
         run_dir = self.artifact_root / run_id
@@ -309,10 +324,22 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(RUNNER.RunnerError, "--execute"):
             RUNNER.run_solo(plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=False)
 
+    def test_reused_existing_history_produces_zero_http_calls(self):
+        client = FakeClient([(200, RAW_BODY)])
+        run_dir = RUNNER.run_solo(
+            plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
+            run_id="reuse-fpt", max_requests=1, only_ticker="FPT", client=client,
+            sleep=lambda _seconds: None, now=self.now,
+        )
+        self.assertEqual(0, client.calls)
+        progress = json.loads((run_dir / "progress.json").read_text(encoding="utf-8"))
+        self.assertEqual("COMPLETED", progress["status"])
+        self.assertEqual(["FPT"], progress["reused_securities"])
+
     def test_cross_quarter_guard_fails_before_http_call(self):
         rows, _manifest, _contract, _failure, _resume = RUNNER.load_frozen_plan(PLAN_DIR)
-        fpt = next(row for row in rows if row["ticker"] == "FPT")
-        segment = RUNNER.identity_request_segments(fpt)[0]
+        mbb = next(row for row in rows if row["ticker"] == "MBB")
+        segment = RUNNER.identity_request_segments(mbb)[0]
         invalid_ranges = iter([(
             segment, datetime(2012, 1, 1).date(), datetime(2012, 12, 31).date()
         )])
@@ -321,7 +348,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
             with self.assertRaisesRegex(RUNNER.RunnerError, "one calendar quarter"):
                 RUNNER.run_solo(
                     plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-                    run_id="invalid-cross-quarter", max_requests=1, only_ticker="FPT",
+                    run_id="invalid-cross-quarter", max_requests=1, only_ticker="MBB",
                     client=client, sleep=lambda _seconds: None, now=self.now,
                 )
         self.assertEqual(0, client.calls)
@@ -338,7 +365,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         entry = json.loads((run_dir / "request_log.jsonl").read_text(encoding="utf-8").splitlines()[0])
         self.assertEqual("HOSE", entry["exchange"])
         self.assertEqual("HOSE", entry["request_params"]["ExchangeType"])
-        self.assertEqual("2006-12-13", entry["identity_interval_effective_from"])
+        self.assertEqual("2011-11-01", entry["identity_interval_effective_from"])
         self.assertIsNone(entry["identity_interval_effective_to"])
 
     def test_resume_skips_checksum_valid_completed_request(self):
@@ -353,7 +380,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
             resume=True,
             run_id=run_dir.name,
             max_requests=1,
-            only_ticker="FPT",
+            only_ticker="MBB",
             client=resumed_client,
             sleep=lambda _seconds: None,
             now=self.now,
@@ -363,17 +390,17 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         progress = json.loads((run_dir / "progress.json").read_text(encoding="utf-8"))
         self.assertEqual(2, len(progress["completed"]))
 
-    def test_resume_rejects_pre_quarter_contract_versions(self):
+    def test_resume_rejects_v23_contract_versions(self):
         run_dir, _client = self._run_one()
         manifest_path = run_dir / "manifest.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        manifest["contract_version"] = "CAFEF_C1_SOLO_RAW_CONTRACT_V2_2"
-        manifest["resume_contract_version"] = "CAFEF_C1_SOLO_RESUME_V2_2"
+        manifest["contract_version"] = "CAFEF_C1_SOLO_RAW_CONTRACT_V2_3"
+        manifest["resume_contract_version"] = "CAFEF_C1_SOLO_RESUME_V2_3"
         manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
         with self.assertRaisesRegex(RUNNER.RunnerError, "resume identity mismatch"):
             RUNNER.run_solo(
                 plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-                resume=True, run_id=run_dir.name, max_requests=1, only_ticker="FPT",
+                resume=True, run_id=run_dir.name, max_requests=1, only_ticker="MBB",
                 client=FakeClient([(200, RAW_BODY)]), sleep=lambda _seconds: None, now=self.now,
             )
 
@@ -385,7 +412,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
                 with self.assertRaises(RUNNER.AccessControlStop):
                     RUNNER.run_solo(
                         plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-                        run_id=run_id, max_requests=1, only_ticker="FPT", client=client,
+                        run_id=run_id, max_requests=1, only_ticker="MBB", client=client,
                         sleep=lambda _seconds: None, now=self.now,
                     )
                 progress = json.loads((self.artifact_root / run_id / "progress.json").read_text(encoding="utf-8"))
@@ -399,7 +426,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
                 self.assertEqual(b"Access denied", evidence[0].read_bytes())
 
     def test_live_request_builder_sends_literal_exchange_labels(self):
-        for ticker, exchange in (("FPT", "HOSE"), ("PVS", "HNX"), ("ACV", "UPCOM")):
+        for ticker, exchange in (("MBB", "HOSE"), ("PVS", "HNX"), ("VEA", "UPCOM")):
             with self.subTest(ticker=ticker):
                 client = FakeClient([(200, RAW_BODY)])
                 RUNNER.run_solo(
@@ -414,7 +441,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         client = FakeClient([(200, empty)])
         run_dir = RUNNER.run_solo(
             plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-            run_id="valid-empty", max_requests=1, only_ticker="FPT", client=client,
+            run_id="valid-empty", max_requests=1, only_ticker="MBB", client=client,
             sleep=lambda _seconds: None, now=self.now,
         )
         entry = json.loads((run_dir / "request_log.jsonl").read_text(encoding="utf-8").splitlines()[0])
@@ -457,7 +484,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         with self.assertRaises(RUNNER.TransientRequestError):
             RUNNER.run_solo(
                 plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-                run_id="bounded-retry", max_requests=1, only_ticker="FPT", client=client,
+                run_id="bounded-retry", max_requests=1, only_ticker="MBB", client=client,
                 sleep=lambda _seconds: None, now=self.now,
             )
         self.assertEqual(2, client.calls)
@@ -476,7 +503,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         with self.assertRaises(RUNNER.TransientRequestError):
             RUNNER.run_solo(
                 plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-                run_id="transport-failure", max_requests=1, only_ticker="FPT", client=client,
+                run_id="transport-failure", max_requests=1, only_ticker="MBB", client=client,
                 sleep=lambda _seconds: None, now=self.now,
             )
         run_dir = self.artifact_root / "transport-failure"
@@ -491,7 +518,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         resumed_client = FakeClient([(200, RAW_BODY)])
         RUNNER.run_solo(
             plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-            resume=True, run_id=run_dir.name, max_requests=1, only_ticker="FPT",
+            resume=True, run_id=run_dir.name, max_requests=1, only_ticker="MBB",
             client=resumed_client, sleep=lambda _seconds: None, now=self.now,
         )
         self.assertEqual(1, resumed_client.calls)
@@ -501,10 +528,10 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
     def test_duplicate_untracked_raw_is_not_overwritten(self):
         rows, manifest, contract, _failure, _resume = RUNNER.load_frozen_plan(PLAN_DIR)
         run_dir = self.artifact_root / "duplicate-raw"
-        resume_contract = json.loads((PLAN_DIR / "cafef_c1_solo_resume_contract.json").read_text(encoding="utf-8"))
+        resume_contract = json.loads((PLAN_DIR / "cafef_c1_history_v3_resume_contract.json").read_text(encoding="utf-8"))
         RUNNER._initialize_run(run_dir, PLAN_DIR, manifest, contract, resume_contract, self.now())
-        fpt = next(row for row in rows if row["ticker"] == "FPT")
-        segment = RUNNER.identity_request_segments(fpt)[0]
+        mbb = next(row for row in rows if row["ticker"] == "MBB")
+        segment = RUNNER.identity_request_segments(mbb)[0]
         range_start, range_end = next(iter(RUNNER.iter_calendar_quarter_intersections(
             segment["request_start"], segment["request_end"]
         )))
@@ -519,7 +546,7 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(RUNNER.RunnerError, "refusing to overwrite"):
             RUNNER.run_solo(
                 plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
-                resume=True, run_id=run_dir.name, max_requests=1, only_ticker="FPT",
+                resume=True, run_id=run_dir.name, max_requests=1, only_ticker="MBB",
                 client=client, sleep=lambda _seconds: None, now=self.now,
             )
         self.assertEqual(b"existing-immutable-bytes", raw_path.read_bytes())

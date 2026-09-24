@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Sequential, resumable raw-only runner for the frozen CafeF C1-SOLO v2 plan.
+"""Sequential, resumable raw-only runner for the active CafeF C1 history plan.
 
-This file is prepared in C1-PREP-SOLO but must not be executed against CafeF until the
-user has manually reviewed the plan and explicitly approved C1-SOLO.
+It must not be executed against CafeF until the user has manually reviewed the frozen
+active plan and explicitly approved acquisition.
 """
 
 from __future__ import annotations
@@ -26,9 +26,9 @@ from typing import Callable, Iterable
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PLAN_DIR = ROOT / "docs/crawl/plans/cafef_c1_solo_v2"
+PLAN_DIR = ROOT / "docs/crawl/plans/cafef_c1_history_v3"
 ARTIFACT_ROOT = ROOT / "artifacts/cafef_primary"
-PLAN_FILES = (
+V2_PLAN_FILES = (
     "cafef_c1_solo_selected_pilot.csv",
     "cafef_c1_solo_execution_order.csv",
     "cafef_c1_solo_request_estimates.csv",
@@ -154,22 +154,27 @@ def _code_version() -> str:
 
 def load_frozen_plan(plan_dir: Path = PLAN_DIR) -> tuple[list[dict[str, str]], dict, dict, dict, dict]:
     manifest = _read_json(plan_dir / "manifest.json")
-    contract = _read_json(plan_dir / "cafef_c1_solo_contract.json")
-    failure = _read_json(plan_dir / "cafef_c1_solo_failure_policy.json")
-    resume = _read_json(plan_dir / "cafef_c1_solo_resume_contract.json")
-    with (plan_dir / "cafef_c1_solo_execution_order.csv").open(encoding="utf-8", newline="") as stream:
+    plan_files = tuple(manifest.get("plan_files", V2_PLAN_FILES))
+    contract_file = manifest.get("contract_file", "cafef_c1_solo_contract.json")
+    failure_file = manifest.get("failure_policy_file", "cafef_c1_solo_failure_policy.json")
+    resume_file = manifest.get("resume_contract_file", "cafef_c1_solo_resume_contract.json")
+    execution_file = manifest.get("execution_plan_file", "cafef_c1_solo_execution_order.csv")
+    contract = _read_json(plan_dir / contract_file)
+    failure = _read_json(plan_dir / failure_file)
+    resume = _read_json(plan_dir / resume_file)
+    with (plan_dir / execution_file).open(encoding="utf-8", newline="") as stream:
         rows = list(csv.DictReader(stream))
     orders = [int(row["execution_order"]) for row in rows]
     if orders != list(range(1, len(rows) + 1)):
         raise RunnerError("frozen execution_order is not contiguous and deterministic")
-    if any(row["target_end"] != contract["collection_end_date"] for row in rows):
+    if any((row.get("base_5y_target_end") or row["target_end"]) != contract["collection_end_date"] for row in rows):
         raise RunnerError("plan target_end differs from frozen collection_end_date")
     expected_hashes = manifest["output_hashes"]
-    for name in PLAN_FILES:
+    for name in plan_files:
         actual = sha256_file(plan_dir / name)
         if expected_hashes.get(name) != actual:
             raise RunnerError(f"frozen plan checksum mismatch: {name}")
-    plan_hash = sha256_bytes(b"".join((plan_dir / name).read_bytes() for name in sorted(PLAN_FILES)))
+    plan_hash = sha256_bytes(b"".join((plan_dir / name).read_bytes() for name in sorted(plan_files)))
     if plan_hash != manifest["plan_hash"]:
         raise RunnerError("frozen plan hash mismatch")
     return rows, manifest, contract, failure, resume
@@ -209,8 +214,8 @@ def identity_request_segments(row: dict[str, str]) -> list[dict]:
         raise RunnerError(f"invalid frozen identity_intervals for {row.get('ticker', '<unknown>')}") from exc
     if not isinstance(intervals, list) or not intervals:
         raise RunnerError(f"crawlable row has no identity intervals: {row.get('ticker', '<unknown>')}")
-    target_start = date.fromisoformat(row["target_start"])
-    target_end = date.fromisoformat(row["target_end"])
+    target_start = date.fromisoformat(row.get("base_5y_target_start") or row["target_start"])
+    target_end = date.fromisoformat(row.get("base_5y_target_end") or row["target_end"])
     segments: list[dict] = []
     for interval in intervals:
         if not isinstance(interval, dict):
@@ -499,11 +504,12 @@ def _initialize_run(
         raise RunnerError(f"run directory already exists: {run_dir}")
     snapshot = run_dir / "plan_snapshot"
     snapshot.mkdir(parents=True)
-    for name in (*PLAN_FILES, "manifest.json"):
+    plan_files = tuple(manifest.get("plan_files", V2_PLAN_FILES))
+    for name in (*plan_files, "manifest.json"):
         shutil.copy2(plan_dir / name, snapshot / name)
     identity = {
         "run_id": run_dir.name,
-        "stage": "C1-SOLO",
+        "stage": manifest.get("stage", "C1-SOLO"),
         "status": "RUNNING",
         "plan_id": manifest["plan_id"],
         "plan_hash": manifest["plan_hash"],
@@ -512,6 +518,9 @@ def _initialize_run(
         "code_version": _code_version(),
         "collection_end_date": contract["collection_end_date"],
         "hard_lower_date_boundary": contract["hard_lower_date_boundary"],
+        "history_policy": contract.get("history_policy", "FULL_AVAILABLE_UP_TO_MAX_15Y"),
+        "reused_security_count": int(manifest.get("base5y_reused_count", 0)),
+        "scheduled_crawl_security_count": int(manifest.get("base5y_crawl_required_count", 0)),
         "created_at": now.isoformat(),
         "raw_only": True,
         "canonical_mutations": 0,
@@ -534,6 +543,7 @@ def _load_resume(run_dir: Path, manifest: dict, contract: dict, resume_contract:
         "code_version": _code_version(),
         "collection_end_date": contract["collection_end_date"],
         "hard_lower_date_boundary": contract["hard_lower_date_boundary"],
+        "history_policy": contract.get("history_policy", "FULL_AVAILABLE_UP_TO_MAX_15Y"),
     }
     mismatches = {key: (identity.get(key), value) for key, value in expected.items() if identity.get(key) != value}
     if mismatches:
@@ -566,8 +576,11 @@ def run_solo(
         rows = [row for row in rows if row["ticker"] == only_ticker]
         if len(rows) != 1:
             raise RunnerError("--only-ticker must name exactly one ticker in the frozen plan")
-    if any(row["crawl_allowed"] != "YES" for row in rows):
+    if any(row.get("crawl_allowed", "YES") != "YES" for row in rows):
         raise RunnerError("frozen plan contains a selected row that is not crawl_allowed")
+
+    reused_rows = [row for row in rows if row.get("crawl_required", "YES") == "NO"]
+    rows = [row for row in rows if row.get("crawl_required", "YES") != "NO"]
 
     current_time = now()
     if resume:
@@ -579,6 +592,11 @@ def run_solo(
         run_id = run_id or _new_run_id(plan_manifest["plan_hash"], current_time)
         run_dir = artifact_root / run_id
         identity, progress = _initialize_run(run_dir, plan_dir, plan_manifest, contract, resume_contract, current_time)
+        identity["reused_security_count"] = len(reused_rows)
+        identity["scheduled_crawl_security_count"] = len(rows)
+        progress["reused_securities"] = [row["ticker"] for row in reused_rows]
+        atomic_write(run_dir / "manifest.json", stable_json_bytes(identity))
+        atomic_write(run_dir / "progress.json", stable_json_bytes(progress))
 
     http = client or UrlLibClient()
     requests_this_invocation = 0
