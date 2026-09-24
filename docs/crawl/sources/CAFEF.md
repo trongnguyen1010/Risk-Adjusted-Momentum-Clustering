@@ -138,6 +138,21 @@ Việc giá đóng cửa và giá điều chỉnh bằng nhau trong các mẫu n
 
 ### Khoảng ngày, phân trang, thứ tự và kết quả rỗng
 
+#### OBSERVED / OPERATIONAL CONTRACT — giới hạn khoảng PriceHistory
+
+Quan sát live ngày `2026-09-24` cho ACB/HOSE cho thấy request
+`2012-01-01 → 2012-12-31` trả HTTP/envelope hợp lệ nhưng chỉ có 65 dòng từ
+`2012-10-01 → 2012-12-28`, tức xấp xỉ quý cuối. Bốn trang khớp nhất quán với
+`TotalCount=65`; vấn đề nằm ở khoảng request bị cắt ngầm, không phải phép tính phân
+trang. UI CafeF cũng chỉ cho chọn tối đa xấp xỉ ba tháng.
+
+Đây là ràng buộc vận hành **đã quan sát**, không phải bảo đảm API chính thức hay mô tả
+chính xác thuật toán server. Khoảng dài có thể bị truncate im lặng; HTTP 200 và
+`Success=true` không chứng minh completeness của khoảng được yêu cầu. Vì vậy DELTA
+phải acquisition bằng các giao cắt quý lịch
+`NON_OVERLAPPING_CALENDAR_QUARTER_INTERSECTIONS_OLDEST_TO_NEWEST`, sau khi giao target
+window với identity interval đã xác minh.
+
 - Khoảng ngày mặc định trên UI: 1 tháng tính đến hôm nay; script ép ngày kết thúc trong tương lai về hôm nay và ngày bắt đầu lớn hơn ngày kết thúc về bằng ngày kết thúc.
 - Khoảng ngày request: `StartDate` và `EndDate` rõ ràng; ngữ nghĩa ranh giới (bao gồm/không bao gồm) chưa được kết luận chắc chắn.
 - Thứ tự sắp xếp: mới nhất xếp trước (`DESC`) trong tất cả kết quả quan sát.

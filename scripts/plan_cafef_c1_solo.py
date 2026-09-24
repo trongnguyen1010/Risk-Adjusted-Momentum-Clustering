@@ -16,12 +16,12 @@ import json
 import math
 import os
 import tempfile
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 
 PLAN_ID = "cafef-c1-solo-v2"
-PLAN_VERSION = "2.2.0"
+PLAN_VERSION = "2.3.0"
 PRIORITY_POLICY = "CAFEF_C1_SOLO_PRIORITY_V2"
 COLLECTION_END = date(2026, 9, 23)
 HARD_LOWER_BOUND = date(2011, 9, 23)
@@ -133,13 +133,39 @@ def _selection_reason(ticker: str) -> str:
     return ";".join(reasons)
 
 
-def _estimate(start: date, end: date) -> tuple[int, float, int, int, int]:
+def _quarter_intersections(start: date, end: date):
+    cursor = start
+    while cursor <= end:
+        quarter_start_month = ((cursor.month - 1) // 3) * 3 + 1
+        next_quarter_month = quarter_start_month + 3
+        next_quarter_start = (
+            date(cursor.year + 1, 1, 1)
+            if next_quarter_month == 13
+            else date(cursor.year, next_quarter_month, 1)
+        )
+        range_end = min(end, next_quarter_start - timedelta(days=1))
+        yield cursor, range_end
+        cursor = range_end + timedelta(days=1)
+
+
+def _estimate(start: date, end: date, intervals: list[dict]) -> tuple[int, float, int, int, int]:
     calendar_days = (end - start).days + 1
     years = min(calendar_days / 365.2425, 15.0)
-    # Planning estimate only: 252 exchange sessions per year, capped by calendar span.
-    trading_days = min(calendar_days, math.ceil(years * 252))
-    pages = math.ceil(trading_days / PAGE_SIZE)
-    chunks = end.year - start.year + 1
+    ranges: list[tuple[date, date]] = []
+    for interval in intervals:
+        interval_start = max(start, date.fromisoformat(interval["effective_from"]))
+        interval_end = min(end, date.fromisoformat(interval["effective_to"]) if interval.get("effective_to") else end)
+        if interval_start <= interval_end:
+            ranges.extend(_quarter_intersections(interval_start, interval_end))
+    # Planning estimate only: allocate 252 sessions/year independently to each
+    # identity-aware quarter intersection, then round pages per provider request range.
+    estimated_rows = [
+        min((range_end - range_start).days + 1, math.ceil(((range_end - range_start).days + 1) * 252 / 365.2425))
+        for range_start, range_end in ranges
+    ]
+    trading_days = sum(estimated_rows)
+    pages = sum(math.ceil(rows / PAGE_SIZE) for rows in estimated_rows)
+    chunks = len(ranges)
     return calendar_days, round(years, 3), trading_days, chunks, pages
 
 
@@ -160,10 +186,12 @@ def _rows(root: Path) -> tuple[list[dict], list[dict]]:
             first_verified_identity = min(date.fromisoformat(item["effective_from"]) for item in intervals)
             start = max(HARD_LOWER_BOUND, first_verified_identity)
             history_target_reason = "VERIFIED_IDENTITY_BOUNDARY" if start > HARD_LOWER_BOUND else "MAX_15Y_BOUNDARY"
+        else:
+            intervals = json.loads(row["historical_identity_intervals"])
         end = COLLECTION_END
         if start < HARD_LOWER_BOUND:
             raise ValueError(f"history before hard lower bound: {ticker}")
-        calendar_days, years, trading_days, chunks, pages = _estimate(start, end)
+        calendar_days, years, trading_days, chunks, pages = _estimate(start, end, intervals)
         tags = row["known_evidence_tags"]
         tags = ";".join(dict.fromkeys(filter(None, [*tags.split(";"), *EXTRA_EVIDENCE_TAGS.get(ticker, [])])))
         if ticker in TIER_A_CORE or ticker in TIER_B_CORE:
@@ -214,7 +242,7 @@ def _contract() -> dict:
     return {
         "plan_id": PLAN_ID,
         "plan_version": PLAN_VERSION,
-        "contract_version": "CAFEF_C1_SOLO_RAW_CONTRACT_V2_2",
+        "contract_version": "CAFEF_C1_SOLO_RAW_CONTRACT_V2_3",
         "status": "PLANNING_ONLY_USER_MANUAL_REVIEW_REQUIRED",
         "priority_policy": PRIORITY_POLICY,
         "execution_model": "SINGLE_LOCAL_RUNNER",
@@ -238,7 +266,15 @@ def _contract() -> dict:
             "rows_field": "Data.Data",
             "success_field": "Success",
             "success_required": "EXACT_TRUE",
-            "range_iteration": "NON_OVERLAPPING_CALENDAR_YEAR_CHUNKS_OLDEST_TO_NEWEST",
+            "range_iteration": "NON_OVERLAPPING_CALENDAR_QUARTER_INTERSECTIONS_OLDEST_TO_NEWEST",
+            "range_hard_guard": "START_AND_END_MUST_SHARE_ONE_CALENDAR_QUARTER",
+            "range_pipeline": [
+                "SECURITY_TARGET_WINDOW",
+                "VERIFIED_SECURITY_IDENTITY_INTERVAL",
+                "INTERSECTION",
+                "CALENDAR_QUARTER_INTERSECTION",
+                "CAFEF_PAGINATION",
+            ],
             "page_stop": "CEIL_VALIDATED_TOTALCOUNT_DIV_PAGE_SIZE",
             "total_count_consistency": "NON_NEGATIVE_INTEGER_ZERO_REQUIRES_EMPTY_ROWS",
             "max_pages_per_range": 20,
@@ -306,7 +342,7 @@ def _failure_policy() -> dict:
 def _resume_contract() -> dict:
     return {
         "plan_id": PLAN_ID,
-        "contract_version": "CAFEF_C1_SOLO_RESUME_V2_2",
+        "contract_version": "CAFEF_C1_SOLO_RESUME_V2_3",
         "resume_requires_exact_match": [
             "plan_hash", "contract_version", "resume_contract_version", "code_version", "collection_end_date",
             "hard_lower_date_boundary", "raw_file_checksum_state",
@@ -347,7 +383,7 @@ def build_plan(root: Path, output_dir: Path) -> dict:
     manifest = {
         "plan_id": PLAN_ID,
         "plan_version": PLAN_VERSION,
-        "stage": "C1-SOLO-FINAL-CLEANUP",
+        "stage": "C1-SOLO-RANGE-CONTRACT-FIX",
         "status": "COMPLETED_USER_MANUAL_REVIEW_REQUIRED",
         "execution_model": "SINGLE_LOCAL_RUNNER",
         "priority_policy": PRIORITY_POLICY,
@@ -376,7 +412,13 @@ def build_plan(root: Path, output_dir: Path) -> dict:
         "envelope_success_validation": True,
         "verified_pricehistory_endpoint_aligned": True,
         "failed_response_evidence_preserved": True,
-        "next_allowed_action": "USER MANUAL REVIEW BEFORE C1-SOLO EXECUTION",
+        "range_contract_finding": "LONG_RANGE_SILENT_TRUNCATION_CONFIRMED_BY_LIVE_ACB_SAMPLE",
+        "old_range_policy": "NON_OVERLAPPING_CALENDAR_YEAR_CHUNKS",
+        "old_range_policy_status": "INVALID_FOR_C1_COMPLETENESS",
+        "new_range_policy": "NON_OVERLAPPING_CALENDAR_QUARTER_INTERSECTIONS",
+        "old_local_crawl_artifacts": "DELETED_BY_USER_REQUEST",
+        "actual_valid_c1_crawl_executed": False,
+        "next_allowed_action": "USER MANUAL REVIEW AND SMALL LIVE QUARTER SANITY RUN",
     }
     _atomic_write(output_dir / "manifest.json", _stable_json(manifest))
     return manifest

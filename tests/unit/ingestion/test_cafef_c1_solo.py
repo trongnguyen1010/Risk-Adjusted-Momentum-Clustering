@@ -6,6 +6,7 @@ import sys
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -55,12 +56,22 @@ RAW_BODY = json.dumps({
 
 class CafeFC1SoloPlanTests(unittest.TestCase):
     def test_plan_loads_and_execution_order_is_deterministic(self):
-        rows, manifest, contract, _failure, _resume = RUNNER.load_frozen_plan(PLAN_DIR)
+        rows, manifest, contract, _failure, resume = RUNNER.load_frozen_plan(PLAN_DIR)
         self.assertEqual(27, len(rows))
         self.assertEqual(list(range(1, 28)), [int(row["execution_order"]) for row in rows])
         self.assertEqual("CAFEF_C1_SOLO_PRIORITY_V2", manifest["priority_policy"])
         self.assertEqual("2026-09-23", contract["collection_end_date"])
-        self.assertEqual("CAFEF_C1_SOLO_RAW_CONTRACT_V2_2", contract["contract_version"])
+        self.assertEqual("CAFEF_C1_SOLO_RAW_CONTRACT_V2_3", contract["contract_version"])
+        self.assertEqual("CAFEF_C1_SOLO_RESUME_V2_3", resume["contract_version"])
+        self.assertEqual(
+            "NON_OVERLAPPING_CALENDAR_QUARTER_INTERSECTIONS_OLDEST_TO_NEWEST",
+            contract["request_surface"]["range_iteration"],
+        )
+        self.assertEqual(5723, manifest["estimated_total_requests"])
+        with (PLAN_DIR / "cafef_c1_solo_request_estimates.csv").open(encoding="utf-8", newline="") as stream:
+            estimates = list(csv.DictReader(stream))
+        self.assertEqual(1457, sum(int(row["range_chunk_count"]) for row in estimates))
+        self.assertEqual(5723, sum(int(row["estimated_requests"]) for row in estimates))
         self.assertTrue(all(RUNNER.identity_request_segments(row) for row in rows))
 
     def test_active_endpoint_matches_verified_adapter_contract(self):
@@ -94,14 +105,45 @@ class CafeFC1SoloPlanTests(unittest.TestCase):
         self.assertEqual("2018-12-06", by_ticker["CTR"]["target_start"])
         self.assertEqual("2011-09-23", by_ticker["SHB"]["target_start"])
 
+    def test_full_year_is_split_into_calendar_quarters(self):
+        ranges = RUNNER.iter_calendar_quarter_intersections(
+            datetime(2012, 1, 1).date(), datetime(2012, 12, 31).date()
+        )
+        self.assertEqual(
+            [
+                ("2012-01-01", "2012-03-31"),
+                ("2012-04-01", "2012-06-30"),
+                ("2012-07-01", "2012-09-30"),
+                ("2012-10-01", "2012-12-31"),
+            ],
+            [(left.isoformat(), right.isoformat()) for left, right in ranges],
+        )
+
+    def test_partial_boundaries_and_leap_year_are_quarter_bounded(self):
+        ranges = list(RUNNER.iter_calendar_quarter_intersections(
+            datetime(2011, 9, 23).date(), datetime(2012, 2, 15).date()
+        ))
+        self.assertEqual(
+            [
+                ("2011-09-23", "2011-09-30"),
+                ("2011-10-01", "2011-12-31"),
+                ("2012-01-01", "2012-02-15"),
+            ],
+            [(left.isoformat(), right.isoformat()) for left, right in ranges],
+        )
+        leap_q1 = list(RUNNER.iter_calendar_quarter_intersections(
+            datetime(2012, 1, 1).date(), datetime(2012, 3, 31).date()
+        ))
+        self.assertEqual(91, (leap_q1[0][1] - leap_q1[0][0]).days + 1)
+
     def test_raw_output_path_is_deterministic_and_not_canonical(self):
         base = Path("X:/run")
         path = RUNNER.raw_output_path(
             base, "FPT", "HOSE", datetime(2006, 12, 13).date(), None,
-            datetime(2011, 9, 23).date(), datetime(2011, 12, 31).date(), 1,
+            datetime(2011, 9, 23).date(), datetime(2011, 9, 30).date(), 1,
         )
         self.assertEqual(
-            Path("X:/run/raw/FPT/HOSE/identity_2006-12-13_OPEN/2011-09-23_2011-12-31/page_0001.json"),
+            Path("X:/run/raw/FPT/HOSE/identity_2006-12-13_OPEN/2011-09-23_2011-09-30/page_0001.json"),
             path,
         )
         self.assertNotIn("canonical", path.parts)
@@ -116,6 +158,20 @@ class CafeFC1SoloPlanTests(unittest.TestCase):
                 )
                 self.assertEqual(exchange, params["ExchangeType"])
                 self.assertNotIn(params["ExchangeType"], {"1", "2", "3"})
+
+    def test_request_builder_rejects_cross_quarter_ranges(self):
+        segment = {"exchange": "HOSE", "ticker": "ACB"}
+        for start, end in (
+            ("2012-01-01", "2012-12-31"),
+            ("2012-01-01", "2012-06-30"),
+            ("2012-03-01", "2012-04-30"),
+        ):
+            with self.subTest(start=start, end=end):
+                with self.assertRaisesRegex(RUNNER.RunnerError, "one calendar quarter"):
+                    RUNNER.build_request_params(
+                        segment, datetime.fromisoformat(start).date(),
+                        datetime.fromisoformat(end).date(), 1, 20,
+                    )
 
     def test_transfer_identity_intervals_control_bcm_ctr_and_shb_routing(self):
         with (PLAN_DIR / "cafef_c1_solo_execution_order.csv").open(encoding="utf-8", newline="") as stream:
@@ -134,6 +190,20 @@ class CafeFC1SoloPlanTests(unittest.TestCase):
         self.assertEqual(
             [("HNX", "2011-09-23", "2021-10-10"), ("HOSE", "2021-10-11", "2026-09-23")],
             [(item["exchange"], item["request_start"].isoformat(), item["request_end"].isoformat()) for item in shb],
+        )
+        bcm_ranges = list(RUNNER.iter_identity_calendar_quarter_ranges(by_ticker["BCM"]))
+        boundary_ranges = [
+            (segment["exchange"], start.isoformat(), end.isoformat())
+            for segment, start, end in bcm_ranges
+            if start.year == 2020 and start.month in {7, 8, 10}
+        ]
+        self.assertEqual(
+            [
+                ("UPCOM", "2020-07-01", "2020-08-30"),
+                ("HOSE", "2020-08-31", "2020-09-30"),
+                ("HOSE", "2020-10-01", "2020-12-31"),
+            ],
+            boundary_ranges,
         )
 
     def test_request_key_and_raw_path_include_interval_context(self):
@@ -239,6 +309,23 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(RUNNER.RunnerError, "--execute"):
             RUNNER.run_solo(plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=False)
 
+    def test_cross_quarter_guard_fails_before_http_call(self):
+        rows, _manifest, _contract, _failure, _resume = RUNNER.load_frozen_plan(PLAN_DIR)
+        fpt = next(row for row in rows if row["ticker"] == "FPT")
+        segment = RUNNER.identity_request_segments(fpt)[0]
+        invalid_ranges = iter([(
+            segment, datetime(2012, 1, 1).date(), datetime(2012, 12, 31).date()
+        )])
+        client = FakeClient([(200, RAW_BODY)])
+        with mock.patch.object(RUNNER, "iter_identity_calendar_quarter_ranges", return_value=invalid_ranges):
+            with self.assertRaisesRegex(RUNNER.RunnerError, "one calendar quarter"):
+                RUNNER.run_solo(
+                    plan_dir=PLAN_DIR, artifact_root=self.artifact_root, execute=True,
+                    run_id="invalid-cross-quarter", max_requests=1, only_ticker="FPT",
+                    client=client, sleep=lambda _seconds: None, now=self.now,
+                )
+        self.assertEqual(0, client.calls)
+
     def test_raw_bytes_preserve_adjust_price_and_no_canonical_output(self):
         run_dir, _client = self._run_one()
         raw_files = [path for path in (run_dir / "raw").rglob("*.json") if not path.name.endswith(".meta.json")]
@@ -276,11 +363,12 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         progress = json.loads((run_dir / "progress.json").read_text(encoding="utf-8"))
         self.assertEqual(2, len(progress["completed"]))
 
-    def test_resume_rejects_corrected_contract_version_mismatch(self):
+    def test_resume_rejects_pre_quarter_contract_versions(self):
         run_dir, _client = self._run_one()
         manifest_path = run_dir / "manifest.json"
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        manifest["resume_contract_version"] = "CAFEF_C1_SOLO_RESUME_V2"
+        manifest["contract_version"] = "CAFEF_C1_SOLO_RAW_CONTRACT_V2_2"
+        manifest["resume_contract_version"] = "CAFEF_C1_SOLO_RESUME_V2_2"
         manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
         with self.assertRaisesRegex(RUNNER.RunnerError, "resume identity mismatch"):
             RUNNER.run_solo(
@@ -417,7 +505,9 @@ class CafeFC1SoloRunnerTests(unittest.TestCase):
         RUNNER._initialize_run(run_dir, PLAN_DIR, manifest, contract, resume_contract, self.now())
         fpt = next(row for row in rows if row["ticker"] == "FPT")
         segment = RUNNER.identity_request_segments(fpt)[0]
-        range_start, range_end = next(iter(RUNNER.iter_calendar_year_ranges(segment["request_start"], segment["request_end"])))
+        range_start, range_end = next(iter(RUNNER.iter_calendar_quarter_intersections(
+            segment["request_start"], segment["request_end"]
+        )))
         raw_path = RUNNER.raw_output_path(
             run_dir, segment["ticker"], segment["exchange"],
             segment["interval_effective_from"], segment["interval_effective_to"],

@@ -20,7 +20,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable, Iterable
 
@@ -175,12 +175,31 @@ def load_frozen_plan(plan_dir: Path = PLAN_DIR) -> tuple[list[dict[str, str]], d
     return rows, manifest, contract, failure, resume
 
 
-def iter_calendar_year_ranges(start: date, end: date) -> Iterable[tuple[date, date]]:
+def calendar_quarter(value: date) -> tuple[int, int]:
+    return value.year, ((value.month - 1) // 3) + 1
+
+
+def validate_calendar_quarter_range(start: date, end: date) -> None:
+    if start > end:
+        raise RunnerError("request range start must not be after end")
+    if calendar_quarter(start) != calendar_quarter(end):
+        raise RunnerError("request range must remain within one calendar quarter")
+
+
+def iter_calendar_quarter_intersections(start: date, end: date) -> Iterable[tuple[date, date]]:
+    if start > end:
+        raise RunnerError("range start must not be after end")
     cursor = start
     while cursor <= end:
-        range_end = min(end, date(cursor.year, 12, 31))
+        quarter_start_month = ((cursor.month - 1) // 3) * 3 + 1
+        next_quarter_month = quarter_start_month + 3
+        if next_quarter_month == 13:
+            next_quarter_start = date(cursor.year + 1, 1, 1)
+        else:
+            next_quarter_start = date(cursor.year, next_quarter_month, 1)
+        range_end = min(end, next_quarter_start - timedelta(days=1))
         yield cursor, range_end
-        cursor = date(cursor.year + 1, 1, 1)
+        cursor = range_end + timedelta(days=1)
 
 
 def identity_request_segments(row: dict[str, str]) -> list[dict]:
@@ -226,9 +245,11 @@ def identity_request_segments(row: dict[str, str]) -> list[dict]:
     return segments
 
 
-def iter_identity_calendar_ranges(row: dict[str, str]) -> Iterable[tuple[dict, date, date]]:
+def iter_identity_calendar_quarter_ranges(row: dict[str, str]) -> Iterable[tuple[dict, date, date]]:
     for segment in identity_request_segments(row):
-        for range_start, range_end in iter_calendar_year_ranges(segment["request_start"], segment["request_end"]):
+        for range_start, range_end in iter_calendar_quarter_intersections(
+            segment["request_start"], segment["request_end"]
+        ):
             yield segment, range_start, range_end
 
 
@@ -346,6 +367,7 @@ def request_key(row: dict[str, str], segment: dict, start: date, end: date, page
 
 
 def build_request_params(segment: dict, start: date, end: date, page: int, page_size: int) -> dict[str, str]:
+    validate_calendar_quarter_range(start, end)
     exchange = segment["exchange"]
     if exchange not in {"HOSE", "HNX", "UPCOM"}:
         raise RunnerError(f"unsupported frozen interval exchange: {exchange}")
@@ -565,7 +587,7 @@ def run_solo(
     failure_evidence: dict | None = None
     try:
         for row in rows:
-            for segment, range_start, range_end in iter_identity_calendar_ranges(row):
+            for segment, range_start, range_end in iter_identity_calendar_quarter_ranges(row):
                 page = 1
                 expected_pages: int | None = None
                 expected_total_count: int | None = None
