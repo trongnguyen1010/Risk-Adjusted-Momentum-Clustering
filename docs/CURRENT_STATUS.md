@@ -1,4 +1,4 @@
-# Trạng thái hiện tại — C8 verified, R1 consolidated
+# Trạng thái hiện tại — M1 market foundation reported
 
 ## Lineage và phạm vi
 
@@ -51,11 +51,26 @@ R1 bỏ 192 file planning/history/config/runner/module/test superseded khỏi ac
 
 Hai đường dẫn C1 cũ còn xuất hiện trong frozen C8 provenance/config hash fields chỉ là Git-history identifiers; chúng không phải active input path.
 
+## M1-REPORT
+
+Artifact `artifacts/reports/m1-market-foundation-v1/` và notebook
+`notebooks/eda/M1_CAFEF_MARKET_FOUNDATION.ipynb` là lớp report/inspection
+offline trên evidence C8 đã verify. Report tái tính và assert toàn bộ headline,
+feature coverage, source/exchange composition, 30 latest-253 incomplete rows,
+47 market-readiness exclusions và 80 monthly snapshots từ `2020-01-31` đến
+`2026-08-28`. Notebook chỉ đọc explicit immutable report directory; business
+logic và integrity checks nằm trong generator.
+
+**M1 MARKET DATA FOUNDATION: COMPLETE FOR MARKET-ONLY EXPERIMENT PREPARATION.**
+Strict research gate vẫn `NOT READY`; `historical_identity_ready=0` và
+`research_ready=0`.
+
 ## Kiểm chứng offline
 
 ```powershell
 .venv\Scripts\python.exe scripts\verify_cafef_c8_results.py
 .venv\Scripts\python.exe scripts\verify_repository_r1.py --verify-existing
+.venv\Scripts\python.exe scripts\build_m1_market_foundation_report.py --verify-existing
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 .venv\Scripts\python.exe -m compileall -q src tests scripts run.py
 ```
