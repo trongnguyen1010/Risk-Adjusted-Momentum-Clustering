@@ -4,9 +4,15 @@
 
 ## Active CafeF expansion v1
 
-Luồng đang active cho năm acquisition workers là
-[CAFEF_EXPANSION_5_WORKERS.md](CAFEF_EXPANSION_5_WORKERS.md), cùng frozen config
-`configs/data/cafef_expansion_v1/`. Các tài liệu C1, M1-scale/KBS và
+Năm ZIP acquisition ban đầu đã được C7 kiểm tra và lập inventory offline tại
+`artifacts/cafef_primary/cafef-expansion-c7-partial-consolidation-v1/`. Bước thu thập
+tiếp theo chỉ chạy ba shard trong `configs/data/cafef_supplemental_v1/` bằng
+`scripts/run_cafef_supplemental_worker.py`; 452 mã COMPLETE bị loại khỏi plan,
+141 mã runnable dùng namespace raw mới và 7 mã FAILED chờ manual review. Runbook
+[CAFEF_EXPANSION_5_WORKERS.md](CAFEF_EXPANSION_5_WORKERS.md) mô tả acquisition ban
+đầu và cách nhận ZIP, không được dùng để chạy lại các trang đã hoàn tất.
+
+Frozen config ban đầu vẫn ở `configs/data/cafef_expansion_v1/`. Các tài liệu C1, M1-scale/KBS và
 `TEAM_CRAWLING.md` là **HISTORICAL / DO NOT USE FOR CAFEF EXPANSION V1**; chúng được
 giữ để tái lập C1–C5.
 

@@ -1,6 +1,6 @@
 # Bản đồ repository
 
-## Active CafeF path — C5 → C6 → C8
+## Active CafeF path — C5 → C6 → C7 → C8
 
 | Bước | Evidence / entry point | Trạng thái |
 |---|---|---|
@@ -9,6 +9,8 @@
 | Worker acquisition | `scripts/run_cafef_expansion_worker.py` | Acquisition-only; external exact-commit guard; immutable raw; dry-run/execute/exact resume |
 | One-ZIP handoff | `scripts/package_cafef_expansion_handoff.py` | Một portable ZIP/worker, internal checksums |
 | Central verification | `scripts/verify_cafef_expansion_handoffs.py` | Verify năm shard; chưa merge/normalize |
+| C7 partial consolidation | `artifacts/cafef_primary/cafef-expansion-c7-partial-consolidation-v1/` | Offline inventory 600 mã từ năm ZIP bất biến; 452 COMPLETE được giữ nguyên |
+| Supplemental acquisition | `configs/data/cafef_supplemental_v1/`, `scripts/run_cafef_supplemental_worker.py` | 141 mã runnable chia ba shard mới; 7 FAILED giữ `MANUAL_REVIEW`; raw ghi namespace mới |
 | Worker instructions | `docs/crawl/CAFEF_EXPANSION_5_WORKERS.md` | PowerShell runbook active |
 | C8 audit tương lai | contract ở cuối worker runbook | Full-history và latest-253 audit độc lập; chưa execute |
 
