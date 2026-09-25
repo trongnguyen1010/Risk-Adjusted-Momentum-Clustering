@@ -682,6 +682,12 @@ from IPython.display import Image, display
 
 REPORT_DIR = Path("artifacts/reports/m1-market-foundation-v1")
 if not REPORT_DIR.is_dir():
+    for parent in [Path.cwd().resolve(), *Path.cwd().resolve().parents]:
+        candidate = parent / "artifacts/reports/m1-market-foundation-v1"
+        if candidate.is_dir():
+            REPORT_DIR = candidate
+            break
+if not REPORT_DIR.is_dir():
     raise FileNotFoundError(f"Explicit report artifact is missing: {REPORT_DIR.resolve()}")
 print(f"Report directory: {REPORT_DIR.resolve()}")
 """),
