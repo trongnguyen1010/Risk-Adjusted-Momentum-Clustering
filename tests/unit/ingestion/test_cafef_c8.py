@@ -1,8 +1,9 @@
 import csv
+import importlib.util
 import json
 import tempfile
 import unittest
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from delta_t1.ingestion.cafef_c8 import (
@@ -15,12 +16,14 @@ from delta_t1.ingestion.cafef_c8 import (
     canonical_market_row,
     current_security_rows,
     data_quality_gate,
+    expansion_security_rows,
     load_identity_review,
     readiness_rows,
     resolve_observations,
     sha256_file,
     verify_manifest_outputs,
 )
+from delta_t1.features.market import market_metadata_available
 from delta_t1.ingestion.cafef_market_semantics import classify_activity
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -47,6 +50,24 @@ class CafeFC8ScopeTests(unittest.TestCase):
             {"DEFERRED_EXPANSION_ACQUISITION"},
             {row["current_c8_decision"] for row in self.scope["deferred"]},
         )
+
+    def test_expansion_metadata_timestamp_is_truthful_and_not_backdated(self):
+        metadata = expansion_security_rows(self.scope)
+        self.assertEqual(452, len(metadata))
+        self.assertEqual({"2026-09-25T00:00:00+07:00"},
+                         {row["available_at"] for row in metadata})
+        self.assertEqual({"OBSERVED_PROVIDER_INTERVAL"},
+                         {row["market_observation_routing"] for row in metadata})
+        self.assertEqual({"provisional"}, {row["identity_status"] for row in metadata})
+        self.assertEqual({None}, {row["listing_date"] for row in metadata})
+
+    def test_bounded_real_feature_engine_probe_accepts_market_but_not_identity(self):
+        spec = importlib.util.spec_from_file_location(
+            "c8_runner_semantic_probe", ROOT / "scripts/run_cafef_c8_complete_only.py"
+        )
+        runner = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(runner)
+        runner.validate_expansion_feature_semantics(self.scope)
 
     def test_baseline_expansion_identity_is_disjoint(self):
         baseline = self.scope["baseline"]
@@ -82,6 +103,21 @@ class CafeFC8ScopeTests(unittest.TestCase):
 
 
 class CafeFC8SemanticsTests(unittest.TestCase):
+    def test_observed_interval_routing_is_scoped_and_baseline_remains_strict(self):
+        cutoff = datetime.fromisoformat("2026-08-28T17:00:00+07:00")
+        expansion = {
+            "available_at": "2026-09-25T00:00:00+07:00",
+            "identity_status": "provisional",
+            "market_observation_routing": "OBSERVED_PROVIDER_INTERVAL",
+        }
+        config = {"market_observation_routing": "OBSERVED_PROVIDER_INTERVAL"}
+        self.assertTrue(market_metadata_available(expansion, cutoff, config, True))
+        self.assertFalse(market_metadata_available(expansion, cutoff, {}, True))
+        self.assertFalse(market_metadata_available(expansion, cutoff, config, False))
+        baseline = {"available_at": "2026-09-25T00:00:00+07:00",
+                    "identity_status": "provisional"}
+        self.assertFalse(market_metadata_available(baseline, cutoff, config, True))
+
     def test_snapshot_cutoff_excludes_post_snapshot_rows(self):
         rows = [{"trade_date": SNAPSHOT_DATE}, {"trade_date": "2026-09-01"}]
         self.assertEqual([{"trade_date": SNAPSHOT_DATE}], apply_snapshot_cutoff(rows))

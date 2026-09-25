@@ -7,6 +7,7 @@ import re
 import sys
 import zipfile
 from collections import Counter
+from datetime import date, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -39,6 +40,7 @@ def validate_contract() -> dict:
         "deferred_expansion_count": 148, "combined_candidate_count": 952,
         "deferred_decision": DEFERRED_DECISION, "comparison_snapshot": SNAPSHOT_DATE,
         "adjustment_basis": "vendor_adjusted", "minimum_history_years": 3,
+        "expansion_market_observation_routing": "OBSERVED_PROVIDER_INTERVAL",
         "supplemental_acquisition_allowed": False, "clustering_or_backtest_allowed": False,
     }
     mismatches = [key for key, value in expected.items() if contract.get(key) != value]
@@ -81,6 +83,7 @@ def validate_only(expected_commit: str) -> dict:
         raise ValueError("C5 parent C4 manifest hash mismatch")
     scope = build_scope(ROOT)
     verify_five_handoffs(scope)
+    validate_expansion_feature_semantics(scope)
     result = {
         "readiness": "PASS", "network_requests": 0,
         "baseline_candidates": len(scope["baseline"]),
@@ -150,21 +153,54 @@ def expansion_observations(paths: list[Path], scope: dict) -> tuple[list[dict], 
     return observations, normalized, quarantine
 
 
-def expansion_security_rows(scope: dict) -> list[dict]:
-    rows = []
-    for item in scope["expansion"]:
-        rows.append({
-            "security_id": item["security_id"], "ticker": item["ticker"],
-            "exchange": item["exchange"], "company_name": item["company_name"],
-            "currency": "VND", "price_unit": "VND", "industry": None, "sector": None,
-            "listing_date": None, "delisting_date": None, "valid_from": item["audit_start"],
-            "valid_to": None, "identity_status": "provisional",
-            "source": "C7_COMPLETE_CURRENT_LISTING_PLUS_PROVIDER_BOUNDARY",
-            "available_at": "2026-09-25T00:00:00+07:00",
-            "fetched_at": None, "data_version": C8_DATA_VERSION,
-            "boundary_basis": item["boundary_basis"],
-        })
-    return rows
+def validate_expansion_feature_semantics(scope: dict) -> None:
+    """Bounded real-code probe guarding metadata availability and readiness separation."""
+    start, end = date(2023, 8, 28), date.fromisoformat(SNAPSHOT_DATE)
+    metadata = min(
+        (row for row in expansion_security_rows(scope)
+         if date.fromisoformat(row["valid_from"]) <= start),
+        key=lambda row: (row["valid_from"], row["security_id"]),
+    )
+    days = [(start + timedelta(days=index)).isoformat()
+            for index in range((end - start).days + 1)]
+    calendar = [{
+        "exchange": metadata["exchange"], "trade_date": day, "is_open": True,
+        "is_month_end": day == SNAPSHOT_DATE,
+        "decision_at": day + "T17:00:00+07:00",
+        "available_at": day + "T17:00:00+07:00",
+    } for day in days]
+    prices = [{
+        "security_id": metadata["security_id"], "trade_date": day,
+        "available_at": day + "T17:00:00+07:00", "adjustment_basis": "vendor_adjusted",
+        "adj_close": 10000 + index, "raw_close": 10000 + index,
+        "traded_value": 1000000 + index, "trading_status": "normal",
+    } for index, day in enumerate(days)]
+    benchmark = [{
+        "index_id": "VNINDEX", "trade_date": day,
+        "available_at": day + "T17:00:00+07:00",
+        "close": 1000 + index + (index % 7),
+    } for index, day in enumerate(days)]
+    config = {
+        "required_features": list(REQUIRED_FEATURES), "accepted_adjustments": ["vendor_adjusted"],
+        "benchmark_id": "VNINDEX", "minimum_history_years": 3,
+        "readiness_policy": "MARKET_FEATURE_READINESS_V2",
+        "market_observation_routing": "OBSERVED_PROVIDER_INTERVAL",
+    }
+    features = build_features({
+        "securities": [metadata], "prices_daily": prices,
+        "trading_calendar": calendar, "benchmark_daily": benchmark,
+    }, config, "C8_VALIDATE_ONLY_FIXTURE")
+    if len(features) != 1 or features[0]["as_of_date"] != SNAPSHOT_DATE:
+        raise ValueError("C8 expansion feature semantic probe did not produce snapshot")
+    result = features[0]
+    if not result["market_feature_ready"] or result["historical_identity_ready"] or result["research_ready"]:
+        raise ValueError(
+            "C8 expansion feature availability/readiness semantics mismatch: "
+            f"market={result['market_feature_ready']}, "
+            f"identity={result['historical_identity_ready']}, "
+            f"research={result['research_ready']}, "
+            f"na_reason={result['na_reason']}"
+        )
 
 
 def execute(expected_commit: str) -> dict:
@@ -236,7 +272,8 @@ def execute(expected_commit: str) -> dict:
 
     config = read_json(ROOT / "configs/features/market.example.json")
     config.update(feature_set="delta_market_1.6.0", readiness_policy="MARKET_FEATURE_READINESS_V2",
-                  accepted_adjustments=["vendor_adjusted"], minimum_history_years=3)
+                  accepted_adjustments=["vendor_adjusted"], minimum_history_years=3,
+                  market_observation_routing="OBSERVED_PROVIDER_INTERVAL")
     features = build_features({
         "securities": securities, "prices_daily": prices,
         "trading_calendar": calendar, "benchmark_daily": benchmark,

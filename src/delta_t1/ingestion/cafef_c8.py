@@ -214,6 +214,25 @@ def attrition_rows(scope: dict) -> list[dict]:
     return output
 
 
+def expansion_security_rows(scope: dict) -> list[dict]:
+    """Build truthful provisional metadata with an explicit market-only routing marker."""
+    rows = []
+    for item in scope["expansion"]:
+        rows.append({
+            "security_id": item["security_id"], "ticker": item["ticker"],
+            "exchange": item["exchange"], "company_name": item["company_name"],
+            "currency": "VND", "price_unit": "VND", "industry": None, "sector": None,
+            "listing_date": None, "delisting_date": None, "valid_from": item["audit_start"],
+            "valid_to": None, "identity_status": "provisional",
+            "source": "C7_COMPLETE_CURRENT_LISTING_PLUS_PROVIDER_BOUNDARY",
+            "available_at": "2026-09-25T00:00:00+07:00",
+            "fetched_at": None, "data_version": C8_DATA_VERSION,
+            "boundary_basis": item["boundary_basis"],
+            "market_observation_routing": "OBSERVED_PROVIDER_INTERVAL",
+        })
+    return rows
+
+
 def row_quality(mapped: dict) -> str:
     prices = (mapped.get("cafef_close_price"), mapped.get("cafef_adjust_price"))
     if any(value is None or not math.isfinite(value) or value <= 0 for value in prices):

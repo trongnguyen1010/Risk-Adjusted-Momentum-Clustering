@@ -14,6 +14,23 @@ LEGACY_SCOPED_IDENTITY_STATUSES = {
 }
 
 
+def market_metadata_available(meta, cutoff, config, readiness_v2):
+    """Keep identity PIT strict unless C8/V2 explicitly opts into observed-row routing.
+
+    The exception only routes immutable provider observations inside an already
+    bounded provisional interval.  It does not verify historical identity and
+    therefore cannot make `historical_identity_ready` or `research_ready` true.
+    """
+    if datetime.fromisoformat(meta["available_at"]) <= cutoff:
+        return True
+    return bool(
+        readiness_v2
+        and config.get("market_observation_routing") == "OBSERVED_PROVIDER_INTERVAL"
+        and meta.get("market_observation_routing") == "OBSERVED_PROVIDER_INTERVAL"
+        and meta.get("identity_status") == "provisional"
+    )
+
+
 def subtract_years(value: date, years: int) -> date:
     """Calendar-year cutoff; map Feb 29 to Feb 28 in a non-leap target year."""
     try:
@@ -119,8 +136,9 @@ def build_features(tables, config, data_version):
         for day, (session, meta) in sorted(day_map.items()):
             row = prices.get((sid, day))
             cutoff = datetime.fromisoformat(session["decision_at"])
+            metadata_usable = market_metadata_available(meta, cutoff, config, readiness_v2)
             usable = bool(row and datetime.fromisoformat(row["available_at"]) <= cutoff
-                          and datetime.fromisoformat(meta["available_at"]) <= cutoff)
+                          and metadata_usable)
             usable = usable and row["adjustment_basis"] in config["accepted_adjustments"]
             usable = usable and (not session.get("available_at")
                                  or datetime.fromisoformat(session["available_at"]) <= cutoff)
@@ -189,7 +207,7 @@ def build_features(tables, config, data_version):
                        if value is None and name not in ("vendor_run_id", "canonical_run_id")}
             if not row or row["trading_status"] != "normal":
                 reasons["trading_status"] = "missing_or_not_normal"
-            if datetime.fromisoformat(meta["available_at"]) > cutoff:
+            if not metadata_usable:
                 reasons["metadata"] = "not_available_as_of_snapshot"
             historical_identity_ready = (
                 meta["identity_status"] in STRICT_HISTORICAL_IDENTITY_STATUSES
