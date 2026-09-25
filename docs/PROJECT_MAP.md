@@ -6,13 +6,15 @@
 |---|---|---|
 | C5 current evidence | `artifacts/cafef_primary/cafef-tradehistory-500-data-gate-v2/` | 500 current; 490 `market_feature_ready_v2`; 10 mã gắn `DEFERRED_MISSING_SESSION_REVIEW` |
 | C6 frozen expansion | `configs/data/cafef_expansion_v1/` | 600 selected pre-crawl, reserve 100, 5 assignment disjoint |
-| Worker acquisition | `scripts/run_cafef_expansion_worker.py` | Acquisition-only; immutable raw; dry-run/execute/exact resume |
+| Worker acquisition | `scripts/run_cafef_expansion_worker.py` | Acquisition-only; external exact-commit guard; immutable raw; dry-run/execute/exact resume |
 | One-ZIP handoff | `scripts/package_cafef_expansion_handoff.py` | Một portable ZIP/worker, internal checksums |
 | Central verification | `scripts/verify_cafef_expansion_handoffs.py` | Verify năm shard; chưa merge/normalize |
 | Worker instructions | `docs/crawl/CAFEF_EXPANSION_5_WORKERS.md` | PowerShell runbook active |
 | C8 audit tương lai | contract ở cuối worker runbook | Full-history và latest-253 audit độc lập; chưa execute |
 
-Các planner/runners C1 và M1-scale cũ là historical reproducibility paths, không dùng cho expansion v1. Xem quyết định cleanup bảo toàn lineage tại `docs/REPOSITORY_CLEANUP_C6.md`.
+> **HISTORICAL / DO NOT USE FOR CAFEF EXPANSION V1:** các planner/runners C1,
+> M1-scale/KBS và worker docs dưới `docs/crawl/m1_scale/` chỉ được giữ để tái lập
+> C1–C5. Worker expansion v1 chỉ dùng các entry points trong bảng trên.
 
 Đây là migration map canonical được tạo từ audit R0. “Có” nghĩa là foundation đã chạy; “khung” nghĩa là interface đã có nhưng methodology/source semantics chưa được duyệt.
 

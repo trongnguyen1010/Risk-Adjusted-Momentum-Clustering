@@ -7,7 +7,7 @@ branch: m1-cafef-primary-experiment
 forked_from_branch: m1-scale-500-team-crawl
 fork_base_commit: e886f68875fb5c079e57c9b51cae9e6bf5a8047b
 current_experiment: CafeF Primary Data Foundation Experiment
-last_completed_stage: C6-REPOSITORY-CLEANUP-UNIVERSE-EXPANSION-FREEZE
+last_completed_stage: C6-R1-PRE-CRAWL-CONTRACT-CORRECTION
 c0_result: COMPLETED / USER_APPROVED
 c1_prep_v1_status: SUPERSEDED / HISTORICAL_ONLY
 c1_execution_model: SINGLE_LOCAL_RUNNER
@@ -60,7 +60,7 @@ expansion_workers: 5
 long_expansion_crawl_executed: NO
 old_incomplete_security_count: 10
 old_incomplete_status: DEFERRED_MISSING_SESSION_REVIEW
-next_allowed_action: OWNER_REVIEW_AND_PUBLISH_FINAL_C6_COMMIT_TO_FIVE_HUMAN_WORKERS
+next_allowed_action: OWNER_PUSHES_FINAL_C6_R1_COMMIT_TO_FIVE_HUMAN_WORKERS
 after_explicit_user_approval: FIVE_WORKERS_CLONE_EXACT_COMMIT_AND_EXECUTE_FROZEN_SHARDS
 c1_prep_solo_crawl_execution: NO
 user_manual_review_required: YES

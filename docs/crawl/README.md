@@ -2,6 +2,14 @@
 
 > **START HERE cho M1 data collection.**
 
+## Active CafeF expansion v1
+
+Luồng đang active cho năm acquisition workers là
+[CAFEF_EXPANSION_5_WORKERS.md](CAFEF_EXPANSION_5_WORKERS.md), cùng frozen config
+`configs/data/cafef_expansion_v1/`. Các tài liệu C1, M1-scale/KBS và
+`TEAM_CRAWLING.md` là **HISTORICAL / DO NOT USE FOR CAFEF EXPANSION V1**; chúng được
+giữ để tái lập C1–C5.
+
 Thư mục này là tài liệu chuẩn cho toàn bộ việc **source discovery → source smoke → representative pilot → scale crawl** của DELTA.
 
 Mục tiêu không chỉ là “crawl được data”, mà là bảo đảm mọi dữ liệu có:
@@ -33,7 +41,7 @@ Mục tiêu không chỉ là “crawl được data”, mà là bảo đảm m�
    Official 50–60-symbol pilot path, universe/config contract, dry-run, QC và gate semantics.
 
 6. [TEAM_CRAWLING.md](TEAM_CRAWLING.md)
-   Runbook M1 scale 500 mã/5 collectors: readiness, shard contract, storage, handoff, merge và raw → canonical → feature.
+   Historical M1 scale/KBS runbook; không dùng cho CafeF expansion v1.
 
 7. [HANDOFF_TEMPLATE.md](HANDOFF_TEMPLATE.md)
    Template manifest, collector report và checklist bàn giao.

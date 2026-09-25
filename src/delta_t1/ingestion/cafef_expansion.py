@@ -69,7 +69,26 @@ def assignment_digest(assignment: dict) -> str:
     return sha256_bytes(canonical_bytes(clean))
 
 
-def validate_assignment(root: Path, assignment_path: Path, *, require_git: bool = True) -> tuple[dict, dict, dict]:
+def validate_git_state(root: Path, expected_commit: str | None = None) -> str:
+    errors = []
+    branch = git_value(root, "branch", "--show-current")
+    actual_commit = git_value(root, "rev-parse", "HEAD").lower()
+    if branch != "m1-cafef-primary-experiment":
+        errors.append("git branch mismatch")
+    if expected_commit is not None:
+        if not re.fullmatch(r"[0-9a-fA-F]{40}", expected_commit):
+            errors.append("expected commit must be a full 40-character SHA")
+        elif actual_commit != expected_commit.lower():
+            errors.append("git commit mismatch")
+    if git_value(root, "status", "--short"):
+        errors.append("git worktree is not clean")
+    if errors:
+        raise ValueError("; ".join(errors))
+    return actual_commit
+
+
+def validate_assignment(root: Path, assignment_path: Path, *, require_git: bool = True,
+                        expected_commit: str | None = None) -> tuple[dict, dict, dict]:
     assignment = read_json(assignment_path)
     config_dir = assignment_path.resolve().parent
     index = read_json(config_dir / "index.json")
@@ -102,14 +121,14 @@ def validate_assignment(root: Path, assignment_path: Path, *, require_git: bool 
     if any(selected[t]["security_id"] != sid for t, sid in zip(tickers, security_ids)):
         errors.append("ticker/security ownership mismatch")
     if require_git:
-        if git_value(root, "branch", "--show-current") != assignment["git_branch"]:
-            errors.append("git branch mismatch")
+        if assignment.get("git_branch") != "m1-cafef-primary-experiment":
+            errors.append("assignment git branch mismatch")
         if assignment.get("execution_version") != EXECUTION_VERSION:
             errors.append("execution version mismatch")
-        if git_value(root, "status", "--short"):
-            errors.append("git worktree is not clean")
     if errors:
         raise ValueError("; ".join(errors))
+    if require_git:
+        validate_git_state(root, expected_commit)
     return assignment, universe, contract
 
 
@@ -270,11 +289,21 @@ def page_rows(body: bytes) -> list[dict]:
 
 def classify_observation(row: dict) -> str:
     values = [row.get("Volume"), row.get("AgreedVolume")]
-    if all(value is None for value in values):
+    if any(value is None for value in values):
         return "OBSERVED_WITH_NULL_VOLUME_COMPONENTS"
-    if all(value == 0 for value in values if value is not None) and any(value is not None for value in values):
+    if all(value == 0 for value in values):
         return "OBSERVED_ZERO_VOLUME"
     return "OBSERVED_MARKET_ROW"
+
+
+def validate_handoff_commits(commits: list[str], expected_commit: str) -> None:
+    if not re.fullmatch(r"[0-9a-fA-F]{40}", expected_commit):
+        raise ValueError("expected commit must be a full 40-character SHA")
+    normalized = {str(commit).lower() for commit in commits}
+    if len(normalized) != 1:
+        raise ValueError("mixed worker git commits")
+    if normalized != {expected_commit.lower()}:
+        raise ValueError("handoff git commit differs from expected commit")
 
 
 def safe_run_directory(root: Path, assignment: dict, run_id: str) -> Path:

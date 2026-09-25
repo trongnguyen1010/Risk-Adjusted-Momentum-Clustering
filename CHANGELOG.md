@@ -1,6 +1,7 @@
 # Chưa phát hành — REPRESENTATIVE_PILOT readiness (2026-09-16)
 
 - Chuẩn bị C6 CafeF expansion: freeze pre-crawl 600 mã mới + reserve 100 sau current-500/reviewed-alias exclusion; tạo năm shard cân bằng, acquisition-only runner với exact resume/immutable raw, one-ZIP packager, central tamper verifier và PowerShell worker runbook. Không chạy long crawl, normalization, clustering hoặc backtest.
+- C6-R1 sửa observation semantics để mọi null component không bị hiểu thành zero; runner yêu cầu external exact commit SHA trước dry-run/execute/resume, run/handoff ghi actual HEAD, packager chặn dirty/mismatched commit và central verifier chặn old/new/mixed commits.
 
 - Thêm C3-R1 CafeF canonical market pilot: chấp nhận `GiaDieuChinh` làm
   `vendor_adjusted` research proxy, giữ raw OHLC staging-only, null-safe total activity,

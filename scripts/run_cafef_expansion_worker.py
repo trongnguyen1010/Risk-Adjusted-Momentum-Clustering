@@ -8,19 +8,19 @@ from delta_t1.ingestion.cafef_expansion import *
 
 def now(): return datetime.now(timezone.utc).isoformat()
 def main(argv=None):
-    p=argparse.ArgumentParser(description=__doc__); p.add_argument("--assignment",required=True); mode=p.add_mutually_exclusive_group(required=True); mode.add_argument("--dry-run",action="store_true"); mode.add_argument("--execute",action="store_true"); p.add_argument("--resume"); a=p.parse_args(argv)
-    ap=(ROOT/a.assignment).resolve(); assignment,universe,contract=validate_assignment(ROOT,ap)
+    p=argparse.ArgumentParser(description=__doc__); p.add_argument("--assignment",required=True); p.add_argument("--expected-commit",required=True); mode=p.add_mutually_exclusive_group(required=True); mode.add_argument("--dry-run",action="store_true"); mode.add_argument("--execute",action="store_true"); p.add_argument("--resume"); a=p.parse_args(argv)
+    ap=(ROOT/a.assignment).resolve(); assignment,universe,contract=validate_assignment(ROOT,ap,expected_commit=a.expected_commit); actual_commit=git_value(ROOT,"rev-parse","HEAD").lower()
     if a.dry_run:
         print("READINESS=PASS\nnetwork_requests=0"); return 0
     run_id=a.resume or ("run-"+datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")+"-"+uuid.uuid4().hex[:8]); run_dir=safe_run_directory(ROOT,assignment,run_id)
     if a.resume:
         if not run_dir.is_dir(): raise ValueError("resume run does not exist")
         run=read_json(run_dir/"run.json")
-        for key,value in (("assignment_sha256",assignment["assignment_sha256"]),("universe_sha256",assignment["universe_hash"]),("crawl_contract_sha256",assignment["crawl_contract_hash"]),("adapter_version",ADAPTER_VERSION)):
+        for key,value in (("git_commit",actual_commit),("assignment_sha256",assignment["assignment_sha256"]),("universe_sha256",assignment["universe_hash"]),("crawl_contract_sha256",assignment["crawl_contract_hash"]),("adapter_version",ADAPTER_VERSION)):
             if run.get(key)!=value: raise ValueError(f"resume {key} mismatch")
         verify_existing_raw(run_dir,ADAPTER_VERSION); state=read_json(run_dir/"state.json")
     else:
-        run_dir.mkdir(parents=True,exist_ok=False); started=now(); run={"run_id":run_id,"started_at":started,"finished_at":None,"status":"RUNNING","assignment_sha256":assignment["assignment_sha256"],"universe_sha256":assignment["universe_hash"],"crawl_contract_sha256":assignment["crawl_contract_hash"],"adapter_version":ADAPTER_VERSION,"network_requests":0}; write_json(run_dir/"run.json",run); write_json(run_dir/"assignment.json",assignment); write_json(run_dir/"crawl_contract.json",contract); state={"tickers":{ticker:{"status":"NOT_STARTED","next_page":1,"pages":0} for ticker in assignment["tickers"]},"hard_stop_events":[]}; write_json(run_dir/"state.json",state)
+        run_dir.mkdir(parents=True,exist_ok=False); started=now(); run={"run_id":run_id,"started_at":started,"finished_at":None,"status":"RUNNING","git_commit":actual_commit,"assignment_sha256":assignment["assignment_sha256"],"universe_sha256":assignment["universe_hash"],"crawl_contract_sha256":assignment["crawl_contract_hash"],"adapter_version":ADAPTER_VERSION,"network_requests":0}; write_json(run_dir/"run.json",run); write_json(run_dir/"assignment.json",assignment); write_json(run_dir/"crawl_contract.json",contract); state={"tickers":{ticker:{"status":"NOT_STARTED","next_page":1,"pages":0} for ticker in assignment["tickers"]},"hard_stop_events":[]}; write_json(run_dir/"state.json",state)
     last_request=0.0; stop_all=False
     for ticker in assignment["tickers"]:
         item=state["tickers"][ticker]

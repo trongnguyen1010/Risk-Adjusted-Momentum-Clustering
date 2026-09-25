@@ -2,11 +2,11 @@
 
 Mỗi worker chỉ clone, kiểm tra, dry-run, execute, package và gửi **một ZIP**. Không sửa code/config, không commit/push/merge, không đổi ticker và không normalize dữ liệu.
 
-Owner phải gửi cho cả năm workers cùng một final C6 commit SHA. Assignment tương ứng là `worker-01.json` … `worker-05.json`. Contract trong file dùng `execution_version=c6-cafef-expansion-v1` để tránh commit tự tham chiếu; SHA commit chính xác do owner phát hành cùng runbook.
+Owner phải gửi cho cả năm workers cùng một `FINAL_COMMIT_SHA` C6-R1 và worker number. Assignment tương ứng là `worker-01.json` … `worker-05.json`. Contract trong file dùng `execution_version=c6-cafef-expansion-v1` để tránh commit tự tham chiếu; runner bắt buộc đối chiếu SHA do owner cung cấp trước mọi network request.
 
 ## 1. Clone và kiểm tra
 
-Thay `<FINAL_C6_COMMIT>` và `<NN>` bằng thông tin owner gửi:
+Thay `<FINAL_COMMIT_SHA>` và `<NN>` bằng thông tin owner gửi:
 
 ```powershell
 git clone --branch m1-cafef-primary-experiment <REPOSITORY_URL> Risk-Adjusted-Momentum-Clustering
@@ -17,7 +17,7 @@ git branch --show-current
 git rev-parse HEAD
 ```
 
-Kết quả bắt buộc: status rỗng, branch `m1-cafef-primary-experiment`, HEAD đúng `<FINAL_C6_COMMIT>`.
+Kết quả bắt buộc: status rỗng, branch `m1-cafef-primary-experiment`, HEAD đúng `<FINAL_COMMIT_SHA>`.
 
 ## 2. Setup Python
 
@@ -34,6 +34,7 @@ Không cần dependency plotting/research.
 ```powershell
 .venv\Scripts\python.exe scripts/run_cafef_expansion_worker.py `
   --assignment configs/data/cafef_expansion_v1/worker-<NN>.json `
+  --expected-commit <FINAL_COMMIT_SHA> `
   --dry-run
 ```
 
@@ -49,6 +50,7 @@ network_requests=0
 ```powershell
 .venv\Scripts\python.exe scripts/run_cafef_expansion_worker.py `
   --assignment configs/data/cafef_expansion_v1/worker-<NN>.json `
+  --expected-commit <FINAL_COMMIT_SHA> `
   --execute
 ```
 
@@ -57,6 +59,7 @@ Ghi lại `run_id`. Nếu process dừng, resume đúng run đó:
 ```powershell
 .venv\Scripts\python.exe scripts/run_cafef_expansion_worker.py `
   --assignment configs/data/cafef_expansion_v1/worker-<NN>.json `
+  --expected-commit <FINAL_COMMIT_SHA> `
   --execute `
   --resume <RUN_ID>
 ```
@@ -87,10 +90,12 @@ Owner đặt các file tại `data/handoffs/cafef_expansion_v1/incoming/`, sau �
 
 ```powershell
 .venv\Scripts\python.exe scripts/verify_cafef_expansion_handoffs.py `
-  --incoming data/handoffs/cafef_expansion_v1/incoming
+  --incoming data/handoffs/cafef_expansion_v1/incoming `
+  --expected-commit <FINAL_COMMIT_SHA>
 ```
 
-Lệnh chỉ verify, không merge/normalize/promote.
+Kết quả bắt buộc là `HANDOFF_VERIFICATION=PASS`, `assignments=5`, `tickers=600`.
+Lệnh từ chối old/new/mixed commit và chỉ verify, không merge/normalize/promote.
 
 ## Contract C8 sau merge — chưa thực thi
 

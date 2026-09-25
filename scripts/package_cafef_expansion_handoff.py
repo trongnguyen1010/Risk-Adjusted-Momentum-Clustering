@@ -6,7 +6,12 @@ from delta_t1.ingestion.cafef_expansion import *
 
 def main(argv=None):
     p=argparse.ArgumentParser(description=__doc__); p.add_argument("--assignment",required=True); p.add_argument("--run-id",required=True); p.add_argument("--output-root",default="handoff"); a=p.parse_args(argv)
-    assignment,universe,contract=validate_assignment(ROOT,(ROOT/a.assignment).resolve()); run_dir=safe_run_directory(ROOT,assignment,a.run_id); verify_existing_raw(run_dir,ADAPTER_VERSION); run=read_json(run_dir/"run.json"); state=read_json(run_dir/"state.json")
+    assignment,universe,contract=validate_assignment(ROOT,(ROOT/a.assignment).resolve()); actual_commit=git_value(ROOT,"rev-parse","HEAD").lower(); run_dir=safe_run_directory(ROOT,assignment,a.run_id); verify_existing_raw(run_dir,ADAPTER_VERSION); run=read_json(run_dir/"run.json"); state=read_json(run_dir/"state.json"); run_assignment=read_json(run_dir/"assignment.json")
+    if run.get("git_commit")!=actual_commit: raise ValueError("current Git HEAD differs from run git_commit")
+    if run.get("adapter_version")!=ADAPTER_VERSION: raise ValueError("run adapter version mismatch")
+    if (assignment_digest(run_assignment)!=run_assignment.get("assignment_sha256")
+            or run_assignment.get("assignment_sha256")!=assignment.get("assignment_sha256")
+            or run.get("assignment_sha256")!=assignment.get("assignment_sha256")): raise ValueError("run assignment hash mismatch")
     files={}
     for fixed in ("run.json","assignment.json","crawl_contract.json"):
         files[fixed]=(run_dir/fixed).read_bytes()
@@ -14,7 +19,7 @@ def main(argv=None):
         if path.is_file(): files[path.relative_to(run_dir).as_posix()]=path.read_bytes()
     statuses={name:item["status"] for name,item in state["tickers"].items()}; report={"statuses":statuses,"completion_reasons":{name:item.get("completion_reason") for name,item in state["tickers"].items()}}
     files["worker_report.json"]=canonical_bytes(report)
-    manifest={"expansion_id":assignment["expansion_id"],"assignment_id":assignment["assignment_id"],"worker_id":assignment["worker_id"],"git_commit":assignment["git_commit"],"execution_version":assignment["execution_version"],"assignment_sha256":assignment["assignment_sha256"],"universe_sha256":assignment["universe_hash"],"crawl_contract_sha256":assignment["crawl_contract_hash"],"run_id":run["run_id"],"started_at":run["started_at"],"finished_at":run["finished_at"],"ticker_count":len(statuses),"complete_tickers":sum(v=="COMPLETE" for v in statuses.values()),"partial_tickers":sum(v=="PARTIAL" for v in statuses.values()),"failed_tickers":sum(v=="FAILED" for v in statuses.values()),"hard_stop_events":state["hard_stop_events"],"network_requests":run["network_requests"],"raw_page_count":sum(n.endswith(".json") and not n.endswith("metadata.json") for n in files if n.startswith("raw/")),"archive_content_hash":{"algorithm":"sha256","scope":"all included files except checksums.sha256 and handoff_manifest.json","sha256":sha256_bytes(checksums_for_files(files))},"adapter_version":ADAPTER_VERSION}
+    manifest={"expansion_id":assignment["expansion_id"],"assignment_id":assignment["assignment_id"],"worker_id":assignment["worker_id"],"git_commit":actual_commit,"execution_version":assignment["execution_version"],"assignment_sha256":assignment["assignment_sha256"],"universe_sha256":assignment["universe_hash"],"crawl_contract_sha256":assignment["crawl_contract_hash"],"run_id":run["run_id"],"started_at":run["started_at"],"finished_at":run["finished_at"],"ticker_count":len(statuses),"complete_tickers":sum(v=="COMPLETE" for v in statuses.values()),"partial_tickers":sum(v=="PARTIAL" for v in statuses.values()),"failed_tickers":sum(v=="FAILED" for v in statuses.values()),"hard_stop_events":state["hard_stop_events"],"network_requests":run["network_requests"],"raw_page_count":sum(n.endswith(".json") and not n.endswith("metadata.json") for n in files if n.startswith("raw/")),"archive_content_hash":{"algorithm":"sha256","scope":"all included files except checksums.sha256 and handoff_manifest.json","sha256":sha256_bytes(checksums_for_files(files))},"adapter_version":ADAPTER_VERSION}
     files["handoff_manifest.json"]=canonical_bytes(manifest); files["checksums.sha256"]=checksums_for_files(files)
     if any(not safe_archive_name(name) for name in files): raise ValueError("unsafe or secret-like archive path")
     if any(name.endswith(".json") and json_contains_secret_keys(body) for name,body in files.items()): raise ValueError("secret-like JSON key in handoff")
