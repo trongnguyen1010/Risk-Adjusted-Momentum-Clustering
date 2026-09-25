@@ -102,6 +102,8 @@ def build_features(tables, config, data_version):
     for rows in calendars.values():
         rows.sort(key=lambda item: item["trade_date"])
     output = []
+    readiness_policy = config.get("readiness_policy", "LEGACY_READINESS_POLICY")
+    readiness_v2 = readiness_policy == "MARKET_FEATURE_READINESS_V2"
     for sid in sorted({item["security_id"] for item in metadata}):
         history = [item for item in metadata if item["security_id"] == sid]
         day_map = {}
@@ -148,7 +150,7 @@ def build_features(tables, config, data_version):
                 "ticker": meta["ticker"],
                 "as_of_date": day,
                 "available_at": session["decision_at"],
-                "feature_version": "1.5.0",
+                "feature_version": "1.6.0" if readiness_v2 else "1.5.0",
                 "data_version": data_version,
                 "data_mode": config.get("data_mode", "synthetic" if config["accepted_adjustments"] == ["synthetic"] else "real"),
                 "vendor_run_id": config.get("vendor_run_id"),
@@ -208,9 +210,13 @@ def build_features(tables, config, data_version):
                 reasons["metadata"] = "missing_session_threshold"
             features["na_reason"] = reasons
             feature_complete = not any(features[name] is None for name in required_features)
+            # V2 separates existence/quality of a real provider observation from
+            # execution tradability. A valid zero-volume row remains in every
+            # price window and does not fail market-data readiness.
             market_feature_ready = (
                 feature_complete and has_minimum_history
-                and "trading_status" not in reasons and "metadata" not in reasons
+                and (readiness_v2 or "trading_status" not in reasons)
+                and "metadata" not in reasons
             )
             # Keep legacy/scoped eligibility semantics explicit.  In particular,
             # pilot observed-interval identity remains usable for its frozen pilot

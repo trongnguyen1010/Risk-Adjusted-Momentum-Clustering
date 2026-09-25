@@ -623,3 +623,15 @@ current feature set, and may be supplied only by a future versioned enrichment.
 The evaluation uses no imputation, keeps strict missing sessions and conflicts,
 and has no arbitrary readiness target. C4 is offline and does not promote its
 experimental candidate into production canonical data.
+
+# C5 — MARKET OBSERVATION SEMANTICS AND TARGETED RECOVERY
+
+A provider-published `Volume=0` row remains an observed market row and is
+usable by price-based research features. Zero published volume does not prove
+suspension, halting, or delisting. C5 therefore versions readiness as
+`MARKET_FEATURE_READINESS_V2`: market-data readiness is independent of the
+separate tradability status (`ACTIVE`, `OBSERVED_ZERO_VOLUME`, or
+`UNKNOWN_ACTIVITY_COMPONENTS`). No null component becomes zero and no price or
+session is imputed. Same-provider recovery is bounded to the exact latest-253
+blockers identified offline. Historical identity remains an independent strict
+research gate and is not promoted by C5.
