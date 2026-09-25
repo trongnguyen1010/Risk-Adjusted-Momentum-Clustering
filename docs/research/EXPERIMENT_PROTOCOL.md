@@ -23,4 +23,20 @@ M2 artifact tối thiểu gồm manifest/source snapshot, model per snapshot, as
 
 M2-PREP chỉ định nghĩa contract và không được sinh M2 experiment artifact. Trước khi freeze development window, phải giải thích các discontinuities và zero-readiness periods trong monthly M1 report; không được chữa chúng bằng terminal-universe filtering, imputation hoặc timeline compression.
 
+## Kết quả M2-PREP v1
+
+`market_experiment_eligible(t) = market_feature_ready_v2(t)` tại chính snapshot `t` đã được freeze; latest snapshot tái lập 905/952. Required feature set gồm `mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126`, `liquidity_21`. `portfolio_evaluation.enabled=false`, Dynamic Clustering `NOT APPROVED`, DBSCAN không tương thích fixed-k flow hiện tại.
+
+Protocol execution chưa được freeze. Các lựa chọn còn `MANUAL_REVIEW_REQUIRED` gồm:
+
+- development window: `2023-01..2023-04`, contiguous main `2023-11..2025-01`, latest recovery `2026-02..2026-08`, hoặc full post-history range với explicit skipped months;
+- final holdout boundary và one-use access rule;
+- minimum eligible cross-section, consecutive-month và low-coverage thresholds;
+- fixed/development-selected `k` và temporal comparability rule;
+- no clipping so với fixed winsorization/robust transform, default scaler;
+- PCA component count hoặc development-only variance threshold;
+- registry version `1.5.0` so với C8 snapshot version `1.6.0`.
+
+Runner hiện vẫn lọc legacy `eligibility`; loader strict-research yêu cầu verified identity và layout data-run cũ. Vì chưa có owner decisions, M2-PREP không tạo fake config và không sửa rộng strict research path. Chi tiết machine-readable nằm tại `artifacts/experiments/m2-prep-v1/`.
+
 Reporting chỉ render output; không fit model. Product bundle chỉ consume complete experiment artifact.

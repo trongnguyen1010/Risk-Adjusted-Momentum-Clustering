@@ -79,6 +79,17 @@ Strict research gate vẫn `NOT READY`; `historical_identity_ready=0` và
 
 Không rerun `run_cafef_c8_complete_only.py` hoặc C8 verifier-generator để kiểm chứng artifact đã tồn tại. R1 exact-inventory verifier thuộc frozen R1 tree và đương nhiên không đại diện cho current tree sau M1/D1. Heavy artifact và năm ZIP phải giữ nguyên hash.
 
+## M2-PREP
+
+Artifact `artifacts/experiments/m2-prep-v1/` đã audit eligibility, 80 snapshot, implementation, feature/preprocessing, algorithms, metrics và literature mà không chạy clustering. Kết quả cuối là **`MANUAL_REVIEW_REQUIRED`**; không tạo `configs/experiments/m2_market_only_v1.json`.
+
+Hai discontinuity hệ thống được giải thích từ evidence hiện có:
+
+- `2023-05` đến `2023-10`: session `2023-05-15` có trong calendar của cả ba exchange nhưng thiếu VNINDEX row; strict `beta_126` làm toàn bộ cross-section chưa complete cho tới khi gap ra khỏi 126-return window. Phân loại: benchmark/calendar propagation, không phải clustering result.
+- `2025-02` đến `2026-01`: canonical market có 0 equity price row ở open session `2025-02-03`; strict `mom_252` cần 253 real prices nên toàn bộ cross-section fail cho tới khi gap ra khỏi window. Không impute hoặc timeline-compress.
+
+Latest snapshot vẫn tái lập đúng `market_experiment_eligible=905/952`, với membership tính độc lập ở từng tháng; historical identity và research readiness vẫn bằng 0.
+
 ## Stage tiếp theo
 
-**M2-PREP — MARKET-ONLY EXPERIMENT PROTOCOL**: review/freeze eligibility theo snapshot, development/validation windows, preprocessing và evaluation contract trước khi chạy clustering. Đây là methodology-sensitive stage; mọi nới identity/research gate hoặc final universe freeze cần `MANUAL_REVIEW_REQUIRED`. D1 không tự động bắt đầu stage này.
+**M2-PREP-REVIEW — OWNER/MENTOR METHODOLOGY DECISIONS**: chọn development window và final-holdout boundary; freeze minimum snapshot/cross-section rule, skipped-month policy, `k` policy, outlier/scaling policy, PCA component rule và giải quyết feature-version metadata. Sau approval mới được sửa runner/input adapter, tạo final config và cân nhắc M2-EXEC. Không tự động bắt đầu stage này.

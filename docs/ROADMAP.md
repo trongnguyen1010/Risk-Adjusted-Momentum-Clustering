@@ -21,7 +21,8 @@ Supplemental acquisition cho 148 deferred rows là optional future stage, không
 
 - [x] Static K-Means deterministic baseline và label alignment/transition tracking.
 - [x] Tách cluster quality khỏi temporal/portfolio metrics ở architecture.
-- [ ] **M2-PREP — exact next stage:** freeze `market_experiment_eligible(t)`, development/validation windows, treatment of readiness discontinuities, preprocessing/PCA, comparator set, `k` policy và evaluation contract. Không chạy clustering trong stage preparation này.
+- [x] **M2-PREP audit:** freeze eligibility semantics/feature set/firewall; tái lập 905/952; giải thích readiness gaps; audit implementation/literature và xuất `artifacts/experiments/m2-prep-v1/`. Status `MANUAL_REVIEW_REQUIRED`; không tạo final config hoặc chạy clustering.
+- [ ] **M2-PREP-REVIEW:** owner/mentor chọn development window, holdout, minimum coverage/skip rules, `k`, outlier/scaling, PCA components và feature-version resolution; sau đó mới implement narrow market-only runner/input adapter.
 - [ ] Freeze feature registry và development/validation protocol; active snapshot 1.5 không chứa Sharpe và tách readiness, còn formula market giữ nguyên baseline 1.4.
 - [x] Có implementation PCA + K-Means snapshot-only, lưu scaler/PCA parameters và explained variance; chưa có real comparison evidence.
 - [x] Có Ward/Agglomerative comparator deterministic; DBSCAN/GMM chờ protocol. Chưa có real comparator evidence.

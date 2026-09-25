@@ -47,6 +47,9 @@ Cập nhật 26/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-041 | **Không terminal-filter 905:** 905 chỉ là count tại snapshot `2026-08-28`; membership tháng trước phải lấy readiness tại chính snapshot đó. Không áp latest membership ngược lịch sử. |
 | ADR-042 | **M2 không portfolio:** M2-PREP và market-only M2 giữ `portfolio_evaluation.enabled=false`; không backtest/performance và không dùng return/Sharpe/ROI để chọn model. |
 | ADR-043 | **Readiness discontinuity gate:** các đoạn gián đoạn lớn và zero-readiness periods trong monthly report phải được giải thích trước khi freeze development/validation windows. D1 chỉ ghi nhận, không diễn giải hoặc sửa dữ liệu. |
+| ADR-044 | **M2 market-only eligibility freeze:** `market_experiment_eligible(t) = market_feature_ready_v2(t)` tại cùng snapshot; legacy `eligibility`, tradability, historical identity và research readiness giữ tách biệt. Latest 905 không được retrospective-filter. |
+| ADR-045 | **Monthly readiness diagnosis:** gap VNINDEX `2023-05-15` lan qua `beta_126` gây zero readiness 2023-05..10; 0 canonical equity rows tại open session `2025-02-03` lan qua strict `mom_252` gây zero readiness 2025-02..2026-01. Giữ missing, không impute/timeline-compress. |
+| ADR-046 | **M2-PREP v1 status:** feature set, no-imputation, portfolio firewall và Dynamic `NOT APPROVED` được khóa; development/holdout, coverage/skip rules, `k`, outlier/scaling, PCA components và feature-version resolution cần owner/mentor review. Không tạo final M2 config; status `MANUAL_REVIEW_REQUIRED`. |
 
 ## Open decisions
 
