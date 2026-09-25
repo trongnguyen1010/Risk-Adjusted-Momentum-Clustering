@@ -13,6 +13,7 @@
 - [DATA_PIPELINE.md](DATA_PIPELINE.md)
 - [crawl/README.md](crawl/README.md) — **START HERE** cho source discovery, collection, smoke testing và team crawling.
 - [crawl/REPRESENTATIVE_PILOT.md](crawl/REPRESENTATIVE_PILOT.md) — official pilot runner, universe contract, dry-run và gate.
+- [crawl/CAFEF_EXPANSION_5_WORKERS.md](crawl/CAFEF_EXPANSION_5_WORKERS.md) — active C6 runbook cho năm CafeF acquisition workers.
 - [FEATURE_SYSTEM.md](FEATURE_SYSTEM.md)
 
 ## Research và evaluation

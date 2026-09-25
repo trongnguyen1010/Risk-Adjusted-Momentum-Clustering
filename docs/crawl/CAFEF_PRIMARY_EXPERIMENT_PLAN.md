@@ -7,7 +7,7 @@ branch: m1-cafef-primary-experiment
 forked_from_branch: m1-scale-500-team-crawl
 fork_base_commit: e886f68875fb5c079e57c9b51cae9e6bf5a8047b
 current_experiment: CafeF Primary Data Foundation Experiment
-last_completed_stage: C3-CAFEF-PRIMARY-SELF-SUFFICIENCY-AUDIT
+last_completed_stage: C6-REPOSITORY-CLEANUP-UNIVERSE-EXPANSION-FREEZE
 c0_result: COMPLETED / USER_APPROVED
 c1_prep_v1_status: SUPERSEDED / HISTORICAL_ONLY
 c1_execution_model: SINGLE_LOCAL_RUNNER
@@ -52,10 +52,16 @@ old_local_crawl_artifacts: STOPPED_V2_3_SOURCE_ARTIFACT_PRESERVED
 canonical_mutation: NO
 canonical_mutations: 0
 feature_rebuild: NO
-five_worker_execution: DEFERRED_TO_C4_PREP_SCALE
-why: C1-PREP v1 was preserved as history; the active representative pilot now uses one frozen resumable local run
-next_allowed_action: USER MANUAL REVIEW OF C3 FIELD READINESS AND PRICE BASIS
-after_explicit_user_approval: APPROVE_OR_REJECT_CAFEF_RAW_OHLC_MAPPING_AND_PLAN_MISSING_DOMAINS
+five_worker_execution: PREPARED_NOT_EXECUTED
+expansion_id: cafef-expansion-v1
+expansion_selected: 600
+expansion_reserve: 100
+expansion_workers: 5
+long_expansion_crawl_executed: NO
+old_incomplete_security_count: 10
+old_incomplete_status: DEFERRED_MISSING_SESSION_REVIEW
+next_allowed_action: OWNER_REVIEW_AND_PUBLISH_FINAL_C6_COMMIT_TO_FIVE_HUMAN_WORKERS
+after_explicit_user_approval: FIVE_WORKERS_CLONE_EXACT_COMMIT_AND_EXECUTE_FROZEN_SHARDS
 c1_prep_solo_crawl_execution: NO
 user_manual_review_required: YES
 ```
@@ -63,6 +69,17 @@ user_manual_review_required: YES
 Tài liệu này là source of truth cho nhánh thử nghiệm. Không được suy approval từ việc
 branch tồn tại, từ việc C0 đã commit, hoặc từ kết quả thuận lợi của bất kỳ bằng chứng cũ
 nào.
+
+## C6 handoff
+
+C5 manifest hashes đã được replay thành công. C6 không retry 10 mã incomplete, không
+mutate C4/C5 và không chạy crawl expansion. Universe mới được chọn trước acquisition
+từ KBS current-listing evidence; current 500 và reviewed historical aliases bị loại.
+Mọi index/market-importance signal không có reliable evidence đều ghi `UNAVAILABLE`.
+
+Active contracts nằm tại `configs/data/cafef_expansion_v1/`; worker runbook tại
+`docs/crawl/CAFEF_EXPANSION_5_WORKERS.md`. C8 sau này phải verify/merge tập trung và
+audit full history tách khỏi latest-253; C6 không normalize hoặc promote dữ liệu.
 
 ## 1. Purpose
 
