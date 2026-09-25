@@ -1,6 +1,6 @@
 # Các quyết định còn hiệu lực
 
-Cập nhật 24/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation.
+Cập nhật 26/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation. Khi quyết định mới thu hẹp quyết định cũ, ID mới có ưu tiên cho active stage; historical rationale vẫn được giữ nguyên.
 
 | ID | Quyết định |
 |---|---|
@@ -42,6 +42,11 @@ Cập nhật 24/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-036 | **C6-R2 expansion history policy:** giữ nguyên frozen 600, reserve 100 và ownership năm shard; CafeF expansion dùng `c6-cafef-expansion-v2`/`BASE_2020`, target `2020-01-01 → 2026-09-23`, comparison snapshot `2026-08-28`. Crawl lùi đến target hoặc neutral provider/listing-history boundary; empty/short history không chứng minh suspension/not-listed và không được fabricate missing 2020 rows. |
 | ADR-037 | **C8 complete-only owner decision:** current C8 giữ 500 baseline và chỉ xử lý 452 expansion có C7 acquisition `COMPLETE`; 148 mã còn lại là `DEFERRED_EXPANSION_ACQUISITION`, không tham gia active audit/features và không được diễn giải thành provider gap/suspension/listing state. Snapshot feature giữ `2026-08-28`; full-history và latest-253 là audit độc lập; market readiness tách tradability/identity/research readiness. Supplemental config được freeze cho future recovery và không chạy trong C8. |
 | ADR-038 | **C8-R1 conservative audit semantics:** calendar C5 là `kbs_observed_session_union`, không phải independently reviewed authoritative exchange calendar; absence vì vậy là `CALENDAR_UNCERTAIN`, chỉ authoritative marker mới mở `MISSING_ON_TRADEHISTORYNEW`. Full-history tách `observed_window_complete` khỏi target-period status; provider boundary sau 2020 là `UNCERTAIN_BOUNDARY`, không chứng minh listing/full target history. `valid_to` là exclusive. `execution_integrity` độc lập với `data_quality_gate`. Active reviewed aliases chuyển sang `configs/data/identity_review_v1.json` với legacy commit/hash provenance. |
+| ADR-039 | **CafeF active market source hậu C8:** `TradeHistoryNew` là active market source; `AdjustPrice × 1000` là `vendor_adjusted` proxy, không phải split-only/total-return. Quyết định này thu hẹp ADR-008 cho active market path; rights, financial PIT và historical identity vẫn unresolved. |
+| ADR-040 | **Market-only M2 eligibility:** M2-PREP được phép freeze `market_experiment_eligible(t) = market_feature_ready_v2(t)` theo từng snapshot, không promote `historical_identity_ready`/`research_ready`. Đây là ngoại lệ hẹp so với câu “không mở M2” của ADR-031: chỉ mở preparation/development market-only sau protocol approval, không mở strict research hay backtest. |
+| ADR-041 | **Không terminal-filter 905:** 905 chỉ là count tại snapshot `2026-08-28`; membership tháng trước phải lấy readiness tại chính snapshot đó. Không áp latest membership ngược lịch sử. |
+| ADR-042 | **M2 không portfolio:** M2-PREP và market-only M2 giữ `portfolio_evaluation.enabled=false`; không backtest/performance và không dùng return/Sharpe/ROI để chọn model. |
+| ADR-043 | **Readiness discontinuity gate:** các đoạn gián đoạn lớn và zero-readiness periods trong monthly report phải được giải thích trước khi freeze development/validation windows. D1 chỉ ghi nhận, không diễn giải hoặc sửa dữ liệu. |
 
 ## Open decisions
 
@@ -59,6 +64,10 @@ Cập nhật 24/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | OPEN-10 | Approved usable-density và final research sample-size threshold cho clustering universe |
 
 Quyết định mới ghi: problem → alternatives → choice/reason → evidence → owner/date → affected contract/config/tests → remaining limits.
+
+## ADR — Post-M1 market-only experiment preparation
+
+Problem: C8/R1/M1-REPORT chứng minh 905 securities market-ready ở latest snapshot nhưng strict identity/research gate vẫn 0; dùng 905 như fixed historical universe sẽ tạo survivorship/terminal-membership error. Choice: owner chấp nhận bước M2-PREP giới hạn để freeze eligibility theo snapshot, windows, preprocessing, comparator và evaluation contract. `market_experiment_eligible(t)` bằng `market_feature_ready_v2(t)` tại chính snapshot `t`; readiness discontinuities phải được giải thích trước window freeze. Evidence: immutable C8 verification và M1 report với 80 monthly snapshots, snapshot cuối `2026-08-28`. Owner/date: project owner, 26/09/2026. Affected: active documentation và future M2 protocol only. Remaining limits: D1 không thay code/data/artifact, không chạy clustering/backtest, không resolve historical identity/financial PIT/rights, và không approve final research universe.
 
 ## ADR — Research/demo collection under accepted provider-rights uncertainty
 

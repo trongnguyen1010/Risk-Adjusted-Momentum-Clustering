@@ -1,12 +1,15 @@
 # Documentation — START HERE
 
-Repository đang ở trạng thái **C8 executed and verified; R1 consolidated**. Bắt đầu bằng:
+Repository đang ở trạng thái **C8 executed and verified; R1 consolidated; M1-REPORT complete**. M1 market foundation đủ cho market-only experiment preparation, còn strict research gate vẫn `NOT READY`. Bắt đầu bằng:
 
 1. [Current status](CURRENT_STATUS.md) — số liệu, gate, lineage và stage tiếp theo.
 2. [Project map](PROJECT_MAP.md) — đường dẫn active và ownership.
 3. [Architecture](ARCHITECTURE.md) và [Data contract](DATA_CONTRACT.md).
 4. [Methodology](METHODOLOGY.md), [Feature system](FEATURE_SYSTEM.md) và [Experiment protocol](research/EXPERIMENT_PROTOCOL.md).
 5. [Reproducibility](REPRODUCIBILITY.md) — kiểm chứng offline bằng manifest/hash.
+6. [M1 report artifact](../artifacts/reports/m1-market-foundation-v1/report.json) và [inspection notebook](../notebooks/eda/M1_CAFEF_MARKET_FOUNDATION.ipynb).
+
+Stage chính xác tiếp theo là **M2-PREP — MARKET-ONLY EXPERIMENT PROTOCOL**. Eligibility phải được freeze theo từng snapshot; 905 chỉ là latest-snapshot count và không phải strict research universe.
 
 ## Theo mục đích
 

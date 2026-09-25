@@ -5,7 +5,8 @@
 DELTA có Research Core là upstream producer và Product Layer là downstream consumer. Research validity được quyết định bởi data/methodology/evaluation contract, không bởi dashboard hay portfolio return.
 
 ```text
-CafeF / VietFin / Vnstock
+CafeF TradeHistoryNew (active market source)
+legacy/future source candidates (scoped evidence only)
           ↓
 immutable source snapshots
           ↓
@@ -46,6 +47,7 @@ M1 canonical/core target gồm `securities`, `shares_history`, `prices_daily`, `
 6. Cluster quality, temporal stability và portfolio performance tách biệt.
 7. Product chỉ consume versioned artifact và giữ provenance/limitations.
 8. Dynamic package chỉ có interface cho tới explicit methodology approval.
+9. Market-only M2 membership được tính theo từng snapshot; latest 905 không phải terminal filter và không promote strict research readiness.
 
 ## M2/M3 execution boundary
 
@@ -55,4 +57,4 @@ Common clustering interface hiện còn fixed-`k`: `config["k"]`, `k_range`, clu
 
 ## Scale
 
-JSONL phù hợp smoke/pilot và reproducibility. Khi source validation/pilot pass và scale hàng trăm đến >1.200 mã trong 5–15 năm, analytics có thể chuyển sang partitioned Parquet/DuckDB; quyết định serving storage là M3/later và không được kéo microservice/database migration vào refactor hiện tại.
+JSONL hiện vẫn phù hợp cho reproducibility và active artifacts. M2-PREP không bao gồm storage migration hay extended-scale promise. Chỉ cân nhắc partitioned Parquet/DuckDB khi một stage riêng có evidence về volume/performance và contract migration; serving storage là M3/later, không kéo microservice/database migration vào active work.

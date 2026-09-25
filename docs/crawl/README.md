@@ -1,6 +1,6 @@
 # CafeF data collection
 
-Đây là entry point duy nhất cho acquisition/recovery còn active. Source semantics chi tiết nằm tại [CafeF](sources/CAFEF.md); trạng thái dataset nằm tại [Current status](../CURRENT_STATUS.md).
+Đây là entry point duy nhất cho acquisition/recovery còn active. CafeF `TradeHistoryNew` là active market source; source semantics chi tiết nằm tại [CafeF](sources/CAFEF.md), trạng thái dataset nằm tại [Current status](../CURRENT_STATUS.md).
 
 ## Active contracts
 
@@ -23,4 +23,4 @@ Acquisition phải dùng explicit execute/resume contract, immutable raw pages, 
 
 ## Current boundary
 
-C8 đã dùng 500 baseline + 452 complete expansion. 148 expansion rows còn deferred. R1 không crawl network, không chạy supplemental và không thay data result. Planning/runbook superseded đã rời active tree và chỉ còn trong Git history.
+C8 đã dùng 500 baseline + 452 complete expansion. 148 expansion rows còn deferred và chỉ là optional future supplemental stage, không phải blocker của M2-PREP. R1 và D1 không crawl network, không chạy supplemental và không thay data result. Planning/runbook superseded đã rời active tree và chỉ còn trong Git history.

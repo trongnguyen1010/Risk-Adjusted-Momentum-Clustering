@@ -14,6 +14,8 @@ Nhánh static baseline không được gọi là Dynamic Clustering dù có ARI,
 
 Historical universe được tạo từ effective-dated `security_id`, không từ current ticker membership. Input tại snapshot phải có `available_at <= decision_at`. Real clustering yêu cầu ít nhất ba calendar years usable observed history; short history là `REFERENCE_ONLY`. Observed calendar span không tự chứng minh usable density; M1 báo span, session coverage, required-feature completeness, market readiness và identity readiness riêng. Monthly research gate chỉ dùng latest completed collection month.
 
+Ngoại lệ hẹp cho M2 market-only development không tạo historical-universe claim: tại mỗi snapshot `t`, candidate membership là `market_experiment_eligible(t) = market_feature_ready_v2(t)` sau khi M2-PREP freeze windows và preprocessing. Latest count 905 không được áp ngược làm terminal filter. Strict research/M3 vẫn yêu cầu effective-dated identity, PIT evidence và `research_ready` theo protocol tương lai được duyệt.
+
 Không forward-fill giá, không đổi missing thành zero và không splice raw với adjusted price. Quarterly financial data dùng publication/availability và giữ restatement vintage.
 
 ## Model protocol
@@ -28,11 +30,13 @@ Không forward-fill giá, không đổi missing thành zero và không splice ra
 
 Market feature nền gồm momentum 21/63/126/252 sessions, volatility, downside volatility, maximum drawdown, beta và liquidity. Risk-adjusted momentum là research hypothesis và phải có version. Financial feature chỉ được bật sau paper-backed definition và taxonomy/PIT approval.
 
+Market-only M2 dùng đúng required set đã khóa trong C8 (`mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126`, `liquidity_21`); không tự thêm financial feature. Snapshot preprocessing không được fit future/holdout. Static clustering theo tháng cộng ARI/transition tracking không được gọi là Dynamic Clustering.
+
 Sharpe và ROI không phải clustering feature hay cluster-quality metric. Sharpe chỉ được tính ở portfolio evaluation.
 
 ## Boundary M2/M3
 
-M2 config mặc định `portfolio_evaluation.enabled=false`. M2 được phép chạy clustering, cluster diagnostics và temporal diagnostics nhưng không tạo backtest/performance artifact. Chỉ M3/frozen protocol bật portfolio evaluation; kết quả đó không quay lại chọn `k`, algorithm, PCA components hoặc feature set.
+M2-PREP chỉ freeze protocol; chưa chạy clustering. Khi một M2 development stage riêng được phê duyệt, config vẫn phải có `portfolio_evaluation.enabled=false` và chỉ được sinh cluster/temporal diagnostics, không tạo backtest/performance artifact. Chỉ M3/frozen protocol bật portfolio evaluation; kết quả đó không quay lại chọn `k`, algorithm, PCA components hoặc feature set.
 
 ## Technical debt cho variable-cluster method
 

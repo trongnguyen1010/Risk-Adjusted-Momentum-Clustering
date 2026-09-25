@@ -21,8 +21,8 @@
 | `artifacts/repository/r1-consolidation-v1/` | Before/after inventory, deletion inventory và R1 verification manifest |
 | `artifacts/reports/m1-market-foundation-v1/` | Compact M1 market-foundation report, report-level tables và deterministic plots |
 | `scripts/run_cafef_c8_complete_only.py` | Heavy C8 runner; không dùng cho verify thông thường |
-| `scripts/verify_cafef_c8_results.py` | Offline C8 verification |
-| `scripts/verify_repository_r1.py` | Offline R1 repository/integrity verification |
+| `scripts/verify_cafef_c8_results.py` | One-time compact C8 verification artifact generator; không rerun khi output tồn tại |
+| `scripts/verify_repository_r1.py` | Exact-inventory verifier cho frozen R1 revision; không phải current-tree gate hậu M1/D1 |
 | `scripts/build_m1_market_foundation_report.py` | Offline deterministic M1 report generator/verifier |
 | `scripts/run_cafef_expansion_worker.py` | Frozen C6 acquisition runner |
 | `scripts/run_cafef_supplemental_worker.py` | Deferred supplemental acquisition runner |
@@ -35,6 +35,8 @@
 Notebook human-facing duy nhất của M1 report là
 `notebooks/eda/M1_CAFEF_MARKET_FOUNDATION.ipynb`; notebook đọc explicit report
 artifact và không chứa acquisition hoặc scientific gate logic riêng.
+
+Exact next stage là M2-PREP; project map này không cấp quyền chạy clustering, backtest hoặc supplemental crawl.
 
 ## Tài liệu canonical
 

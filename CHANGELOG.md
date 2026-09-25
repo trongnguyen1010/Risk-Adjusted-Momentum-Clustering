@@ -1,3 +1,11 @@
+# Chưa phát hành — Post-M1 documentation alignment (2026-09-26)
+
+- Ghi nhận C8 `EXECUTED_AND_VERIFIED`, R1 `COMPLETE` và M1-REPORT `COMPLETE FOR MARKET-ONLY EXPERIMENT PREPARATION`; giữ strict research gate `NOT READY`.
+- Đồng bộ active docs với CafeF `TradeHistoryNew`, snapshot `2026-08-28`, 952 candidates, 922 feature-complete, 905 market-ready, 47 failures, 148 deferred và identity/research readiness bằng 0.
+- Tách `market_experiment_eligible(t)` theo từng snapshot khỏi legacy `eligibility`, `historical_identity_ready` và `research_ready`; 905 không phải terminal-universe filter.
+- Chuyển exact next stage thành M2-PREP để freeze protocol trước clustering; monthly readiness discontinuities phải được giải thích trước window freeze.
+- Không đổi code, data, methodology behavior hoặc scientific result; không crawl, clustering hay backtest.
+
 # Chưa phát hành — R1 repository consolidation (2026-09-25)
 
 - Hợp nhất active tree sau C8-VERIFY: retire 192 file planning/history/config/runner/module/test superseded và đổi tên một test theo scope CafeF active; Git history là archive, không tạo archive copy.

@@ -1,6 +1,19 @@
 # Source Note — CafeF
 
-## 1. Trạng thái vòng đời (Lifecycle status)
+## CURRENT ACTIVE MARKET DECISION (post-C8)
+
+- Active market source là CafeF `TradeHistoryNew` cho C8 market foundation.
+- `AdjustPrice × 1000` được dùng như `adj_close` với `adjustment_basis=vendor_adjusted`; đây là research-price proxy, không được gọi là split-only hoặc total-return series.
+- Source semantics hiện đủ về mặt vận hành cho market-only pipeline đã execute/verify, trong đúng phạm vi contract C8 và các assumptions được version hóa.
+- Corporate-action rights/terms vẫn chưa verified; provider rights vẫn `RIGHTS_NOT_VERIFIED`.
+- Financial PIT chưa ready và financial features không active.
+- Current profile/listing metadata không chứng minh historical identity hoặc final historical universe.
+
+## OLDER DISCOVERY FINDINGS (2026-09-16)
+
+Các mục bên dưới bảo toàn discovery evidence tại thời điểm ghi nhận. Trạng thái và khuyến nghị cũ không được đọc như current post-C8 decision.
+
+### 1. Trạng thái vòng đời tại thời điểm discovery (Lifecycle status)
 
 ```text
 ACCESS_TESTED

@@ -58,14 +58,17 @@ Provider `report_id` không được dùng một mình để ghép cross-source.
 Real run yêu cầu `minimum_history_years >= 3`, đo từ observed price usable đầu tiên trong cùng basis. Calendar span chỉ là evidence về range; density và required-feature window được báo riêng.
 
 - `feature_complete`: mọi required feature có giá trị tại snapshot.
-- `market_feature_ready`: feature complete, đủ history và market/status/metadata rules; không phụ thuộc provisional identity.
+- `market_feature_ready_v2`: feature complete, đủ history và market/status/metadata rules của C8; không phụ thuộc provisional identity.
+- `market_experiment_eligible(t)`: khái niệm M2-PREP cần freeze; tại mỗi snapshot `t` bằng `market_feature_ready_v2(t)` dưới protocol market-only. Nó không phải terminal-universe filter, không phải field đã được thêm vào immutable C8 artifact và không tạo historical-identity claim.
 - `historical_identity_ready`: identity đủ thẩm quyền cho historical universe; `provisional` luôn false.
-- `research_ready`: market-feature-ready và historical-identity-ready cùng pass.
+- `research_ready`: market-feature-ready và historical-identity-ready cùng pass dưới strict research gate.
 - `eligibility`/`universe_segment`: legacy/scoped selection contract được giữ để không silently redefine artifact cũ; strict research dùng `research_ready`.
 - `REFERENCE_ONLY`: security hợp lệ nhưng chưa đủ observed history.
 - `EXCLUDED`: fail rule khác.
 
 Row giữ history/observation/missing counts, `na_reason` và segment. Gap không bị nén/forward-fill. Active `feature_snapshots` 1.5 không chứa Sharpe/ROI. Immutable snapshot 1.3/1.4 chỉ đọc qua `feature_snapshots_legacy_1_3_0`/`feature_snapshots_legacy_1_4_0`; dữ liệu đó không được mutate. Sharpe chỉ thuộc portfolio evaluation.
+
+905 securities là count mới nhất tại `2026-08-28`, không được áp ngược làm membership cho snapshot cũ. M2-PREP phải xử lý membership từ row readiness tại chính snapshot đó và giải thích các giai đoạn readiness gián đoạn trước khi freeze window.
 
 ## Quality và failure behavior
 

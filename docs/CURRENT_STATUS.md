@@ -26,6 +26,8 @@ Tradability được báo riêng: 675 `ACTIVE`, 276 `OBSERVED_ZERO_VOLUME`, 1 `U
 
 Proposed `MARKET_ONLY_EXPERIMENTAL_UNIVERSE` có đúng 905 rows thỏa `market_feature_ready_v2=true`. Đây không phải final research universe, canonical production universe hoặc historically identity-verified universe. Zero volume là observation thật và không tự loại khỏi market readiness.
 
+Cho M2-PREP, khái niệm cần freeze là `market_experiment_eligible(t) = market_feature_ready_v2(t)` theo từng snapshot. Con số 905 chỉ mô tả snapshot mới nhất `2026-08-28`; không được dùng như terminal-universe filter cho các tháng trước và không phải alias của legacy `eligibility` hay strict `research_ready`.
+
 ## Invariant còn hiệu lực
 
 - Snapshot chung: `2026-08-28`; observation muộn hơn giữ làm evidence nhưng không vào feature/readiness.
@@ -61,6 +63,8 @@ feature coverage, source/exchange composition, 30 latest-253 incomplete rows,
 `2026-08-28`. Notebook chỉ đọc explicit immutable report directory; business
 logic và integrity checks nằm trong generator.
 
+Readiness theo tháng có các đoạn gián đoạn lớn và zero-readiness periods. M2-PREP phải giải thích chúng trước khi freeze development/validation windows; D1 chỉ ghi nhận evidence, không diễn giải nguyên nhân và không thay methodology.
+
 **M1 MARKET DATA FOUNDATION: COMPLETE FOR MARKET-ONLY EXPERIMENT PREPARATION.**
 Strict research gate vẫn `NOT READY`; `historical_identity_ready=0` và
 `research_ready=0`.
@@ -68,15 +72,13 @@ Strict research gate vẫn `NOT READY`; `historical_identity_ready=0` và
 ## Kiểm chứng offline
 
 ```powershell
-.venv\Scripts\python.exe scripts\verify_cafef_c8_results.py
-.venv\Scripts\python.exe scripts\verify_repository_r1.py --verify-existing
 .venv\Scripts\python.exe scripts\build_m1_market_foundation_report.py --verify-existing
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 .venv\Scripts\python.exe -m compileall -q src tests scripts run.py
 ```
 
-Không rerun `run_cafef_c8_complete_only.py` để kiểm chứng. Heavy artifact và năm ZIP phải giữ nguyên hash.
+Không rerun `run_cafef_c8_complete_only.py` hoặc C8 verifier-generator để kiểm chứng artifact đã tồn tại. R1 exact-inventory verifier thuộc frozen R1 tree và đương nhiên không đại diện cho current tree sau M1/D1. Heavy artifact và năm ZIP phải giữ nguyên hash.
 
 ## Stage tiếp theo
 
-**M2-PREP — MARKET-ONLY EXPERIMENT PROTOCOL**: review/freeze proposed 905-security universe, eligibility semantics, split protocol và evaluation contract trước khi chạy clustering. Đây là methodology-sensitive stage; mọi nới identity/research gate hoặc final universe freeze cần `MANUAL_REVIEW_REQUIRED`. R1 không tự động bắt đầu stage này.
+**M2-PREP — MARKET-ONLY EXPERIMENT PROTOCOL**: review/freeze eligibility theo snapshot, development/validation windows, preprocessing và evaluation contract trước khi chạy clustering. Đây là methodology-sensitive stage; mọi nới identity/research gate hoặc final universe freeze cần `MANUAL_REVIEW_REQUIRED`. D1 không tự động bắt đầu stage này.

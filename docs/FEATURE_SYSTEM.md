@@ -20,7 +20,18 @@ Active registry/snapshot 1.5 không chứa Sharpe. Formula market giữ nguyên 
 
 Missing session giữ `None`; cửa sổ không được nén hay forward-fill. Basis change reset history. Với real run, security cần ba calendar years usable observed history để vào clustering; mã còn lại là `REFERENCE_ONLY` nếu không có lỗi loại trừ khác.
 
-`feature_complete` và `market_feature_ready` không bị làm false chỉ vì identity `provisional`. `historical_identity_ready` và strict `research_ready` vẫn false cho identity này. `eligibility` cũ được giữ như scoped compatibility; historical-universe/backtest phải dùng strict readiness và approved methodology.
+Các thuật ngữ readiness không được dùng thay thế nhau:
+
+| Thuật ngữ | Ý nghĩa |
+|---|---|
+| `feature_complete` | Đủ toàn bộ required feature tại snapshot. |
+| `market_feature_ready_v2` | Đủ feature, history và market/status/metadata rules của C8; identity provisional không tự làm false. |
+| `market_experiment_eligible(t)` | Khái niệm M2-PREP: bằng `market_feature_ready_v2(t)` tại chính snapshot `t`, subject to frozen market-only protocol; chưa phải field mới trong C8 artifact. |
+| `historical_identity_ready` | Identity đủ thẩm quyền cho historical research universe; provisional luôn false. |
+| `research_ready` | Strict gate kết hợp market readiness và historical identity readiness. |
+| `eligibility` | Legacy/scoped compatibility; không được silently reinterpret thành một gate ở trên. |
+
+Required market-only set hiện tại gồm `mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126` và `liquidity_21`. Financial features chưa active. Con số 905 chỉ là latest-snapshot count, không phải terminal membership cho mọi tháng. Historical-universe/backtest vẫn cần strict readiness và approved methodology.
 
 Financial feature phải nêu period type (instant/duration), annual/quarter/YTD/TTM, statement scope, currency/unit, denominator, sector treatment, publication/availability và restatement rule.
 

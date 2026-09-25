@@ -14,7 +14,7 @@
 ## Ranh giới M1/M2/M3
 
 - **M1:** C8 đã execute/verify với 905 mã market-ready; historical identity và strict research readiness vẫn fail-closed. Proposed market-only universe không tự động trở thành final research universe.
-- **M2:** giữ deterministic static K-Means baseline; PCA/comparator đánh giá riêng. Không triển khai concrete dynamic algorithm trước khi `docs/research/DYNAMIC_CLUSTERING_REVIEW.md` phê duyệt.
+- **M2:** M2-PREP chỉ được freeze market-only protocol với membership theo từng snapshot: `market_experiment_eligible(t) = market_feature_ready_v2(t)`. Giữ deterministic static K-Means baseline; PCA/comparator đánh giá riêng. Không promote sang `research_ready`, không backtest và không triển khai concrete dynamic algorithm trước khi `docs/research/DYNAMIC_CLUSTERING_REVIEW.md` phê duyệt.
 - **M3:** chỉ final backtest sau methodology freeze; dashboard tiêu thụ artifact, không điều khiển research.
 
 ## Research invariants
@@ -27,7 +27,7 @@
 ## Data invariants
 
 - Raw/canonical/experiment artifact là immutable; sửa policy tạo version/run mới.
-- Không dùng current ticker membership làm historical universe; join bằng historical `security_id` interval.
+- Không dùng current ticker membership làm final historical research universe; join strict research bằng historical `security_id` interval. Market-only M2 development chỉ dùng eligibility theo từng snapshot đã freeze và không tạo historical-identity claim.
 - Không forward-fill missing price, không đổi missing thành zero, không trộn raw/adjusted basis.
 - Chỉ dùng row có `available_at <= decision_at`; financial statement phải point-in-time và revision-aware.
 - Real clustering cần ít nhất ba calendar years usable observed history; mã ngắn lịch sử là `REFERENCE_ONLY`.
