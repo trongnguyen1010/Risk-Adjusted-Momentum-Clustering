@@ -2,10 +2,11 @@
 
 Đọc theo thứ tự onboarding sau:
 
-1. [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) — mục tiêu và hai track.
-2. [PROJECT_MAP.md](PROJECT_MAP.md) — vị trí, milestone, trạng thái và dependency của từng component.
-3. [ROADMAP.md](ROADMAP.md) — gates M1, M2, M3.
-4. [ARCHITECTURE.md](ARCHITECTURE.md) — boundaries và data flow.
+1. [CURRENT_STATUS.md](CURRENT_STATUS.md) — canonical status/handoff và lệnh active.
+2. [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) — mục tiêu và hai track.
+3. [PROJECT_MAP.md](PROJECT_MAP.md) — vị trí, milestone, trạng thái và dependency của từng component.
+4. [ROADMAP.md](ROADMAP.md) — gates M1, M2, M3.
+5. [ARCHITECTURE.md](ARCHITECTURE.md) — boundaries và data flow.
 
 ## Data và feature
 

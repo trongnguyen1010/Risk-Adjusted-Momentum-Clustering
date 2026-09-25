@@ -16,6 +16,11 @@ Frozen config ban đầu vẫn ở `configs/data/cafef_expansion_v1/`. Các tài
 `TEAM_CRAWLING.md` là **HISTORICAL / DO NOT USE FOR CAFEF EXPANSION V1**; chúng được
 giữ để tái lập C1–C5.
 
+Owner đã freeze quyết định C8: không crawl 148 mã còn thiếu ở thời điểm này. Chỉ 452
+mã COMPLETE đi vào pipeline `scripts/run_cafef_c8_complete_only.py`; xem trạng thái và
+lệnh active tại [`../CURRENT_STATUS.md`](../CURRENT_STATUS.md). Supplemental config
+được giữ làm future-recovery evidence, không phải lệnh chạy hiện tại.
+
 Thư mục này là tài liệu chuẩn cho toàn bộ việc **source discovery → source smoke → representative pilot → scale crawl** của DELTA.
 
 Mục tiêu không chỉ là “crawl được data”, mà là bảo đảm mọi dữ liệu có:

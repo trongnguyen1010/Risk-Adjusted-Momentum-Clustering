@@ -12,7 +12,8 @@
 | C7 partial consolidation | `artifacts/cafef_primary/cafef-expansion-c7-partial-consolidation-v1/` | Offline inventory 600 mã từ năm ZIP bất biến; 452 COMPLETE được giữ nguyên |
 | Supplemental acquisition | `configs/data/cafef_supplemental_v1/`, `scripts/run_cafef_supplemental_worker.py` | 141 mã runnable chia ba shard mới; 7 FAILED giữ `MANUAL_REVIEW`; raw ghi namespace mới |
 | Worker instructions | `docs/crawl/CAFEF_EXPANSION_5_WORKERS.md` | PowerShell runbook active |
-| C8 audit tương lai | contract ở cuối worker runbook | Full-history và latest-253 audit độc lập; chưa execute |
+| C8 complete-only | `configs/data/cafef_c8_complete_only_v1.json`, `scripts/run_cafef_c8_complete_only.py` | Prepared; 500 baseline + 452 COMPLETE, 148 deferred; heavy run chưa execute |
+| Canonical status/handoff | `docs/CURRENT_STATUS.md` | Entry point trạng thái active và kế hoạch post-C8 cleanup |
 
 > **HISTORICAL / DO NOT USE FOR CAFEF EXPANSION V1:** các planner/runners C1,
 > M1-scale/KBS và worker docs dưới `docs/crawl/m1_scale/` chỉ được giữ để tái lập

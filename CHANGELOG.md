@@ -1,5 +1,11 @@
 # Chưa phát hành — REPRESENTATIVE_PILOT readiness (2026-09-16)
 
+- Chuẩn bị C8 complete-only: fail-closed scope 500 baseline + 452 COMPLETE expansion,
+  ghi riêng 148 `DEFERRED_EXPANSION_ACQUISITION`, thêm offline normalization/audit/
+  feature runner với snapshot 2026-08-28 và independent full-history/latest-253 audits.
+  Thêm `docs/CURRENT_STATUS.md` làm canonical active handoff. Heavy C8 chưa chạy;
+  supplemental crawl, clustering và backtest đều không chạy.
+
 - Chuẩn bị C6 CafeF expansion: freeze pre-crawl 600 mã mới + reserve 100 sau current-500/reviewed-alias exclusion; tạo năm shard cân bằng, acquisition-only runner với exact resume/immutable raw, one-ZIP packager, central tamper verifier và PowerShell worker runbook. Không chạy long crawl, normalization, clustering hoặc backtest.
 - C6-R1 sửa observation semantics để mọi null component không bị hiểu thành zero; runner yêu cầu external exact commit SHA trước dry-run/execute/resume, run/handoff ghi actual HEAD, packager chặn dirty/mismatched commit và central verifier chặn old/new/mixed commits.
 - C6-R2 giữ nguyên universe/reserve/năm shard và mở rộng frozen CafeF acquisition range thành `2020-01-01 → 2026-09-23`; bump execution contract lên `c6-cafef-expansion-v2`/`BASE_2020`, recompute estimate/hashes offline và giữ provider boundary trung tính, không fabricate history.
