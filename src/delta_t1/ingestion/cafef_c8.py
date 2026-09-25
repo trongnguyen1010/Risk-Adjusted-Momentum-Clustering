@@ -88,11 +88,32 @@ def current_security_rows(rows: list[dict], snapshot: str = SNAPSHOT_DATE) -> li
     current = []
     for security_id, intervals in grouped.items():
         matches = [row for row in intervals if row["valid_from"] <= snapshot
-                   and (not row.get("valid_to") or snapshot <= row["valid_to"])]
+                   and (not row.get("valid_to") or snapshot < row["valid_to"])]
         if len(matches) != 1:
             raise ValueError(f"current identity interval is not unique: {security_id}")
         current.append(matches[0])
     return sorted(current, key=lambda row: row["ticker"])
+
+
+def load_identity_review(path: Path) -> set[str]:
+    evidence = read_json(path)
+    aliases = evidence.get("reviewed_aliases", [])
+    if evidence.get("identity_review_id") != "identity-review-v1":
+        raise ValueError("active identity review id mismatch")
+    if (evidence.get("source_legacy_path") !=
+            "docs/crawl/plans/cafef_c1_prep_v1/cafef_c1_candidate_universe.csv"
+            or len(str(evidence.get("source_legacy_commit", ""))) != 40
+            or len(str(evidence.get("source_legacy_sha256", ""))) != 64
+            or evidence.get("source_reviewed_rows") != 527):
+        raise ValueError("active identity review provenance mismatch")
+    if aliases != sorted(set(aliases)) or any(not alias.isalnum() or alias != alias.upper()
+                                               for alias in aliases):
+        raise ValueError("active identity aliases are not canonical unique tickers")
+    if evidence.get("reviewed_alias_count") != len(aliases):
+        raise ValueError("active identity alias count mismatch")
+    if evidence.get("reviewed_aliases_sha256") != sha256_bytes(canonical_bytes(aliases)):
+        raise ValueError("active identity alias hash mismatch")
+    return set(aliases)
 
 
 def build_scope(root: Path) -> dict:
@@ -134,18 +155,9 @@ def build_scope(root: Path) -> dict:
     if baseline_tickers & expansion_tickers or baseline_ids & expansion_ids:
         raise ValueError("baseline/expansion ticker or security_id collision")
 
-    identity_rows = read_csv(root / "docs/crawl/plans/cafef_c1_prep_v1/cafef_c1_candidate_universe.csv")
-    reviewed_aliases = set(baseline_tickers)
-    for row in identity_rows:
-        current = str(row.get("current_ticker", "")).upper()
-        if current:
-            reviewed_aliases.add(current)
-        try:
-            intervals = json.loads(row.get("historical_identity_intervals") or "[]")
-        except json.JSONDecodeError:
-            intervals = []
-        reviewed_aliases.update(str(interval.get("ticker", "")).upper() for interval in intervals)
-    reviewed_aliases.discard("")
+    reviewed_aliases = load_identity_review(root / "configs/data/identity_review_v1.json")
+    if not baseline_tickers <= reviewed_aliases:
+        raise ValueError("active identity review does not cover baseline tickers")
     if reviewed_aliases & expansion_tickers:
         raise ValueError("reviewed historical alias collision with complete expansion")
 
@@ -267,11 +279,27 @@ def calendar_by_exchange(calendar: list[dict], snapshot: str = SNAPSHOT_DATE) ->
     return {exchange: sorted(set(days)) for exchange, days in output.items()}
 
 
+def calendar_audit_policy(calendar: list[dict]) -> dict:
+    sources = sorted({str(row.get("source", "")) for row in calendar})
+    independently_reviewed = bool(calendar) and all(
+        row.get("calendar_authority") == "INDEPENDENTLY_REVIEWED_AUTHORITATIVE"
+        for row in calendar
+    )
+    return {
+        "sources": sources,
+        "independently_reviewed_authoritative": independently_reviewed,
+        "absence_classification": "MISSING_ON_TRADEHISTORYNEW"
+        if independently_reviewed else "CALENDAR_UNCERTAIN",
+        "rule": "Provider absence is MISSING_ON_TRADEHISTORYNEW only when every calendar row is independently reviewed authoritative; otherwise fail closed to CALENDAR_UNCERTAIN.",
+    }
+
+
 def build_session_audits(candidates: list[dict], calendar: list[dict], valid_keys: set[tuple[str, str]],
                          conflict_keys: set[tuple[str, str]], invalid_keys: set[tuple[str, str]],
                          zero_volume_keys: set[tuple[str, str]] | None = None,
                          snapshot: str = SNAPSHOT_DATE) -> tuple[list[dict], list[dict]]:
     calendars = calendar_by_exchange(calendar, snapshot)
+    calendar_policy = calendar_audit_policy(calendar)
     zero_volume_keys = zero_volume_keys or set()
     full_rows, latest_rows = [], []
     for candidate in sorted(candidates, key=lambda row: row["ticker"]):
@@ -297,15 +325,23 @@ def build_session_audits(candidates: list[dict], calendar: list[dict], valid_key
                 elif key in valid_keys:
                     result["OBSERVED_VALID"] += 1
                 else:
-                    result["MISSING_ON_TRADEHISTORYNEW"] += 1
+                    result[calendar_policy["absence_classification"]] += 1
             return result
 
         full = counts(full_days)
         latest = counts(latest_days)
         full_observed = full["OBSERVED_VALID"] + full["OBSERVED_ZERO_VOLUME"]
         latest_observed = latest["OBSERVED_VALID"] + latest["OBSERVED_ZERO_VOLUME"]
-        full_complete = bool(full_days) and full_observed == len(full_days)
+        observed_window_complete = bool(full_days) and full_observed == len(full_days)
         latest_complete = len(latest_days) == 253 and latest_observed == 253
+        if not observed_window_complete:
+            full_status = "INCOMPLETE"
+        elif start <= TARGET_START:
+            full_status = "COMPLETE"
+        elif candidate["candidate_source"] == "C5_BASELINE_500":
+            full_status = "COMPLETE_WITHIN_OBSERVED_BOUNDARY"
+        else:
+            full_status = "UNCERTAIN_BOUNDARY"
         full_rows.append({
             "security_id": sid, "ticker": candidate["ticker"], "exchange": candidate["exchange"],
             "audit_start": start, "snapshot_date": snapshot, "expected_sessions": len(full_days),
@@ -316,10 +352,12 @@ def build_session_audits(candidates: list[dict], calendar: list[dict], valid_key
             "conflicting_provider_observation": full["CONFLICTING_PROVIDER_OBSERVATION"],
             "identity_or_listing_boundary": len(boundary_days)
             if candidate["candidate_source"] == "C5_BASELINE_500" else 0,
-            "calendar_uncertain": 0,
+            "calendar_uncertain": full["CALENDAR_UNCERTAIN"],
             "deferred_review": len(boundary_days)
             if candidate["candidate_source"] != "C5_BASELINE_500" else 0,
-            "full_history_complete": full_complete,
+            "observed_window_complete": observed_window_complete,
+            "full_history_status": full_status,
+            "full_history_complete": full_status == "COMPLETE",
             "boundary_basis": candidate["boundary_basis"],
         })
         latest_rows.append({
@@ -328,12 +366,28 @@ def build_session_audits(candidates: list[dict], calendar: list[dict], valid_key
             "observed_valid_253": latest["OBSERVED_VALID"],
             "observed_zero_volume_253": latest["OBSERVED_ZERO_VOLUME"],
             "missing_sessions_253": latest["MISSING_ON_TRADEHISTORYNEW"],
+            "calendar_uncertain_253": latest["CALENDAR_UNCERTAIN"],
             "invalid_sessions_253": latest["INVALID_PROVIDER_ROW"],
             "conflicting_sessions_253": latest["CONFLICTING_PROVIDER_OBSERVATION"],
             "boundary_sessions_253": latest["IDENTITY_OR_LISTING_BOUNDARY"] + latest["DEFERRED_REVIEW"],
             "latest253_complete": latest_complete,
         })
     return full_rows, latest_rows
+
+
+def data_quality_gate(readiness: list[dict], latest_audit: list[dict],
+                      full_audit: list[dict] | None = None) -> str:
+    full_audit = full_audit or []
+    if not readiness or len(readiness) != len(latest_audit) or (
+            full_audit and len(readiness) != len(full_audit)):
+        return "FAIL"
+    full_window_pass = not full_audit or all(
+        row["full_history_status"] != "INCOMPLETE" for row in full_audit
+    )
+    if full_window_pass and all(row["latest253_complete"] for row in latest_audit) and all(
+            row["market_feature_ready_v2"] for row in readiness):
+        return "PASS"
+    return "PARTIAL"
 
 
 def apply_snapshot_cutoff(rows, snapshot: str = SNAPSHOT_DATE) -> list[dict]:

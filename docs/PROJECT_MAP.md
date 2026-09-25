@@ -13,6 +13,7 @@
 | Supplemental acquisition | `configs/data/cafef_supplemental_v1/`, `scripts/run_cafef_supplemental_worker.py` | 141 mã runnable chia ba shard mới; 7 FAILED giữ `MANUAL_REVIEW`; raw ghi namespace mới |
 | Worker instructions | `docs/crawl/CAFEF_EXPANSION_5_WORKERS.md` | PowerShell runbook active |
 | C8 complete-only | `configs/data/cafef_c8_complete_only_v1.json`, `scripts/run_cafef_c8_complete_only.py` | Prepared; 500 baseline + 452 COMPLETE, 148 deferred; heavy run chưa execute |
+| Active identity evidence | `configs/data/identity_review_v1.json` | Minimal reviewed ticker/alias set với legacy source commit/hash provenance; C8 không còn runtime dependency vào C1 tree |
 | Canonical status/handoff | `docs/CURRENT_STATUS.md` | Entry point trạng thái active và kế hoạch post-C8 cleanup |
 
 > **HISTORICAL / DO NOT USE FOR CAFEF EXPANSION V1:** các planner/runners C1,

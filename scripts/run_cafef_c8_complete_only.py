@@ -44,6 +44,12 @@ def validate_contract() -> dict:
     mismatches = [key for key, value in expected.items() if contract.get(key) != value]
     if mismatches or tuple(contract.get("required_features", [])) != REQUIRED_FEATURES:
         raise ValueError("C8 contract mismatch: " + ",".join(mismatches or ["required_features"]))
+    identity_path = ROOT / contract.get("identity_review", "")
+    if not identity_path.is_file():
+        raise ValueError("active identity review file missing")
+    aliases = load_identity_review(identity_path)
+    if sha256_bytes(canonical_bytes(sorted(aliases))) != contract.get("identity_review_aliases_sha256"):
+        raise ValueError("active identity review semantic hash mismatch")
     return contract
 
 
@@ -270,15 +276,23 @@ def execute(expected_commit: str) -> dict:
         "quarantined_rows": len(quarantine) + len(baseline_invalid),
         "price_mapping": "AdjustPrice*1000 -> adj_close",
         "adjustment_basis": "vendor_adjusted", "imputation": "NONE",
+        "calendar_audit_policy": calendar_audit_policy(calendar),
     }
     write_json(OUT / "normalization_summary.json", normalization)
+    full_status = Counter(row["full_history_status"] for row in full_audit)
+    gate = data_quality_gate(readiness, latest_audit, full_audit)
     quality = {
-        "stage": "C8", "result": "PASS" if len(readiness) == 952 else "FAIL",
+        "stage": "C8", "execution_integrity": "PASS",
+        "data_quality_gate": gate,
         "comparison_snapshot": SNAPSHOT_DATE, "baseline_candidate_count": 500,
         "expansion_complete_count": 452, "combined_candidate_count": 952,
         "deferred_expansion_count": 148,
-        "full_history_complete": sum(row["full_history_complete"] for row in full_audit),
-        "full_history_incomplete": sum(not row["full_history_complete"] for row in full_audit),
+        "full_history_status": {status: full_status[status] for status in
+                                ("COMPLETE", "COMPLETE_WITHIN_OBSERVED_BOUNDARY",
+                                 "UNCERTAIN_BOUNDARY", "INCOMPLETE")},
+        "observed_window_complete": sum(row["observed_window_complete"] for row in full_audit),
+        "full_history_complete": full_status["COMPLETE"],
+        "full_history_not_complete": len(full_audit) - full_status["COMPLETE"],
         "latest253_complete": sum(row["latest253_complete"] for row in latest_audit),
         "latest253_incomplete": sum(not row["latest253_complete"] for row in latest_audit),
         "feature_complete": sum(row["feature_complete"] for row in readiness),
@@ -294,7 +308,7 @@ def execute(expected_commit: str) -> dict:
 
 C8 giữ 500 baseline C5 và chỉ thêm 452 expansion có acquisition `COMPLETE`. Toàn bộ 148 mã chưa complete được ghi `DEFERRED_EXPANSION_ACQUISITION`, không được diễn giải thành provider gap hay missing session.
 
-Snapshot feature là 2026-08-28. Row provider muộn hơn được giữ làm evidence nhưng bị loại khỏi audit/readiness. `AdjustPrice × 1000` là `adj_close` với `vendor_adjusted`; null activity không đổi thành zero, zero provider là observation thật, và không có fill/interpolation/timeline compression. Full-history và latest-253 là hai audit độc lập. Market readiness, tradability, historical identity và research readiness được báo riêng.
+Snapshot feature là 2026-08-28. Row provider muộn hơn được giữ làm evidence nhưng bị loại khỏi audit/readiness. `AdjustPrice × 1000` là `adj_close` với `vendor_adjusted`; null activity không đổi thành zero, zero provider là observation thật, và không có fill/interpolation/timeline compression. Calendar hiện là `kbs_observed_session_union`, không phải official authoritative calendar; vì vậy absence fail-closed thành `CALENDAR_UNCERTAIN`, không phải confirmed provider missing. Full-history báo riêng observed-window completeness và target-period status; provider boundary không chứng minh listing date. Full-history và latest-253 là hai audit độc lập. Market readiness, tradability, historical identity và research readiness được báo riêng.
 """
     (OUT / "methodology_summary.md").write_text(methodology, encoding="utf-8", newline="\n")
     outputs = [path for path in OUT.rglob("*") if path.is_file() and path.name != "manifest.json"]
@@ -303,6 +317,7 @@ Snapshot feature là 2026-08-28. Row provider muộn hơn được giữ làm ev
         "git_commit": expected_commit, "comparison_snapshot": SNAPSHOT_DATE,
         "c5_manifest_sha256": sha256_file(C5 / "manifest.json"),
         "c7_manifest_sha256": sha256_file(C7 / "manifest.json"),
+        "identity_review_sha256": sha256_file(ROOT / "configs/data/identity_review_v1.json"),
         "source_zip_sha256": {path.name: sha256_file(path) for path in paths},
         "outputs": {str(path.relative_to(OUT)).replace("\\", "/"): sha256_file(path)
                     for path in sorted(outputs)},
