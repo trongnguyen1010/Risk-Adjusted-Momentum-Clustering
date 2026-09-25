@@ -1,6 +1,6 @@
 # Hướng dẫn cho automated coding/research agents
 
-Đọc `README.md`, `docs/README.md`, `docs/PROJECT_OVERVIEW.md`, `docs/PROJECT_MAP.md`, `docs/ROADMAP.md` và `CONTRIBUTING.md` trước khi thay đổi kiến trúc. Tất cả thay đổi project nằm trong `SourceCode`; không sửa các PDF dưới `../TaiLieu`.
+Đọc `README.md`, `docs/README.md`, `docs/CURRENT_STATUS.md`, `docs/PROJECT_MAP.md`, `docs/ROADMAP.md` và `CONTRIBUTING.md` trước khi thay đổi kiến trúc. Tất cả thay đổi project nằm trong `SourceCode`; không sửa các PDF dưới `../TaiLieu`.
 
 ## Architecture boundaries
 
@@ -13,7 +13,7 @@
 
 ## Ranh giới M1/M2/M3
 
-- **M1:** `SOURCE_SMOKE` thật 3–5 mã chỉ mở `REPRESENTATIVE_PILOT`; chỉ PASS pilot 50–60 mã, >=5 năm mới mở planning `M1_SCALE` >=300. Synthetic không pass gate thật; `EXTENDED_SCALE` 5–15 năm không có cap 350.
+- **M1:** C8 đã execute/verify với 905 mã market-ready; historical identity và strict research readiness vẫn fail-closed. Proposed market-only universe không tự động trở thành final research universe.
 - **M2:** giữ deterministic static K-Means baseline; PCA/comparator đánh giá riêng. Không triển khai concrete dynamic algorithm trước khi `docs/research/DYNAMIC_CLUSTERING_REVIEW.md` phê duyệt.
 - **M3:** chỉ final backtest sau methodology freeze; dashboard tiêu thụ artifact, không điều khiển research.
 
@@ -38,7 +38,7 @@
 ## Testing requirements
 
 - Chạy targeted tests cho subsystem bị ảnh hưởng và `python -m compileall -q src tests scripts run.py`. Chạy full repository gate khi stage hoặc thay đổi code/data/research warrant; tránh lặp full suite khi chỉ sửa documentation/configuration.
-- Thay pipeline phải chạy `configs/data/synthetic_smoke.example.json`; source smoke template phải tiếp tục fail-closed. Thay web phải chạy `node --check web/app.js`.
+- Thay pipeline phải chạy `configs/data/synthetic_smoke.example.json`; acquisition và access-control phải tiếp tục fail-closed. Thay web phải chạy `node --check web/app.js`.
 - Giữ và migrate assertion cũ. Không xóa/giảm test để làm migration pass.
 - Kiểm tra import cũ, JSON config/schema và Markdown link trước khi xóa file superseded.
 

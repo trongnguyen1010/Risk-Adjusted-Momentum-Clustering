@@ -200,8 +200,7 @@ def collect(root, start, end, symbols, resume=None, interval=5.0, timeout=90,
     symbol_count = len(set(symbols))
     if symbol_count > 5 and gate_report_path:
         raise ValueError(
-            "official SOURCE_SMOKE/REPRESENTATIVE_PILOT gates cannot authorize the legacy Vnstock SDK path; "
-            "use scripts/run_representative_pilot.py"
+            "the legacy Vnstock SDK path is retained only for compatibility and cannot authorize active acquisition"
         )
     if 60 < symbol_count < 300:
         raise ValueError("61–299 symbols is not an M1 gate stage; use 50–60 pilot or >=300 scale")

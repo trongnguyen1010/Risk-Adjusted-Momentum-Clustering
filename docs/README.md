@@ -1,35 +1,19 @@
-# Tài liệu DELTA — START HERE
+# Documentation — START HERE
 
-Đọc theo thứ tự onboarding sau:
+Repository đang ở trạng thái **C8 executed and verified; R1 consolidated**. Bắt đầu bằng:
 
-1. [CURRENT_STATUS.md](CURRENT_STATUS.md) — canonical status/handoff và lệnh active.
-2. [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) — mục tiêu và hai track.
-3. [PROJECT_MAP.md](PROJECT_MAP.md) — vị trí, milestone, trạng thái và dependency của từng component.
-4. [ROADMAP.md](ROADMAP.md) — gates M1, M2, M3.
-5. [ARCHITECTURE.md](ARCHITECTURE.md) — boundaries và data flow.
+1. [Current status](CURRENT_STATUS.md) — số liệu, gate, lineage và stage tiếp theo.
+2. [Project map](PROJECT_MAP.md) — đường dẫn active và ownership.
+3. [Architecture](ARCHITECTURE.md) và [Data contract](DATA_CONTRACT.md).
+4. [Methodology](METHODOLOGY.md), [Feature system](FEATURE_SYSTEM.md) và [Experiment protocol](research/EXPERIMENT_PROTOCOL.md).
+5. [Reproducibility](REPRODUCIBILITY.md) — kiểm chứng offline bằng manifest/hash.
 
-## Data và feature
+## Theo mục đích
 
-- [DATA_CONTRACT.md](DATA_CONTRACT.md)
-- [DATA_PIPELINE.md](DATA_PIPELINE.md)
-- [crawl/README.md](crawl/README.md) — **START HERE** cho source discovery, collection, smoke testing và team crawling.
-- [crawl/REPRESENTATIVE_PILOT.md](crawl/REPRESENTATIVE_PILOT.md) — official pilot runner, universe contract, dry-run và gate.
-- [crawl/CAFEF_EXPANSION_5_WORKERS.md](crawl/CAFEF_EXPANSION_5_WORKERS.md) — active C6 runbook cho năm CafeF acquisition workers.
-- [FEATURE_SYSTEM.md](FEATURE_SYSTEM.md)
+- Thu thập CafeF có kiểm soát: [Data collection](crawl/README.md) và [CafeF semantics](crawl/sources/CAFEF.md).
+- Quyết định methodology: [Decisions](DECISIONS.md), [Research questions](research/RESEARCH_QUESTIONS.md), [Literature matrix](research/LITERATURE_MATRIX.md), [Dynamic clustering review](research/DYNAMIC_CLUSTERING_REVIEW.md).
+- Evaluation/product: [Evaluation and backtest](EVALUATION_AND_BACKTEST.md), [Product](PRODUCT.md).
+- Governance: [Roadmap](ROADMAP.md), [Reproducibility](REPRODUCIBILITY.md), [Contributing](../CONTRIBUTING.md).
+- Historical source caveat còn được artifact tham chiếu: [KBS pilot semantics](data/kbs_pilot_semantics.md) và [data usage risk acceptance](data/DATA_USAGE_RISK_ACCEPTANCE.md).
 
-## Research và evaluation
-
-- [METHODOLOGY.md](METHODOLOGY.md)
-- [EVALUATION_AND_BACKTEST.md](EVALUATION_AND_BACKTEST.md)
-- [research/RESEARCH_QUESTIONS.md](research/RESEARCH_QUESTIONS.md)
-- [research/LITERATURE_MATRIX.md](research/LITERATURE_MATRIX.md)
-- [research/EXPERIMENT_PROTOCOL.md](research/EXPERIMENT_PROTOCOL.md)
-- [research/DYNAMIC_CLUSTERING_REVIEW.md](research/DYNAMIC_CLUSTERING_REVIEW.md)
-
-## Product và vận hành
-
-- [PRODUCT.md](PRODUCT.md)
-- [REPRODUCIBILITY.md](REPRODUCIBILITY.md)
-- [DECISIONS.md](DECISIONS.md)
-
-`data/kbs_pilot_semantics.md` là legacy evidence bắt buộc giữ nguyên path, không phải hướng dẫn phát triển hiện tại. Git history là archive; không tạo thư mục archive cho tài liệu superseded.
+Các plan, handoff và audit superseded đã được loại khỏi active tree trong R1; Git history là archive duy nhất của chúng.

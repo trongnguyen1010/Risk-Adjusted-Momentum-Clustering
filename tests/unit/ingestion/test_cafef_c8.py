@@ -1,4 +1,3 @@
-import csv
 import importlib.util
 import json
 import tempfile
@@ -79,17 +78,12 @@ class CafeFC8ScopeTests(unittest.TestCase):
             {row["security_id"] for row in expansion}
         ))
 
-    def test_active_identity_review_reproduces_legacy_alias_set(self):
+    def test_active_identity_review_is_self_contained_and_excludes_expansion(self):
         active = load_identity_review(ROOT / "configs/data/identity_review_v1.json")
-        legacy_path = ROOT / "docs/crawl/plans/cafef_c1_prep_v1/cafef_c1_candidate_universe.csv"
-        with legacy_path.open(encoding="utf-8", newline="") as handle:
-            legacy_rows = list(csv.DictReader(handle))
-        legacy = {row["current_ticker"].upper() for row in legacy_rows if row["current_ticker"]}
-        for row in legacy_rows:
-            legacy.update(str(interval.get("ticker", "")).upper()
-                          for interval in json.loads(row["historical_identity_intervals"] or "[]")
-                          if interval.get("ticker"))
-        self.assertEqual(legacy, active)
+        evidence = json.loads((ROOT / "configs/data/identity_review_v1.json").read_text())
+        self.assertEqual(527, evidence["source_reviewed_rows"])
+        self.assertEqual(527, len(active))
+        self.assertEqual(64, len(evidence["source_legacy_sha256"]))
         self.assertTrue(active.isdisjoint({row["ticker"] for row in self.scope["expansion"]}))
 
     def test_deferred_acquisition_is_not_provider_gap(self):

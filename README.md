@@ -1,48 +1,48 @@
 # DELTA
 
-DELTA là project research + product cho thị trường cổ phiếu Việt Nam. Research Core nghiên cứu phân cụm cổ phiếu bằng market feature và point-in-time financial feature; Product Layer trình bày các artifact nghiên cứu đã được version hóa mà không tự fit lại model.
+DELTA là repository research + product cho thị trường cổ phiếu Việt Nam. Research Core xây market dataset point-in-time, feature snapshot và protocol clustering; Product Layer chỉ trình bày artifact đã version hóa, không tự fit lại model.
 
-## Hai track
+## Trạng thái hiện tại
 
-- **Research Core:** xây data foundation, so sánh các phương pháp clustering và đánh giá backtest theo protocol đã khóa.
-- **Product Layer:** giữ API, immutable bundle và dashboard để khám phá ticker, cluster, peer, transition, data quality và provenance.
+CafeF `TradeHistoryNew` là nguồn market active. Stage C8 đã được execute và C8-VERIFY đã xác minh offline, không rerun feature build:
 
-## Trạng thái milestone
+- 952 securities trong candidate universe: 500 C5 baseline + 452 C7 complete expansion;
+- 905 securities đạt `market_feature_ready_v2=true` và tạo thành proposed `MARKET_ONLY_EXPERIMENTAL_UNIVERSE`;
+- 47 securities chưa market-ready; 148 expansion securities còn `DEFERRED_EXPANSION_ACQUISITION`;
+- 0 securities đạt `historical_identity_ready`; 0 đạt `research_ready` theo strict gate hiện tại;
+- 905 không phải final research universe, canonical production universe hoặc kết quả đầu tư.
 
-| Milestone | Trạng thái hiện tại |
-|---|---|
-| **M1 — Data Foundation** | `SOURCE_SMOKE` và real `REPRESENTATIVE_PILOT` 55 mã đã PASS. M1 scale collection/canonical đủ 500 mã: 500/500 có observed span >=3 năm và 484/500 có observed span >=5 năm. Market-feature readiness được báo riêng tại latest completed month; historical identity, financial PIT và research sample-size policy vẫn khóa research gate, nên M1 ở trạng thái `PARTIAL`. Financial vẫn `RAW_ONLY_PIT_UNRESOLVED`. |
-| **M2 — Clustering Research** | Static K-Means deterministic là baseline; temporal tracking hiện tại không phải Dynamic Clustering. PCA/comparator và methodology động còn phải hoàn thiện. |
-| **M3 — Backtest + Product** | Đã có return-space backtest, product bundle, read API và web shell; final backtest chờ freeze methodology và representative data. |
+R1 đã hợp nhất repository sau C8: bỏ planning/history/runner superseded khỏi active tree, giữ code và evidence cần thiết để verify C8, duy trì acquisition có kiểm soát và chuẩn bị stage nghiên cứu tiếp theo. Các file đã xóa vẫn truy xuất được trong Git history.
 
 ## Quick start
 
 ```powershell
 .venv\Scripts\python.exe -m unittest discover -s tests -v
-.venv\Scripts\python.exe run.py run --config configs/data/synthetic_smoke.example.json
-.\scripts\start_product.ps1
+.venv\Scripts\python.exe -m compileall -q src tests scripts run.py
+.venv\Scripts\python.exe scripts\verify_cafef_c8_results.py
+.venv\Scripts\python.exe scripts\verify_repository_r1.py --verify-existing
 ```
 
-Mở `http://127.0.0.1:8000/?ticker=FPT` sau khi product server khởi động. Synthetic config chỉ dùng cho smoke/regression, không phải research evidence.
+Không chạy C8 lại để kiểm chứng: dùng manifest và hash của artifact local bất biến. Synthetic smoke chỉ là regression kỹ thuật, không phải research evidence.
 
-## Cấu trúc repository
+## Cấu trúc active
 
 ```text
 src/delta_t1/   Research Core, ingestion, experiment và Product Layer
-configs/        Data, feature, experiment và product config mẫu
-tests/          Unit, integration, regression và fixtures
+configs/        Contract/config active cho C8, expansion, supplemental và synthetic smoke
+tests/          Unit, integration và regression tests còn hiệu lực
+scripts/        Runner/verification active
 web/            Dashboard tĩnh đọc Product API
-docs/           Tài liệu onboarding, methodology và reproducibility
-data/           Immutable/generated run data, không phải source code
-artifacts/      Versioned product projection được sinh từ experiment
+docs/           Contract, methodology, trạng thái và reproducibility
+artifacts/      Evidence được version hóa; heavy C8 artifact giữ local, immutable
 ```
 
-## Bắt đầu đọc tài liệu
+Đọc tiếp tại [Documentation index](docs/README.md), [Current status](docs/CURRENT_STATUS.md), [Project map](docs/PROJECT_MAP.md), [Methodology](docs/METHODOLOGY.md), [Reproducibility](docs/REPRODUCIBILITY.md) và [Roadmap](docs/ROADMAP.md).
 
-[docs/README.md](docs/README.md) → [Project Overview](docs/PROJECT_OVERVIEW.md) → [Project Map](docs/PROJECT_MAP.md) → [Roadmap](docs/ROADMAP.md).
+## Stage tiếp theo
 
-Xem thêm [Architecture](docs/ARCHITECTURE.md), [Data Contract](docs/DATA_CONTRACT.md), [Data Collection — START HERE](docs/crawl/README.md), [Methodology](docs/METHODOLOGY.md), [Product](docs/PRODUCT.md), [Reproducibility](docs/REPRODUCIBILITY.md) và [Contributing](CONTRIBUTING.md).
+Stage đề xuất sau R1 là **M2-PREP — MARKET-ONLY EXPERIMENT PROTOCOL**: review/freeze eligibility và protocol cho proposed 905-security market-only universe trước khi chạy clustering. Stage này không được ngầm nâng 905 securities thành `research_ready`; mọi thay đổi gate identity hoặc eligibility cần manual review.
 
 ## Disclaimer
 
-DELTA là project nghiên cứu và công cụ phân tích, không phải khuyến nghị đầu tư. Kết quả synthetic/pilot không được diễn giải thành hiệu quả thực tế; Product Layer không được dùng để quyết định research methodology.
+DELTA là project nghiên cứu và công cụ phân tích, không phải khuyến nghị đầu tư.

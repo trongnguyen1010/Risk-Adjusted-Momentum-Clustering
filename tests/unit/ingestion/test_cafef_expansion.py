@@ -34,9 +34,8 @@ class CafeFExpansionPlanTests(unittest.TestCase):
         selected_ids = {row["security_id"] for row in self.universe["securities"]}
         self.assertTrue(current.isdisjoint(selected))
         self.assertTrue(current_ids.isdisjoint(selected_ids))
-        with (ROOT / "docs/crawl/plans/cafef_c1_prep_v1/cafef_c1_candidate_universe.csv").open(encoding="utf-8") as handle:
-            identities = list(csv.DictReader(handle))
-        aliases = c6.current_aliases(current_rows, identities) - current
+        identity_review = c6.read_json(ROOT / "configs/data/identity_review_v1.json")
+        aliases = set(identity_review["reviewed_aliases"]) - current
         self.assertTrue(aliases.isdisjoint(selected))
         self.assertEqual(500, sum(row["selection_status"] == "CURRENT_500_EXCLUDED" for row in self.ranking))
 

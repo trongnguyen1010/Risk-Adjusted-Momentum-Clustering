@@ -1,3 +1,11 @@
+# Chưa phát hành — R1 repository consolidation (2026-09-25)
+
+- Hợp nhất active tree sau C8-VERIFY: retire 192 file planning/history/config/runner/module/test superseded và đổi tên một test theo scope CafeF active; Git history là archive, không tạo archive copy.
+- Giữ nguyên heavy C8 artifact, compact C8-VERIFY evidence, năm source ZIP, C8/C7/C5 lineage và mọi methodology/result.
+- Giữ active C8 verification, expansion/supplemental recovery contracts, CafeF semantics, generic research/product paths và compatibility tối thiểu còn được import.
+- Thêm machine-readable before/after/deletion inventory cùng offline R1 verifier tại `artifacts/repository/r1-consolidation-v1/`.
+- Không network crawl, supplemental acquisition, C8 rerun, clustering hoặc backtest.
+
 # Chưa phát hành — REPRESENTATIVE_PILOT readiness (2026-09-16)
 
 - Chuẩn bị C8 complete-only: fail-closed scope 500 baseline + 452 COMPLETE expansion,
