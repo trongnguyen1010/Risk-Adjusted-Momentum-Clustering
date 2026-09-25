@@ -2,7 +2,12 @@
 
 Mỗi worker chỉ clone, kiểm tra, dry-run, execute, package và gửi **một ZIP**. Không sửa code/config, không commit/push/merge, không đổi ticker và không normalize dữ liệu.
 
-Owner phải gửi cho cả năm workers cùng một `FINAL_COMMIT_SHA` C6-R1 và worker number. Assignment tương ứng là `worker-01.json` … `worker-05.json`. Contract trong file dùng `execution_version=c6-cafef-expansion-v1` để tránh commit tự tham chiếu; runner bắt buộc đối chiếu SHA do owner cung cấp trước mọi network request.
+Owner phải gửi cho cả năm workers cùng một `FINAL_COMMIT_SHA` C6-R2 và worker number. Assignment tương ứng là `worker-01.json` … `worker-05.json`. Contract trong file dùng `execution_version=c6-cafef-expansion-v2`, `history_policy=BASE_2020` để tránh commit tự tham chiếu; runner bắt buộc đối chiếu SHA do owner cung cấp trước mọi network request.
+
+Frozen acquisition range là `2020-01-01 → 2026-09-23`; comparison snapshot vẫn là
+`2026-08-28`. Runner dừng khi page đã đạt/vượt `2020-01-01`, hoặc ghi nhận neutral
+provider/history boundary nếu mã niêm yết muộn hơn hay CafeF hết lịch sử. Empty history
+không chứng minh suspension hoặc not-listed; không tạo row 2020 giả.
 
 ## 1. Clone và kiểm tra
 

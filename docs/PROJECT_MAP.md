@@ -5,7 +5,7 @@
 | Bước | Evidence / entry point | Trạng thái |
 |---|---|---|
 | C5 current evidence | `artifacts/cafef_primary/cafef-tradehistory-500-data-gate-v2/` | 500 current; 490 `market_feature_ready_v2`; 10 mã gắn `DEFERRED_MISSING_SESSION_REVIEW` |
-| C6 frozen expansion | `configs/data/cafef_expansion_v1/` | 600 selected pre-crawl, reserve 100, 5 assignment disjoint |
+| C6-R2 frozen expansion | `configs/data/cafef_expansion_v1/` | 600 selected pre-crawl, reserve 100, 5 assignment disjoint; `BASE_2020`, range 2020-01-01 → 2026-09-23 |
 | Worker acquisition | `scripts/run_cafef_expansion_worker.py` | Acquisition-only; external exact-commit guard; immutable raw; dry-run/execute/exact resume |
 | One-ZIP handoff | `scripts/package_cafef_expansion_handoff.py` | Một portable ZIP/worker, internal checksums |
 | Central verification | `scripts/verify_cafef_expansion_handoffs.py` | Verify năm shard; chưa merge/normalize |

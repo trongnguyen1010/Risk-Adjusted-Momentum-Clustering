@@ -7,7 +7,7 @@ branch: m1-cafef-primary-experiment
 forked_from_branch: m1-scale-500-team-crawl
 fork_base_commit: e886f68875fb5c079e57c9b51cae9e6bf5a8047b
 current_experiment: CafeF Primary Data Foundation Experiment
-last_completed_stage: C6-R1-PRE-CRAWL-CONTRACT-CORRECTION
+last_completed_stage: C6-R2-EXTEND-CAFEF-EXPANSION-HISTORY-TO-2020
 c0_result: COMPLETED / USER_APPROVED
 c1_prep_v1_status: SUPERSEDED / HISTORICAL_ONLY
 c1_execution_model: SINGLE_LOCAL_RUNNER
@@ -15,8 +15,9 @@ c1_solo_plan_version: cafef_c1_solo_v2
 pilot_security_count: 27
 collection_end_date: 2026-09-23
 history_policy: HISTORY_POLICY_V3
-default_history_tier: BASE_5Y
-base_history_lower_bound: 2021-09-23
+c1_history_policy: HISTORY_POLICY_V3_BASE_5Y
+expansion_history_policy: BASE_2020
+expansion_target_start: 2020-01-01
 deep_history_tier: DEEP_10Y_DETERMINISTIC_STRATIFIED
 long_history_tier: LONG_15Y_VALIDATION_ONLY
 old_15y_for_all_policy: SUPERSEDED
@@ -60,7 +61,7 @@ expansion_workers: 5
 long_expansion_crawl_executed: NO
 old_incomplete_security_count: 10
 old_incomplete_status: DEFERRED_MISSING_SESSION_REVIEW
-next_allowed_action: OWNER_PUSHES_FINAL_C6_R1_COMMIT_TO_FIVE_HUMAN_WORKERS
+next_allowed_action: OWNER_PUSHES_FINAL_C6_R2_COMMIT_TO_FIVE_HUMAN_WORKERS
 after_explicit_user_approval: FIVE_WORKERS_CLONE_EXACT_COMMIT_AND_EXECUTE_FROZEN_SHARDS
 c1_prep_solo_crawl_execution: NO
 user_manual_review_required: YES
@@ -80,6 +81,11 @@ Mọi index/market-importance signal không có reliable evidence đều ghi `UN
 Active contracts nằm tại `configs/data/cafef_expansion_v1/`; worker runbook tại
 `docs/crawl/CAFEF_EXPANSION_5_WORKERS.md`. C8 sau này phải verify/merge tập trung và
 audit full history tách khỏi latest-253; C6 không normalize hoặc promote dữ liệu.
+
+C6-R2 giữ nguyên 600 mã, reserve và worker ownership, nhưng mở rộng acquisition
+target thành `2020-01-01 → 2026-09-23` dưới contract
+`c6-cafef-expansion-v2`/`BASE_2020`. Provider boundary thật được giữ trung tính;
+không fabricate history trước listing hoặc sau khi CafeF hết history.
 
 ## 1. Purpose
 

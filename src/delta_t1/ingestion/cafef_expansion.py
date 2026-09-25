@@ -5,13 +5,14 @@ import csv
 import hashlib
 import io
 import json
+import math
 import os
 import re
 import subprocess
 import time
 import uuid
 import zipfile
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path, PurePosixPath
 from urllib.error import HTTPError
 from urllib.parse import urlencode
@@ -20,10 +21,11 @@ from urllib.request import Request, build_opener
 from delta_t1.ingestion.sources.cafef import ADAPTER_VERSION, TRADE_HISTORY_ENDPOINT, cafef_trade_date
 
 EXPANSION_ID = "cafef-expansion-v1"
-EXECUTION_VERSION = "c6-cafef-expansion-v1"
+EXECUTION_VERSION = "c6-cafef-expansion-v2"
+HISTORY_POLICY = "BASE_2020"
 EXCHANGES = ("HOSE", "HNX", "UPCOM")
 PAGE_SIZE = 30
-TARGET_START = "2021-09-23"
+TARGET_START = "2020-01-01"
 TARGET_COLLECTION_END = "2026-09-23"
 COMPARISON_SNAPSHOT = "2026-08-28"
 RETRYABLE = {500, 502, 503, 504}
@@ -111,6 +113,9 @@ def validate_assignment(root: Path, assignment_path: Path, *, require_git: bool 
         errors.append("page-size contract mismatch")
     if assignment.get("target_start") != TARGET_START or assignment.get("target_collection_end") != TARGET_COLLECTION_END:
         errors.append("target range mismatch")
+    if (assignment.get("history_policy") != HISTORY_POLICY or contract.get("history_policy") != HISTORY_POLICY
+            or universe.get("history_policy") != HISTORY_POLICY or universe.get("target_start") != TARGET_START):
+        errors.append("history policy mismatch")
     tickers = assignment.get("tickers", [])
     security_ids = assignment.get("security_ids", [])
     if len(tickers) != len(set(tickers)) or len(security_ids) != len(set(security_ids)):
@@ -186,8 +191,13 @@ def priority_key(row: dict) -> tuple:
 
 
 def estimate_pages(row: dict) -> int:
-    # 1,260 approximate sessions / 30, plus one overlap page. Listing evidence is unavailable.
-    return 43
+    # Operational estimate only: 252 sessions/year plus one safety-overlap page.
+    return math.ceil(estimated_sessions() / PAGE_SIZE) + 1
+
+
+def estimated_sessions() -> int:
+    days = (date.fromisoformat(TARGET_COLLECTION_END) - date.fromisoformat(TARGET_START)).days + 1
+    return math.ceil(days * 252 / 365.2425)
 
 
 def freeze_plan(payload: object, current_universe: list[dict], identity_rows: list[dict], *, target: int = 600,
@@ -243,8 +253,9 @@ def freeze_plan(payload: object, current_universe: list[dict], identity_rows: li
                    duplicate_identity_status=row["selection_status"], selection_reason="listing evidence exclusion")
         final_ranking.append(row)
     estimates = [{"security_id": r["security_id"], "ticker": r["ticker"], "exchange": r["exchange"],
-                  "estimated_sessions": 1260, "estimated_pages": estimate_pages(r),
-                  "estimated_requests": estimate_pages(r), "estimate_basis": "FULL_BASE_5Y_PLUS_ONE_OVERLAP_PAGE"}
+                  "history_policy": HISTORY_POLICY, "estimated_sessions": estimated_sessions(),
+                  "estimated_pages": estimate_pages(r), "estimated_requests": estimate_pages(r),
+                  "estimate_basis": "BASE_2020_252_SESSIONS_PER_YEAR_PLUS_ONE_OVERLAP_PAGE"}
                  for r in selected]
     bins = [{"worker_id": f"worker-{i:02d}", "rows": [], "load": 0} for i in range(1, 6)]
     estimate_by_id = {r["security_id"]: r for r in estimates}

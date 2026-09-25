@@ -62,9 +62,19 @@ class CafeFExpansionPlanTests(unittest.TestCase):
         self.assertLessEqual(max(loads) - min(loads), 1)
 
     def test_assignment_hash_and_page_size_contract(self):
+        contract = c6.read_json(CFG / "crawl_contract.json")
+        self.assertEqual("c6-cafef-expansion-v2", c6.EXECUTION_VERSION)
+        self.assertEqual("BASE_2020", c6.HISTORY_POLICY)
+        self.assertEqual("2020-01-01", c6.TARGET_START)
+        self.assertEqual("2020-01-01", contract["target_start"])
+        self.assertEqual("BASE_2020", contract["history_policy"])
+        self.assertEqual(1696, c6.estimated_sessions())
+        self.assertEqual(58, c6.estimate_pages({}))
         for assignment in self.assignments:
             self.assertEqual(assignment["assignment_sha256"], c6.assignment_digest(assignment))
             self.assertEqual(30, assignment["page_size"])
+            self.assertEqual("BASE_2020", assignment["history_policy"])
+            self.assertEqual(6960, assignment["estimated_requests"])
 
 
 class CafeFExpansionRuntimeTests(unittest.TestCase):
