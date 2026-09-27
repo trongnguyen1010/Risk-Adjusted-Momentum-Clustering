@@ -1,5 +1,6 @@
 # Chưa phát hành — Post-M1 documentation alignment (2026-09-26)
 
+- Hoàn tất M2 Nhiệm vụ 3: chạy 105 lượt K-Means trên 15 development snapshots; phê duyệt chính thức Global K = 2 (ADR-049) với median Silhouette 0.7557 và Davies-Bouldin 0.5219; ghi nhận cấu hình k: 2 và chuyển stage sang M2_TASK_3_GLOBAL_K_FROZEN, sẵn sàng thực thi Nhiệm vụ 4.
 - Hoàn tất M2 Nhiệm vụ 2: thêm C8 market-only checksum adapter, snapshot-local eligibility, fail-closed 8-feature validation, minimum-120 skip và common clustering interface integration; không chạy Global K/holdout/backtest.
 - Thêm 5 nhóm test runner bắt buộc: 142 mã tại `2023-11-30`, terminal-universe guard, 8 finite features, below-minimum skip và `build_snapshot` integration.
 - Hoàn tất M2 Nhiệm vụ 1: tạo `m2_market_only_v1.json` với development/holdout snapshots, minimum eligibility, 8 features, fail-closed missing, no clipping, Robust Scaling per-snapshot, `k=2..8`, Global K selection firewall và comparator-only PCA.

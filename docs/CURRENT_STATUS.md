@@ -122,8 +122,18 @@ common `build_snapshot` interface chấp nhận. Terminal-universe guard dùng s
 membership độc lập, không retrospective-filter. Nhiệm vụ này không chạy
 Global K, không mở holdout và không backtest.
 
+## M2 Nhiệm vụ 3 — Global K selection (Completed & Approved)
+
+Đã chạy hoàn tất 105 lượt K-Means (15 development snapshots nhân 7 cấu hình `k=2..8`).
+105/105 lượt chạy hội tụ và tính đủ 5 metrics.
+Cấu hình K = 2 đạt median Silhouette cao nhất (0.7557), median Davies-Bouldin thấp nhất (0.5219)
+và Calinski-Harabasz cao nhất (316.39). Nhóm đã phê duyệt chính thức Global K = 2 (ADR-049),
+khóa `k: 2` vào `configs/experiments/m2_market_only_v1.json`.
+Hiện tượng cụm nhỏ (8-21 mã) siêu thanh khoản được ghi nhận và phân tích đầy đủ.
+
 ## Stage tiếp theo
 
-**M2 Nhiệm vụ 3 — GLOBAL K TRÊN DEVELOPMENT**: chạy K-Means
-`k=2..8` trên đúng 15 development snapshots theo protocol đã freeze. Không
-tự động bắt đầu Nhiệm vụ 3, không mở holdout và không backtest.
+**M2 Nhiệm vụ 4 — CHẠY PHƯƠNG ÁN A: K-MEANS BASELINE**: Đóng gói và hoàn thiện
+kết quả K-Means chính thức với Global K = 2 trên 15 development snapshots, chuẩn bị cho
+Nhiệm vụ 5 (Ward) và Nhiệm vụ 6 (PCA + K-Means). Không mở holdout và không backtest.
+

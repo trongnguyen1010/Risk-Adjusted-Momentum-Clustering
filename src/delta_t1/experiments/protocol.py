@@ -50,7 +50,11 @@ def _validate_m2_market_only_v1(config: dict) -> None:
     if missing:
         raise ValueError("missing M2 protocol field(s): " + ", ".join(missing))
 
-    _require_equal(config["stage"], "M2_TASK_1_PROTOCOL_FREEZE", "stage")
+    allowed_stages = {"M2_TASK_1_PROTOCOL_FREEZE", "M2_TASK_3_GLOBAL_K_FROZEN"}
+    if config["stage"] not in allowed_stages:
+        raise ValueError(f"stage must be one of {sorted(allowed_stages)!r}")
+    if config["stage"] == "M2_TASK_3_GLOBAL_K_FROZEN":
+        _require_equal(config["clustering"].get("k"), 2, "clustering.k")
     _require_equal(config["synthetic"], False, "synthetic")
 
     for field in ("start", "end", "development_end", "holdout_start", "holdout_end"):
