@@ -1,5 +1,6 @@
 """Offline experiment orchestration over complete, checksummed data runs."""
 from collections import defaultdict
+import math
 from pathlib import Path
 import time
 
@@ -10,9 +11,92 @@ from ..contracts import normalize, validate_rows
 from ..evaluation.portfolio_metrics import bootstrap, metrics
 from ..evaluation.temporal_metrics import compare
 from ..io import read_json, read_rows, write_json, write_rows
-from .artifacts import finish_experiment, load_verified_data_run, start_experiment
+from .artifacts import (
+    finish_experiment,
+    load_verified_data_run,
+    load_verified_market_only_features,
+    start_experiment,
+)
 from .protocol import validate_protocol
 from .reporting import plot_artifacts, table_csv, write_report
+
+
+def _with_c8_market_readiness_alias(row: dict, eligibility_field: str) -> dict:
+    """Expose the frozen M2 v2 name without mutating the immutable C8 row."""
+    if eligibility_field != "market_feature_ready_v2":
+        return row
+    if eligibility_field in row:
+        return row
+    if "market_feature_ready" not in row:
+        raise ValueError("C8 row missing market_feature_ready for v2 eligibility alias")
+    return dict(row, market_feature_ready_v2=row["market_feature_ready"])
+
+
+def prepare_snapshot_rows(rows: list[dict], config: dict, snapshot_date: str) -> dict:
+    """Filter and validate one snapshot using only its own eligibility observations."""
+    eligibility_field = config["eligibility_field"]
+    features = config["clustering"]["features"]
+    minimum = config["min_eligible_count"]
+    if not rows or any(row.get("as_of_date") != snapshot_date for row in rows):
+        raise ValueError("one nonempty snapshot date is required")
+    if len({row["security_id"] for row in rows}) != len(rows):
+        raise ValueError("duplicate security in M2 snapshot: " + snapshot_date)
+    for row in rows:
+        if eligibility_field not in row or type(row[eligibility_field]) is not bool:
+            raise ValueError("missing or invalid configured eligibility field: " + eligibility_field)
+    eligible = sorted(
+        (row for row in rows if row[eligibility_field] is True),
+        key=lambda row: row["security_id"],
+    )
+    for row in eligible:
+        for feature in features:
+            value = row.get(feature)
+            if (isinstance(value, bool) or not isinstance(value, (int, float))
+                    or not math.isfinite(value)):
+                raise ValueError(
+                    f"nonfinite M2 feature at {snapshot_date}/{row['security_id']}: {feature}"
+                )
+    if len(eligible) < minimum:
+        return dict(
+            snapshot_date=snapshot_date,
+            status="skipped",
+            reason=f"eligible_count_below_minimum: {len(eligible)} < {minimum}",
+            eligible_count=len(eligible),
+            rows=[],
+        )
+    return dict(
+        snapshot_date=snapshot_date,
+        status="ready",
+        reason=None,
+        eligible_count=len(eligible),
+        rows=eligible,
+    )
+
+
+def prepare_m2_market_only_snapshots(
+        data_run: Path, config: dict, snapshot_dates=None) -> tuple[dict, list[dict]]:
+    """Prepare M2 inputs only; this function never fits clustering or opens holdout by default."""
+    validate_protocol(config)
+    requested = tuple(snapshot_dates or config["development_snapshots"])
+    development = set(config["development_snapshots"])
+    if not requested or not set(requested) <= development:
+        raise ValueError("M2 preparation may read only frozen development snapshots")
+    source, raw_rows = load_verified_market_only_features(data_run, requested)
+    eligibility_field = config["eligibility_field"]
+    grouped = defaultdict(list)
+    for raw in raw_rows:
+        row = _with_c8_market_readiness_alias(raw, eligibility_field)
+        grouped[row["as_of_date"]].append(row)
+    prepared = [prepare_snapshot_rows(grouped[day], config, day) for day in requested]
+    return source, prepared
+
+
+def m2_clustering_config(config: dict, **runtime_parameters) -> dict:
+    """Translate the frozen root-level eligibility rule to the common clustering interface."""
+    cluster = dict(config["clustering"])
+    cluster["eligibility_field"] = config["eligibility_field"]
+    cluster.update(runtime_parameters)
+    return cluster
 
 
 def _run_portfolio_evaluation(target, snapshots, tables, config):
@@ -80,12 +164,25 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
         diagnostic_rows, comparisons, transition_rows, skipped = [], [], [], []
         aligned_ids = None
         previous = None
+        eligibility_field = config.get("eligibility_field", "eligibility")
+        clustering_config = dict(config["clustering"], eligibility_field=eligibility_field)
+        minimum = config.get("min_eligible_count", config["clustering"]["k"] + 1)
         for day, rows in sorted(by_date.items()):
-            if sum(row["eligibility"] for row in rows) <= config["clustering"]["k"]:
-                skipped.append(dict(date=day, reason="insufficient_eligible_universe"))
+            if any(eligibility_field not in row or type(row[eligibility_field]) is not bool
+                   for row in rows):
+                raise ValueError("missing or invalid configured eligibility field: "
+                                 + eligibility_field)
+            eligible_count = sum(row[eligibility_field] is True for row in rows)
+            if eligible_count < minimum:
+                skipped.append(dict(
+                    date=day,
+                    reason="eligible_count_below_minimum",
+                    eligible_count=eligible_count,
+                    min_eligible_count=minimum,
+                ))
                 previous, aligned_ids = None, None
                 continue
-            snapshot = algorithm.fit_snapshot(rows, config["clustering"])
+            snapshot = algorithm.fit_snapshot(rows, clustering_config)
             previous_month = (int(previous["snapshot_date"][:4]) * 12
                               + int(previous["snapshot_date"][5:7])) if previous else None
             current_month = int(day[:4]) * 12 + int(day[5:7])

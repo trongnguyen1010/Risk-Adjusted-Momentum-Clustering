@@ -1,5 +1,11 @@
 # Chưa phát hành — Post-M1 documentation alignment (2026-09-26)
 
+- Hoàn tất M2 Nhiệm vụ 2: thêm C8 market-only checksum adapter, snapshot-local eligibility, fail-closed 8-feature validation, minimum-120 skip và common clustering interface integration; không chạy Global K/holdout/backtest.
+- Thêm 5 nhóm test runner bắt buộc: 142 mã tại `2023-11-30`, terminal-universe guard, 8 finite features, below-minimum skip và `build_snapshot` integration.
+- Hoàn tất M2 Nhiệm vụ 1: tạo `m2_market_only_v1.json` với development/holdout snapshots, minimum eligibility, 8 features, fail-closed missing, no clipping, Robust Scaling per-snapshot, `k=2..8`, Global K selection firewall và comparator-only PCA.
+- Mở rộng protocol validator bằng strict market-only scope trong khi giữ backward compatibility với config mẫu; thêm fail-closed tests cho feature, portfolio firewall, time boundary và preprocessing.
+- Giữ M2-PREP artifact bất biến; verifier có thể đối chiếu input blob tại recorded parent commit khi active source đã tiến hóa.
+- Phục hồi local immutable C5 artifact từ upstream reproducibility package sau khi xác minh manifest hash và 20/20 output hashes; full repository gate đạt 173/173 tests. Recovery WIP untracked được backup ngoài active test discovery, không khôi phục stack superseded.
 - Ghi nhận C8 `EXECUTED_AND_VERIFIED`, R1 `COMPLETE` và M1-REPORT `COMPLETE FOR MARKET-ONLY EXPERIMENT PREPARATION`; giữ strict research gate `NOT READY`.
 - Đồng bộ active docs với CafeF `TradeHistoryNew`, snapshot `2026-08-28`, 952 candidates, 922 feature-complete, 905 market-ready, 47 failures, 148 deferred và identity/research readiness bằng 0.
 - Tách `market_experiment_eligible(t)` theo từng snapshot khỏi legacy `eligibility`, `historical_identity_ready` và `research_ready`; 905 không phải terminal-universe filter.

@@ -44,6 +44,31 @@ def sha256_input(path: Path) -> str:
     return sha256_file(path)
 
 
+def sha256_git_input(root: Path, revision: str, relative: str) -> str:
+    """Hash the recorded Git blob when an immutable audit outlives its source checkout."""
+    data = subprocess.check_output(
+        ["git", "show", f"{revision}:{relative}"], cwd=root
+    )
+    if Path(relative).suffix.lower() in {".md", ".py", ".json", ".csv"}:
+        text = data.decode("utf-8-sig").replace("\r\n", "\n").replace("\r", "\n")
+        data = text.encode("utf-8")
+    return hashlib.sha256(data).hexdigest()
+
+
+def git_history_contains_input(root: Path, relative: str, expected: str) -> bool:
+    """Confirm a recorded input against an immutable blob in this repository's history."""
+    revisions = subprocess.check_output(
+        ["git", "log", "--format=%H", "--", relative], cwd=root, text=True
+    ).splitlines()
+    for revision in revisions:
+        try:
+            if sha256_git_input(root, revision, relative) == expected:
+                return True
+        except (subprocess.CalledProcessError, UnicodeDecodeError):
+            continue
+    return False
+
+
 def read_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -607,8 +632,15 @@ def verify_existing(root: Path, output: Path = DEFAULT_OUTPUT) -> None:
     manifest = read_json(directory / "manifest.json")
     if manifest.get("status") != FINAL_STATUS or manifest.get("network_requests") != 0:
         raise ValueError("invalid M2-PREP manifest")
+    parent_head = manifest.get("parent_head")
     for relative, expected in manifest["input_hashes"].items():
-        if sha256_input(root / relative) != expected:
+        if sha256_input(root / relative) == expected:
+            continue
+        try:
+            recorded = sha256_git_input(root, parent_head, relative)
+        except (subprocess.CalledProcessError, UnicodeDecodeError, TypeError):
+            recorded = None
+        if recorded != expected and not git_history_contains_input(root, relative, expected):
             raise ValueError("M2-PREP input hash mismatch: " + relative)
     for relative, expected in manifest["outputs"].items():
         if sha256_file(directory / relative) != expected:

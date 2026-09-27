@@ -1,0 +1,1938 @@
+Tài liệu trình bày workflow M2 theo đúng cấu trúc nhiệm vụ, làm rõ phần việc chung, quá trình chọn Global K, các phương án phân cụm, đánh giá theo thời gian và final holdout.
+
+# Mục tiêu chung của M2
+
+M2 sử dụng các đặc trưng thị trường đã được chuẩn bị từ M1 để nghiên cứu cấu trúc phân nhóm cổ phiếu tại từng thời điểm cuối tháng.
+
+M2 cần trả lời các câu hỏi chính:
+
+- tại mỗi tháng, các cổ phiếu có thể được chia thành các nhóm có đặc điểm thị trường tương đồng hay không;
+
+- nên sử dụng bao nhiêu cụm để các tháng và các phương án có thể so sánh nhất quán;
+
+- K-Means tạo ra cấu trúc cụm như thế nào;
+
+- Ward có cho cấu trúc tương tự hay khác biệt so với K-Means;
+
+- PCA trước K-Means có làm thay đổi cấu trúc cụm hay không;
+
+- chất lượng cụm tại từng tháng có tốt không;
+
+- các cụm có ổn định qua thời gian không;
+
+- cổ phiếu có thường xuyên chuyển cụm không;
+
+- đặc điểm đại diện của cụm có thay đổi theo thời gian không.
+
+M2 chỉ đánh giá chất lượng cấu trúc cụm, khả năng diễn giải cụm và độ ổn định theo thời gian.
+
+M2 không sử dụng các chỉ số sau để lựa chọn số cụm, thuật toán, PCA hay cách chuẩn hóa:
+
+- lợi nhuận tương lai
+
+- CAGR
+
+- Sharpe
+
+- Sortino
+
+- ROI
+
+- Calmar
+
+- hiệu quả danh mục
+
+- alpha danh mục
+
+Các chỉ số đầu tư thuộc M3.
+
+# Cách M2 xử lý dữ liệu
+
+## Mục đích của phần này
+
+Giúp tất cả thành viên hiểu đúng đơn vị xử lý của M2 trước khi bắt đầu. M2 không ghép toàn bộ dữ liệu nhiều năm thành một bảng rồi phân cụm một lần.
+
+Đơn vị xử lý là một snapshot, tức một ảnh chụp thị trường tại một thời điểm cuối tháng.
+
+30/11/2023  
+↓  
+các cổ phiếu đủ điều kiện tại 30/11/2023  
+↓  
+8 đặc trưng của từng cổ phiếu  
+↓  
+chuẩn hóa riêng snapshot này  
+↓  
+phân cụm
+
+29/12/2023  
+↓  
+xác định lại các cổ phiếu đủ điều kiện  
+↓  
+lấy lại 8 đặc trưng  
+↓  
+chuẩn hóa lại bằng dữ liệu tháng 12  
+↓  
+phân cụm riêng
+
+Như vậy, mỗi snapshot được lọc, chuẩn hóa và phân cụm độc lập. Không chuẩn hóa toàn bộ các tháng một lượt rồi mới chia về từng tháng.
+
+# Dữ liệu đầu vào chung của M2
+
+## Mục đích của phần này
+
+Thống nhất dữ liệu đầu vào để các phương án có thể so sánh công bằng. M2 v1 sử dụng đúng 8 đặc trưng:
+
+| **Nhóm**          | **Đặc trưng**                               |
+|-------------------|---------------------------------------------|
+| Động lượng        | khoảng 1 tháng                              |
+| Động lượng        | khoảng 3 tháng                              |
+| Động lượng        | khoảng 6 tháng                              |
+| Động lượng        | khoảng 12 tháng                             |
+| Rủi ro            | biến động khoảng 3 tháng                    |
+| Rủi ro            | mức giảm giá cực đại khoảng 6 tháng         |
+| Rủi ro thị trường | Beta khoảng 6 tháng                         |
+| Thanh khoản       | giá trị giao dịch trung bình khoảng 1 tháng |
+
+Tên trong repo:
+
+mom_21  
+mom_63  
+mom_126  
+mom_252  
+vol_63  
+mdd_126  
+beta_126  
+liquidity_21
+
+Ví dụ một snapshot:
+
+| **Mã** | **Động lượng 1T** | **Động lượng 3T** | **Động lượng 6T** | **Động lượng 12T** | **Biến động** | **MDD** | **Beta** | **Thanh khoản** |
+|--------|-------------------|-------------------|-------------------|--------------------|---------------|---------|----------|-----------------|
+| AAA    | ...               | ...               | ...               | ...                | ...           | ...     | ...      | ...             |
+| BBB    | ...               | ...               | ...               | ...                | ...           | ...     | ...      | ...             |
+| CCC    | ...               | ...               | ...               | ...                | ...           | ...     | ...      | ...             |
+
+Số lượng mã có thể khác nhau giữa các tháng.
+
+11/2023 → 240 mã  
+12/2023 → 265 mã  
+01/2024 → 310 mã
+
+Không lấy cố định 905 mã của snapshot 08/2026 áp ngược toàn bộ lịch sử.
+
+# NHIỆM VỤ 1 — KHÓA TOÀN BỘ QUY TẮC THỰC NGHIỆM
+
+## Mục đích của Nhiệm vụ 1
+
+Thống nhất cách toàn bộ M2 sẽ được thực hiện trước khi nhìn kết quả phân cụm thật. Điều này nhằm tránh chạy mô hình trước rồi thay đổi preprocessing, K hoặc PCA chỉ vì kết quả chưa đẹp. Sau Nhiệm vụ 1, các thành viên không được tự ý thay đổi quy tắc của riêng mình.
+
+## Đầu vào của Nhiệm vụ 1
+
+- kết quả M2-PREP;
+
+- DELTA_UNIFIED_PROJECT_PLAN.md;
+
+- các quyết định methodology còn mở;
+
+- tài liệu phương pháp trong repo.
+
+## Phần 1.1 — Khóa giai đoạn development
+
+### Mục đích
+
+Xác định giai đoạn được phép dùng để thử K, chọn Global K, chạy các phương án, xem chất lượng cụm và hoàn thiện methodology.
+
+30/11/2023 → 24/01/2025  
+15 snapshot liên tục
+
+## Phần 1.2 — Khóa final holdout
+
+### Mục đích
+
+Giữ lại một giai đoạn chưa dùng trong quá trình lựa chọn methodology.
+
+27/02/2026 → 28/08/2026  
+7 snapshot
+
+- Không dùng holdout để chọn K;
+
+- Không dùng holdout để đổi scaler;
+
+- Không dùng holdout để đổi PCA;
+
+- Không dùng holdout để đổi thuật toán.
+
+## Phần 1.3 — Khóa số lượng mã tối thiểu
+
+### Mục đích
+
+Tránh chạy phân cụm khi một snapshot có quá ít cổ phiếu.
+
+n_eligible \>= 120  
+142 mã → chạy  
+119 mã → bỏ qua
+
+## Phần 1.4 — Khóa tập đặc trưng
+
+### Mục đích
+
+Đảm bảo các phương án sử dụng cùng dữ liệu đầu vào. Không được để K-Means, Ward và PCA + K-Means sử dụng các tập feature khác nhau.
+
+## Phần 1.5 — Khóa xử lý dữ liệu thiếu
+
+### Mục đích
+
+Không tạo dữ liệu giả. Không điền trung bình, median, forward-fill, backward-fill, interpolation hoặc đổi missing thành 0. Mã không đủ điều kiện tại snapshot nào thì không đưa vào snapshot đó.
+
+## Phần 1.6 — Khóa xử lý outlier
+
+### Mục đích
+
+Thống nhất cách xử lý giá trị cực đoan. Baseline v1 không winsorize và không clipping.
+
+## Phần 1.7 — Khóa chuẩn hóa
+
+### Mục đích
+
+Đưa các đặc trưng về thang đo phù hợp trước khi chạy các thuật toán dựa trên khoảng cách.
+
+Mặc định: Robust Scaling theo từng snapshot.
+
+**x_scaled = (x − Median) / IQR**
+
+Trong đó, Median là trung vị và IQR là khoảng tứ phân vị của chính feature đó trong snapshot đang xử lý.
+
+11/2023  
+→ tính Median/IQR tháng 11  
+→ scale tháng 11  
+  
+12/2023  
+→ tính Median/IQR mới  
+→ scale tháng 12
+
+Không fit một scaler chung cho toàn development.
+
+## Phần 1.8 — Khóa khoảng K cần thử
+
+### Mục đích
+
+Xác định phạm vi số cụm cần kiểm tra.
+
+K = 2, 3, 4, 5, 6, 7, 8
+
+## Phần 1.9 — Khóa nguyên tắc chọn Global K
+
+### Mục đích
+
+Chọn một số cụm chung để các tháng có thể so sánh và K-Means, Ward, PCA + K-Means có thể so sánh công bằng.
+
+1.  ưu tiên Median Silhouette cao nhất;
+
+2.  nếu gần nhau, xem Median Davies–Bouldin thấp hơn;
+
+3.  Calinski–Harabasz và cluster balance dùng kiểm tra bổ sung;
+
+4.  không dùng return hay Sharpe.
+
+## Phần 1.10 — Khóa vai trò PCA
+
+### Mục đích
+
+Làm rõ PCA không phải bước chung cho toàn bộ M2. PCA chỉ thuộc phương án PCA + K-Means.
+
+Robust Scaling  
+↓  
+PCA  
+↓  
+K-Means
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/experiments/m2_prep.py\`** — file đã có; dùng làm nguồn kiểm tra trước M2.
+
+> Mục đích: Audit trạng thái sẵn sàng của M2: eligibility theo snapshot, feature set, preprocessing, thuật toán, metric, gap dữ liệu và các điểm runner còn thiếu.
+>
+> Cách dùng trong nhiệm vụ này: Không chạy file này để tạo cluster. Đọc kết quả/audit của nó để biết những quyết định nào cần được khóa trong Protocol v1.
+
+**\`src/delta_t1/experiments/protocol.py\`** — file đã có; dùng để kiểm tra config.
+
+> Mục đích: Xác nhận file cấu hình experiment có đủ trường bắt buộc và không vi phạm contract nghiên cứu.
+>
+> Cách dùng trong nhiệm vụ này: Sau khi tạo config M2 v1, dùng validator trong file này để kiểm tra development window, clustering config, preprocessing/PCA và các rule liên quan. Nếu config M2 có field mới chưa được validator hỗ trợ thì bổ sung validation tại đây.
+
+**\`configs/experiments/m2_market_only_v1.json\`** — file cần tạo mới ở Nhiệm vụ 1.
+
+> Mục đích: Biến toàn bộ quyết định methodology thành một cấu hình có phiên bản để các nhiệm vụ sau đọc lại.
+>
+> Cách dùng trong nhiệm vụ này: Ghi vào file các rule đã khóa: development/holdout, eligibility field, minimum eligible, 8 feature, scaling, K range, PCA policy, thuật toán và \`portfolio_evaluation=false\`.
+>
+> Kết quả liên quan: Đây là đầu vào cấu hình chung cho Nhiệm vụ 2 trở đi.
+
+### Cách các file phối hợp
+
+> m2_prep.py + tài liệu phương pháp → chốt rule → tạo m2_market_only_v1.json → protocol.py kiểm tra → bàn giao config cho Nhiệm vụ 2.
+
+## Kết quả cần đạt của Nhiệm vụ 1
+
+- config M2;
+
+- development window;
+
+- final holdout;
+
+- feature set;
+
+- missing policy;
+
+- outlier policy;
+
+- scaling policy;
+
+- K range;
+
+- K selection rule;
+
+- PCA policy.
+
+## Vị trí trong repo
+
+- DELTA_UNIFIED_PROJECT_PLAN.md §6
+
+- METHODOLOGY.md
+
+- EXPERIMENT_PROTOCOL.md
+
+- m2-prep-v1/unresolved_decisions.csv
+
+- m2-prep-v1/preprocessing_matrix.csv
+
+# NHIỆM VỤ 2 — CHUẨN BỊ VÀ KIỂM THỬ RUNNER M2
+
+## Mục đích của Nhiệm vụ 2
+
+Xây và kiểm tra công cụ đưa dữ liệu từng snapshot vào pipeline M2 đúng cách. Nhiệm vụ này chưa chạy toàn bộ experiment thật.
+
+Nhiệm vụ 1 = quy định cách làm  
+Nhiệm vụ 2 = xây công cụ thực hiện  
+Nhiệm vụ 3 trở đi = chạy dữ liệu thật
+
+## Đầu vào của Nhiệm vụ 2
+
+- config từ Nhiệm vụ 1;
+
+- dữ liệu M1;
+
+- logic market readiness;
+
+- 8 feature.
+
+## Phần 2.1 — Nhận snapshot
+
+### Mục đích
+
+Runner phải biết snapshot nào cần xử lý.
+
+Ví dụ: snapshot_date = 30/11/2023.
+
+## Phần 2.2 — Lọc universe theo snapshot
+
+### Mục đích
+
+Đảm bảo mỗi tháng chỉ sử dụng các mã đủ điều kiện của chính tháng đó.
+
+Ví dụ:
+
+30/11/2023 có 240 mã
+
+29/12/2023 có 265 mã
+
+28/08/2026 có 905 mã
+
+Không được dùng 905 mã cho các tháng trước.
+
+## Phần 2.3 — Kiểm tra 8 feature
+
+### Mục đích
+
+Đảm bảo dữ liệu đưa vào mô hình đúng schema.
+
+Kiểm tra đủ 8 feature, giá trị hữu hạn và không có dữ liệu không hợp lệ.
+
+## Phần 2.4 — Kiểm thử terminal universe
+
+### Mục đích
+
+Ngăn lỗi nhìn trước tương lai.
+
+Phải chứng minh 905 mã ở 08/2026 không được áp ngược lịch sử.
+
+## Phần 2.5 — Kiểm thử tích hợp
+
+### Mục đích
+
+Đảm bảo output runner có thể truyền trực tiếp vào clustering pipeline.
+
+Output gồm snapshot_date + danh sách mã hợp lệ + 8 feature.
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; cần chỉnh cho M2 market-only.
+
+> Mục đích: Là bộ điều phối chính của một experiment: đọc config, đọc \`features/monthly.jsonl\`, chia dữ liệu theo snapshot, gọi thuật toán, theo dõi temporal và lưu artifact.
+>
+> Cách dùng trong nhiệm vụ này: Sửa chỗ đang phụ thuộc \`row\["eligibility"\]\` để runner lấy eligibility field và minimum eligible từ config M2. Runner phải skip snapshot theo đúng rule và không tự fallback về legacy eligibility.
+
+**\`src/delta_t1/clustering/base.py\`** — file đã có; cần đồng bộ với runner.
+
+> Mục đích: Chứa logic chung khi xử lý một snapshot clustering: lọc row, chuẩn bị feature/preprocessing, tạo diagnostics/profile và model result.
+>
+> Cách dùng trong nhiệm vụ này: Đổi phần lọc legacy eligibility sang field được truyền từ config. Mục tiêu là runner và base luôn lọc cùng một universe.
+
+**\`src/delta_t1/experiments/protocol.py\`** — file đã có; có thể cần bổ sung validation.
+
+> Mục đích: Chặn config sai trước khi chạy experiment.
+>
+> Cách dùng trong nhiệm vụ này: Bổ sung kiểm tra cho market-only mode, eligibility field, minimum eligible và các field M2 v1 nếu các rule này chưa được validator hiện tại hỗ trợ.
+
+**\`src/delta_t1/experiments/m2_prep.py\`** — file đã có; chỉ dùng để đối chiếu.
+
+> Mục đích: Cung cấp evidence về market-readiness và các gap mà M2-R2 phải tôn trọng.
+>
+> Cách dùng trong nhiệm vụ này: Không dùng làm runner. Chỉ đối chiếu rule/đếm readiness khi viết test cho runner.
+
+### Cách các file phối hợp
+
+> m2_market_only_v1.json → protocol.py → runner.py → base.py → lọc market_feature_ready_v2 + kiểm tra min_eligible + 8 feature → test → dữ liệu sẵn sàng cho Nhiệm vụ 3.
+
+## Kết quả cần đạt của Nhiệm vụ 2
+
+- runner market-only;
+
+- lọc đúng universe;
+
+- không fallback sang eligibility cũ;
+
+- test pass;
+
+- dữ liệu sẵn sàng cho Nhiệm vụ 3.
+
+## Vị trí trong repo
+
+- DELTA_UNIFIED_PROJECT_PLAN.md → M2-R2
+
+- CURRENT_STATUS.md
+
+- src/delta_t1/experiments/
+
+- src/delta_t1/features/
+
+# NHIỆM VỤ 3 — CHỌN GLOBAL K
+
+## Mục đích của Nhiệm vụ 3
+
+Dùng K-Means trên development với K=2..8 để chọn ra một Global K duy nhất cho toàn bộ M2. K-Means ở Nhiệm vụ 3 dùng để chọn số cụm, chưa phải mục đích hoàn thiện baseline chính thức. Sau khi Global K được chọn, K-Means, Ward và PCA + K-Means đều dùng cùng K.
+
+## Đầu vào của Nhiệm vụ 3
+
+- 15 development snapshots;
+
+- runner;
+
+- 8 feature;
+
+- Robust Scaling;
+
+- K=2…8;
+
+- K-selection rule.
+
+## Phần 3.1 — Lấy snapshot đầu tiên
+
+### Mục đích
+
+Tạo dữ liệu thật cho một tháng.
+
+Ví dụ 30/11/2023 → lọc universe → lấy 8 feature. Giả sử còn 240 mã.
+
+## Phần 3.2 — Chuẩn hóa snapshot
+
+### Mục đích
+
+Đưa dữ liệu về thang đo phù hợp.
+
+240 × 8 → Median/IQR → Robust Scaling → 240 × 8 đã chuẩn hóa.
+
+## Phần 3.3 — Chạy K=2
+
+### Mục đích
+
+Đánh giá nếu thị trường được chia thành 2 cụm.
+
+Lưu Silhouette, Davies–Bouldin, Calinski–Harabasz, inertia và cluster balance.
+
+## Phần 3.4 — Chạy K=3 đến K=8
+
+### Mục đích
+
+So sánh các số cụm trên cùng snapshot.
+
+Chạy K=3,4,5,6,7,8 trên cùng dữ liệu đã chuẩn hóa.
+
+## Phần 3.5 — Sang snapshot tiếp theo
+
+### Mục đích
+
+Đánh giá mỗi K trên nhiều trạng thái thị trường.
+
+Ví dụ 29/12/2023 → lọc universe mới → scale lại → K=2..8.
+
+## Phần 3.6 — Lặp toàn development
+
+### Mục đích
+
+Tạo evidence đủ rộng để chọn K ổn định.
+
+15 snapshot × 7 K = 105 lần chạy K-Means.
+
+## Phần 3.7 — Tạo bảng chi tiết
+
+### Mục đích
+
+Lưu toàn bộ kết quả để audit quyết định chọn K.
+
+Bảng có các cột Snapshot, K, Silhouette, DB, CH, Inertia, Balance.
+
+## Phần 3.8 — Tổng hợp theo K
+
+### Mục đích
+
+Không chọn K theo một tháng riêng lẻ.
+
+Với mỗi K, tính median các metric trên toàn development.
+
+<img src="/mnt/data/m2_code_md/media/image1.png" style="width:6.9in;height:1.71736in" />
+
+## Phần 3.9 — Chọn Global K
+
+### Mục đích
+
+Chọn một số cụm dùng thống nhất cho toàn M2.
+
+Ưu tiên Median Silhouette cao nhất; nếu gần nhau thì xem Median DB thấp hơn.
+
+## Phần 3.10 — Khóa Global K
+
+### Mục đích
+
+Ngăn mỗi phương án chọn K riêng.
+
+Ví dụ Global K=4 thì K-Means=4, Ward=4, PCA+K-Means=4.
+
+## Phần 3.11 — Giữ artifact K-Means của Global K
+
+### Mục đích
+
+Tránh chạy lại cùng kết quả.
+
+Nếu Nhiệm vụ 3 đã lưu đầy đủ output của Global K thì có thể tái sử dụng làm development result của K-Means baseline.
+
+| **Snapshot** | **K** | **Silhouette** | **DB** | **CH** | **Inertia** | **Balance** |
+|--------------|-------|----------------|--------|--------|-------------|-------------|
+| 11/2023      | 2     | ...            | ...    | ...    | ...         | ...         |
+| 11/2023      | 3     | ...            | ...    | ...    | ...         | ...         |
+| ...          | ...   | ...            | ...    | ...    | ...         | ...         |
+
+| **K** | **Median Silhouette** | **Median DB** | **Median CH** | **Balance** |
+|-------|-----------------------|---------------|---------------|-------------|
+| 2     | ...                   | ...           | ...           | ...         |
+| 3     | ...                   | ...           | ...           | ...         |
+| 4     | ...                   | ...           | ...           | ...         |
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; dùng làm điều phối.
+
+> Mục đích: Lặp qua 15 development snapshots và gọi thuật toán trên từng snapshot.
+>
+> Cách dùng trong nhiệm vụ này: Chạy experiment bằng config phát triển; mỗi snapshot được runner chuyển vào pipeline rồi diagnostics được lưu lại.
+
+**\`src/delta_t1/clustering/base.py\`** — file đã có; dùng làm logic chung cho một snapshot.
+
+> Mục đích: Chuẩn bị dữ liệu snapshot và gọi preprocessing/algorithm theo cấu hình.
+>
+> Cách dùng trong nhiệm vụ này: Đảm bảo mỗi K được đánh giá trên cùng rows eligible và cùng feature set.
+
+**\`src/delta_t1/features/preprocessing.py\`** — file đã có; dùng Robust Scaling.
+
+> Mục đích: Chuẩn hóa các feature theo từng snapshot trước K-Means.
+>
+> Cách dùng trong nhiệm vụ này: Dùng chế độ robust để tính median/IQR của chính snapshot; không dùng PCA trong Nhiệm vụ 3.
+
+**\`src/delta_t1/clustering/kmeans.py\`** — file đã có; dùng để chạy K-Means.
+
+> Mục đích: Thực hiện K-Means deterministic cho một snapshot.
+>
+> Cách dùng trong nhiệm vụ này: Runner/base gọi implementation này lần lượt với K=2..8. Không cần tự chạy file này bằng tay.
+
+**\`src/delta_t1/evaluation/cluster_metrics.py\`** — file đã có; dùng để tính metric.
+
+> Mục đích: Tính Silhouette, Davies–Bouldin, Calinski–Harabasz, inertia và cluster balance.
+>
+> Cách dùng trong nhiệm vụ này: Lấy metric cho từng tổ hợp snapshot × K, sau đó tổng hợp median theo K để chọn Global K.
+
+### Cách các file phối hợp
+
+> runner.py → base.py → preprocessing.py (Robust Scaling) → kmeans.py (K=2..8) → cluster_metrics.py → diagnostics từng snapshot × K → aggregate → Global K.
+
+## Kết quả cần đạt của Nhiệm vụ 3
+
+- metric theo snapshot × K;
+
+- aggregate theo K;
+
+- Global K;
+
+- decision artifact;
+
+- K-Means artifact của Global K nếu đầy đủ.
+
+## Vị trí trong repo
+
+- DELTA_UNIFIED_PROJECT_PLAN.md §6.7
+
+- DELTA_UNIFIED_PROJECT_PLAN.md → M2-EXEC-A
+
+- metric_matrix.csv
+
+- METHODOLOGY.md
+
+# NHIỆM VỤ 4 — CHẠY PHƯƠNG ÁN A: K-MEANS
+
+## Mục đích của Nhiệm vụ 4
+
+Tạo baseline K-Means chính thức sau khi Global K đã được khóa.
+
+Nhiệm vụ 3: K-Means K=2..8 → chọn K  
+Nhiệm vụ 4: K-Means chỉ dùng Global K → tạo kết quả chính thức
+
+## Đầu vào của Nhiệm vụ 4
+
+- Global K;
+
+- development snapshots;
+
+- runner;
+
+- Robust Scaling;
+
+- 8 feature.
+
+## Phần 4.1 — Chạy từng snapshot
+
+### Mục đích
+
+Tạo kết quả K-Means tại từng tháng.
+
+snapshot → lọc universe → 8 feature → Robust Scaling → K-Means Global K → assignment.
+
+## Phần 4.2 — Lưu cluster assignment
+
+### Mục đích
+
+Biết mỗi cổ phiếu thuộc cụm nào.
+
+Lưu snapshot, mã cổ phiếu và cluster ID.
+
+## Phần 4.3 — Lưu centroid
+
+### Mục đích
+
+Có đại diện số học để mô tả cụm, so sánh cụm và tính centroid drift.
+
+Lưu tâm cụm theo từng snapshot.
+
+## Phần 4.4 — Xây cluster profile
+
+### Mục đích
+
+Chuyển cluster thành mô tả dễ hiểu.
+
+Ví dụ động lượng cao, biến động thấp, thanh khoản cao.
+
+## Phần 4.5 — Tính quality metrics
+
+### Mục đích
+
+Đánh giá chất lượng K-Means tại từng snapshot.
+
+Tính Silhouette, DB, CH, inertia và balance.
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; file điều phối.
+
+> Mục đích: Chạy baseline qua toàn bộ development window và ghi artifact.
+>
+> Cách dùng trong nhiệm vụ này: Đọc config K-Means đã khóa, duyệt từng snapshot và gọi thuật toán qua registry/base.
+
+**\`src/delta_t1/clustering/registry.py\`** — file đã có; bộ chọn thuật toán.
+
+> Mục đích: Ánh xạ tên thuật toán trong config sang implementation tương ứng.
+>
+> Cách dùng trong nhiệm vụ này: Khi config khai báo K-Means, runner gọi registry để lấy K-Means thay vì import/chạy thủ công từng file.
+
+**\`src/delta_t1/clustering/kmeans.py\`** — file đã có; thuật toán chính của Nhiệm vụ 4.
+
+> Mục đích: Phân cụm snapshot bằng Global K đã khóa.
+>
+> Cách dùng trong nhiệm vụ này: Chỉ chạy Global K, không thử lại K=2..8.
+
+**\`src/delta_t1/features/preprocessing.py\`** — file đã có; chuẩn hóa dữ liệu.
+
+> Mục đích: Áp dụng Robust Scaling theo từng snapshot.
+>
+> Cách dùng trong nhiệm vụ này: Tạo dữ liệu đã scale rồi chuyển sang K-Means.
+
+**\`src/delta_t1/clustering/base.py\`** — file đã có; tạo snapshot result.
+
+> Mục đích: Gom logic chung về rows, diagnostics, profile/centroid và model output.
+>
+> Cách dùng trong nhiệm vụ này: Dùng để đảm bảo artifact K-Means có cấu trúc chuẩn cho các nhiệm vụ sau.
+
+**\`src/delta_t1/evaluation/cluster_metrics.py\`** — file đã có; đánh giá chất lượng.
+
+> Mục đích: Tính các quality metrics của K-Means tại từng snapshot.
+>
+> Cách dùng trong nhiệm vụ này: Metric được lưu cùng artifact để Nhiệm vụ 7 và 10 sử dụng.
+
+### Cách các file phối hợp
+
+> runner.py → registry.py → base.py → preprocessing.py → kmeans.py (Global K) → cluster_metrics.py → assignments/profiles/diagnostics.
+
+## Kết quả cần đạt của Nhiệm vụ 4
+
+- assignments;
+
+- centroids;
+
+- profiles;
+
+- scaler parameters;
+
+- quality metrics.
+
+# NHIỆM VỤ 5 — CHẠY PHƯƠNG ÁN B: WARD
+
+## Mục đích của Nhiệm vụ 5
+
+Kiểm tra xem phương pháp phân cụm phân cấp Ward tạo ra cấu trúc tương tự hay khác với K-Means.
+
+## Đầu vào
+
+- snapshot;
+
+- universe;
+
+- 8 feature;
+
+- Robust Scaling;
+
+- Global K.
+
+## Phần 5.1 — Chạy từng snapshot
+
+### Mục đích
+
+Tạo phân cụm Ward trên cùng dữ liệu.
+
+snapshot  
+↓  
+lọc  
+↓  
+scale  
+↓  
+Ward  
+↓  
+Global K  
+↓  
+assignment
+
+## Phần 5.2 — Lưu output
+
+### Mục đích
+
+Tạo artifact tương đương K-Means để dễ so sánh. Lưu assignment, profile và quality metrics.
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; điều phối Ward qua các snapshot.
+
+> Mục đích: Giữ cùng development window, universe và Global K như K-Means.
+>
+> Cách dùng trong nhiệm vụ này: Đọc config Ward rồi duyệt từng snapshot như baseline.
+
+**\`src/delta_t1/clustering/registry.py\`** — file đã có; chọn implementation Ward.
+
+> Mục đích: Cho phép runner chọn thuật toán từ config.
+>
+> Cách dùng trong nhiệm vụ này: Config Ward được chuyển qua registry để lấy implementation hierarchical/Ward.
+
+**\`src/delta_t1/clustering/hierarchical.py\`** — file đã có; thuật toán Ward/Agglomerative.
+
+> Mục đích: Tạo cụm phân cấp với số cụm bằng Global K.
+>
+> Cách dùng trong nhiệm vụ này: Nhận dữ liệu đã Robust Scale và trả assignment/model result.
+
+**\`src/delta_t1/features/preprocessing.py\`** — file đã có; chuẩn hóa.
+
+> Mục đích: Đảm bảo Ward dùng đúng cùng preprocessing với K-Means.
+>
+> Cách dùng trong nhiệm vụ này: Áp dụng Robust Scaling per snapshot trước Ward.
+
+**\`src/delta_t1/clustering/base.py\`** — file đã có; contract snapshot chung.
+
+> Mục đích: Giữ schema output và logic chung tương thích với baseline.
+>
+> Cách dùng trong nhiệm vụ này: Dùng để tạo profile/diagnostics tương đương K-Means.
+
+**\`src/delta_t1/evaluation/cluster_metrics.py\`** — file đã có; đánh giá Ward.
+
+> Mục đích: Tính quality metrics có thể so sánh giữa các phương án.
+>
+> Cách dùng trong nhiệm vụ này: Lưu metric cho Nhiệm vụ 7 và 10.
+
+### Cách các file phối hợp
+
+> runner.py → registry.py → base.py → preprocessing.py → hierarchical.py (Ward, Global K) → cluster_metrics.py → artifact Ward.
+
+## Kết quả cần đạt của Nhiệm vụ 5
+
+Bộ artifact Ward hoàn chỉnh.
+
+# NHIỆM VỤ 6 — CHẠY PHƯƠNG ÁN C: PCA + K-MEANS
+
+## Mục đích của Nhiệm vụ 6
+
+Kiểm tra ảnh hưởng của giảm chiều lên cấu trúc phân cụm.
+
+## Đầu vào
+
+- snapshot;
+
+- universe;
+
+- 8 feature;
+
+- Robust Scaling;
+
+- Global K;
+
+- PCA rule.
+
+## Phần 6.1 — Chuẩn hóa
+
+### Mục đích
+
+Đưa dữ liệu về cùng thang đo trước PCA.
+
+Thực hiện Robust Scaling theo snapshot.
+
+## Phần 6.2 — PCA
+
+### Mục đích
+
+Giảm số chiều nhưng giữ phần lớn thông tin.
+
+Protocol đề xuất số component nhỏ nhất đạt explained variance tích lũy \>= 90%; số component phải freeze trên development.
+
+## Phần 6.3 — K-Means sau PCA
+
+### Mục đích
+
+Phân cụm trong không gian giảm chiều.
+
+PCA output → K-Means Global K.
+
+## Phần 6.4 — Lưu PCA artifact
+
+### Mục đích
+
+Đảm bảo reproducibility.
+
+Lưu số component, explained variance, PCA parameters, assignment và metrics.
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; điều phối nhánh PCA + K-Means.
+
+> Mục đích: Chạy pipeline comparator theo từng snapshot.
+>
+> Cách dùng trong nhiệm vụ này: Đọc config của nhánh PCA, gọi preprocessing rồi K-Means và ghi artifact.
+
+**\`src/delta_t1/features/preprocessing.py\`** — file đã có; file trọng tâm của Nhiệm vụ 6.
+
+> Mục đích: Đã hỗ trợ Robust Scaling và PCA.
+>
+> Cách dùng trong nhiệm vụ này: Trước hết scale snapshot, sau đó thực hiện PCA theo số component đã freeze. Trên holdout không được chọn lại số component.
+
+**\`src/delta_t1/clustering/kmeans.py\`** — file đã có; clustering sau PCA.
+
+> Mục đích: Phân cụm vector PCA bằng Global K.
+>
+> Cách dùng trong nhiệm vụ này: Nhận đầu vào đã giảm chiều từ preprocessing và chạy K-Means.
+
+**\`src/delta_t1/clustering/base.py\`** — file đã có; chuẩn hóa contract output.
+
+> Mục đích: Giúp nhánh PCA+KMeans trả assignment/profile/diagnostics theo cấu trúc thống nhất.
+>
+> Cách dùng trong nhiệm vụ này: Dùng để kết quả có thể so sánh với K-Means và Ward.
+
+**\`src/delta_t1/evaluation/cluster_metrics.py\`** — file đã có; quality metrics.
+
+> Mục đích: Đánh giá cụm tạo ra sau PCA.
+>
+> Cách dùng trong nhiệm vụ này: Lưu metric và dùng ở Nhiệm vụ 7/10.
+
+### Cách các file phối hợp
+
+> runner.py → base.py → preprocessing.py (Robust Scaling → PCA) → kmeans.py (Global K) → cluster_metrics.py → PCA/model/assignment artifact.
+
+## Kết quả cần đạt của Nhiệm vụ 6
+
+Bộ artifact PCA + K-Means hoàn chỉnh.
+
+# NHIỆM VỤ 7 — ĐÁNH GIÁ CHẤT LƯỢNG CỤM
+
+## Mục đích của Nhiệm vụ 7
+
+Đánh giá từng phương án ở cấp mỗi snapshot.
+
+## Đầu vào
+
+Kết quả của K-Means, Ward và PCA + K-Means.
+
+## Phần 7.1 — Silhouette
+
+### Mục đích
+
+Đánh giá mức độ các điểm gần cụm của mình và xa cụm khác. Cao hơn thường tốt hơn.
+
+## Phần 7.2 — Davies–Bouldin
+
+### Mục đích
+
+Đánh giá độ gọn và mức tách biệt của các cụm. Thấp hơn thường tốt hơn.
+
+## Phần 7.3 — Calinski–Harabasz
+
+### Mục đích
+
+So sánh phân tán giữa cụm và trong cụm.
+
+## Phần 7.4 — Inertia
+
+### Mục đích
+
+Đo khoảng cách các điểm tới tâm cụm; chủ yếu dùng với K-Means.
+
+## Phần 7.5 — Cluster balance
+
+### Mục đích
+
+Kiểm tra có cụm quá lớn hoặc quá nhỏ không.
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/evaluation/cluster_metrics.py\`** — file đã có; file chính của Nhiệm vụ 7.
+
+> Mục đích: Tập trung các phép đo chất lượng cụm.
+>
+> Cách dùng trong nhiệm vụ này: Dùng các hàm hiện có để lấy Silhouette, DB, CH, inertia và cluster balance cho output của từng phương án.
+
+**\`src/delta_t1/clustering/base.py\`** — file đã có; nơi tạo diagnostics trong snapshot pipeline.
+
+> Mục đích: Gắn kết labels/dữ liệu snapshot với metric.
+>
+> Cách dùng trong nhiệm vụ này: Không cần tính tay lại nếu diagnostics đã được tạo đúng trong lúc fit snapshot.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; nơi gom và ghi diagnostics.
+
+> Mục đích: Ghi \`snapshot\["diagnostics"\]\` thành artifact theo nhiều snapshot.
+>
+> Cách dùng trong nhiệm vụ này: Đọc \`diagnostics.jsonl/csv\` làm bảng đầu vào cho phần tổng hợp chất lượng.
+
+### Cách các file phối hợp
+
+> artifact của 3 phương án → base/cluster_metrics.py → runner diagnostics → bảng snapshot × phương án × metric.
+
+## Kết quả cần đạt của Nhiệm vụ 7
+
+Bảng snapshot × phương án × metric.
+
+# NHIỆM VỤ 8 — PHÂN TÍCH HỒ SƠ CỤM
+
+## Mục đích của Nhiệm vụ 8
+
+Hiểu ý nghĩa của từng cụm.
+
+## Phần 8.1 — Tổng hợp feature theo cụm
+
+### Mục đích
+
+Xác định đặc điểm điển hình.
+
+Tổng hợp các feature đại diện của từng cluster.
+
+## Phần 8.2 — So sánh giữa các cụm
+
+### Mục đích
+
+Xác định feature nào làm các cụm khác nhau.
+
+So sánh động lượng, rủi ro, beta và thanh khoản giữa các cụm.
+
+## Phần 8.3 — Giới hạn diễn giải
+
+### Mục đích
+
+Không biến kết quả M2 thành khuyến nghị đầu tư.
+
+Không kết luận cluster nào là cluster nên mua.
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/clustering/base.py\`** — file đã có; file chính để tạo cluster profile.
+
+> Mục đích: Tạo profile/centroid và các thông tin đại diện của cluster trong snapshot.
+>
+> Cách dùng trong nhiệm vụ này: Dùng profile theo 8 feature để mô tả cụm: momentum, volatility, MDD, beta, liquidity.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; lưu profile theo snapshot.
+
+> Mục đích: Gom \`snapshot\["profiles"\]\` và ghi thành \`profiles.jsonl/csv\`.
+>
+> Cách dùng trong nhiệm vụ này: Đọc artifact này để so sánh profile giữa các cụm/tháng/phương án.
+
+**\`src/delta_t1/features/preprocessing.py\`** — file đã có; dùng để hiểu phép biến đổi.
+
+> Mục đích: Cho biết dữ liệu đã được scale/PCA như thế nào.
+>
+> Cách dùng trong nhiệm vụ này: Khi diễn giải, cần quay lại 8 feature gốc; đặc biệt PCA+KMeans không được chỉ diễn giải bằng component.
+
+### Cách các file phối hợp
+
+> profiles/assignments do runner tạo → base.py profile/centroid → diễn giải trên 8 feature gốc → profile summary.
+
+## Kết quả cần đạt của Nhiệm vụ 8
+
+Cluster profiles dễ đọc và có thể giải thích.
+
+# NHIỆM VỤ 9 — ĐÁNH GIÁ ĐỘ ỔN ĐỊNH THEO THỜI GIAN
+
+## Mục đích của Nhiệm vụ 9
+
+Kiểm tra cụm có ổn định giữa các tháng không, cổ phiếu chuyển cụm nhiều hay ít và tâm cụm thay đổi thế nào.
+
+## Đầu vào
+
+Cluster assignments của các snapshot liên tiếp.
+
+## Phần 9.1 — ARI
+
+### Mục đích
+
+Đo mức tương đồng giữa hai phân cụm.
+
+## Phần 9.2 — NMI
+
+### Mục đích
+
+Đo mức thông tin chung giữa hai kết quả.
+
+## Phần 9.3 — Persistence
+
+### Mục đích
+
+Đo tỷ lệ cổ phiếu giữ cụm.
+
+## Phần 9.4 — Migration
+
+### Mục đích
+
+Đo tỷ lệ cổ phiếu chuyển cụm.
+
+## Phần 9.5 — Transition matrix
+
+### Mục đích
+
+Xác định cụm nào chuyển sang cụm nào.
+
+## Phần 9.6 — Centroid drift
+
+### Mục đích
+
+Đo sự thay đổi đặc trưng đại diện của cụm.
+
+## Phần 9.7 — Entry / Exit
+
+### Mục đích
+
+Tách mã xuất hiện mới, mã biến mất và mã tồn tại ở cả hai tháng.
+
+## Phần 9.8 — Reset temporal chain tại gap
+
+### Mục đích
+
+Không tạo liên kết giả qua khoảng dữ liệu bị đứt.
+
+Các gap quan trọng:  
+2023-05 → 2023-10  
+2025-02 → 2026-01
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/evaluation/temporal_metrics.py\`** — file đã có; file chính của Nhiệm vụ 9.
+
+> Mục đích: So sánh hai snapshot liên tiếp và tính các chỉ số temporal.
+>
+> Cách dùng trong nhiệm vụ này: Dùng để tính ARI, NMI, persistence, migration, transition, centroid drift và entry/exit theo implementation hiện tại.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; quản lý chuỗi snapshot.
+
+> Mục đích: Giữ snapshot trước, gọi temporal comparison khi hai tháng liên tiếp và reset khi có gap.
+>
+> Cách dùng trong nhiệm vụ này: Runner ghi \`stability.jsonl/csv\` và \`transitions.jsonl/csv\`; đây là artifact chính cho Nhiệm vụ 9.
+
+**\`src/delta_t1/clustering/base.py\`** — file đã có; cung cấp rows/labels/profiles.
+
+> Mục đích: Tạo dữ liệu đầu vào cần thiết để so sánh temporal.
+>
+> Cách dùng trong nhiệm vụ này: Không tính lại feature ở nhiệm vụ này; dùng output clustering đã có.
+
+### Cách các file phối hợp
+
+> snapshot t + snapshot t+1 → temporal_metrics.py → runner.py align/reset gap → stability + transitions artifact.
+
+## Kết quả cần đạt của Nhiệm vụ 9
+
+- ARI;
+
+- NMI;
+
+- persistence;
+
+- migration;
+
+- transition matrices;
+
+- centroid drift;
+
+- entry/exit.
+
+# NHIỆM VỤ 10 — SO SÁNH CÁC PHƯƠNG ÁN
+
+## Mục đích của Nhiệm vụ 10
+
+Tổng hợp kết quả của K-Means, Ward và PCA + K-Means trên cùng protocol.
+
+## Phần 10.1 — So sánh quality
+
+### Mục đích
+
+So sánh chất lượng cấu trúc cụm.
+
+So sánh Silhouette, DB, CH và balance.
+
+## Phần 10.2 — So sánh temporal stability
+
+### Mục đích
+
+So sánh độ ổn định theo thời gian.
+
+So sánh ARI, NMI, persistence, migration và centroid drift.
+
+## Phần 10.3 — So sánh khả năng diễn giải
+
+### Mục đích
+
+Xem cluster profile của phương án nào rõ và nhất quán hơn.
+
+Không dùng portfolio performance.
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; nguồn artifact chuẩn hóa.
+
+> Mục đích: Đã ghi diagnostics, profiles, stability và transitions cho từng run.
+>
+> Cách dùng trong nhiệm vụ này: Nhiệm vụ 10 đọc các artifact này của ba phương án, không cần fit lại mô hình chỉ để so sánh.
+
+**\`src/delta_t1/evaluation/cluster_metrics.py\`** — file đã có; nguồn quality.
+
+> Mục đích: Cung cấp định nghĩa/giá trị quality metrics.
+>
+> Cách dùng trong nhiệm vụ này: Tổng hợp median/summary của Silhouette, DB, CH và balance theo phương án.
+
+**\`src/delta_t1/evaluation/temporal_metrics.py\`** — file đã có; nguồn temporal.
+
+> Mục đích: Cung cấp chỉ số ổn định qua thời gian.
+>
+> Cách dùng trong nhiệm vụ này: Tổng hợp ARI, NMI, persistence, migration và centroid drift để so sánh.
+
+**\`src/delta_t1/experiments/reporting.py\`** — file đã có; hỗ trợ xuất kết quả.
+
+> Mục đích: Có các hàm tạo bảng/report/plot từ artifact.
+>
+> Cách dùng trong nhiệm vụ này: Dùng để trình bày bảng so sánh cuối thay vì viết lại logic clustering.
+
+### Cách các file phối hợp
+
+> diagnostics + profiles + stability + transitions của 3 phương án → tổng hợp quality/temporal/interpretability → reporting.py → bảng so sánh/decision evidence.
+
+## Kết quả cần đạt của Nhiệm vụ 10
+
+Bảng so sánh thống nhất giữa các phương án.
+
+# NHIỆM VỤ 11 — MỞ VÀ CHẠY FINAL HOLDOUT
+
+## Mục đích của Nhiệm vụ 11
+
+Kiểm tra xem toàn bộ methodology đã xây dựng và khóa ở development có tiếp tục hoạt động hợp lý trên một giai đoạn dữ liệu mới hay không. Final holdout không dùng để tìm mô hình tốt hơn.
+
+Development  
+→ xây và lựa chọn methodology  
+  
+Final Holdout  
+→ kiểm tra methodology đã khóa
+
+Trước khi mở holdout phải khóa 8 feature, universe rule, minimum eligible threshold, missing policy, outlier policy, scaling, Global K, PCA rule, algorithms, quality metrics và temporal metrics.
+
+Ví dụ nếu Global K = 4:  
+K-Means → K=4  
+Ward → K=4  
+PCA + K-Means → K=4  
+Không thử lại K=2..8 trên holdout.
+
+## Đầu vào của Nhiệm vụ 11
+
+### Final holdout
+
+27/02/2026 → 28/08/2026  
+7 snapshot liên tục
+
+### Methodology đã freeze
+
+Feature: 8 market features  
+Scaling: Robust Scaling theo snapshot  
+Global K: giá trị đã khóa  
+PCA: số component đã khóa  
+Algorithms: K-Means, Ward, PCA + K-Means
+
+## Phần 11.1 — Chỉ mở holdout sau khi development freeze
+
+### Mục đích
+
+Ngăn holdout ảnh hưởng đến quá trình lựa chọn methodology.
+
+Development hoàn tất → Global K khóa → Preprocessing khóa → PCA khóa → Algorithm khóa → Development artifact freeze → mới mở holdout.
+
+## Phần 11.2 — Lấy snapshot holdout đầu tiên
+
+### Mục đích
+
+Tạo dữ liệu đầu vào holdout theo đúng rule development.
+
+Ví dụ 27/02/2026 → lọc universe tại đúng ngày này → lấy 8 feature → kiểm tra hợp lệ → kiểm tra số mã \>=120. Không dùng 905 mã của 08/2026 áp cho tháng 02/2026.
+
+## Phần 11.3 — Chuẩn hóa snapshot holdout
+
+### Mục đích
+
+Giữ nguyên preprocessing đã freeze.
+
+Với mỗi snapshot, tính Median và IQR của chính snapshot đó rồi Robust Scaling. Development và holdout đều dùng snapshot-fit. Không dùng một scaler chung của toàn development và không đổi sang Z-score.
+
+## Phần 11.4 — Chạy K-Means trên holdout
+
+### Mục đích
+
+Kiểm tra baseline K-Means trên dữ liệu mới.
+
+snapshot → lọc universe → 8 feature → Robust Scaling → K-Means Global K → assignment → centroid → profile → quality metrics. Không thử K khác.
+
+## Phần 11.5 — Chạy Ward trên holdout
+
+### Mục đích
+
+Kiểm tra Ward trên cùng điều kiện.
+
+snapshot → same universe → same 8 feature → same scaling rule → Ward → Global K → assignment → metrics.
+
+## Phần 11.6 — Chạy PCA + K-Means trên holdout
+
+### Mục đích
+
+Kiểm tra nhánh giảm chiều đã freeze.
+
+snapshot → 8 feature → Robust Scaling → PCA theo rule đã khóa → K-Means Global K. Không dùng holdout để chọn lại số PCA components.
+
+## Phần 11.7 — Lặp lại cho toàn bộ 7 snapshot
+
+### Mục đích
+
+Đánh giá methodology trên toàn holdout.
+
+Mỗi snapshot: lọc universe → lấy 8 feature → fit RobustScaler riêng → chạy 3 phương án → lưu output.
+
+## Phần 11.8 — Đánh giá quality từng snapshot holdout
+
+### Mục đích
+
+Kiểm tra chất lượng phân cụm trên dữ liệu mới.
+
+Tính Silhouette, DB, CH, balance và inertia khi phù hợp cho từng snapshot × phương án.
+
+## Phần 11.9 — Phân tích cluster profile holdout
+
+### Mục đích
+
+Kiểm tra các cụm trên dữ liệu mới còn có ý nghĩa và dễ diễn giải không.
+
+Nếu profile thay đổi mạnh thì ghi nhận, phân tích và đưa vào limitations; không retune.
+
+## Phần 11.10 — Temporal stability trong holdout
+
+### Mục đích
+
+Kiểm tra sự ổn định giữa các tháng holdout.
+
+Tính ARI, NMI, persistence, migration, transition matrix, centroid drift và entry/exit cho các cặp tháng liên tiếp trong holdout.
+
+## Phần 11.11 — Không nối development sang holdout qua gap
+
+### Mục đích
+
+Không tạo sự liên tục giả.
+
+Development kết thúc khoảng 01/2025, holdout bắt đầu 02/2026; không tính 01/2025 → 02/2026 như hai tháng liên tiếp. Phải reset temporal chain.
+
+## Phần 11.12 — So sánh development và holdout
+
+### Mục đích
+
+Đánh giá độ bền của methodology.
+
+So sánh median Silhouette, median DB, balance, ARI/NMI, migration và cluster profiles. Đây là đánh giá, không phải tuning.
+
+## Phần 11.13 — Nếu holdout cho kết quả xấu
+
+### Mục đích
+
+Đảm bảo holdout không bị biến thành development thứ hai.
+
+Nếu Silhouette giảm, DB tăng, ARI thấp hoặc migration cao thì giữ nguyên kết quả, phân tích nguyên nhân và báo cáo limitation. Không đổi K, scaler hay PCA rồi chạy lại. Nếu thay methodology thì tạo Protocol v2.
+
+## Phần 11.14 — Ví dụ toàn bộ một snapshot holdout
+
+### Mục đích
+
+Giúp thành viên hình dung một vòng chạy hoàn chỉnh.
+
+Ví dụ Global K=4, PCA=4 components: 27/02/2026 → universe hợp lệ → 8 feature → Robust Scaling riêng snapshot → K-Means K=4 / Ward K=4 / PCA 4 components → K-Means K=4 → lưu assignment, profile, metrics.
+
+## Phần 11.15 — Output từng snapshot holdout
+
+### Mục đích
+
+Đảm bảo output holdout tương thích với development.
+
+Lưu snapshot date, số mã đủ điều kiện, danh sách mã, Median, IQR, scaler parameters, PCA parameters, explained variance nếu có, assignments, cluster sizes, centroid/profile và quality metrics.
+
+## Phần 11.16 — Output toàn holdout
+
+### Mục đích
+
+Tạo evidence hoàn chỉnh cho M2-VERIFY.
+
+Cần có assignments của 7 snapshot, cluster profiles, quality metrics, aggregate metrics, ARI, NMI, persistence, migration, transition matrices, centroid drift, entry/exit, PCA information, skipped snapshot reasons nếu có, manifest và hashes.
+
+| **Snapshot** | **Phương án** | **Silhouette** | **DB** | **CH** | **Balance** |
+|--------------|---------------|----------------|--------|--------|-------------|
+| 02/2026      | K-Means       | ...            | ...    | ...    | ...         |
+| 02/2026      | Ward          | ...            | ...    | ...    | ...         |
+| 02/2026      | PCA + K-Means | ...            | ...    | ...    | ...         |
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/experiments/protocol.py\`** — file đã có; kiểm tra protocol đã freeze.
+
+> Mục đích: Ngăn holdout chạy với config khác rule development.
+>
+> Cách dùng trong nhiệm vụ này: Validate config trước khi mở/chạy holdout.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; điều phối 7 snapshot holdout.
+
+> Mục đích: Tái sử dụng pipeline đã kiểm thử ở development.
+>
+> Cách dùng trong nhiệm vụ này: Đọc holdout window từ config, lọc snapshot, gọi final method và lưu artifact.
+
+**\`src/delta_t1/clustering/base.py\`** — file đã có; xử lý từng holdout snapshot.
+
+> Mục đích: Giữ cùng eligibility/preprocessing/output contract.
+>
+> Cách dùng trong nhiệm vụ này: Mỗi snapshot được lọc, scale và fit độc lập đúng rule.
+
+**\`src/delta_t1/features/preprocessing.py\`** — file đã có; preprocessing đã freeze.
+
+> Mục đích: Áp dụng Robust Scaling và PCA nếu final method cần.
+>
+> Cách dùng trong nhiệm vụ này: Không đổi scaler và không chọn lại PCA component trên holdout.
+
+**\`src/delta_t1/clustering/kmeans.py\` / \`src/delta_t1/clustering/hierarchical.py\`** — file đã có; chỉ dùng file phù hợp final method.
+
+> Mục đích: Thực hiện thuật toán đã được khóa sau development.
+>
+> Cách dùng trong nhiệm vụ này: Nếu final method là K-Means thì gọi kmeans.py; nếu Ward thì gọi hierarchical.py; nếu PCA+KMeans thì preprocessing.py PCA rồi kmeans.py.
+
+**\`src/delta_t1/evaluation/cluster_metrics.py\` và \`src/delta_t1/evaluation/temporal_metrics.py\`** — file đã có; chỉ dùng để đánh giá.
+
+> Mục đích: Đo quality và temporal stability trên dữ liệu mới.
+>
+> Cách dùng trong nhiệm vụ này: Không dùng kết quả holdout để retune K, scaler, PCA hay thuật toán.
+
+### Cách các file phối hợp
+
+> frozen config → protocol.py → runner.py → base.py → preprocessing.py → final algorithm → cluster_metrics + temporal_metrics → holdout artifact; không retune.
+
+## Kết quả cần đạt của Nhiệm vụ 11
+
+- methodology có chạy được trên dữ liệu mới không;
+
+- chất lượng holdout thay đổi thế nào so với development;
+
+- cluster profile còn rõ không;
+
+- temporal stability có ổn định không;
+
+- ba phương án có hành vi tương tự development không;
+
+- có hạn chế mới nào xuất hiện không.
+
+Không dùng các câu trả lời trên để retune Protocol v1.
+
+## Vị trí trong repo
+
+- DELTA_UNIFIED_PROJECT_PLAN.md §6.2, §6.6, §6.7, §6.8, §9
+
+- EXPERIMENT_PROTOCOL.md
+
+- METHODOLOGY.md
+
+- m2-prep-v1/holdout_candidates.csv
+
+# NHIỆM VỤ 12 — M2 VERIFY
+
+## Mục đích của Nhiệm vụ 12
+
+Kiểm tra toàn bộ M2 đã thực hiện đúng methodology, không leakage và có thể tái lập.
+
+## Phần 12.1 — Kiểm tra config và input
+
+### Mục đích
+
+Đảm bảo đúng version dữ liệu và đúng config.
+
+Kiểm tra input hash, config hash và output hash.
+
+## Phần 12.2 — Kiểm tra Global K
+
+### Mục đích
+
+Đảm bảo Global K được chọn đúng rule và không thay đổi sau development.
+
+Đối chiếu decision artifact với các run chính thức.
+
+## Phần 12.3 — Kiểm tra leakage
+
+### Mục đích
+
+Đảm bảo không dùng future data, holdout hoặc portfolio performance để tuning M2.
+
+Audit development/holdout boundary và các trường dữ liệu.
+
+## Phần 12.4 — Kiểm tra temporal gaps
+
+### Mục đích
+
+Đảm bảo temporal chain reset đúng.
+
+Không nối qua các gap đã xác định.
+
+## Phần 12.5 — Kiểm tra reproducibility
+
+### Mục đích
+
+Đảm bảo chạy lại trên fixture giới hạn cho kết quả xác định.
+
+Rerun bounded fixture và đối chiếu output.
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/experiments/artifacts.py\`** — file đã có; quản lý artifact/manifest.
+
+> Mục đích: Runner dùng file này để mở, hoàn tất và xác thực data/experiment run.
+>
+> Cách dùng trong nhiệm vụ này: Đối chiếu manifest, run lineage và input đã verified.
+
+**\`src/delta_t1/experiments/protocol.py\`** — file đã có; kiểm tra config.
+
+> Mục đích: Xác nhận run dùng đúng protocol đã freeze.
+>
+> Cách dùng trong nhiệm vụ này: So sánh config thực tế với rule M2 v1 và decision artifacts.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; nguồn evidence của run.
+
+> Mục đích: Tạo events, manifest, số snapshot, assignments và trạng thái complete/failed.
+>
+> Cách dùng trong nhiệm vụ này: Dùng các artifact runner sinh ra để audit leakage, gap và số liệu đầu ra.
+
+**Các test hiện có trong repo** — dùng để kiểm tra reproducibility và integration.
+
+> Mục đích: Chứng minh cùng input/config cho kết quả xác định và market-only rule hoạt động đúng.
+>
+> Cách dùng trong nhiệm vụ này: Chạy unit/integration test cho eligibility, terminal-universe, temporal gap và deterministic rerun; nếu thiếu test thì bổ sung test tương ứng.
+
+### Cách các file phối hợp
+
+> config + decision artifacts + manifest + events + hashes + tests → artifacts.py/protocol.py/runner outputs → audit → verify status + evidence.
+
+## Kết quả cần đạt của Nhiệm vụ 12
+
+- verify status;
+
+- evidence đầy đủ;
+
+- không có methodology violation.
+
+# NHIỆM VỤ 13 — BÁO CÁO VÀ BÀN GIAO M3
+
+## Mục đích của Nhiệm vụ 13
+
+Tổng hợp toàn bộ M2 thành tài liệu để mentor hoặc nhóm M3 có thể tiếp nhận trực tiếp.
+
+## Phần 13.1 — Báo cáo protocol
+
+### Mục đích
+
+Cho biết M2 được thực hiện theo quy tắc nào.
+
+Gồm development, holdout, feature, scaling, Global K, PCA và algorithms.
+
+## Phần 13.2 — Báo cáo Global K selection
+
+### Mục đích
+
+Chứng minh K không được chọn tùy ý.
+
+Thể hiện K=2..8 → metric từng snapshot → aggregate theo K → Global K.
+
+## Phần 13.3 — Báo cáo từng phương án
+
+### Mục đích
+
+Trình bày đầy đủ kết quả của K-Means, Ward và PCA + K-Means.
+
+Bao gồm assignments, profiles và metrics.
+
+## Phần 13.4 — Báo cáo temporal stability
+
+### Mục đích
+
+Trình bày sự thay đổi cụm theo thời gian.
+
+Tổng hợp ARI, NMI, persistence, migration, transitions và centroid drift.
+
+## Phần 13.5 — Báo cáo holdout
+
+### Mục đích
+
+Thể hiện methodology hoạt động thế nào trên giai đoạn chưa dùng để tuning.
+
+Bao gồm quality holdout, temporal holdout, development vs holdout và limitations.
+
+## Phần 13.6 — Báo cáo hạn chế
+
+### Mục đích
+
+Tránh overclaim.
+
+Phải ghi rõ M2 là market-only experiment, independent monthly clustering chưa phải Dynamic Clustering, DBSCAN chưa thuộc M2 v1, GMM chưa hoàn thiện và M2 chưa đánh giá hiệu quả đầu tư.
+
+## File code sử dụng trong nhiệm vụ và cách dùng
+
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**\`src/delta_t1/experiments/reporting.py\`** — file đã có; file chính hỗ trợ báo cáo.
+
+> Mục đích: Cung cấp hàm tạo bảng CSV, plot và report.
+>
+> Cách dùng trong nhiệm vụ này: Đọc artifact đã verify và tạo báo cáo, không chạy lại clustering.
+
+**\`src/delta_t1/experiments/runner.py\`** — file đã có; nguồn report/manifest gốc.
+
+> Mục đích: Mỗi experiment run đã có report/manifest và các artifact liên quan.
+>
+> Cách dùng trong nhiệm vụ này: Dùng chúng làm evidence cho báo cáo tổng M2.
+
+**\`assignments.jsonl\`, \`profiles.jsonl\`, \`diagnostics.jsonl\`, \`stability.jsonl\`, \`transitions.jsonl\`, \`models/\`, manifest** — artifact do runner tạo; không phải file code.
+
+> Mục đích: Là dữ liệu thực tế để báo cáo Global K, cluster profile, temporal stability và holdout.
+>
+> Cách dùng trong nhiệm vụ này: Đọc và tổng hợp; không chỉnh sửa trực tiếp artifact đã hoàn tất.
+
+**Các tài liệu trong \`docs/\` như \`DELTA_UNIFIED_PROJECT_PLAN.md\`, \`METHODOLOGY.md\`, \`EXPERIMENT_PROTOCOL.md\`** — tài liệu phương pháp.
+
+> Mục đích: Giúp mô tả đúng protocol, giới hạn và phạm vi M2.
+>
+> Cách dùng trong nhiệm vụ này: Đối chiếu nội dung báo cáo với methodology đã freeze để tránh báo cáo khác với cách thực nghiệm thực sự.
+
+### Cách các file phối hợp
+
+> verified artifacts + protocol docs → reporting.py → report/notebook/handoff M3.
+
+## Kết quả cần đạt của Nhiệm vụ 13
+
+- report;
+
+- notebook;
+
+- methodology description;
+
+- selected Global K;
+
+- comparator results;
+
+- cluster profiles;
+
+- temporal results;
+
+- holdout results;
+
+- limitations;
+
+- handoff package M3.
+
+# Cách phân công thành viên
+
+## Mục đích
+
+Làm rõ phần nào phải hoàn thành chung trước khi chia người.
+
+Nhiệm vụ 1 → Freeze protocol  
+↓  
+Nhiệm vụ 2 → Runner  
+↓  
+Nhiệm vụ 3 → Global K  
+↓  
+Sau khi Global K khóa mới chia phương án
+
+Thành viên A phụ trách Nhiệm vụ 4 – K-Means. Thành viên B phụ trách Nhiệm vụ 5 – Ward. Thành viên C phụ trách Nhiệm vụ 6 – PCA + K-Means. Mỗi người chạy pipeline phương án của mình từ đầu đến cuối.
+
+Sau đó nhóm tổng hợp Nhiệm vụ 7 → 8 → 9 → 10 → 11 → 12 → 13.
+
+# Workflow cuối cùng của M2
+
+M1 feature snapshots  
+↓  
+NHIỆM VỤ 1 – Freeze protocol  
+↓  
+NHIỆM VỤ 2 – Build/test runner  
+↓  
+NHIỆM VỤ 3 – K-Means K=2..8 trên development  
+↓  
+Aggregate metrics  
+↓  
+Chọn GLOBAL K  
+↓  
+Khóa GLOBAL K  
+↓  
+K-Means / Ward / PCA + K-Means  
+↓  
+NHIỆM VỤ 7 – Quality evaluation  
+↓  
+NHIỆM VỤ 8 – Cluster profiles  
+↓  
+NHIỆM VỤ 9 – Temporal stability  
+↓  
+NHIỆM VỤ 10 – So sánh phương án  
+↓  
+NHIỆM VỤ 11 – Final Holdout  
+↓  
+NHIỆM VỤ 12 – Verify  
+↓  
+NHIỆM VỤ 13 – Report / Handoff M3
+
+Điểm quan trọng nhất: Nhiệm vụ 1–3 là phần chung để thống nhất methodology và chọn Global K. Sau đó mới chia người theo từng phương án. Mỗi snapshot được lọc, chuẩn hóa và phân cụm riêng; Global K và methodology được khóa chung. Final holdout chỉ được mở sau khi development hoàn tất và không được dùng để tiếp tục tuning Protocol v1.
+
+# PHẦN BỔ SUNG – SO SÁNH VÀ CHỌN PHƯƠNG ÁN PHÂN CỤM CUỐI CÙNG
+
+Bổ sung từ GPT – cần mentor/owner phê duyệt. Phần này chưa phải quyết định methodology đã được freeze trong repo hiện tại. Lý do bổ sung: kiến trúc của DELTA hướng tới việc khóa methodology trước khi mở final holdout và trước M3, nhưng repo hiện chưa quy định chi tiết cách chọn một phương án cuối cùng giữa K-Means, Ward và PCA + K-Means.
+
+## Mục đích của phần bổ sung
+
+Mục đích là xác định một phương án phân cụm chính thức sau khi ba phương án đã được chạy và đánh giá trên development. Phương án được chọn sẽ trở thành final method để tiếp tục sang final holdout, M2-VERIFY, báo cáo cuối và M3.
+
+Hai phương án còn lại không bị loại khỏi báo cáo. Chúng vẫn được giữ như các phương án đối chứng để chứng minh quá trình so sánh và lý do lựa chọn final method.
+
+## Vị trí của bước chọn phương án trong workflow
+
+Bước lựa chọn phải diễn ra sau khi hoàn thành Nhiệm vụ 10 – So sánh các phương án và trước khi mở Nhiệm vụ 11 – Final Holdout.
+
+Development  
+↓  
+K-Means / Ward / PCA + K-Means  
+↓  
+Nhiệm vụ 7 – Quality  
+↓  
+Nhiệm vụ 8 – Cluster profile  
+↓  
+Nhiệm vụ 9 – Temporal stability  
+↓  
+Nhiệm vụ 10 – So sánh 3 phương án  
+↓  
+CHỌN 1 FINAL METHOD  
+↓  
+KHÓA FINAL METHOD  
+↓  
+Nhiệm vụ 11 – Final Holdout  
+↓  
+Nhiệm vụ 12 – Verify  
+↓  
+Nhiệm vụ 13 – Report / Handoff M3
+
+## Nguyên tắc bắt buộc khi lựa chọn
+
+Việc chọn phương án chỉ được dựa trên kết quả development. Final holdout không được mở trước khi final method đã được quyết định và khóa.
+
+- Không dùng future return, CAGR, Sharpe, Sortino, ROI, Calmar, alpha hoặc kết quả backtest để chọn thuật toán M2.
+
+- Không nhìn kết quả holdout rồi quay lại chọn phương án khác.
+
+- Không thay đổi feature set, Global K, scaling hoặc PCA rule riêng cho từng phương án chỉ để cải thiện kết quả so sánh.
+
+- Các phương án phải được so sánh trên cùng development window, cùng universe rule, cùng 8 feature và cùng Global K.
+
+- Quy tắc lựa chọn phải được ghi lại trước khi quyết định final method; nếu thay đổi rule sau khi xem kết quả thì phải tạo protocol/version mới.
+
+## Các nhóm tiêu chí dùng để chọn phương án
+
+Không nên chọn phương án chỉ bằng một chỉ số duy nhất. Nên đánh giá theo thứ tự ưu tiên: chất lượng phân cụm → độ ổn định theo thời gian → cân bằng và khả năng diễn giải → độ đơn giản của phương pháp.
+
+| **Ưu tiên** | **Nhóm tiêu chí**               | **Chỉ số / bằng chứng**                          | **Mục đích**                                                         | **Vai trò**      |
+|-------------|---------------------------------|--------------------------------------------------|----------------------------------------------------------------------|------------------|
+| 1           | Chất lượng phân cụm             | Silhouette, Davies–Bouldin, Calinski–Harabasz    | Đánh giá cụm có rõ, gọn và tách biệt hay không                       | Tiêu chí chính   |
+| 2           | Ổn định theo thời gian          | ARI, NMI, persistence, migration, centroid drift | Đánh giá cấu trúc cụm có ổn định giữa các tháng hay không            | Tiêu chí thứ hai |
+| 3           | Cân bằng cụm                    | Cluster size / balance                           | Phát hiện cụm quá lớn hoặc quá nhỏ bất thường                        | Sanity check     |
+| 4           | Khả năng diễn giải              | Cluster profile trên 8 feature gốc               | Xem cụm có thể giải thích bằng momentum – risk – liquidity hay không | Tiêu chí hỗ trợ  |
+| 5           | Độ đơn giản và khả năng tái lập | Số bước, số tham số, reproducibility             | Ưu tiên phương pháp đơn giản hơn khi hiệu quả gần tương đương        | Tie-break cuối   |
+
+## Tiêu chí 1 – Chất lượng phân cụm
+
+### Mục đích
+
+Đánh giá phương án nào tạo ra cấu trúc cụm rõ ràng và tách biệt tốt hơn trên toàn development.
+
+### Cách đánh giá
+
+Tổng hợp metric của từng phương án trên tất cả snapshot development, ưu tiên median thay vì chỉ nhìn một tháng riêng lẻ.
+
+- Silhouette: cao hơn thường tốt hơn và nên là chỉ số chính.
+
+- Davies–Bouldin: thấp hơn thường tốt hơn và dùng để xác nhận kết quả Silhouette.
+
+- Calinski–Harabasz: dùng làm chỉ số bổ sung, không nên tự mình quyết định phương án cuối.
+
+- Inertia: chỉ phù hợp trực tiếp với K-Means, vì vậy không dùng để so sánh công bằng giữa tất cả các phương án.
+
+## Tiêu chí 2 – Độ ổn định theo thời gian
+
+### Mục đích
+
+Đề tài không chỉ cần phân cụm tốt ở một tháng mà còn nghiên cứu sự dịch chuyển của cổ phiếu qua thời gian. Vì vậy một phương án có chất lượng cụm tốt nhưng thay đổi hỗn loạn giữa các tháng cần được xem xét cẩn thận.
+
+### Các chỉ số cần xem
+
+- ARI và NMI: mức tương đồng giữa hai snapshot liên tiếp.
+
+- Persistence probability: tỷ lệ cổ phiếu duy trì cụm tương ứng.
+
+- Migration rate: tỷ lệ cổ phiếu chuyển cụm.
+
+- Transition matrix: hướng chuyển dịch giữa các cụm.
+
+- Centroid drift: mức thay đổi đặc trưng đại diện của cụm theo thời gian.
+
+Temporal stability là tiêu chí thứ hai. Không nên tự động chọn phương án có ARI cao nhất nếu chất lượng phân cụm của phương án đó thấp rõ rệt.
+
+## Tiêu chí 3 – Cân bằng cụm
+
+### Mục đích
+
+Phát hiện các phương án thường xuyên sinh ra cụm cực nhỏ hoặc cực lớn, gây khó cho diễn giải, temporal tracking và M3.
+
+Không yêu cầu các cụm phải có kích thước bằng nhau. Cluster balance chỉ là kiểm tra bất thường, không phải tiêu chí chính để chọn final method.
+
+Ví dụ cần cảnh giác:  
+Cluster 0: 350 mã  
+Cluster 1: 6 mã  
+Cluster 2: 4 mã  
+Cluster 3: 2 mã
+
+## Tiêu chí 4 – Khả năng diễn giải cluster profile
+
+### Mục đích
+
+Đảm bảo kết quả phân cụm có thể được giải thích bằng các đặc trưng gốc của đề tài và có thể trình bày trong luận văn/dashboard.
+
+Một cluster profile tốt cần cho thấy sự khác biệt có ý nghĩa giữa các cụm, ví dụ:
+
+Cụm A  
+→ momentum cao  
+→ volatility thấp  
+→ MDD thấp  
+→ liquidity cao  
+  
+Cụm B  
+→ momentum thấp/âm  
+→ volatility cao  
+→ MDD lớn
+
+Đối với PCA + K-Means, cần đặc biệt kiểm tra khả năng quay lại giải thích bằng 8 feature gốc. Nếu metric chỉ cải thiện rất nhỏ nhưng diễn giải trở nên khó hơn đáng kể thì đây là một trade-off cần ghi nhận.
+
+## Tiêu chí 5 – Độ đơn giản và khả năng tái lập
+
+### Mục đích
+
+Dùng làm tiêu chí phá hòa khi hai hoặc nhiều phương án có kết quả gần tương đương.
+
+Nếu chất lượng cụm, temporal stability và khả năng diễn giải gần nhau, ưu tiên phương án có pipeline đơn giản hơn, ít tham số hơn và dễ tái lập hơn.
+
+Ví dụ:  
+K-Means: 8 feature → scale → clustering  
+  
+PCA + K-Means: 8 feature → scale → PCA → clustering  
+  
+Nếu kết quả gần tương đương, K-Means có lợi thế về độ đơn giản và khả năng giải thích.
+
+## Quy trình lựa chọn final method đề xuất
+
+Bổ sung từ GPT – đây là rule đề xuất, cần được mentor/owner phê duyệt và freeze trước khi áp dụng.
+
+1\. Kiểm tra điều kiện hợp lệ: loại khỏi quá trình lựa chọn bất kỳ phương án nào vi phạm protocol, lỗi reproducibility hoặc có artifact không đầy đủ.
+
+2\. So sánh Median Silhouette của ba phương án trên toàn development.
+
+3\. Dùng Median Davies–Bouldin để xác nhận. Nếu hai metric cùng chỉ về một phương án và chênh lệch đủ rõ về mặt thực nghiệm thì phương án đó là ứng viên chính.
+
+4\. Nếu chất lượng phân cụm gần nhau, so sánh temporal stability bằng ARI, NMI, persistence, migration và centroid drift.
+
+5\. Nếu vẫn gần nhau, xem cluster balance và khả năng diễn giải profile trên 8 feature gốc.
+
+6\. Nếu vẫn tương đương, chọn phương án đơn giản hơn và dễ tái lập hơn.
+
+7\. Ghi decision artifact nêu rõ dữ liệu development, metric đã dùng, kết quả so sánh, lý do chọn và final method.
+
+8\. Khóa final method trước khi mở final holdout.
+
+## Không nên dùng một điểm tổng hợp có trọng số tùy ý
+
+Không khuyến nghị tự tạo một điểm tổng hợp như 40% Silhouette + 30% ARI + 20% balance + 10% interpretability nếu chưa có căn cứ và chưa pre-register. Trọng số như vậy dễ trở thành quyết định chủ quan sau khi nhìn kết quả.
+
+Thay vào đó, nên dùng quy trình lựa chọn theo thứ tự ưu tiên đã nêu ở trên.
+
+## Ví dụ minh họa cách lựa chọn
+
+Ví dụ giả định sau development có kết quả:
+
+| **Phương án** | **Median Silhouette ↑** | **Median DB ↓** | **Median ARI ↑** | **Migration ↓** | **Diễn giải** |
+|---------------|-------------------------|-----------------|------------------|-----------------|---------------|
+| K-Means       | 0.46                    | 0.82            | 0.61             | 30%             | Rõ            |
+| Ward          | 0.50                    | 0.75            | 0.67             | 24%             | Rõ            |
+| PCA + K-Means | 0.48                    | 0.79            | 0.71             | 20%             | Khá rõ        |
+
+Trong ví dụ này, Ward có chất lượng phân cụm tốt hơn theo cả Silhouette và Davies–Bouldin, đồng thời temporal stability cũng tốt. Nếu rule đã được freeze theo thứ tự ưu tiên ở trên, Ward sẽ là ứng viên final method. Tuy nhiên đây chỉ là ví dụ minh họa, không phải kết luận cho dữ liệu thật.
+
+## Output của bước chọn phương án
+
+Sau bước này phải tạo được một decision artifact tối thiểu gồm:
+
+- tên ba phương án đã so sánh;
+
+- development window và Global K đã sử dụng;
+
+- bảng quality metrics theo phương án;
+
+- bảng temporal metrics theo phương án;
+
+- cluster balance và profile summary;
+
+- quy tắc lựa chọn đã freeze;
+
+- final method được chọn;
+
+- lý do lựa chọn;
+
+- config/hash/version liên quan.
+
+## Ảnh hưởng đến Nhiệm vụ 11 trở đi nếu phần bổ sung được phê duyệt
+
+Nếu quyết định chọn một final method được chấp thuận, từ Nhiệm vụ 11 trở đi không tiếp tục chạy cả ba phương án như ba ứng viên ngang nhau.
+
+Nhiệm vụ 10  
+→ so sánh 3 phương án  
+→ chọn FINAL METHOD  
+→ khóa FINAL METHOD  
+  
+Nhiệm vụ 11 – Final Holdout  
+→ chỉ chạy final method đã chọn  
+  
+Nhiệm vụ 12 – M2 Verify  
+→ verify final method và decision lineage  
+  
+Nhiệm vụ 13 – Report / Handoff M3  
+→ final method là phương pháp chính thức chuyển sang M3  
+→ hai phương án còn lại được giữ trong báo cáo dưới vai trò comparator
+
+## Nguyên tắc đối với final holdout
+
+Final holdout chỉ dùng để đánh giá phương án đã được chọn. Không được chạy ba phương án trên holdout rồi dùng kết quả holdout để thay đổi final method, vì như vậy holdout đã tham gia vào model selection.
+
+Nếu final method cho kết quả không tốt trên holdout, phải giữ nguyên kết quả, ghi nhận limitation và phân tích nguyên nhân. Nếu muốn thay methodology thì phải tạo protocol/experiment version mới thay vì sửa Protocol v1.
+
+## Kết luận của phần bổ sung
+
+Nếu mục tiêu của M2 là bàn giao một clustering methodology chính thức sang M3 và dashboard, nên chọn một final method sau khi so sánh ba phương án trên development. Việc lựa chọn nên ưu tiên: chất lượng phân cụm → độ ổn định theo thời gian → cân bằng/khả năng diễn giải → độ đơn giản. Final holdout chỉ được mở sau khi final method đã khóa và chỉ dùng để kiểm tra phương án đó.

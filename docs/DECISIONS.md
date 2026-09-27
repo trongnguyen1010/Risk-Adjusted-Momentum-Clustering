@@ -50,6 +50,8 @@ Cập nhật 26/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-044 | **M2 market-only eligibility freeze:** `market_experiment_eligible(t) = market_feature_ready_v2(t)` tại cùng snapshot; legacy `eligibility`, tradability, historical identity và research readiness giữ tách biệt. Latest 905 không được retrospective-filter. |
 | ADR-045 | **Monthly readiness diagnosis:** gap VNINDEX `2023-05-15` lan qua `beta_126` gây zero readiness 2023-05..10; 0 canonical equity rows tại open session `2025-02-03` lan qua strict `mom_252` gây zero readiness 2025-02..2026-01. Giữ missing, không impute/timeline-compress. |
 | ADR-046 | **M2-PREP v1 status:** feature set, no-imputation, portfolio firewall và Dynamic `NOT APPROVED` được khóa; development/holdout, coverage/skip rules, `k`, outlier/scaling, PCA components và feature-version resolution cần owner/mentor review. Không tạo final M2 config; status `MANUAL_REVIEW_REQUIRED`. |
+| ADR-047 | **M2 Task 1 protocol freeze:** owner phê duyệt 15 development snapshots `2023-11-30..2025-01-24`, niêm phong 7 holdout snapshots `2026-02-27..2026-08-28`, skip khi `n_eligible < 120`, đúng 8 market features, no-imputation/no-clipping, Robust Scaling fit riêng từng snapshot và `k=2..8`. Global K chỉ chọn trên development bằng median Silhouette rồi median Davies–Bouldin; CH/balance chỉ supporting checks, return/Sharpe/ROI bị cấm. PCA chỉ là comparator `PCA + K-Means`; `portfolio_evaluation.enabled=false`. C8 feature `1.6.0` dùng scoped compatibility với registry metadata `1.5.0`, không mutate evidence. Config: `configs/experiments/m2_market_only_v1.json`. |
+| ADR-048 | **M2 Task 2 runner adapter:** market-only runner được phép đọc duy nhất checksummed C8 `canonical/feature_snapshots.jsonl` mà không áp strict historical-identity gate của M3. Vì C8 v2 lưu field vật lý `market_feature_ready`, adapter tạo alias in-memory `market_feature_ready_v2` theo frozen config; không mutate evidence, không fallback sang legacy `eligibility`. Lọc theo từng snapshot, 8 feature phải numeric finite, `n_eligible < 120` thì skip. Nhiệm vụ 2 chỉ preparation/testing, không fit Global K, mở holdout hay backtest. |
 
 ## Open decisions
 
@@ -60,8 +62,8 @@ Cập nhật 26/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | OPEN-03 | CafeF/VietFin/Vnstock rights, endpoint semantics, field mappings/multipliers và source-priority approval |
 | OPEN-04 | Historical universe/delisted security master authority |
 | OPEN-05 | Financial feature taxonomy, sector treatment và citations |
-| OPEN-06 | Final development/validation/holdout và purging/embargo |
-| OPEN-07 | Comparator set và PCA protocol |
+| OPEN-06 | Purging/embargo cho strict research/M3 nếu protocol tương lai cần |
+| OPEN-07 | PCA component rule phải preregister trước khi thực thi comparator; vai trò PCA trong M2 v1 đã khóa là comparator-only |
 | OPEN-08 | Final portfolio universe/ranking/tie policy |
 | OPEN-09 | Authority, history coverage và field semantics cho listed/outstanding/issued/treasury shares |
 | OPEN-10 | Approved usable-density và final research sample-size threshold cho clustering universe |

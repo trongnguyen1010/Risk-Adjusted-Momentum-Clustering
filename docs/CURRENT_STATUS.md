@@ -90,6 +90,40 @@ Hai discontinuity hệ thống được giải thích từ evidence hiện có:
 
 Latest snapshot vẫn tái lập đúng `market_experiment_eligible=905/952`, với membership tính độc lập ở từng tháng; historical identity và research readiness vẫn bằng 0.
 
+## M2 Nhiệm vụ 1 — protocol freeze
+
+Owner đã phê duyệt và khóa protocol market-only v1 trong
+`configs/experiments/m2_market_only_v1.json`: 15 development snapshots
+`2023-11-30..2025-01-24`, 7 holdout snapshots niêm phong
+`2026-02-27..2026-08-28`, minimum eligibility 120, 8 market features,
+fail-closed missing, no clipping/winsorization, Robust Scaling theo từng snapshot
+và `k_range=2..8`. Global K chỉ được chọn trên development bằng
+cluster-quality metrics; `portfolio_evaluation.enabled=false`. PCA chỉ là
+comparator độc lập, không phải preprocessing chung. Chưa fit model,
+không mở holdout, không backtest và không thay data/evidence.
+
+Acceptance gate sau khi phục hồi đúng immutable C5 local artifact: C5 manifest
+SHA-256 `869512c66fceee02f9b5801af3c24724309b508013a607158085dd7e9b50d256`,
+20/20 C5 output hashes khớp và full repository suite 173/173 tests pass.
+Ba file recovery WIP untracked ngoài active R1 tree được giữ nguyên trong
+`tmp/full_recovery_wip_20260926/`; không phục hồi recovery stack superseded.
+
+## M2 Nhiệm vụ 2 — runner preparation/testing
+
+Runner market-only đã có adapter xác minh checksum và đọc trực tiếp
+`canonical/feature_snapshots.jsonl` của C8 mà không đi qua strict historical-identity
+gate dành cho M3. Adapter chỉ tạo alias in-memory
+`market_feature_ready_v2 = market_feature_ready` cho C8 v2, không mutate artifact;
+legacy `eligibility` không được dùng thay thế.
+
+Snapshot `2023-11-30` tái lập đúng 142 securities eligible. Runner kiểm tra
+đúng 8 feature là numeric finite, skip khi `n_eligible < 120`, và output được
+common `build_snapshot` interface chấp nhận. Terminal-universe guard dùng snapshot
+membership độc lập, không retrospective-filter. Nhiệm vụ này không chạy
+Global K, không mở holdout và không backtest.
+
 ## Stage tiếp theo
 
-**M2-PREP-REVIEW — OWNER/MENTOR METHODOLOGY DECISIONS**: chọn development window và final-holdout boundary; freeze minimum snapshot/cross-section rule, skipped-month policy, `k` policy, outlier/scaling policy, PCA component rule và giải quyết feature-version metadata. Sau approval mới được sửa runner/input adapter, tạo final config và cân nhắc M2-EXEC. Không tự động bắt đầu stage này.
+**M2 Nhiệm vụ 3 — GLOBAL K TRÊN DEVELOPMENT**: chạy K-Means
+`k=2..8` trên đúng 15 development snapshots theo protocol đã freeze. Không
+tự động bắt đầu Nhiệm vụ 3, không mở holdout và không backtest.

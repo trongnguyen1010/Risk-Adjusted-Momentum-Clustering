@@ -22,7 +22,9 @@ Supplemental acquisition cho 148 deferred rows là optional future stage, không
 - [x] Static K-Means deterministic baseline và label alignment/transition tracking.
 - [x] Tách cluster quality khỏi temporal/portfolio metrics ở architecture.
 - [x] **M2-PREP audit:** freeze eligibility semantics/feature set/firewall; tái lập 905/952; giải thích readiness gaps; audit implementation/literature và xuất `artifacts/experiments/m2-prep-v1/`. Status `MANUAL_REVIEW_REQUIRED`; không tạo final config hoặc chạy clustering.
-- [ ] **M2-PREP-REVIEW:** owner/mentor chọn development window, holdout, minimum coverage/skip rules, `k`, outlier/scaling, PCA components và feature-version resolution; sau đó mới implement narrow market-only runner/input adapter.
+- [x] **M2 Nhiệm vụ 1 / protocol freeze:** khóa development/holdout snapshots, minimum 120/skip, 8 features, fail-closed missing, no clipping, Robust Scaling per-snapshot, `k=2..8`, Global K selection firewall, comparator-only PCA và scoped feature-version compatibility. Chưa chạy clustering/holdout/backtest; PCA component rule phải preregister trước comparator execution.
+- [x] **M2 Nhiệm vụ 2 / runner preparation:** adapter đọc trực tiếp C8 checksummed feature snapshots, lọc eligibility theo từng snapshot, fail-closed 8 feature, skip dưới 120 và terminal-universe/integration tests; không fit Global K.
+- [ ] **M2 Nhiệm vụ 3 / Global K:** chạy K-Means `k=2..8` chỉ trên 15 development snapshots và khóa Global K theo protocol; chưa mở holdout.
 - [ ] Freeze feature registry và development/validation protocol; active snapshot 1.5 không chứa Sharpe và tách readiness, còn formula market giữ nguyên baseline 1.4.
 - [x] Có implementation PCA + K-Means snapshot-only, lưu scaler/PCA parameters và explained variance; chưa có real comparison evidence.
 - [x] Có Ward/Agglomerative comparator deterministic; DBSCAN/GMM chờ protocol. Chưa có real comparator evidence.

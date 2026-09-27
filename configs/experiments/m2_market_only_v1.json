@@ -1,0 +1,75 @@
+{
+  "protocol_version": "1.0",
+  "protocol_scope": "m2_market_only_v1",
+  "stage": "M2_TASK_1_PROTOCOL_FREEZE",
+  "synthetic": false,
+  "start": "2023-11-30",
+  "end": "2025-01-24",
+  "development_end": "2025-01-24",
+  "holdout_start": "2026-02-27",
+  "holdout_end": "2026-08-28",
+  "development_snapshots": [
+    "2023-11-30", "2023-12-29", "2024-01-31", "2024-02-29",
+    "2024-03-29", "2024-04-26", "2024-05-31", "2024-06-28",
+    "2024-07-31", "2024-08-30", "2024-09-30", "2024-10-31",
+    "2024-11-29", "2024-12-31", "2025-01-24"
+  ],
+  "holdout_snapshots": [
+    "2026-02-27", "2026-03-31", "2026-04-29", "2026-05-29",
+    "2026-06-30", "2026-07-31", "2026-08-28"
+  ],
+  "snapshot_frequency": "month_end_last_trading_session",
+  "eligibility_field": "market_feature_ready_v2",
+  "eligibility_scope": "per_snapshot",
+  "min_eligible_count": 120,
+  "below_minimum_action": "skip_snapshot",
+  "missing_data_policy": "exclude_security_fail_closed",
+  "prohibited_missing_treatments": [
+    "mean_imputation", "median_imputation", "zero_fill", "forward_fill",
+    "backward_fill", "interpolation"
+  ],
+  "portfolio_evaluation": {"enabled": false},
+  "clustering": {
+    "methods": ["kmeans", "ward", "pca_kmeans"],
+    "baseline": "kmeans",
+    "features": [
+      "mom_21", "mom_63", "mom_126", "mom_252",
+      "vol_63", "mdd_126", "beta_126", "liquidity_21"
+    ],
+    "input_feature_version": "1.6.0",
+    "registry_metadata_version": "1.5.0",
+    "winsor_quantile": 0,
+    "clipping": false,
+    "scaling": "robust_per_snapshot",
+    "scaling_formula": "(x - median) / IQR",
+    "scaler_fit_scope": "independent_snapshot",
+    "k_range": [2, 3, 4, 5, 6, 7, 8],
+    "global_k_selection": {
+      "scope": "development_only",
+      "primary": "median_silhouette_max",
+      "tie_break": "median_davies_bouldin_min",
+      "supporting_checks": ["calinski_harabasz", "cluster_balance"],
+      "forbidden_metrics": ["return", "sharpe", "roi"],
+      "unresolved_exact_tie_action": "manual_review_without_holdout_or_portfolio_metrics"
+    },
+    "pca": {
+      "role": "independent_comparator_only",
+      "applies_to": ["pca_kmeans"],
+      "baseline_preprocessing": false,
+      "component_rule_status": "must_be_frozen_before_pca_comparator_execution"
+    }
+  },
+  "holdout_policy": {
+    "sealed_during_development": true,
+    "may_tune": [],
+    "prohibited_changes": ["k", "scaler", "pca", "algorithm"],
+    "access_stage": "M2_TASK_11_ONLY_AFTER_DEVELOPMENT_FREEZE"
+  },
+  "assumptions": {
+    "k_rationale": "Chọn một Global K duy nhất chỉ từ diagnostics trên 15 snapshot development; không dùng holdout hoặc portfolio performance.",
+    "feature_version_compatibility": "C8 feature snapshot 1.6.0 là input M2 active; registry 1.5.0 được dùng để validate tên, formula và cluster eligibility vì tám formula market khớp; không mutate artifact C8.",
+    "holdout_isolation": "Bảy snapshot holdout bị niêm phong khỏi mọi quyết định K, scaler, PCA và algorithm cho tới khi development methodology đã freeze.",
+    "historical_identity": "Protocol market-only không tạo historical_identity_ready hoặc research_ready claim.",
+    "pca_components": "Nhiệm vụ 1 chỉ khóa vai trò PCA là comparator độc lập; component rule phải được preregister trước khi chạy nhánh PCA và không được dùng holdout để chọn."
+  }
+}

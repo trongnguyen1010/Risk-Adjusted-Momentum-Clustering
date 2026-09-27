@@ -26,7 +26,13 @@ def build_snapshot(rows: list[dict], config: dict,
                    fit_vectors: Callable[[list[list[float]], int, dict], dict]) -> dict:
     """Apply shared validation, preprocessing, metrics and profile construction."""
     FEATURE_REGISTRY.require_cluster_eligible(config["features"])
-    rows = sorted((row for row in rows if row["eligibility"]), key=lambda row: row["security_id"])
+    eligibility_field = config.get("eligibility_field", "eligibility")
+    if any(eligibility_field not in row or type(row[eligibility_field]) is not bool for row in rows):
+        raise ValueError("missing or invalid configured eligibility field: " + eligibility_field)
+    rows = sorted(
+        (row for row in rows if row[eligibility_field] is True),
+        key=lambda row: row["security_id"],
+    )
     if len({row["as_of_date"] for row in rows}) != 1 or len({row["security_id"] for row in rows}) != len(rows):
         raise ValueError("one nonempty unique cross-section required")
     if len({row.get("adjustment_basis") for row in rows}) > 1:

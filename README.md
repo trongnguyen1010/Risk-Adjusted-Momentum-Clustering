@@ -14,7 +14,7 @@ CafeF `TradeHistoryNew` là nguồn market active. Stage C8 đã được execut
 
 R1 đã hợp nhất repository sau C8: bỏ planning/history/runner superseded khỏi active tree, giữ code và evidence cần thiết để verify C8, duy trì acquisition có kiểm soát và chuẩn bị stage nghiên cứu tiếp theo. M1-REPORT đã hoàn tất tại `artifacts/reports/m1-market-foundation-v1/`; notebook inspection nằm tại `notebooks/eda/M1_CAFEF_MARKET_FOUNDATION.ipynb`. Các file đã xóa vẫn truy xuất được trong Git history.
 
-Trong M2-PREP, `market_experiment_eligible(t)` được định nghĩa theo từng snapshot là `market_feature_ready_v2(t)` dưới protocol M2 được freeze. Con số 905 chỉ là membership ở snapshot mới nhất `2026-08-28`, không phải bộ lọc terminal áp ngược về lịch sử và không đồng nghĩa `research_ready`.
+Trong M2 market-only v1, `market_experiment_eligible(t)` được định nghĩa theo từng snapshot là `market_feature_ready_v2(t)` dưới protocol đã freeze tại `configs/experiments/m2_market_only_v1.json`. Con số 905 chỉ là membership ở snapshot mới nhất `2026-08-28`, không phải bộ lọc terminal áp ngược về lịch sử và không đồng nghĩa `research_ready`.
 
 ## Quick start
 
@@ -42,7 +42,7 @@ artifacts/      Evidence được version hóa; heavy C8 artifact giữ local, i
 
 ## Stage tiếp theo
 
-Stage chính xác tiếp theo sau D1 là **M2-PREP — MARKET-ONLY EXPERIMENT PROTOCOL**: review/freeze eligibility theo snapshot, development/validation windows, preprocessing và evaluation contract trước khi chạy clustering. Stage này không được ngầm nâng 905 securities thành `research_ready`; mọi thay đổi gate identity hoặc strict research eligibility cần manual review.
+Stage chính xác tiếp theo là **M2 Nhiệm vụ 3 — GLOBAL K TRÊN DEVELOPMENT**. Runner preparation/testing của Nhiệm vụ 2 đã hoàn tất; chưa fit Global K, chưa mở holdout và không backtest. Stage tiếp theo không được ngầm nâng 905 securities thành `research_ready`.
 
 ## Disclaimer
 

@@ -10,6 +10,7 @@
 | `src/delta_t1/experiments/` | Protocol, runner, immutable artifact và reporting |
 | `src/delta_t1/evaluation/` | Cluster/temporal/portfolio metrics được tách biệt |
 | `configs/data/` | C8 complete-only, C6 expansion, supplemental recovery, identity review, minimal M1 universe compatibility và synthetic smoke |
+| `configs/experiments/m2_market_only_v1.json` | Frozen preregistration cho M2 market-only; portfolio evaluation tắt |
 | `tests/` | Unit/integration/regression tests còn hiệu lực |
 
 ## Evidence và runner
@@ -36,7 +37,7 @@ Notebook human-facing duy nhất của M1 report là
 `notebooks/eda/M1_CAFEF_MARKET_FOUNDATION.ipynb`; notebook đọc explicit report
 artifact và không chứa acquisition hoặc scientific gate logic riêng.
 
-Exact next stage là M2-PREP; project map này không cấp quyền chạy clustering, backtest hoặc supplemental crawl.
+Exact next stage là M2 Nhiệm vụ 3 (chọn Global K chỉ trên development); project map này không cấp quyền mở holdout, backtest hoặc supplemental crawl.
 
 ## Tài liệu canonical
 

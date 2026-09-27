@@ -15,7 +15,8 @@ def preprocess(rows: list[dict], config: dict) -> tuple[list[list[float]], dict]
     fields = config["features"]
     q = config["winsor_quantile"]
     method = config["scaling"]
-    if not fields or not 0 <= q < .5 or method not in ("zscore", "robust", "rank", "none"):
+    if not fields or not 0 <= q < .5 or method not in (
+            "zscore", "robust", "robust_per_snapshot", "rank", "none"):
         raise ValueError("invalid preprocessing")
     columns, bundle = [], {}
     for name in fields:
@@ -31,7 +32,7 @@ def preprocess(rows: list[dict], config: dict) -> tuple[list[list[float]], dict]
         center, scale = 0.0, 1.0
         if method == "zscore":
             center, scale = mean(values), pstdev(values) or 1.0
-        elif method == "robust":
+        elif method in ("robust", "robust_per_snapshot"):
             center, scale = median(values), quantile(values, .75) - quantile(values, .25) or 1.0
         elif method == "rank":
             original = values[:]

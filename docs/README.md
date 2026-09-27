@@ -9,7 +9,7 @@ Repository đang ở trạng thái **C8 executed and verified; R1 consolidated; 
 5. [Reproducibility](REPRODUCIBILITY.md) — kiểm chứng offline bằng manifest/hash.
 6. [M1 report artifact](../artifacts/reports/m1-market-foundation-v1/report.json) và [inspection notebook](../notebooks/eda/M1_CAFEF_MARKET_FOUNDATION.ipynb).
 
-Stage chính xác tiếp theo là **M2-PREP — MARKET-ONLY EXPERIMENT PROTOCOL**. Eligibility phải được freeze theo từng snapshot; 905 chỉ là latest-snapshot count và không phải strict research universe.
+M2 Nhiệm vụ 1 đã freeze protocol và Nhiệm vụ 2 đã hoàn tất runner preparation/testing. Stage chính xác tiếp theo là **M2 Nhiệm vụ 3 — GLOBAL K TRÊN DEVELOPMENT**; chưa chạy trong stage hiện tại. Eligibility vẫn theo từng snapshot; 905 chỉ là latest-snapshot count và không phải strict research universe.
 
 ## Theo mục đích
 
