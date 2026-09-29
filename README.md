@@ -16,6 +16,11 @@ R1 đã hợp nhất repository sau C8: bỏ planning/history/runner superseded 
 
 Trong M2 market-only v1, `market_experiment_eligible(t)` được định nghĩa theo từng snapshot là `market_feature_ready_v2(t)` dưới protocol đã freeze tại `configs/experiments/m2_market_only_v1.json`. Con số 905 chỉ là membership ở snapshot mới nhất `2026-08-28`, không phải bộ lọc terminal áp ngược về lịch sử và không đồng nghĩa `research_ready`.
 
+## Thiết lập dữ liệu nền tảng (DELTA_01_ACTIVE_M2_M3.zip)
+
+Dữ liệu nền tảng C8 canonical market dataset và M2-PREP configurations được đóng gói trong file `DELTA_01_ACTIVE_M2_M3.zip` (thường lưu trong thư mục `Downloads` hoặc `Team DELTA/data/`). Bạn có thể nhờ Trợ lý AI tự tìm và giải nén tự động bằng prompt:
+> *"Hãy tìm file `DELTA_01_ACTIVE_M2_M3.zip` trên máy của tôi (trong thư mục Downloads hoặc thư mục dữ liệu nhóm), sau đó giải nén trực tiếp vào thư mục gốc của repository này và kiểm tra dữ liệu trong `artifacts/` và `configs/` giúp tôi."*
+
 ## Quick start
 
 ```powershell
