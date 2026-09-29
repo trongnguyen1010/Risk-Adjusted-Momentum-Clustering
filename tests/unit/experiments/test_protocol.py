@@ -1,12 +1,14 @@
 import copy
 import json
 from pathlib import Path
+import sys
 import unittest
+
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "src"))
 
 from delta_t1.experiments.protocol import validate_protocol
 
-
-ROOT = Path(__file__).resolve().parents[3]
 CONFIG = ROOT / "configs/experiments/m2_market_only_v1.json"
 
 

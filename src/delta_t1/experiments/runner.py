@@ -95,6 +95,16 @@ def m2_clustering_config(config: dict, **runtime_parameters) -> dict:
     """Translate the frozen root-level eligibility rule to the common clustering interface."""
     cluster = dict(config["clustering"])
     cluster["eligibility_field"] = config["eligibility_field"]
+    cluster.setdefault("momentum_feature", "mom_63")
+    cluster.setdefault("risk_feature", "vol_63")
+    cluster.setdefault("k", 2)
+    cluster.setdefault("k_range", [2])
+    cluster.setdefault("seed", 42)
+    cluster.setdefault("n_init", 10)
+    cluster.setdefault("max_iter", 300)
+    algo = runtime_parameters.get("algorithm") or cluster.get("algorithm")
+    if algo == "pca_kmeans":
+        cluster.setdefault("reduction", {"method": "pca", "n_components": 4})
     cluster.update(runtime_parameters)
     return cluster
 
@@ -148,35 +158,59 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
     data_run = Path(data_run).resolve()
     config = read_json(config_path)
     validate_protocol(config)
-    source, tables = load_verified_data_run(data_run, config)
+    is_m2 = config.get("protocol_scope") == "m2_market_only_v1"
+    if is_m2:
+        source, prepared = prepare_m2_market_only_snapshots(data_run, config)
+        tables = {}
+        algo_name = config.get("clustering", {}).get("algorithm") or config.get("clustering", {}).get("baseline", "kmeans")
+        algorithm = get_algorithm(algo_name)
+    else:
+        source, tables = load_verified_data_run(data_run, config)
+        algorithm = get_algorithm(config["clustering"]["algorithm"])
+        prepared = None
     target, manifest = start_experiment(root, data_run, source, config)
-    algorithm = get_algorithm(config["clustering"]["algorithm"])
     started = time.monotonic()
     features = []
     try:
-        by_date = defaultdict(list)
-        features = read_rows(data_run / "features/monthly.jsonl")
-        validate_rows("feature_snapshots", features)
-        for row in features:
-            if config["start"] <= row["as_of_date"] <= config["end"]:
-                by_date[row["as_of_date"]].append(row)
+        if is_m2:
+            features = [row for prep in prepared for row in prep["rows"]]
+            clustering_config = m2_clustering_config(config)
+            minimum = config.get("min_eligible_count", 120)
+            snapshot_items = [
+                (prep["snapshot_date"], prep["rows"], prep["status"], prep["reason"], prep["eligible_count"])
+                for prep in prepared
+            ]
+        else:
+            by_date = defaultdict(list)
+            features = read_rows(data_run / "features/monthly.jsonl")
+            validate_rows("feature_snapshots", features)
+            for row in features:
+                if config["start"] <= row["as_of_date"] <= config["end"]:
+                    by_date[row["as_of_date"]].append(row)
+            eligibility_field = config.get("eligibility_field", "eligibility")
+            clustering_config = dict(config["clustering"], eligibility_field=eligibility_field)
+            minimum = config.get("min_eligible_count", config["clustering"]["k"] + 1)
+            snapshot_items = []
+            for day, rows in sorted(by_date.items()):
+                if any(eligibility_field not in row or type(row[eligibility_field]) is not bool
+                       for row in rows):
+                    raise ValueError("missing or invalid configured eligibility field: "
+                                     + eligibility_field)
+                eligible_count = sum(row[eligibility_field] is True for row in rows)
+                if eligible_count < minimum:
+                    snapshot_items.append((day, rows, "skipped", "eligible_count_below_minimum", eligible_count))
+                else:
+                    snapshot_items.append((day, rows, "ready", None, eligible_count))
+
         snapshots, assignments, profiles = [], [], []
         diagnostic_rows, comparisons, transition_rows, skipped = [], [], [], []
         aligned_ids = None
         previous = None
-        eligibility_field = config.get("eligibility_field", "eligibility")
-        clustering_config = dict(config["clustering"], eligibility_field=eligibility_field)
-        minimum = config.get("min_eligible_count", config["clustering"]["k"] + 1)
-        for day, rows in sorted(by_date.items()):
-            if any(eligibility_field not in row or type(row[eligibility_field]) is not bool
-                   for row in rows):
-                raise ValueError("missing or invalid configured eligibility field: "
-                                 + eligibility_field)
-            eligible_count = sum(row[eligibility_field] is True for row in rows)
-            if eligible_count < minimum:
+        for day, rows, status, reason, eligible_count in snapshot_items:
+            if status == "skipped":
                 skipped.append(dict(
                     date=day,
-                    reason="eligible_count_below_minimum",
+                    reason=reason or "eligible_count_below_minimum",
                     eligible_count=eligible_count,
                     min_eligible_count=minimum,
                 ))

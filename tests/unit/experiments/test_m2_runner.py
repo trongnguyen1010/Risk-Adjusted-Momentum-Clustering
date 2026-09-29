@@ -3,18 +3,20 @@ import json
 import math
 from pathlib import Path
 from statistics import mean
+import sys
 import unittest
+
+ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT / "src"))
 
 from delta_t1.clustering.base import build_snapshot
 from delta_t1.evaluation.cluster_metrics import squared_distance
 from delta_t1.experiments.runner import (
+    experiment,
     m2_clustering_config,
     prepare_m2_market_only_snapshots,
     prepare_snapshot_rows,
 )
-
-
-ROOT = Path(__file__).resolve().parents[3]
 CONFIG = ROOT / "configs/experiments/m2_market_only_v1.json"
 C8 = ROOT / "artifacts/cafef_primary/cafef-c8-complete-only-v1"
 FEATURES = (
@@ -105,6 +107,30 @@ class M2MarketOnlyRunnerTests(unittest.TestCase):
         self.assertEqual(142, len(snapshot["labels"]))
         self.assertEqual("robust_per_snapshot", snapshot["model"]["scaler"]["mom_21"]["method"])
 
+    def test_6_experiment_runs_all_m2_algorithms(self):
+        import tempfile
+        from unittest.mock import patch
+        for algo in ("kmeans", "ward", "pca_kmeans"):
+            with self.subTest(algorithm=algo):
+                with tempfile.TemporaryDirectory() as temp_dir:
+                    temp_path = Path(temp_dir)
+                    cfg = copy.deepcopy(self.config)
+                    cfg["clustering"]["algorithm"] = algo
+                    cfg["output_dir"] = str(temp_path / ("exp_" + algo))
+                    cfg_path = temp_path / "config.json"
+                    cfg_path.write_text(json.dumps(cfg), encoding="utf-8")
+                    with patch("delta_t1.experiments.runner.prepare_m2_market_only_snapshots",
+                               return_value=(self.source, [self.november])):
+                        target, manifest = experiment(C8, cfg_path, ROOT)
+                    self.assertEqual("complete", manifest["status"])
+                    self.assertEqual(1, manifest["n_snapshots"])
+                    self.assertEqual(142, manifest["n_assignments"])
+                    self.assertFalse(manifest["portfolio_evaluation_enabled"])
+                    self.assertTrue((target / "assignments.jsonl").exists())
+                    self.assertTrue((target / "profiles.jsonl").exists())
+                    self.assertTrue((target / "diagnostics.jsonl").exists())
+                    self.assertTrue((target / "manifest.json").exists())
+
     @staticmethod
     def _row(security_id, snapshot_date, ready):
         row = {
@@ -121,3 +147,4 @@ class M2MarketOnlyRunnerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
