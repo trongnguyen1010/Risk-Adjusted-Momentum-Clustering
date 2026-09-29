@@ -120,6 +120,57 @@ Số lượng mã có thể khác nhau giữa các tháng.
 
 Không lấy cố định 905 mã của snapshot 08/2026 áp ngược toàn bộ lịch sử.
 
+# QUY ƯỚC ĐƯỜNG DẪN OUTPUT VÀ CẤU TRÚC THƯ MỤC M2
+
+Để quản lý thống nhất giữa các thành viên, toàn bộ mã nguồn mô hình, mô hình đã huấn luyện, tài liệu báo cáo và kết quả thực nghiệm của M2 được phân bổ theo quy ước chuẩn:
+
+- **Code model / Thực thi (cả .ipynb và .py đều lưu trong `M2/notebooks/`)**:
+  - Toàn bộ file mã nguồn thực thi mô hình và phân tích của M2 đều được lưu trữ thống nhất trong thư mục `M2/notebooks/`.
+  - **Khi nào dùng `.ipynb` (nhiều cell)**: Tác vụ mang tính khám phá (EDA), phân tích từng bước, cần vẽ biểu đồ và trực quan hóa (như Scree plot, Radar chart hồ sơ cụm, Heatmap ma trận chuyển dịch cụm, biểu đồ Boxplot so sánh chất lượng). Phù hợp nhất cho **Nhiệm vụ 6, 7, 8, 9, 10**.
+  - **Khi nào dùng `.py` (chạy một mạch)**: Tác vụ là pipeline thực thi tự động, batch runner chạy một mạch từ đầu đến cuối không cần ngắt quãng xem cell, hoặc script kiểm định (verify/audit). Phù hợp cho **Nhiệm vụ 4, 5, 11, 12, 13** (các script `.py` này cũng được đặt trực tiếp trong `M2/notebooks/` để tập trung toàn bộ code vào một nơi).
+- **Mô hình / Trọng số (Fitted models & objects)**: Lưu trữ trong thư mục `M2/models/` (các file đối tượng mô hình đã fit, scalers, weights, centroids, linkages, PCA transformers được lưu trữ tuần tự theo nhiệm vụ và thuật toán, bao gồm thư mục `M2/models/final_selected_model/` cho 1 mô hình tốt nhất được chọn sau Nhiệm vụ 10).
+- **Báo cáo (Reports & Documents)**: Lưu trữ trong thư mục `M2/reports/` (các file Word `.docx`, báo cáo tổng kết `.md`, tài liệu kiểm định, slide thuyết trình của từng nhiệm vụ và toàn bộ M2).
+- **Artifacts thực nghiệm chuẩn hóa (System & Pipeline Artifacts)**: Lưu trữ trong thư mục `artifacts/experiments/` (các artifact bất biến do hệ thống runner ghi nhận: `assignments.jsonl`, `diagnostics.jsonl`, `profiles.jsonl`, `manifest.json`, `metric_matrix.csv` theo protocol đã freeze).
+
+# HƯỚNG DẪN NHỜ AI GIẢI NÉN VÀ THIẾT LẬP DỮ LIỆU NỀN TẢNG (DELTA_01_ACTIVE_M2_M3.zip)
+
+Giai đoạn M2 và M3 kế thừa toàn bộ dữ liệu nền tảng thị trường chuẩn hóa từ M1 (C8 complete-only canonical market dataset, feature snapshots, và M2-PREP baseline configurations). File nén lưu trữ dữ liệu này là `DELTA_01_ACTIVE_M2_M3.zip`.
+
+Để đơn giản hóa và giúp bất kỳ thành viên nào trong nhóm (trên Windows, macOS hoặc Linux) đều có thể thiết lập nhanh mà không cần gõ lệnh thủ công hay phụ thuộc vào đường dẫn máy cá nhân, bạn chỉ cần nhờ **Trợ lý AI (AI Coding Assistant)** tự động định vị, giải nén và đưa vào đúng thư mục repository.
+
+### 1. Vị trí file nén trên máy tính
+- File zip thường được tải về từ kênh chia sẻ của nhóm và nằm trong thư mục tải về của máy (ví dụ: trong thư mục `Downloads`, hoặc thư mục `Team DELTA/data/DELTA_01_ACTIVE_M2_M3.zip`).
+
+### 2. Cấu trúc dữ liệu bên trong file zip
+File zip chứa sẵn cấu trúc chuẩn:
+```text
+DELTA_01_ACTIVE_M2_M3.zip
+├── artifacts/
+│   ├── cafef_primary/       # Dữ liệu thị trường C8 canonical (prices_daily, feature_snapshots, securities...)
+│   ├── experiments/        # Baseline configs và artifacts của M2-PREP
+│   └── reports/            # M1 market foundation report và plots
+└── configs/
+    └── data/               # Cấu hình dữ liệu C8 complete-only và identity review
+```
+Khi được giải nén trực tiếp vào **thư mục gốc của repository**, các file sẽ tự động khớp chính xác vào các thư mục `artifacts/` và `configs/` hiện tại mà không làm sai lệch cấu trúc dự án.
+
+### 3. Câu lệnh mẫu (Prompt) nhờ AI thực hiện tự động
+Bạn chỉ cần gửi một trong các câu lệnh sau vào khung chat của Trợ lý AI (AI sẽ tự động nhận diện hệ điều hành và đường dẫn repository tương ứng trên máy của bạn):
+
+#### Prompt mẫu 1 (Ngắn gọn, tự động tìm kiếm):
+> *"Hãy tìm file `DELTA_01_ACTIVE_M2_M3.zip` trên máy của tôi (trong thư mục Downloads hoặc thư mục dữ liệu nhóm), sau đó giải nén trực tiếp vào thư mục gốc của repository này và kiểm tra dữ liệu trong `artifacts/` và `configs/` giúp tôi."*
+
+#### Prompt mẫu 2 (Nếu bạn đã tải file zip về một vị trí cụ thể):
+> *"Tôi đã tải file `DELTA_01_ACTIVE_M2_M3.zip` về máy. Hãy giải nén file này vào đúng thư mục gốc của repository để cập nhật các tệp dữ liệu vào `artifacts/` và `configs/`, sau đó xác nhận file `artifacts/cafef_primary/cafef-c8-complete-only-v1/canonical/feature_snapshots.jsonl` đã sẵn sàng."*
+
+### 4. Quy trình AI sẽ tự động xử lý ngầm
+Khi nhận được yêu cầu trên, Trợ lý AI sẽ:
+1. Tự động dò tìm vị trí file `DELTA_01_ACTIVE_M2_M3.zip` tương thích với hệ điều hành và tài khoản người dùng hiện hành.
+2. Tự động giải nén nội dung trực tiếp vào thư mục gốc repo (giữ nguyên cấu trúc `artifacts/` và `configs/`).
+3. Tự động kiểm tra tính toàn vẹn của các file dữ liệu then chốt (`feature_snapshots.jsonl`, `manifest.json`, `cafef_c8_complete_only_v1.json`).
+4. Báo cáo hoàn tất để thành viên có thể bắt đầu nghiên cứu ngay mà không phải cấu hình thủ công.
+
+
 # NHIỆM VỤ 1 — KHÓA TOÀN BỘ QUY TẮC THỰC NGHIỆM
 
 ## Mục đích của Nhiệm vụ 1
@@ -892,6 +943,13 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - artifact theo từng snapshot;
 - dữ liệu sẵn sàng cho Nhiệm vụ 7, 8, 9 và 10.
 
+## Vị trí trong repo & Đường dẫn output
+
+- **Code model / Thực thi**: `M2/notebooks/04_kmeans_baseline.py` (script batch chạy một mạch; hoặc `04_kmeans_baseline.ipynb` nếu muốn vẽ trực quan hóa cụm; phối hợp `src/delta_t1/clustering/kmeans.py` và `src/delta_t1/experiments/runner.py`)
+- **Mô hình / Trọng số (Models & Centroids)**: `M2/models/kmeans/` (lưu trữ model K-Means fitted, centroids và snapshot scaler parameters)
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_4_KMeans_Baseline.docx` (hoặc `.md`)
+- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-task4-kmeans-baseline-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `manifest.json`)
+
 # NHIỆM VỤ 5 — CHẠY PHƯƠNG ÁN B: WARD
 
 ## Mục đích của Nhiệm vụ 5
@@ -1162,6 +1220,13 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - quality metrics;
 - artifact theo snapshot;
 - dữ liệu sẵn sàng cho Nhiệm vụ 7, 8, 9 và 10.
+
+## Vị trí trong repo & Đường dẫn output
+
+- **Code model / Thực thi**: `M2/notebooks/05_ward_hierarchical.py` (script batch chạy một mạch; hoặc `05_ward_hierarchical.ipynb` nếu muốn vẽ dendrogram; phối hợp `src/delta_t1/clustering/hierarchical.py` và `src/delta_t1/experiments/runner.py`)
+- **Mô hình / Trọng số (Models & Linkages)**: `M2/models/ward/` (lưu trữ ma trận linkage, cluster representatives, scaler parameters)
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_5_Ward.docx` (hoặc `.md`)
+- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-task5-ward-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `manifest.json`)
 
 # NHIỆM VỤ 6 — CHẠY PHƯƠNG ÁN C: PCA + K-MEANS
 
@@ -1469,6 +1534,13 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - artifact theo snapshot;
 - dữ liệu sẵn sàng cho Nhiệm vụ 7, 8, 9 và 10.
 
+## Vị trí trong repo & Đường dẫn output
+
+- **Code model / Thực thi**: `M2/notebooks/06_pca_kmeans.ipynb` (kết hợp PCA trong `src/delta_t1/features/preprocessing.py` và `src/delta_t1/clustering/kmeans.py`)
+- **Mô hình / Trọng số (Models & Transformers)**: `M2/models/pca_kmeans/` (lưu trữ PCA transformer objects, explained variance ratios, fitted KMeans models theo từng snapshot)
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_6_PCA_KMeans.docx` (hoặc `.md`)
+- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-task6-pca-kmeans-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `pca_diagnostics.jsonl`, `manifest.json`)
+
 
 # NHIỆM VỤ 7 — ĐÁNH GIÁ CHẤT LƯỢNG CỤM
 
@@ -1540,6 +1612,13 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 
 Bảng snapshot × phương án × metric.
 
+## Vị trí trong repo & Đường dẫn output
+
+- **Code phân tích / Đánh giá**: `M2/notebooks/07_cluster_quality_evaluation.ipynb` (sử dụng `src/delta_t1/evaluation/cluster_metrics.py`)
+- **Mô hình**: Không fit model mới; đọc models từ `M2/models/` của Nhiệm vụ 4, 5, 6
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum.docx` (hoặc `.md`)
+- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-evaluation/quality_metrics_comparison.csv`
+
 # NHIỆM VỤ 8 — PHÂN TÍCH HỒ SƠ CỤM
 
 ## Mục đích của Nhiệm vụ 8
@@ -1599,6 +1678,13 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 ## Kết quả cần đạt của Nhiệm vụ 8
 
 Cluster profiles dễ đọc và có thể giải thích.
+
+## Vị trí trong repo & Đường dẫn output
+
+- **Code phân tích / Profiling**: `M2/notebooks/08_cluster_profiling.ipynb` (trực quan hóa radar chart, phân phối feature từ `src/delta_t1/clustering/base.py`)
+- **Mô hình**: Không fit model mới; đọc centroids và profiles từ `M2/models/`
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum.docx` (hoặc `.md`)
+- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-evaluation/cluster_profiles.csv`
 
 # NHIỆM VỤ 9 — ĐÁNH GIÁ ĐỘ ỔN ĐỊNH THEO THỜI GIAN
 
@@ -1704,91 +1790,152 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 
 - entry/exit.
 
-# NHIỆM VỤ 10 — SO SÁNH CÁC PHƯƠNG ÁN
+## Vị trí trong repo & Đường dẫn output
+
+- **Code phân tích / Temporal**: `M2/notebooks/09_temporal_stability.ipynb` (sử dụng `src/delta_t1/evaluation/temporal_metrics.py`)
+- **Mô hình**: Không fit model mới; đọc cluster assignments chuỗi thời gian từ các nhiệm vụ trước
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian.docx` (hoặc `.md`)
+- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-evaluation/temporal_stability.csv`, `transition_matrices.jsonl`
+
+# NHIỆM VỤ 10 — SO SÁNH CÁC PHƯƠNG ÁN VÀ CHỌN RA 1 MÔ HÌNH TỐT NHẤT (FINAL METHOD SELECTION)
 
 ## Mục đích của Nhiệm vụ 10
 
-Tổng hợp kết quả của K-Means, Ward và PCA + K-Means trên cùng protocol.
+Tổng hợp toàn diện kết quả của K-Means, Ward và PCA + K-Means trên cùng protocol development, và **chính thức lựa chọn duy nhất 1 mô hình phân cụm tốt nhất (Final Method)** để khóa lại trước khi mở Final Holdout (Nhiệm vụ 11) và chuyển giao cho M3.
+
+Hai phương án còn lại không bị loại bỏ mà được giữ nguyên trong toàn bộ tài liệu và báo cáo dưới vai trò các phương án đối chứng (*comparator baselines*) để chứng minh tính thuyết phục của quá trình thực nghiệm.
+
+## Vị trí của bước chọn phương án trong workflow
+
+Bước lựa chọn 1 mô hình tốt nhất diễn ra ngay tại Nhiệm vụ 10 (sau khi đã có đủ kết quả chất lượng, hồ sơ cụm, độ ổn định thời gian) và **trước khi mở Nhiệm vụ 11 – Final Holdout**:
+
+Development (15 snapshots)  
+↓  
+K-Means / Ward / PCA + K-Means  
+↓  
+Nhiệm vụ 7 – Quality  
+↓  
+Nhiệm vụ 8 – Cluster profile  
+↓  
+Nhiệm vụ 9 – Temporal stability  
+↓  
+Nhiệm vụ 10 – So sánh 3 phương án  
+↓  
+**CHỌN VÀ KHÓA 1 MÔ HÌNH PHÂN CỤM TỐT NHẤT (FINAL METHOD)**  
+↓  
+Nhiệm vụ 11 – Final Holdout (chỉ chạy duy nhất mô hình đã chọn)  
+↓  
+Nhiệm vụ 12 – Verify  
+↓  
+Nhiệm vụ 13 – Report / Handoff M3
+
+## Nguyên tắc bắt buộc khi lựa chọn
+
+- Việc chọn phương án chỉ được dựa trên kết quả giai đoạn development. Final holdout tuyệt đối không được mở trước khi final method đã được quyết định và khóa.
+- Không dùng future return, CAGR, Sharpe, Sortino, ROI, Calmar, alpha hoặc kết quả backtest để chọn thuật toán M2.
+- Không nhìn kết quả holdout rồi quay lại thay đổi phương án.
+- Không thay đổi feature set, Global K, scaling hoặc PCA rule riêng cho từng phương án chỉ để cải thiện kết quả so sánh.
+- Các phương án phải được so sánh trên cùng development window, cùng universe rule, cùng 8 feature và cùng Global K đã khóa.
 
 ## Phần 10.1 — So sánh quality
 
 ### Mục đích
 
-So sánh chất lượng cấu trúc cụm.
-
-So sánh Silhouette, DB, CH và balance.
+So sánh chất lượng cấu trúc cụm giữa 3 phương án:
+- So sánh median Silhouette (cao hơn thường tốt hơn, chỉ số chính).
+- So sánh median Davies–Bouldin (thấp hơn thường tốt hơn, dùng xác nhận).
+- So sánh Calinski–Harabasz (chỉ số bổ sung).
 
 ## Phần 10.2 — So sánh temporal stability
 
 ### Mục đích
 
-So sánh độ ổn định theo thời gian.
+So sánh độ ổn định theo thời gian:
+- So sánh ARI và NMI trung vị giữa hai snapshot liên tiếp ($t$ và $t+1$).
+- Persistence probability (xác suất giữ nguyên cụm) và Migration rate (tỷ lệ chuyển dịch cụm).
+- Centroid drift (mức độ biến động tâm cụm theo thời gian).
 
-So sánh ARI, NMI, persistence, migration và centroid drift.
-
-## Phần 10.3 — So sánh khả năng diễn giải
+## Phần 10.3 — So sánh cân bằng và khả năng diễn giải hồ sơ cụm
 
 ### Mục đích
 
-Xem cluster profile của phương án nào rõ và nhất quán hơn.
+- **Cluster balance**: Sanity check phát hiện cụm suy biến (cụm rác hoặc cụm quá bé < 5 mã).
+- **Khả năng diễn giải**: Xem cluster profile của phương án nào thể hiện rõ ràng và hợp lý nhất theo 8 đặc trưng gốc (Động lượng, Biến động, MDD, Beta, Thanh khoản). Đối với PCA + K-Means, kiểm tra trade-off giữa việc giảm chiều và độ phức tạp khi giải thích ngược về 8 feature gốc.
 
-Không dùng portfolio performance.
+## Phần 10.4 — Các nhóm tiêu chí và thứ tự ưu tiên chọn 1 mô hình tốt nhất
+
+Đánh giá lựa chọn theo thứ tự ưu tiên 5 cấp độ:
+
+| **Ưu tiên** | **Nhóm tiêu chí** | **Chỉ số / bằng chứng** | **Mục đích** | **Vai trò** |
+| :---: | :--- | :--- | :--- | :--- |
+| **1** | **Chất lượng phân cụm** | Silhouette, Davies–Bouldin | Đánh giá cụm có rõ nét, chặt chẽ và tách biệt không | **Tiêu chí quyết định chính** |
+| **2** | **Độ ổn định thời gian** | ARI, Persistence, Migration, Centroid drift | Đánh giá cấu trúc cụm có ổn định qua các tháng không | **Tiêu chí quan trọng thứ hai** |
+| **3** | **Cân bằng cụm** | Phân phối kích thước cụm | Loại trừ hiện tượng cụm suy biến / quá nhỏ | **Sanity check** |
+| **4** | **Khả năng diễn giải** | Profile trên 8 đặc trưng gốc | Đảm bảo cụm có ý nghĩa kinh tế rõ ràng | **Tiêu chí hỗ trợ** |
+| **5** | **Độ đơn giản & Tái lập** | Số bước, số siêu tham số, reproducibility | Ưu tiên phương pháp ít phức tạp hơn nếu kết quả tương đương | **Tie-breaker** |
+
+*Lưu ý: Không dùng công thức điểm tổng hợp trọng số cảm tính (như 40% Silhouette + 30% ARI...) để tránh quyết định chủ quan.*
+
+## Phần 10.5 — Quy trình ra quyết định và lập Decision Artifact
+
+1. Tổng hợp bảng đối đầu 3 phương án theo đầy đủ các chỉ số median trên development.
+2. Áp dụng quy tắc ưu tiên:
+   - Nếu một phương án vượt trội rõ nét ở cả Silhouette và Davies–Bouldin → Chọn phương án đó làm Final Method.
+   - Nếu chất lượng cụm giữa các phương án sát nhau → So sánh độ ổn định theo thời gian (ARI, Migration).
+   - Nếu vẫn tương đương → Xét khả năng diễn giải và ưu tiên phương án có pipeline đơn giản hơn (ví dụ K-Means gốc đơn giản hơn PCA + K-Means).
+3. Lập **Decision Artifact** (`final_method_decision.json` hoặc `.md`) lưu rõ: phương án được chọn, bảng số liệu đối đầu, lý do lựa chọn, và cam kết khóa mô hình.
 
 ## File code sử dụng trong nhiệm vụ và cách dùng
 
-Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file `.py` riêng lẻ; thông thường `runner.py` hoặc entry point của experiment sẽ import/gọi các module còn lại.
 
-**\`src/delta_t1/experiments/runner.py\`** — file đã có; nguồn artifact chuẩn hóa.
-
-> Mục đích: Đã ghi diagnostics, profiles, stability và transitions cho từng run.
->
+**`src/delta_t1/experiments/runner.py`** — file đã có; nguồn artifact chuẩn hóa.
+> Mục đích: Đã ghi diagnostics, profiles, stability và transitions cho từng run.  
 > Cách dùng trong nhiệm vụ này: Nhiệm vụ 10 đọc các artifact này của ba phương án, không cần fit lại mô hình chỉ để so sánh.
 
-**\`src/delta_t1/evaluation/cluster_metrics.py\`** — file đã có; nguồn quality.
-
-> Mục đích: Cung cấp định nghĩa/giá trị quality metrics.
->
+**`src/delta_t1/evaluation/cluster_metrics.py`** — file đã có; nguồn quality.
+> Mục đích: Cung cấp định nghĩa/giá trị quality metrics.  
 > Cách dùng trong nhiệm vụ này: Tổng hợp median/summary của Silhouette, DB, CH và balance theo phương án.
 
-**\`src/delta_t1/evaluation/temporal_metrics.py\`** — file đã có; nguồn temporal.
-
-> Mục đích: Cung cấp chỉ số ổn định qua thời gian.
->
+**`src/delta_t1/evaluation/temporal_metrics.py`** — file đã có; nguồn temporal.
+> Mục đích: Cung cấp chỉ số ổn định qua thời gian.  
 > Cách dùng trong nhiệm vụ này: Tổng hợp ARI, NMI, persistence, migration và centroid drift để so sánh.
 
-**\`src/delta_t1/experiments/reporting.py\`** — file đã có; hỗ trợ xuất kết quả.
-
-> Mục đích: Có các hàm tạo bảng/report/plot từ artifact.
->
+**`src/delta_t1/experiments/reporting.py`** — file đã có; hỗ trợ xuất kết quả.
+> Mục đích: Có các hàm tạo bảng/report/plot từ artifact.  
 > Cách dùng trong nhiệm vụ này: Dùng để trình bày bảng so sánh cuối thay vì viết lại logic clustering.
 
 ### Cách các file phối hợp
 
-> diagnostics + profiles + stability + transitions của 3 phương án → tổng hợp quality/temporal/interpretability → reporting.py → bảng so sánh/decision evidence.
+> diagnostics + profiles + stability + transitions của 3 phương án → tổng hợp quality/temporal/interpretability → reporting.py → bảng so sánh/decision evidence → chọn & khóa 1 Final Method.
 
 ## Kết quả cần đạt của Nhiệm vụ 10
 
-Bảng so sánh thống nhất giữa các phương án.
+- Bảng so sánh đa chiều thống nhất giữa K-Means, Ward, PCA + K-Means;
+- Quyết định lựa chọn duy nhất 1 mô hình phân cụm tốt nhất (Final Method);
+- Decision Artifact ghi nhận căn cứ lựa chọn;
+- Khóa cấu hình mô hình được chọn để chuyển tiếp sang Nhiệm vụ 11 (Final Holdout).
+
+## Vị trí trong repo & Đường dẫn output
+
+- **Code tổng hợp / So sánh**: `M2/notebooks/10_model_comparison.ipynb` (hoặc `10_model_comparison.py`, lưu trong `M2/notebooks/`)
+- **Mô hình được chọn**: `M2/models/final_selected_model/` (lưu trữ model và scaler parameters của phương án chiến thắng)
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.docx` (hoặc `.md`)
+- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-evaluation/methodology_comparison.csv`, `final_method_decision.json`
 
 # NHIỆM VỤ 11 — MỞ VÀ CHẠY FINAL HOLDOUT
 
 ## Mục đích của Nhiệm vụ 11
 
-Kiểm tra xem toàn bộ methodology đã xây dựng và khóa ở development có tiếp tục hoạt động hợp lý trên một giai đoạn dữ liệu mới hay không. Final holdout không dùng để tìm mô hình tốt hơn.
+Kiểm tra xem **duy nhất 1 mô hình phân cụm tốt nhất** đã được chọn và khóa ở Nhiệm vụ 10 có tiếp tục hoạt động ổn định và hợp lý trên giai đoạn dữ liệu mới (holdout) hay không. Final holdout chỉ dùng để kiểm định độc lập, tuyệt đối không dùng để tìm mô hình tốt hơn hoặc thay đổi lại mô hình đã chọn.
 
 Development  
-→ xây và lựa chọn methodology  
+→ xây, so sánh và chọn ra 1 mô hình tốt nhất  
   
 Final Holdout  
-→ kiểm tra methodology đã khóa
+→ kiểm định duy nhất mô hình đã khóa
 
-Trước khi mở holdout phải khóa 8 feature, universe rule, minimum eligible threshold, missing policy, outlier policy, scaling, Global K, PCA rule, algorithms, quality metrics và temporal metrics.
-
-Ví dụ nếu Global K = 4:  
-K-Means → K=4  
-Ward → K=4  
-PCA + K-Means → K=4  
-Không thử lại K=2..8 trên holdout.
+Trước khi mở holdout phải khóa 8 feature, universe rule, minimum eligible threshold, missing policy, outlier policy, scaling, Global K, PCA rule (nếu chọn PCA), và thuật toán đã chọn. Không thử lại K=2..8 và không chạy lại các phương án đã bị loại trên holdout.
 
 ## Đầu vào của Nhiệm vụ 11
 
@@ -1802,16 +1949,15 @@ Không thử lại K=2..8 trên holdout.
 Feature: 8 market features  
 Scaling: Robust Scaling theo snapshot  
 Global K: giá trị đã khóa  
-PCA: số component đã khóa  
-Algorithms: K-Means, Ward, PCA + K-Means
+Algorithm: Duy nhất 1 mô hình phân cụm tốt nhất được chọn từ Nhiệm vụ 10 (Final Method)
 
-## Phần 11.1 — Chỉ mở holdout sau khi development freeze
+## Phần 11.1 — Chỉ mở holdout sau khi development freeze và khóa Final Method
 
 ### Mục đích
 
 Ngăn holdout ảnh hưởng đến quá trình lựa chọn methodology.
 
-Development hoàn tất → Global K khóa → Preprocessing khóa → PCA khóa → Algorithm khóa → Development artifact freeze → mới mở holdout.
+Development hoàn tất → Global K khóa → So sánh 3 phương án xong → Chọn & Khóa 1 Final Method → Decision artifact freeze → mới mở holdout.
 
 ## Phần 11.2 — Lấy snapshot holdout đầu tiên
 
@@ -1985,29 +2131,18 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 
 ## Kết quả cần đạt của Nhiệm vụ 11
 
-- methodology có chạy được trên dữ liệu mới không;
+- Kết quả kiểm định độc lập của **duy nhất 1 mô hình tốt nhất đã chọn** trên 7 snapshots holdout;
+- Không dùng kết quả holdout để thay đổi lại mô hình đã chọn hoặc retune siêu tham số;
+- Đánh giá chất lượng cụm và độ ổn định thời gian trên holdout so với development;
+- Ghi nhận đầy đủ giới hạn thực nghiệm.
 
-- chất lượng holdout thay đổi thế nào so với development;
+## Vị trí trong repo & Đường dẫn output
 
-- cluster profile còn rõ không;
-
-- temporal stability có ổn định không;
-
-- ba phương án có hành vi tương tự development không;
-
-- có hạn chế mới nào xuất hiện không.
-
-Không dùng các câu trả lời trên để retune Protocol v1.
-
-## Vị trí trong repo
-
-- DELTA_UNIFIED_PROJECT_PLAN.md §6.2, §6.6, §6.7, §6.8, §9
-
-- EXPERIMENT_PROTOCOL.md
-
-- METHODOLOGY.md
-
-- m2-prep-v1/holdout_candidates.csv
+- **Vị trí tài liệu tham chiếu**: `docs/DELTA_UNIFIED_PROJECT_PLAN.md` §6.2, §6.6, §6.7, §6.8, §9, `docs/EXPERIMENT_PROTOCOL.md`, `docs/METHODOLOGY.md`
+- **Code model / Thực thi holdout**: `M2/notebooks/11_final_holdout_execution.py` (script batch chạy một mạch; hoặc `11_final_holdout_execution.ipynb` ngắn; chạy đóng băng trên 1 mô hình đã chọn)
+- **Mô hình / Trọng số (Models & Holdout Objects)**: `M2/models/holdout/` (lưu trữ fitted objects cho holdout snapshots)
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.docx` (hoặc `.md`)
+- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-final-holdout-v1/`
 
 # NHIỆM VỤ 12 — M2 VERIFY
 
@@ -2094,6 +2229,13 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - evidence đầy đủ;
 
 - không có methodology violation.
+
+## Vị trí trong repo & Đường dẫn output
+
+- **Code kiểm định / Verify script**: `M2/notebooks/12_m2_verification_audit.py` (script kiểm định tự động chạy một mạch; hoặc `12_m2_verification_audit.ipynb`)
+- **Mô hình**: Kiểm tra tính toàn vẹn của tất cả model objects trong `M2/models/`
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_12_Verify_Audit.docx` (hoặc `.md`)
+- **Artifacts kiểm định**: `artifacts/experiments/m2-verify-v1/verification_summary.json`, `audit_evidence.csv`
 
 # NHIỆM VỤ 13 — BÁO CÁO VÀ BÀN GIAO M3
 
@@ -2203,6 +2345,13 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 
 - handoff package M3.
 
+## Vị trí trong repo & Đường dẫn output
+
+- **Code tổng kết & Handoff**: `M2/notebooks/13_m2_m3_handoff_summary.py` (script tổng kết bàn giao; hoặc `13_m2_m3_handoff_summary.ipynb`)
+- **Mô hình bàn giao chính thức cho M3**: `M2/models/final_selected_model/` (gói model chuẩn hóa của 1 mô hình tốt nhất được chọn sau Task 10 và Holdout Task 11)
+- **Báo cáo tổng kết & Bàn giao (Reports)**: `M2/reports/Bao_cao_tong_ket_M2_Ban_giao_M3.docx` (hoặc `.md`, slide báo cáo tổng kết M2)
+- **Gói Artifact bàn giao hoàn chỉnh**: `artifacts/experiments/m2-final-handoff-v1/`
+
 # Cách phân công thành viên
 
 ## Mục đích
@@ -2231,13 +2380,9 @@ NHIỆM VỤ 2 – Build/test runner
 ↓  
 NHIỆM VỤ 3 – K-Means K=2..8 trên development  
 ↓  
-Aggregate metrics  
+Aggregate metrics & Chọn và khóa GLOBAL K  
 ↓  
-Chọn GLOBAL K  
-↓  
-Khóa GLOBAL K  
-↓  
-K-Means / Ward / PCA + K-Means  
+K-Means / Ward / PCA + K-Means (Chạy độc lập 3 phương án)  
 ↓  
 NHIỆM VỤ 7 – Quality evaluation  
 ↓  
@@ -2245,251 +2390,12 @@ NHIỆM VỤ 8 – Cluster profiles
 ↓  
 NHIỆM VỤ 9 – Temporal stability  
 ↓  
-NHIỆM VỤ 10 – So sánh phương án  
+NHIỆM VỤ 10 – So sánh 3 phương án & CHỌN RA 1 MÔ HÌNH PHÂN CỤM TỐT NHẤT (Khóa Final Method)  
 ↓  
-NHIỆM VỤ 11 – Final Holdout  
+NHIỆM VỤ 11 – Final Holdout (Chỉ chạy kiểm định trên duy nhất 1 mô hình đã chọn)  
 ↓  
 NHIỆM VỤ 12 – Verify  
 ↓  
 NHIỆM VỤ 13 – Report / Handoff M3
 
-Điểm quan trọng nhất: Nhiệm vụ 1–3 là phần chung để thống nhất methodology và chọn Global K. Sau đó mới chia người theo từng phương án. Mỗi snapshot được lọc, chuẩn hóa và phân cụm riêng; Global K và methodology được khóa chung. Final holdout chỉ được mở sau khi development hoàn tất và không được dùng để tiếp tục tuning Protocol v1.
-
-# PHẦN BỔ SUNG – SO SÁNH VÀ CHỌN PHƯƠNG ÁN PHÂN CỤM CUỐI CÙNG
-
-Bổ sung từ GPT – cần mentor/owner phê duyệt. Phần này chưa phải quyết định methodology đã được freeze trong repo hiện tại. Lý do bổ sung: kiến trúc của DELTA hướng tới việc khóa methodology trước khi mở final holdout và trước M3, nhưng repo hiện chưa quy định chi tiết cách chọn một phương án cuối cùng giữa K-Means, Ward và PCA + K-Means.
-
-## Mục đích của phần bổ sung
-
-Mục đích là xác định một phương án phân cụm chính thức sau khi ba phương án đã được chạy và đánh giá trên development. Phương án được chọn sẽ trở thành final method để tiếp tục sang final holdout, M2-VERIFY, báo cáo cuối và M3.
-
-Hai phương án còn lại không bị loại khỏi báo cáo. Chúng vẫn được giữ như các phương án đối chứng để chứng minh quá trình so sánh và lý do lựa chọn final method.
-
-## Vị trí của bước chọn phương án trong workflow
-
-Bước lựa chọn phải diễn ra sau khi hoàn thành Nhiệm vụ 10 – So sánh các phương án và trước khi mở Nhiệm vụ 11 – Final Holdout.
-
-Development  
-↓  
-K-Means / Ward / PCA + K-Means  
-↓  
-Nhiệm vụ 7 – Quality  
-↓  
-Nhiệm vụ 8 – Cluster profile  
-↓  
-Nhiệm vụ 9 – Temporal stability  
-↓  
-Nhiệm vụ 10 – So sánh 3 phương án  
-↓  
-CHỌN 1 FINAL METHOD  
-↓  
-KHÓA FINAL METHOD  
-↓  
-Nhiệm vụ 11 – Final Holdout  
-↓  
-Nhiệm vụ 12 – Verify  
-↓  
-Nhiệm vụ 13 – Report / Handoff M3
-
-## Nguyên tắc bắt buộc khi lựa chọn
-
-Việc chọn phương án chỉ được dựa trên kết quả development. Final holdout không được mở trước khi final method đã được quyết định và khóa.
-
-- Không dùng future return, CAGR, Sharpe, Sortino, ROI, Calmar, alpha hoặc kết quả backtest để chọn thuật toán M2.
-
-- Không nhìn kết quả holdout rồi quay lại chọn phương án khác.
-
-- Không thay đổi feature set, Global K, scaling hoặc PCA rule riêng cho từng phương án chỉ để cải thiện kết quả so sánh.
-
-- Các phương án phải được so sánh trên cùng development window, cùng universe rule, cùng 8 feature và cùng Global K.
-
-- Quy tắc lựa chọn phải được ghi lại trước khi quyết định final method; nếu thay đổi rule sau khi xem kết quả thì phải tạo protocol/version mới.
-
-## Các nhóm tiêu chí dùng để chọn phương án
-
-Không nên chọn phương án chỉ bằng một chỉ số duy nhất. Nên đánh giá theo thứ tự ưu tiên: chất lượng phân cụm → độ ổn định theo thời gian → cân bằng và khả năng diễn giải → độ đơn giản của phương pháp.
-
-| **Ưu tiên** | **Nhóm tiêu chí**               | **Chỉ số / bằng chứng**                          | **Mục đích**                                                         | **Vai trò**      |
-|-------------|---------------------------------|--------------------------------------------------|----------------------------------------------------------------------|------------------|
-| 1           | Chất lượng phân cụm             | Silhouette, Davies–Bouldin, Calinski–Harabasz    | Đánh giá cụm có rõ, gọn và tách biệt hay không                       | Tiêu chí chính   |
-| 2           | Ổn định theo thời gian          | ARI, NMI, persistence, migration, centroid drift | Đánh giá cấu trúc cụm có ổn định giữa các tháng hay không            | Tiêu chí thứ hai |
-| 3           | Cân bằng cụm                    | Cluster size / balance                           | Phát hiện cụm quá lớn hoặc quá nhỏ bất thường                        | Sanity check     |
-| 4           | Khả năng diễn giải              | Cluster profile trên 8 feature gốc               | Xem cụm có thể giải thích bằng momentum – risk – liquidity hay không | Tiêu chí hỗ trợ  |
-| 5           | Độ đơn giản và khả năng tái lập | Số bước, số tham số, reproducibility             | Ưu tiên phương pháp đơn giản hơn khi hiệu quả gần tương đương        | Tie-break cuối   |
-
-## Tiêu chí 1 – Chất lượng phân cụm
-
-### Mục đích
-
-Đánh giá phương án nào tạo ra cấu trúc cụm rõ ràng và tách biệt tốt hơn trên toàn development.
-
-### Cách đánh giá
-
-Tổng hợp metric của từng phương án trên tất cả snapshot development, ưu tiên median thay vì chỉ nhìn một tháng riêng lẻ.
-
-- Silhouette: cao hơn thường tốt hơn và nên là chỉ số chính.
-
-- Davies–Bouldin: thấp hơn thường tốt hơn và dùng để xác nhận kết quả Silhouette.
-
-- Calinski–Harabasz: dùng làm chỉ số bổ sung, không nên tự mình quyết định phương án cuối.
-
-- Inertia: chỉ phù hợp trực tiếp với K-Means, vì vậy không dùng để so sánh công bằng giữa tất cả các phương án.
-
-## Tiêu chí 2 – Độ ổn định theo thời gian
-
-### Mục đích
-
-Đề tài không chỉ cần phân cụm tốt ở một tháng mà còn nghiên cứu sự dịch chuyển của cổ phiếu qua thời gian. Vì vậy một phương án có chất lượng cụm tốt nhưng thay đổi hỗn loạn giữa các tháng cần được xem xét cẩn thận.
-
-### Các chỉ số cần xem
-
-- ARI và NMI: mức tương đồng giữa hai snapshot liên tiếp.
-
-- Persistence probability: tỷ lệ cổ phiếu duy trì cụm tương ứng.
-
-- Migration rate: tỷ lệ cổ phiếu chuyển cụm.
-
-- Transition matrix: hướng chuyển dịch giữa các cụm.
-
-- Centroid drift: mức thay đổi đặc trưng đại diện của cụm theo thời gian.
-
-Temporal stability là tiêu chí thứ hai. Không nên tự động chọn phương án có ARI cao nhất nếu chất lượng phân cụm của phương án đó thấp rõ rệt.
-
-## Tiêu chí 3 – Cân bằng cụm
-
-### Mục đích
-
-Phát hiện các phương án thường xuyên sinh ra cụm cực nhỏ hoặc cực lớn, gây khó cho diễn giải, temporal tracking và M3.
-
-Không yêu cầu các cụm phải có kích thước bằng nhau. Cluster balance chỉ là kiểm tra bất thường, không phải tiêu chí chính để chọn final method.
-
-Ví dụ cần cảnh giác:  
-Cluster 0: 350 mã  
-Cluster 1: 6 mã  
-Cluster 2: 4 mã  
-Cluster 3: 2 mã
-
-## Tiêu chí 4 – Khả năng diễn giải cluster profile
-
-### Mục đích
-
-Đảm bảo kết quả phân cụm có thể được giải thích bằng các đặc trưng gốc của đề tài và có thể trình bày trong luận văn/dashboard.
-
-Một cluster profile tốt cần cho thấy sự khác biệt có ý nghĩa giữa các cụm, ví dụ:
-
-Cụm A  
-→ momentum cao  
-→ volatility thấp  
-→ MDD thấp  
-→ liquidity cao  
-  
-Cụm B  
-→ momentum thấp/âm  
-→ volatility cao  
-→ MDD lớn
-
-Đối với PCA + K-Means, cần đặc biệt kiểm tra khả năng quay lại giải thích bằng 8 feature gốc. Nếu metric chỉ cải thiện rất nhỏ nhưng diễn giải trở nên khó hơn đáng kể thì đây là một trade-off cần ghi nhận.
-
-## Tiêu chí 5 – Độ đơn giản và khả năng tái lập
-
-### Mục đích
-
-Dùng làm tiêu chí phá hòa khi hai hoặc nhiều phương án có kết quả gần tương đương.
-
-Nếu chất lượng cụm, temporal stability và khả năng diễn giải gần nhau, ưu tiên phương án có pipeline đơn giản hơn, ít tham số hơn và dễ tái lập hơn.
-
-Ví dụ:  
-K-Means: 8 feature → scale → clustering  
-  
-PCA + K-Means: 8 feature → scale → PCA → clustering  
-  
-Nếu kết quả gần tương đương, K-Means có lợi thế về độ đơn giản và khả năng giải thích.
-
-## Quy trình lựa chọn final method đề xuất
-
-Bổ sung từ GPT – đây là rule đề xuất, cần được mentor/owner phê duyệt và freeze trước khi áp dụng.
-
-1\. Kiểm tra điều kiện hợp lệ: loại khỏi quá trình lựa chọn bất kỳ phương án nào vi phạm protocol, lỗi reproducibility hoặc có artifact không đầy đủ.
-
-2\. So sánh Median Silhouette của ba phương án trên toàn development.
-
-3\. Dùng Median Davies–Bouldin để xác nhận. Nếu hai metric cùng chỉ về một phương án và chênh lệch đủ rõ về mặt thực nghiệm thì phương án đó là ứng viên chính.
-
-4\. Nếu chất lượng phân cụm gần nhau, so sánh temporal stability bằng ARI, NMI, persistence, migration và centroid drift.
-
-5\. Nếu vẫn gần nhau, xem cluster balance và khả năng diễn giải profile trên 8 feature gốc.
-
-6\. Nếu vẫn tương đương, chọn phương án đơn giản hơn và dễ tái lập hơn.
-
-7\. Ghi decision artifact nêu rõ dữ liệu development, metric đã dùng, kết quả so sánh, lý do chọn và final method.
-
-8\. Khóa final method trước khi mở final holdout.
-
-## Không nên dùng một điểm tổng hợp có trọng số tùy ý
-
-Không khuyến nghị tự tạo một điểm tổng hợp như 40% Silhouette + 30% ARI + 20% balance + 10% interpretability nếu chưa có căn cứ và chưa pre-register. Trọng số như vậy dễ trở thành quyết định chủ quan sau khi nhìn kết quả.
-
-Thay vào đó, nên dùng quy trình lựa chọn theo thứ tự ưu tiên đã nêu ở trên.
-
-## Ví dụ minh họa cách lựa chọn
-
-Ví dụ giả định sau development có kết quả:
-
-| **Phương án** | **Median Silhouette ↑** | **Median DB ↓** | **Median ARI ↑** | **Migration ↓** | **Diễn giải** |
-|---------------|-------------------------|-----------------|------------------|-----------------|---------------|
-| K-Means       | 0.46                    | 0.82            | 0.61             | 30%             | Rõ            |
-| Ward          | 0.50                    | 0.75            | 0.67             | 24%             | Rõ            |
-| PCA + K-Means | 0.48                    | 0.79            | 0.71             | 20%             | Khá rõ        |
-
-Trong ví dụ này, Ward có chất lượng phân cụm tốt hơn theo cả Silhouette và Davies–Bouldin, đồng thời temporal stability cũng tốt. Nếu rule đã được freeze theo thứ tự ưu tiên ở trên, Ward sẽ là ứng viên final method. Tuy nhiên đây chỉ là ví dụ minh họa, không phải kết luận cho dữ liệu thật.
-
-## Output của bước chọn phương án
-
-Sau bước này phải tạo được một decision artifact tối thiểu gồm:
-
-- tên ba phương án đã so sánh;
-
-- development window và Global K đã sử dụng;
-
-- bảng quality metrics theo phương án;
-
-- bảng temporal metrics theo phương án;
-
-- cluster balance và profile summary;
-
-- quy tắc lựa chọn đã freeze;
-
-- final method được chọn;
-
-- lý do lựa chọn;
-
-- config/hash/version liên quan.
-
-## Ảnh hưởng đến Nhiệm vụ 11 trở đi nếu phần bổ sung được phê duyệt
-
-Nếu quyết định chọn một final method được chấp thuận, từ Nhiệm vụ 11 trở đi không tiếp tục chạy cả ba phương án như ba ứng viên ngang nhau.
-
-Nhiệm vụ 10  
-→ so sánh 3 phương án  
-→ chọn FINAL METHOD  
-→ khóa FINAL METHOD  
-  
-Nhiệm vụ 11 – Final Holdout  
-→ chỉ chạy final method đã chọn  
-  
-Nhiệm vụ 12 – M2 Verify  
-→ verify final method và decision lineage  
-  
-Nhiệm vụ 13 – Report / Handoff M3  
-→ final method là phương pháp chính thức chuyển sang M3  
-→ hai phương án còn lại được giữ trong báo cáo dưới vai trò comparator
-
-## Nguyên tắc đối với final holdout
-
-Final holdout chỉ dùng để đánh giá phương án đã được chọn. Không được chạy ba phương án trên holdout rồi dùng kết quả holdout để thay đổi final method, vì như vậy holdout đã tham gia vào model selection.
-
-Nếu final method cho kết quả không tốt trên holdout, phải giữ nguyên kết quả, ghi nhận limitation và phân tích nguyên nhân. Nếu muốn thay methodology thì phải tạo protocol/experiment version mới thay vì sửa Protocol v1.
-
-## Kết luận của phần bổ sung
-
-Nếu mục tiêu của M2 là bàn giao một clustering methodology chính thức sang M3 và dashboard, nên chọn một final method sau khi so sánh ba phương án trên development. Việc lựa chọn nên ưu tiên: chất lượng phân cụm → độ ổn định theo thời gian → cân bằng/khả năng diễn giải → độ đơn giản. Final holdout chỉ được mở sau khi final method đã khóa và chỉ dùng để kiểm tra phương án đó.
+Điểm quan trọng nhất: Nhiệm vụ 1–3 là phần chung để thống nhất methodology và chọn Global K. Sau đó mới chia người theo từng phương án. Mỗi snapshot được lọc, chuẩn hóa và phân cụm riêng; Global K và methodology được khóa chung. Sau Nhiệm vụ 10, nhóm chính thức so sánh và chọn ra duy nhất 1 mô hình tốt nhất (Final Method); Final holdout (Nhiệm vụ 11) chỉ chạy kiểm định độc lập trên mô hình đã chọn này và không được dùng để tiếp tục tuning Protocol v1.
