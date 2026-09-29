@@ -223,6 +223,12 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
                             for profile in snapshot["profiles"])
             diagnostic_rows.extend(dict(row, snapshot_date=day) for row in snapshot["diagnostics"])
             write_json(target / "models" / (day + ".json"), snapshot["model"])
+            if config.get("protocol_scope") == "m2_market_only_v1" or str(config.get("stage", "")).startswith("M2_"):
+                algo = config.get("clustering", {}).get("algorithm") or config.get("clustering", {}).get("baseline")
+                if algo in ("kmeans", "ward", "pca_kmeans"):
+                    m2_models_dir = Path(root).resolve() / "M2" / "models" / algo
+                    m2_models_dir.mkdir(parents=True, exist_ok=True)
+                    write_json(m2_models_dir / (day + ".json"), snapshot["model"])
             snapshots.append(snapshot)
             previous = snapshot
         for name, rows in (("assignments", assignments), ("transitions", transition_rows)):

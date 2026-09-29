@@ -105,9 +105,30 @@ def load_verified_data_run(data_run: Path, config: dict) -> tuple[dict, dict[str
 
 
 def start_experiment(root: Path, data_run: Path, source: dict, config: dict) -> tuple[Path, dict]:
-    run_id = new_artifact_id("experiment")
-    target = Path(root).resolve() / "data/experiments" / run_id
-    target.mkdir(parents=True, exist_ok=False)
+    run_id = config.get("run_id") or new_artifact_id("experiment")
+    output_dir = config.get("output_dir") or config.get("output_directory")
+    if not output_dir and (
+        config.get("protocol_scope") == "m2_market_only_v1"
+        or str(config.get("stage", "")).startswith("M2_")
+    ):
+        algo = config.get("clustering", {}).get("algorithm") or config.get("clustering", {}).get("baseline")
+        if config.get("stage") == "M2_TASK_11_HOLDOUT" or (
+            config.get("start") == "2026-02-27" and config.get("end") == "2026-08-28"
+        ):
+            output_dir = "M2/artifacts/m2-final-holdout-v1"
+        elif algo == "ward":
+            output_dir = "M2/artifacts/m2-task5-ward-v1"
+        elif algo == "pca_kmeans":
+            output_dir = "M2/artifacts/m2-task6-pca-kmeans-v1"
+        elif algo == "kmeans":
+            output_dir = "M2/artifacts/m2-task4-kmeans-baseline-v1"
+
+    if output_dir:
+        custom = Path(output_dir)
+        target = custom if custom.is_absolute() else Path(root).resolve() / custom
+    else:
+        target = Path(root).resolve() / "data/experiments" / run_id
+    target.mkdir(parents=True, exist_ok=True)
     package = Path(__file__).parents[1]
     with zipfile.ZipFile(target / "source_snapshot.zip", "w", zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(package.rglob("*")):
