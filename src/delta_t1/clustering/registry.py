@@ -6,6 +6,7 @@ def algorithms() -> dict[str, ClusteringAlgorithm]:
     from . import dbscan, gmm, hierarchical, kmeans
     return {
         "kmeans": ClusteringAlgorithm("kmeans", kmeans.fit_snapshot, kmeans.validate_config),
+        "pca_kmeans": ClusteringAlgorithm("pca_kmeans", kmeans.fit_snapshot, kmeans.validate_config),
         "hierarchical": ClusteringAlgorithm("hierarchical", hierarchical.fit_snapshot, hierarchical.validate_config),
         "ward": ClusteringAlgorithm("ward", hierarchical.fit_snapshot, hierarchical.validate_config),
         "dbscan": ClusteringAlgorithm("dbscan", dbscan.fit_snapshot, dbscan.validate_config),
