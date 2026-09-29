@@ -130,7 +130,7 @@ Không lấy cố định 905 mã của snapshot 08/2026 áp ngược toàn bộ
   - **Khi nào dùng `.py` (chạy một mạch)**: Tác vụ là pipeline thực thi tự động, batch runner chạy một mạch từ đầu đến cuối không cần ngắt quãng xem cell, hoặc script kiểm định (verify/audit). Phù hợp cho **Nhiệm vụ 4, 5, 11, 12, 13** (các script `.py` này cũng được đặt trực tiếp trong `M2/notebooks/` để tập trung toàn bộ code vào một nơi).
 - **Mô hình / Trọng số (Fitted models & objects)**: Lưu trữ trong thư mục `M2/models/` (các file đối tượng mô hình đã fit, scalers, weights, centroids, linkages, PCA transformers được lưu trữ tuần tự theo nhiệm vụ và thuật toán, bao gồm thư mục `M2/models/final_selected_model/` cho 1 mô hình tốt nhất được chọn sau Nhiệm vụ 10).
 - **Báo cáo (Reports & Documents)**: Lưu trữ trong thư mục `M2/reports/` (các file Word `.docx`, báo cáo tổng kết `.md`, tài liệu kiểm định, slide thuyết trình của từng nhiệm vụ và toàn bộ M2).
-- **Artifacts thực nghiệm chuẩn hóa (System & Pipeline Artifacts)**: Lưu trữ trong thư mục `artifacts/experiments/` (các artifact bất biến do hệ thống runner ghi nhận: `assignments.jsonl`, `diagnostics.jsonl`, `profiles.jsonl`, `manifest.json`, `metric_matrix.csv` theo protocol đã freeze).
+- **Artifacts thực nghiệm chuẩn hóa (System & Pipeline Artifacts)**: Lưu trữ trong thư mục `M2/artifacts/` (các artifact bất biến do hệ thống runner ghi nhận: `assignments.jsonl`, `diagnostics.jsonl`, `profiles.jsonl`, `manifest.json`, `metric_matrix.csv` theo protocol đã freeze; lưu tại `M2/artifacts/` để không bị `.gitignore` chặn và có thể push lên GitHub phục vụ phối hợp giữa các thành viên).
 
 # HƯỚNG DẪN NHỜ AI GIẢI NÉN VÀ THIẾT LẬP DỮ LIỆU NỀN TẢNG (DELTA_01_ACTIVE_M2_M3.zip)
 
@@ -948,7 +948,7 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - **Code model / Thực thi**: `M2/notebooks/04_kmeans_baseline.py` (script batch chạy một mạch; hoặc `04_kmeans_baseline.ipynb` nếu muốn vẽ trực quan hóa cụm; phối hợp `src/delta_t1/clustering/kmeans.py` và `src/delta_t1/experiments/runner.py`)
 - **Mô hình / Trọng số (Models & Centroids)**: `M2/models/kmeans/` (lưu trữ model K-Means fitted, centroids và snapshot scaler parameters)
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_4_KMeans_Baseline.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-task4-kmeans-baseline-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `manifest.json`)
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task4-kmeans-baseline-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `manifest.json`; lưu trong M2 để push lên GitHub)
 
 # NHIỆM VỤ 5 — CHẠY PHƯƠNG ÁN B: WARD
 
@@ -1226,7 +1226,7 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - **Code model / Thực thi**: `M2/notebooks/05_ward_hierarchical.py` (script batch chạy một mạch; hoặc `05_ward_hierarchical.ipynb` nếu muốn vẽ dendrogram; phối hợp `src/delta_t1/clustering/hierarchical.py` và `src/delta_t1/experiments/runner.py`)
 - **Mô hình / Trọng số (Models & Linkages)**: `M2/models/ward/` (lưu trữ ma trận linkage, cluster representatives, scaler parameters)
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_5_Ward.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-task5-ward-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `manifest.json`)
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task5-ward-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `manifest.json`; lưu trong M2 để push lên GitHub)
 
 # NHIỆM VỤ 6 — CHẠY PHƯƠNG ÁN C: PCA + K-MEANS
 
@@ -1539,7 +1539,7 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - **Code model / Thực thi**: `M2/notebooks/06_pca_kmeans.ipynb` (kết hợp PCA trong `src/delta_t1/features/preprocessing.py` và `src/delta_t1/clustering/kmeans.py`)
 - **Mô hình / Trọng số (Models & Transformers)**: `M2/models/pca_kmeans/` (lưu trữ PCA transformer objects, explained variance ratios, fitted KMeans models theo từng snapshot)
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_6_PCA_KMeans.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-task6-pca-kmeans-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `pca_diagnostics.jsonl`, `manifest.json`)
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task6-pca-kmeans-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `pca_diagnostics.jsonl`, `manifest.json`; lưu trong M2 để push lên GitHub)
 
 
 # NHIỆM VỤ 7 — ĐÁNH GIÁ CHẤT LƯỢNG CỤM
@@ -1617,7 +1617,7 @@ Bảng snapshot × phương án × metric.
 - **Code phân tích / Đánh giá**: `M2/notebooks/07_cluster_quality_evaluation.ipynb` (sử dụng `src/delta_t1/evaluation/cluster_metrics.py`)
 - **Mô hình**: Không fit model mới; đọc models từ `M2/models/` của Nhiệm vụ 4, 5, 6
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-evaluation/quality_metrics_comparison.csv`
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-evaluation/quality_metrics_comparison.csv` (lưu trong M2 để push lên GitHub)
 
 # NHIỆM VỤ 8 — PHÂN TÍCH HỒ SƠ CỤM
 
@@ -1684,7 +1684,7 @@ Cluster profiles dễ đọc và có thể giải thích.
 - **Code phân tích / Profiling**: `M2/notebooks/08_cluster_profiling.ipynb` (trực quan hóa radar chart, phân phối feature từ `src/delta_t1/clustering/base.py`)
 - **Mô hình**: Không fit model mới; đọc centroids và profiles từ `M2/models/`
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-evaluation/cluster_profiles.csv`
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-evaluation/cluster_profiles.csv` (lưu trong M2 để push lên GitHub)
 
 # NHIỆM VỤ 9 — ĐÁNH GIÁ ĐỘ ỔN ĐỊNH THEO THỜI GIAN
 
@@ -1795,7 +1795,7 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - **Code phân tích / Temporal**: `M2/notebooks/09_temporal_stability.ipynb` (sử dụng `src/delta_t1/evaluation/temporal_metrics.py`)
 - **Mô hình**: Không fit model mới; đọc cluster assignments chuỗi thời gian từ các nhiệm vụ trước
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-evaluation/temporal_stability.csv`, `transition_matrices.jsonl`
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-evaluation/temporal_stability.csv`, `M2/artifacts/m2-evaluation/transition_matrices.jsonl` (lưu trong M2 để push lên GitHub)
 
 # NHIỆM VỤ 10 — SO SÁNH CÁC PHƯƠNG ÁN VÀ CHỌN RA 1 MÔ HÌNH TỐT NHẤT (FINAL METHOD SELECTION)
 
@@ -1921,7 +1921,7 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - **Code tổng hợp / So sánh**: `M2/notebooks/10_model_comparison.ipynb` (hoặc `10_model_comparison.py`, lưu trong `M2/notebooks/`)
 - **Mô hình được chọn**: `M2/models/final_selected_model/` (lưu trữ model và scaler parameters của phương án chiến thắng)
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-evaluation/methodology_comparison.csv`, `final_method_decision.json`
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-evaluation/methodology_comparison.csv`, `M2/artifacts/m2-evaluation/final_method_decision.json` (lưu trong M2 để push lên GitHub)
 
 # NHIỆM VỤ 11 — MỞ VÀ CHẠY FINAL HOLDOUT
 
@@ -2142,7 +2142,7 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - **Code model / Thực thi holdout**: `M2/notebooks/11_final_holdout_execution.py` (script batch chạy một mạch; hoặc `11_final_holdout_execution.ipynb` ngắn; chạy đóng băng trên 1 mô hình đã chọn)
 - **Mô hình / Trọng số (Models & Holdout Objects)**: `M2/models/holdout/` (lưu trữ fitted objects cho holdout snapshots)
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `artifacts/experiments/m2-final-holdout-v1/`
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-final-holdout-v1/` (lưu trong M2 để push lên GitHub)
 
 # NHIỆM VỤ 12 — M2 VERIFY
 
@@ -2235,7 +2235,7 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - **Code kiểm định / Verify script**: `M2/notebooks/12_m2_verification_audit.py` (script kiểm định tự động chạy một mạch; hoặc `12_m2_verification_audit.ipynb`)
 - **Mô hình**: Kiểm tra tính toàn vẹn của tất cả model objects trong `M2/models/`
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_12_Verify_Audit.docx` (hoặc `.md`)
-- **Artifacts kiểm định**: `artifacts/experiments/m2-verify-v1/verification_summary.json`, `audit_evidence.csv`
+- **Artifacts kiểm định**: `M2/artifacts/m2-verify-v1/verification_summary.json`, `M2/artifacts/m2-verify-v1/audit_evidence.csv` (lưu trong M2 để push lên GitHub)
 
 # NHIỆM VỤ 13 — BÁO CÁO VÀ BÀN GIAO M3
 
@@ -2350,7 +2350,7 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - **Code tổng kết & Handoff**: `M2/notebooks/13_m2_m3_handoff_summary.py` (script tổng kết bàn giao; hoặc `13_m2_m3_handoff_summary.ipynb`)
 - **Mô hình bàn giao chính thức cho M3**: `M2/models/final_selected_model/` (gói model chuẩn hóa của 1 mô hình tốt nhất được chọn sau Task 10 và Holdout Task 11)
 - **Báo cáo tổng kết & Bàn giao (Reports)**: `M2/reports/Bao_cao_tong_ket_M2_Ban_giao_M3.docx` (hoặc `.md`, slide báo cáo tổng kết M2)
-- **Gói Artifact bàn giao hoàn chỉnh**: `artifacts/experiments/m2-final-handoff-v1/`
+- **Gói Artifact bàn giao hoàn chỉnh**: `M2/artifacts/m2-final-handoff-v1/` (lưu trong M2 để push lên GitHub)
 
 # Cách phân công thành viên
 
