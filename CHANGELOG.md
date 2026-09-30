@@ -1,3 +1,10 @@
+# Chưa phát hành — M2 Ward reporting (2026-09-30)
+
+- Viết lại notebook và báo cáo nhiệm vụ 7, 8, 9 cho phần Ward theo kế hoạch: quality tại Global K=2, profile trên tám feature gốc, temporal trên giao tập mã với aligned ID, drift và entry/exit đầy đủ.
+- Thêm helper reporting kiểm tra checksum/coverage/nhãn/sizes/scaler và quan hệ temporal từ artifact hiện có; không đọc dữ liệu M1/holdout, không fit lại model hoặc thay methodology.
+- Xuất bảng cùng manifest trực tiếp vào `M2/artifacts/m2-evaluation/` theo kế hoạch; giữ nguyên artifact nguồn Ward. Bảng chất lượng dùng 15 snapshot tại Global K=2.
+- Kiểm tra: 8/8 tests reporting trên fixture tổng hợp; 16/16 code cells của ba notebook đã chạy và lưu output; compileall thành công. Chưa xác nhận độc lập implementation Ward, chưa hoàn tất so sánh ba phương án hoặc chọn final method.
+
 # Chưa phát hành — Post-M1 documentation alignment (2026-09-26)
 
 - Hoàn tất M2 Nhiệm vụ 3: chạy 105 lượt K-Means trên 15 development snapshots; phê duyệt chính thức Global K = 2 (ADR-049) với median Silhouette 0.7557 và Davies-Bouldin 0.5219; ghi nhận cấu hình k: 2 và chuyển stage sang M2_TASK_3_GLOBAL_K_FROZEN, sẵn sàng thực thi Nhiệm vụ 4.
