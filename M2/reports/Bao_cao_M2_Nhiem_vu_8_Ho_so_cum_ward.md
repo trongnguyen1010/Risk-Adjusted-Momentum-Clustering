@@ -8,7 +8,7 @@
 - [Manifest Ward](../artifacts/m2-task5-ward-v1/manifest.json), SHA-256 `c69ffb178e966dd77db7430ca02a26390f82be54d3a02adbd04649755fabc3e7`.
 - K=2 đã khóa trong [decision nhiệm vụ 3](../../artifacts/experiments/m2-task3-development-v1/global_k_decision.json) và [ADR-049](../../docs/DECISIONS.md).
 - Bản báo cáo này chỉ đọc artifact development đã có; không fit model/scaler/PCA, không đọc file feature M1 hoặc final holdout, không backtest.
-- Output báo cáo lưu trực tiếp tại `M2/artifacts/m2-evaluation/` theo kế hoạch; artifact nguồn Ward được giữ nguyên.
+- Output báo cáo lưu trực tiếp tại `M2/artifacts/m2-evaluation-ward/` theo kế hoạch; artifact nguồn Ward được giữ nguyên.
 
 ## 8.1 — Phương pháp tổng hợp hồ sơ
 
@@ -80,9 +80,9 @@ Không fit Global Min-Max, không đổi Robust Scaling của mô hình và khô
 ## Đầu ra bàn giao
 
 - [Notebook nhiệm vụ 8](../notebooks/08_cluster_profiling.ipynb).
-- [Đủ 30 hồ sơ trên tám feature gốc](../artifacts/m2-evaluation/cluster_profiles.csv).
-- [Thành viên từng cụm theo tháng](../artifacts/m2-evaluation/cluster_profile_members.csv).
-- [Đối chiếu mean với scaler/centroid đã lưu](../artifacts/m2-evaluation/profile_scaler_reference.csv).
+- [Đủ 30 hồ sơ trên tám feature gốc](../artifacts/m2-evaluation-ward/cluster_profiles.csv).
+- [Thành viên từng cụm theo tháng](../artifacts/m2-evaluation-ward/cluster_profile_members.csv).
+- [Đối chiếu mean với scaler/centroid đã lưu](../artifacts/m2-evaluation-ward/profile_scaler_reference.csv).
 
 ## Kiểm chứng và giới hạn
 
@@ -90,10 +90,10 @@ Không fit Global Min-Max, không đổi Robust Scaling của mô hình và khô
 - Đối chiếu 30/30 checksum của run nguồn; kiểm tra coverage ngày, assignment duy nhất, size profile/diagnostics và K đã khóa.
 - Đối chiếu scaler/centroid đã lưu; ARI/NMI dùng lại module metrics hiện có, cùng kiểm tra membership, transition và drift từ assignments/profiles.
 - Đây là xác nhận tính toàn vẹn và tính nhất quán của artifact, chưa phải kiểm chứng độc lập implementation Ward hoặc dữ liệu M1.
-- [Manifest báo cáo nhiệm vụ 8](../artifacts/m2-evaluation/task8_manifest.json) ghi input/output hashes và checksum helper.
+- [Manifest báo cáo nhiệm vụ 8](../artifacts/m2-evaluation-ward/task8_manifest.json) ghi input/output hashes và checksum helper.
 - Không kết luận hiệu quả đầu tư, không chọn lại K và không chọn final method từ riêng phần Ward.
 ## 5. Đầu ra Bàn giao
-Tất cả các tệp đánh giá chi tiết lưu tại `M2/artifacts/m2-evaluation/`:
+Tất cả các tệp đánh giá chi tiết lưu tại `M2/artifacts/m2-evaluation-ward/`:
 - `cluster_profiles.csv`: Đủ 30 hồ sơ (15 tháng x 2 cụm) trên 8 feature gốc.
 - `cluster_profile_members.csv`: Trích xuất chi tiết mã cổ phiếu thuộc cụm nào theo từng tháng.
 - `profile_scaler_reference.csv`: Đối chiếu raw mean với scaler model.

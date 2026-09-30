@@ -8,7 +8,7 @@
 - [Manifest Ward](../artifacts/m2-task5-ward-v1/manifest.json), SHA-256 `c69ffb178e966dd77db7430ca02a26390f82be54d3a02adbd04649755fabc3e7`.
 - K=2 đã khóa trong [decision nhiệm vụ 3](../../artifacts/experiments/m2-task3-development-v1/global_k_decision.json) và [ADR-049](../../docs/DECISIONS.md).
 - Bản báo cáo này chỉ đọc artifact development đã có; không fit model/scaler/PCA, không đọc file feature M1 hoặc final holdout, không backtest.
-- Output báo cáo lưu trực tiếp tại `M2/artifacts/m2-evaluation/` theo kế hoạch; artifact nguồn Ward được giữ nguyên.
+- Output báo cáo lưu trực tiếp tại `M2/artifacts/m2-evaluation-ward/` theo kế hoạch; artifact nguồn Ward được giữ nguyên.
 
 ## 9.1–9.4 — Định nghĩa và bảng temporal
 
@@ -110,10 +110,10 @@ không dùng dữ liệu holdout thật.
 ## Đầu ra bàn giao
 
 - [Notebook nhiệm vụ 9](../notebooks/09_temporal_stability.ipynb).
-- [Temporal theo cặp](../artifacts/m2-evaluation/temporal_stability.csv), [thống kê tổng hợp](../artifacts/m2-evaluation/temporal_summary.csv).
-- [Transition matrices](../artifacts/m2-evaluation/transition_matrices.jsonl), [persistence từng cụm](../artifacts/m2-evaluation/cluster_persistence.csv).
-- [Centroid drift đầy đủ](../artifacts/m2-evaluation/centroid_drift.csv), [entry/exit từng mã](../artifacts/m2-evaluation/entry_exit.csv).
-- [Kiểm tra các cặp tháng](../artifacts/m2-evaluation/temporal_pair_audit.csv).
+- [Temporal theo cặp](../artifacts/m2-evaluation-ward/temporal_stability.csv), [thống kê tổng hợp](../artifacts/m2-evaluation-ward/temporal_summary.csv).
+- [Transition matrices](../artifacts/m2-evaluation-ward/transition_matrices.jsonl), [persistence từng cụm](../artifacts/m2-evaluation-ward/cluster_persistence.csv).
+- [Centroid drift đầy đủ](../artifacts/m2-evaluation-ward/centroid_drift.csv), [entry/exit từng mã](../artifacts/m2-evaluation-ward/entry_exit.csv).
+- [Kiểm tra các cặp tháng](../artifacts/m2-evaluation-ward/temporal_pair_audit.csv).
 
 ## Kết luận có giới hạn
 
@@ -128,5 +128,5 @@ Chưa đủ cơ sở chọn Ward làm final method hoặc tuyên bố đưa vào
 - Đối chiếu 30/30 checksum của run nguồn; kiểm tra coverage ngày, assignment duy nhất, size profile/diagnostics và K đã khóa.
 - Đối chiếu scaler/centroid đã lưu; ARI/NMI dùng lại module metrics hiện có, cùng kiểm tra membership, transition và drift từ assignments/profiles.
 - Đây là xác nhận tính toàn vẹn và tính nhất quán của artifact, chưa phải kiểm chứng độc lập implementation Ward hoặc dữ liệu M1.
-- [Manifest báo cáo nhiệm vụ 9](../artifacts/m2-evaluation/task9_manifest.json) ghi input/output hashes và checksum helper.
+- [Manifest báo cáo nhiệm vụ 9](../artifacts/m2-evaluation-ward/task9_manifest.json) ghi input/output hashes và checksum helper.
 - Không kết luận hiệu quả đầu tư, không chọn lại K và không chọn final method từ riêng phần Ward.
