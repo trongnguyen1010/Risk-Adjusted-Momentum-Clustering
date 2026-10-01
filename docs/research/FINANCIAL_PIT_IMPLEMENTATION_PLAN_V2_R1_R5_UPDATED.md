@@ -3502,6 +3502,1446 @@ STOP CONDITION CONFIRMED:
 YES
 ```
 
+#### Kết quả thực thi FIN-PIT-2-R2 — 2026-10-01
+
+```text
+STAGE: FIN-PIT-2-R2
+EXECUTION_MODE: AI_EXECUTES_OFFLINE
+STATUS: PARTIAL
+
+PERIOD REVIEW:
+- Q2/Q3 candidates reviewed: 14
+- current instant contexts verified: 7
+- current standalone contexts verified: 3
+- current YTD contexts verified: 10
+- full_year contexts verified: 0
+- unresolved/partial reports: 11
+
+SCOPE REVIEW:
+- conflicts reviewed: 9
+- resolved: 4
+- unresolved fail-closed: 5
+
+SEMANTIC_READY:
+- reports: 6 -> 8
+- facts: 216 -> 216
+- quarantine: 26 -> 24
+- linkage verified: 27 -> 29
+
+NETWORK_REQUEST_COUNT: 0
+CANONICAL_ROWS_WRITTEN: 0
+FINANCIAL_FEATURES_WRITTEN: 0
+REVISION_GROUPS: 7 UNKNOWN
+TIMING: 4 A_EXACT_TIMESTAMP + 28 B_OFFICIAL_DATE_D1, unchanged
+
+FINAL ARTIFACT:
+artifacts/financial_pit/fin-pit-2-r2-period-scope-remediation-v2/
+
+GATE REASON:
+VERIFIED_SUBSET_FROZEN_WITH_REMAINING_PERIOD_OR_SCOPE_UNRESOLVED
+
+MANUAL_REVIEW_REQUIRED:
+OPEN-11 scope mapping before any FIN-PIT-3 policy promotion.
+
+STOP CONDITION CONFIRMED: YES
+```
+
+Version `v1` là immutable draft run được giữ lại sau self-review; không phải downstream
+handoff. FIN-PIT-3 chưa được chạy.
+
+##### Tóm tắt kết quả cho owner
+
+FIN-PIT-2-R2 đã hoàn thành đúng phạm vi period/scope remediation và kết thúc với
+`STATUS = PARTIAL`:
+
+1. **Q2/Q3:** review 14 report/document candidates; 3 reports được xác minh đầy đủ,
+   4 reports đạt `PARTIAL` và 7 reports còn `UNRESOLVED`. Không report nào được gán
+   semantics chỉ từ nhãn Q2/Q3.
+2. **Standalone/YTD:** xác minh 3 current `STANDALONE` contexts và 10 current `YTD`
+   contexts. Evidence đến từ exact statement/column headings như `Quý II`, giai đoạn
+   ba tháng, sáu tháng hoặc chín tháng/lũy kế; không dùng phép trừ YTD để derive
+   standalone.
+3. **Low-confidence OCR:** 4 trang income statement ACV Q3 được review riêng nhưng
+   vẫn fail-closed. R2 không rerun toàn bộ OCR và không dùng các trang này để promote
+   income-statement period semantics.
+4. **Scope conflicts:** review đúng 9 cases; resolve 2 `LINKAGE_MISMATCH` và 2
+   `DUPLICATE_SCOPE_LABEL`. Năm `SUPPORTING_ATTACHMENT_SCOPE_MISMATCH` còn lại được
+   giữ thành explicit unresolved records, không majority-vote hoặc force-resolve.
+5. **Consolidated/separate:** vẫn là hai report identities riêng; không merge facts,
+   không average và không chọn một scope mặc định. Output hiện có 23 consolidated,
+   8 separate và 1 unknown report candidates.
+6. **Readiness:** semantic-ready reports tăng `6 → 8`; semantic-ready facts giữ
+   `216 → 216` vì R2 không extract/canonicalize thêm numeric facts. Linkage verified
+   tăng `27 → 29`; quarantine giảm `26 → 24`; scope conflicts giảm `9 → 5`.
+7. **Frozen subset:** 8 report candidates đủ điều kiện cho **FIN-PIT-3 review only**,
+   gồm 6 reports đã verified từ R1 và 2 reports mới được R2 nâng readiness (VNM
+   2024Q2 và ACV 2022Q2). Đây không phải market-wide readiness.
+8. **Lý do gate `PARTIAL`:** vẫn còn 11 Q2/Q3 reports partial/unresolved, 5 scope
+   conflicts fail-closed và mapping `Báo cáo tài chính tổng hợp → SEPARATE` cần owner
+   review theo `OPEN-11`. Timing, raw/OCR provenance và 7 revision groups `UNKNOWN`
+   được giữ nguyên; canonical rows và financial features đều bằng 0.
+
+Artifact handoff chính thức là
+`artifacts/financial_pit/fin-pit-2-r2-period-scope-remediation-v2/`. Chỉ được mở
+FIN-PIT-3 trong session riêng sau khi owner review frozen subset và `OPEN-11`.
+
+### OPEN-11 — Scope mapping review for “Báo cáo tài chính tổng hợp”
+
+> **Mục đích:** xác minh xem label/source pattern `"Báo cáo tài chính tổng hợp"`
+> trong bounded pilot có đủ evidence để map thành `SEPARATE` hay không. Đây là
+> focused methodology/evidence review phát sinh từ FIN-PIT-2-R2. Không phải một
+> stage acquisition mới, không thay timing methodology và không tự mở FIN-PIT-3.
+
+#### 1. Bối cảnh mở OPEN-11
+
+FIN-PIT-2-R2 kết thúc:
+
+```text
+STATUS = PARTIAL
+```
+
+Kết quả chính:
+
+```text
+scope_conflicts reviewed = 9
+resolved conflicts = 4
+unresolved conflicts = 5
+
+semantic_ready_reports:
+6 → 8
+```
+
+Codex đề xuất policy:
+
+```text
+Keep official “Báo cáo tài chính tổng hợp”
+as an entity-level SEPARATE candidate,
+not CONSOLIDATED.
+```
+
+Tuy nhiên đây là methodology decision và chưa được owner approve.
+
+Vì vậy:
+
+```text
+OPEN_11_STATUS = MANUAL_REVIEW_REQUIRED
+```
+
+#### 2. Câu hỏi duy nhất của OPEN-11
+
+OPEN-11 phải trả lời:
+
+> Trong đúng source/pattern đang xuất hiện trong bounded pilot, `"Báo cáo tài chính
+> tổng hợp"` có đủ evidence để được map thành `scope = SEPARATE` hay không?
+
+Không được biến câu hỏi thành:
+
+```text
+“Tổng hợp” trong tiếng Việt thường nghĩa là gì?
+```
+
+hoặc:
+
+```text
+mọi document chứa chữ “tổng hợp”
+→ SEPARATE
+```
+
+Decision chỉ được áp dụng cho pattern đã được review.
+
+#### 3. Các kết luận hợp lệ
+
+OPEN-11 chỉ được kết luận một trong:
+
+```text
+APPROVE
+REJECT
+DEFER
+```
+
+Ý nghĩa:
+
+```text
+APPROVE
+→ evidence đủ để map pattern đã review thành SEPARATE
+
+REJECT
+→ evidence cho thấy mapping SEPARATE là sai
+
+DEFER
+→ evidence chưa đủ
+→ giữ UNKNOWN / quarantine
+```
+
+Không được ép `APPROVE` chỉ để tăng coverage.
+
+#### 4. Scope review universe
+
+Chỉ review các report/document candidates liên quan trực tiếp tới OPEN-11.
+
+Không mở rộng sang toàn bộ 32 documents nếu không cần.
+
+Mỗi affected candidate phải giữ:
+
+```text
+ticker
+period
+document_hash
+disclosure_id
+document title
+source label
+current scope candidate
+scope conflict group
+```
+
+#### 5. Evidence hierarchy
+
+Ưu tiên evidence theo thứ tự:
+
+1. Exact report title trong official PDF.
+2. Financial statement title/heading.
+3. Auditor/reviewer report wording.
+4. Explicit text mô tả báo cáo của:
+   - công ty mẹ;
+   - riêng pháp nhân;
+   - tập đoàn/group;
+   - hợp nhất.
+5. Official disclosure metadata.
+6. Relationship với report khác cùng ticker/period.
+
+Không đủ để quyết định:
+
+```text
+filename alone
+provider label alone
+ticker alone
+period alone
+OCR guess không có provenance
+```
+
+#### 6. Những dấu hiệu ủng hộ SEPARATE
+
+Một candidate có thể hỗ trợ `SEPARATE` nếu evidence cho thấy:
+
+```text
+- report nói về riêng pháp nhân/doanh nghiệp;
+- không phải consolidated financial statements;
+- cùng ticker/period có một report khác explicit “hợp nhất”;
+- auditor wording phân biệt riêng với consolidated;
+- statement heading thể hiện entity-level report;
+```
+
+Đây chỉ là evidence pattern, không phải automatic rule.
+
+#### 7. Những dấu hiệu chống SEPARATE
+
+Không được map `SEPARATE` nếu evidence cho thấy:
+
+```text
+- explicit “hợp nhất”;
+- consolidated subsidiaries/group wording;
+- scope thực tế là group;
+- report title/statement heading mâu thuẫn với separate;
+```
+
+#### 8. Cặp consolidated/separate cùng kỳ
+
+Nếu cùng ticker/period tồn tại:
+
+```text
+Report A = clearly CONSOLIDATED
+Report B = “Báo cáo tài chính tổng hợp”
+```
+
+thì phải kiểm tra liệu B có thật sự là entity-level report hay chỉ là
+supporting/summary attachment.
+
+Không được suy:
+
+```text
+A consolidated
+→ B chắc chắn separate
+```
+
+chỉ vì hai file cùng tồn tại.
+
+#### 9. Document role
+
+OPEN-11 phải kiểm tra document role:
+
+```text
+PRIMARY_FINANCIAL_REPORT
+SUPPORTING_ATTACHMENT
+SUMMARY_REPORT
+OTHER
+UNKNOWN
+```
+
+Nếu `"Báo cáo tài chính tổng hợp"` chỉ là summary/supporting file:
+
+```text
+scope mapping có thể không phù hợp
+```
+
+và phải `DEFER`/`REJECT` tùy evidence.
+
+#### 10. Auditor evidence
+
+Nếu auditor/reviewer report tồn tại, phải ưu tiên wording như:
+
+```text
+báo cáo tài chính riêng
+báo cáo tài chính hợp nhất
+công ty mẹ
+tập đoàn
+```
+
+Auditor wording có trọng lượng cao hơn filename/provider label.
+
+#### 11. Evidence matrix bắt buộc
+
+Tạo machine-readable table:
+
+```text
+candidate_id
+ticker
+period
+document_hash
+source_label
+document_title
+statement_heading
+auditor_scope_wording
+paired_report_exists
+paired_report_scope
+document_role
+scope_candidate
+evidence_for_separate
+evidence_against_separate
+decision
+decision_reason
+```
+
+#### 12. Không thay các field khác
+
+OPEN-11 không được thay:
+
+```text
+publication_date
+eligible_from
+timing_grade
+period semantics
+unit
+taxonomy
+numeric facts
+revision_relation
+```
+
+trừ khi chỉ ghi evidence conflict liên quan scope.
+
+#### 13. Revision groups
+
+Không dùng OPEN-11 để resolve 7 revision groups.
+
+Nếu scope difference giải thích được hai hashes khác nhau:
+
+```text
+ghi nhận as scope-distinct documents
+```
+
+nhưng không gọi là revision resolution nếu chưa có official version evidence.
+
+#### 14. Decision policy
+
+##### APPROVE
+
+Chỉ khi:
+
+- official evidence nhất quán;
+- document role phù hợp;
+- không có consolidated wording;
+- affected pattern có thể tái lập;
+- mapping không dựa vào filename/provider guess;
+- decision scope được giới hạn rõ.
+
+Output:
+
+```text
+OPEN_11 = APPROVE
+APPROVED_MAPPING =
+“Báo cáo tài chính tổng hợp”
+→ SEPARATE
+
+APPROVED_SCOPE =
+exact reviewed source/pattern only
+```
+
+##### REJECT
+
+Khi:
+
+- evidence cho thấy consolidated/group scope;
+- label không đại diện entity-level report;
+- mapping sẽ làm trộn consolidated/separate.
+
+##### DEFER
+
+Khi:
+
+- evidence mâu thuẫn;
+- document role không rõ;
+- OCR/header/auditor evidence không đủ;
+- không thể tái lập mapping.
+
+#### 15. Policy wording nếu APPROVE
+
+Không được ghi:
+
+```text
+mọi “Báo cáo tài chính tổng hợp” = SEPARATE
+```
+
+Phải ghi:
+
+```text
+Trong exact source/document pattern đã review ở bounded pilot,
+official label “Báo cáo tài chính tổng hợp” được phép map thành
+SEPARATE khi các evidence conditions đã freeze đều thỏa.
+```
+
+#### 16. Output artifact
+
+Đề xuất:
+
+```text
+artifacts/financial_pit/open-11-scope-mapping-review-v1/
+```
+
+Tối thiểu:
+
+```text
+affected_candidates.jsonl
+scope_evidence_matrix.jsonl
+paired_report_review.jsonl
+decision.json
+manifest.json
+checksums.json
+```
+
+#### 17. Decision artifact
+
+`decision.json` tối thiểu:
+
+```text
+open_item = OPEN-11
+status = APPROVE | REJECT | DEFER
+mapping_candidate = "Báo cáo tài chính tổng hợp"
+target_scope = SEPARATE
+approved_scope
+evidence_summary
+affected_candidate_ids
+limitations
+downstream_effect
+```
+
+#### 18. Downstream effect
+
+Nếu `APPROVE`:
+
+```text
+affected verified candidates
+→ scope = SEPARATE
+→ recompute verified subset
+→ FIN-PIT-3 may review approved subset
+```
+
+Nếu `REJECT`:
+
+```text
+do not map to SEPARATE
+→ recompute subset
+```
+
+Nếu `DEFER`:
+
+```text
+scope = UNKNOWN
+→ quarantine/fail-closed
+→ FIN-PIT-3 excludes affected candidates
+```
+
+#### 19. Tests
+
+Tối thiểu:
+
+```text
+Test 1:
+explicit “hợp nhất”
+→ must not map SEPARATE
+
+Test 2:
+explicit “báo cáo tài chính riêng”
+→ SEPARATE candidate
+
+Test 3:
+filename-only “tổng hợp”
+→ insufficient
+
+Test 4:
+auditor wording contradicts title
+→ fail-closed
+
+Test 5:
+paired consolidated report alone
+→ not enough to infer other report is separate
+
+Test 6:
+approved pattern reproducible
+
+Test 7:
+no timing changes
+
+Test 8:
+no canonical rows
+
+Test 9:
+financial features remain false
+```
+
+#### 20. Gate / handoff
+
+OPEN-11 không dùng `PASS`/`PARTIAL` như một pipeline stage chính.
+
+Final status:
+
+```text
+APPROVE
+REJECT
+DEFER
+```
+
+Handoff:
+
+```text
+OPEN ITEM:
+OPEN-11
+
+DECISION:
+
+AFFECTED CANDIDATES:
+
+EVIDENCE REVIEWED:
+
+EVIDENCE FOR SEPARATE:
+
+EVIDENCE AGAINST SEPARATE:
+
+FINAL MAPPING:
+
+APPROVED SCOPE:
+
+DOWNSTREAM IMPACT:
+
+VERIFIED SUBSET AFTER DECISION:
+
+CAN FIN-PIT-3 START:
+YES / NO / YES_FOR_SUBSET_ONLY
+
+REMAINING LIMITS:
+```
+
+#### Kết quả thực thi OPEN-11 — 2026-10-01
+
+```text
+OPEN ITEM:
+OPEN-11
+
+EXECUTION_MODE:
+AI_EXECUTES_OFFLINE
+
+DECISION:
+APPROVE
+
+SCOPE REVIEWED:
+Exact ACV/UPCOM/HNX_OFFICIAL bounded-pilot source/document pattern only.
+
+AFFECTED CANDIDATES:
+9 = 4 primary financial reports + 5 supporting/explanatory attachments
+
+EVIDENCE REVIEWED:
+Official PDF/report titles; financial-statement headings; auditor/reviewer wording;
+explicit entity/group scope text; official disclosure metadata; paired-report structure.
+
+DOCUMENT ROLE RESULTS:
+4 PRIMARY_FINANCIAL_REPORT
+5 SUPPORTING_ATTACHMENT
+
+EVIDENCE FOR SEPARATE:
+All 4 primary reports have official tổng hợp headings, entity-level accounting evidence
+and a distinct official consolidated report for the same ticker/period. The audited
+2025FY official English companion explicitly calls the corresponding report separate
+financial statements.
+
+EVIDENCE AGAINST SEPARATE:
+No consolidated wording describes the 4 reviewed primary reports themselves. The 5
+supporting attachments mention both scopes and therefore cannot inherit SEPARATE.
+
+PAIRED REPORT FINDINGS:
+Each reviewed primary period has a distinct official CONSOLIDATED report. Pair existence
+was corroborating structure only; it was not used alone to infer SEPARATE.
+
+AUDITOR/STATEMENT FINDINGS:
+The 2025FY bilingual audited pair provides direct separate-scope wording. Statement
+headings and the investment-in-subsidiaries asset line are consistent across all 4
+reviewed primary reports.
+
+FINAL MAPPING:
+“Báo cáo tài chính tổng hợp” → SEPARATE
+
+APPROVED SCOPE:
+Four reviewed ACV/HNX_OFFICIAL PRIMARY_FINANCIAL_REPORT hashes only, subject to frozen
+official-heading, entity-level, paired-report and no-consolidated-self-wording conditions.
+No market-wide or Vietnamese-label-wide rule is approved.
+
+VERIFIED REPORTS BEFORE:
+8
+
+VERIFIED REPORTS AFTER:
+8
+
+EXCLUDED REPORTS:
+9 affected candidates remain outside the verified subset because of non-scope semantic/
+linkage blockers or because their document role is SUPPORTING_ATTACHMENT.
+
+DOWNSTREAM IMPACT:
+The mapping is approved only for the exact reviewed pattern. The frozen 8-report subset
+is unchanged and may proceed to FIN-PIT-3 review only.
+
+CAN FIN-PIT-3 START:
+YES_FOR_SUBSET_ONLY
+
+TIMING CHANGED:
+NO
+
+CANONICAL_ROWS_WRITTEN:
+0
+
+FINANCIAL_FEATURES_WRITTEN:
+0
+
+TESTS RUN:
+9 OPEN-11 targeted tests; 15 FIN-PIT-2-R2 regression tests; JSON/JSONL parse;
+offline verifier; compileall; scoped git diff --check.
+
+TEST RESULTS:
+All targeted/regression tests passed; artifact parse and offline verification passed;
+compileall and scoped diff check passed.
+
+REMAINING LIMITS:
+OPEN-11 does not resolve period semantics, document linkage, timing, taxonomy, assurance
+or 7 revision groups. Supporting attachments remain UNKNOWN/quarantined.
+
+EXACT NEXT STAGE:
+FIN-PIT-3 for the frozen verified subset only, in a separate session. Do not execute it.
+
+NETWORK_REQUEST_COUNT:
+0
+
+STOP CONDITION CONFIRMED:
+YES
+```
+
+Các `PRIMARY_FINANCIAL_REPORT` được approve:
+
+| Candidate | Kỳ | Document hash |
+|---|---|---|
+| `report-c479a9e6545dc277d8ba` | `2020Q1` | `c479a9e6545dc277d8baf80a3b140a2c3155f39b2e96a353a396e32996b9de3a` |
+| `report-138014cf7cc322e166a4` | `2022Q2` | `138014cf7cc322e166a49bf0defa05af41b7c97e41d72485467cc1732bda2ee2` |
+| `report-0f81dcf36ec8b7cde557` | `2025Q3` | `0f81dcf36ec8b7cde5576ce9dea6b242c2eaf04c5686befdcc50c7c726e44d40` |
+| `report-1a675be8c19fd16c9300` | `2025FY` | `1a675be8c19fd16c9300f9b5b93b2963c703bcfdf1eb46e8d1eb491a69f5b439` |
+
+Các `SUPPORTING_ATTACHMENT` tiếp tục `DEFER`/`UNKNOWN`:
+
+```text
+report-4f2ab190fd9a3cb27305
+report-a320576d978ec757db3d
+report-ac6363647fc9b3ce4af9
+report-40e93501b370da428711
+report-f58b46f347ba06c6353f
+```
+
+Evidence quyết định không phải filename hoặc label đơn lẻ. Cả bốn primary reports
+(`2020Q1`, `2022Q2`, `2025Q3`, `2025FY`) có official report/statement headings
+`tổng hợp`, giữ line `Đầu tư vào công ty con` như entity-level asset và có official
+`hợp nhất` report riêng cùng ticker/kỳ. Audited 2025FY là cross-check mạnh nhất:
+official English companion và auditor wording gọi report tương ứng là `separate
+financial statements`.
+
+Năm supporting/explanatory attachments nhắc đồng thời `tổng hợp` và `hợp nhất` không
+được inherit một scope, tiếp tục `DEFER`/`UNKNOWN`. Mapping không áp dụng cho issuer,
+source, document role hoặc hash chưa review. Bốn primary reports chưa được thêm vào
+verified subset vì vẫn còn blocker ngoài scope; subset cho FIN-PIT-3 giữ nguyên 8.
+Artifact: `artifacts/financial_pit/open-11-scope-mapping-review-v1/`. FIN-PIT-3 chưa
+được chạy.
+
+### FIN-PIT-2-R3 — Remaining semantic and quarantine closure
+
+> **Mục đích:** đóng các vấn đề semantic còn tồn tại sau FIN-PIT-2, FIN-PIT-2-R1,
+> FIN-PIT-2-R2 và OPEN-11 mà các stage sau không có trách nhiệm tự giải quyết.
+> FIN-PIT-2-R3 không đặt mục tiêu ép mọi candidate thành `VERIFIED`; mục tiêu là đảm
+> bảo mỗi candidate cuối cùng có một disposition rõ ràng: `VERIFIED`,
+> `EXCLUDED_WITH_REASON`, `NOT_APPLICABLE` hoặc `IRRECOVERABLE`.
+
+#### 1. Bối cảnh mở FIN-PIT-2-R3
+
+Các stage trước đã đạt:
+
+```text
+FIN-PIT-2
+→ semantic extraction ban đầu
+→ PARTIAL
+
+FIN-PIT-2-R1
+→ OCR remediation
+→ PARTIAL
+
+FIN-PIT-2-R2
+→ period semantics + scope conflict remediation
+→ PARTIAL
+
+OPEN-11
+→ APPROVE exact ACV primary-report pattern:
+  “Báo cáo tài chính tổng hợp” → SEPARATE
+```
+
+Tuy nhiên sau R2 và OPEN-11 vẫn còn các vấn đề semantic chưa được đóng hoàn toàn.
+
+Các vấn đề chính gồm:
+
+```text
+11 Q2/Q3 reports
+→ partial hoặc unresolved về period semantics
+
+5 scope conflicts
+→ unresolved
+
+24 quarantined candidates
+
+4 ACV Q3 OCR pages
+→ LOW_CONFIDENCE
+
+một số linkage/document-role ambiguity còn tồn tại
+```
+
+Những vấn đề này không nên chuyển sang FIN-PIT-3/4/5 với trạng thái “chưa xử lý”.
+
+#### 2. Mục tiêu của FIN-PIT-2-R3
+
+FIN-PIT-2-R3 phải:
+
+1. review toàn bộ candidate semantic còn unresolved;
+2. phân loại rõ nguyên nhân quarantine;
+3. cố gắng recover những candidate còn evidence khả dụng;
+4. xử lý targeted OCR cho 4 ACV Q3 pages nếu cần;
+5. đóng toàn bộ period-semantic unresolved cases;
+6. đóng toàn bộ scope conflicts còn lại;
+7. đóng linkage/document-role ambiguity còn lại trong phạm vi FIN-PIT-2;
+8. recompute semantic readiness;
+9. tạo final disposition cho mọi candidate đã review;
+10. chuẩn bị input sạch cho FIN-PIT-2-R4 hoặc FIN-PIT-2-CLOSE.
+
+#### 3. Nguyên tắc closure
+
+FIN-PIT-2-R3 không yêu cầu:
+
+```text
+100% candidate → VERIFIED
+```
+
+Mà yêu cầu:
+
+```text
+100% candidate → FINAL DISPOSITION
+```
+
+Các disposition hợp lệ:
+
+```text
+VERIFIED
+EXCLUDED_PERIOD_UNRESOLVED
+EXCLUDED_SCOPE_UNRESOLVED
+EXCLUDED_LINKAGE_UNRESOLVED
+EXCLUDED_OCR_IRRECOVERABLE
+EXCLUDED_DOCUMENT_ROLE
+NOT_APPLICABLE_SUPPORTING_ATTACHMENT
+QUARANTINED_WITH_FINAL_REASON
+```
+
+Không được còn candidate chỉ mang trạng thái chung chung:
+
+```text
+UNKNOWN
+AMBIGUOUS
+QUARANTINE
+```
+
+mà không có final reason.
+
+#### 4. Scope của R3
+
+R3 chỉ xử lý:
+
+```text
+- 11 Q2/Q3 partial/unresolved reports;
+- 5 unresolved scope conflicts;
+- 24 quarantined candidates;
+- 4 low-confidence ACV Q3 pages;
+- remaining linkage/document-role ambiguity trực tiếp liên quan các candidate trên.
+```
+
+Không review lại toàn bộ dataset nếu không cần.
+
+Không mở rộng ticker ngoài bounded pilot.
+
+#### 5. Quarantine reason normalization
+
+Mỗi quarantined candidate phải được gán một hoặc nhiều reason chuẩn:
+
+```text
+PERIOD_UNRESOLVED
+SCOPE_UNRESOLVED
+LINKAGE_AMBIGUOUS
+DOCUMENT_ROLE_AMBIGUOUS
+OCR_LOW_CONFIDENCE
+UNIT_UNRESOLVED
+ASSURANCE_UNRESOLVED
+PROVENANCE_INCOMPLETE
+SUPPORTING_ATTACHMENT
+OTHER
+```
+
+Nếu `OTHER`, phải có:
+
+```text
+reason_detail
+```
+
+Không được để:
+
+```text
+reason = UNKNOWN
+```
+
+#### 6. Period semantic closure
+
+Review lại toàn bộ 11 Q2/Q3 reports partial/unresolved.
+
+Evidence được phép dùng:
+
+```text
+statement heading
+column heading
+OCR text
+neighboring pages
+official English companion
+auditor/reviewer report
+period description
+comparative column labels
+same official report package
+```
+
+Không được dùng:
+
+```text
+quarter number alone
+filename alone
+provider default
+numeric-pattern guessing
+```
+
+Final period semantics:
+
+```text
+INSTANT
+STANDALONE
+YTD
+FULL_YEAR
+UNKNOWN_FINAL
+```
+
+Nếu không đủ evidence:
+
+```text
+duration_basis = UNKNOWN_FINAL
+semantic_ready = false
+final_disposition = EXCLUDED_PERIOD_UNRESOLVED
+```
+
+Như vậy case được coi là **đã xử lý xong**, dù không promote.
+
+#### 7. Không derive standalone bằng subtraction
+
+R3 vẫn không được tính:
+
+```text
+Q2 standalone = H1 YTD - Q1
+Q3 standalone = 9M YTD - H1
+```
+
+Nếu project muốn dùng derived standalone sau này, phải có policy riêng ở stage khác.
+
+#### 8. Scope conflict closure
+
+Review đúng 5 scope conflicts còn lại.
+
+Mỗi conflict phải kết thúc bằng một classification:
+
+```text
+TRUE_CONSOLIDATED_VS_SEPARATE_PAIR
+SUPPORTING_ATTACHMENT_NOT_SCOPE_BEARING
+LINKAGE_MISMATCH
+DOCUMENT_ROLE_MISMATCH
+OCR_SCOPE_AMBIGUITY
+INSUFFICIENT_EVIDENCE_FINAL
+```
+
+Nếu supporting attachment nhắc cả consolidated và separate nhưng không đại diện report
+scope:
+
+```text
+document_role = SUPPORTING_ATTACHMENT
+scope = NOT_APPLICABLE
+final_disposition = NOT_APPLICABLE_SUPPORTING_ATTACHMENT
+```
+
+Trường hợp này được coi là **resolved**, không phải unresolved scope conflict.
+
+#### 9. OPEN-11 preservation
+
+Phải giữ nguyên approved decision:
+
+```text
+Exact reviewed ACV/HNX primary-report pattern:
+
+“Báo cáo tài chính tổng hợp”
+→ SEPARATE
+```
+
+Không mở rộng rule sang:
+
+```text
+issuer khác
+source khác
+supporting attachment
+hash chưa review
+filename-only match
+```
+
+#### 10. Targeted remediation cho 4 ACV Q3 low-confidence pages
+
+Không OCR lại toàn bộ 209 pages.
+
+Chỉ review 4 pages đang:
+
+```text
+LOW_CONFIDENCE
+```
+
+Có thể thử bounded remediation:
+
+```text
+page rotation correction
+deskew
+grayscale
+contrast adjustment
+higher render DPI
+alternate local OCR config
+Vietnamese/English language config
+neighboring-page context
+official English companion nếu đã có trong package
+```
+
+Mỗi attempt phải có provenance.
+
+#### 11. OCR final state
+
+Mỗi low-confidence page cuối cùng phải thành một trong:
+
+```text
+RECOVERED
+IRRECOVERABLE_LOW_CONFIDENCE
+NOT_REQUIRED_FOR_SEMANTIC_DECISION
+```
+
+Nếu:
+
+```text
+IRRECOVERABLE_LOW_CONFIDENCE
+```
+
+thì các semantic candidate phụ thuộc trực tiếp vào page đó:
+
+```text
+semantic_ready = false
+final_disposition = EXCLUDED_OCR_IRRECOVERABLE
+```
+
+#### 12. Linkage closure
+
+Các linkage còn ambiguous trong R3 scope phải được review bằng:
+
+```text
+official disclosure
+attachment identity
+document title
+report period
+scope
+document role
+hash
+paired-report relationship
+```
+
+Final linkage state:
+
+```text
+VERIFIED
+EXCLUDED_LINKAGE_UNRESOLVED
+NOT_APPLICABLE
+```
+
+Không được force-match.
+
+#### 13. Document role closure
+
+Mỗi candidate trong R3 scope phải có role:
+
+```text
+PRIMARY_FINANCIAL_REPORT
+AUDITOR_REVIEW_REPORT
+SUPPORTING_ATTACHMENT
+EXPLANATORY_NOTE
+OTHER
+UNKNOWN_FINAL
+```
+
+Nếu supporting attachment:
+
+```text
+không được đánh giá như primary financial report
+```
+
+Nếu vẫn `UNKNOWN_FINAL`:
+
+```text
+semantic_ready = false
+final_disposition = EXCLUDED_DOCUMENT_ROLE
+```
+
+#### 14. Unit và assurance
+
+R3 không cần mở remediation riêng cho unit/assurance nếu các trường đó đã đủ cho
+semantic-ready subset.
+
+Nhưng nếu một quarantined candidate chỉ còn blocker:
+
+```text
+UNIT_UNRESOLVED
+```
+
+thì R3 phải cố resolve bằng source evidence hiện có.
+
+Nếu không resolve được:
+
+```text
+EXCLUDED_WITH_REASON
+```
+
+Assurance có thể vẫn `UNKNOWN` nếu assurance không phải field bắt buộc cho candidate
+đó, nhưng phải ghi rõ.
+
+#### 15. Fact candidate closure
+
+Mỗi fact candidate bị ảnh hưởng phải được recompute:
+
+```text
+SEMANTIC_READY
+```
+
+hoặc:
+
+```text
+EXCLUDED_WITH_REASON
+```
+
+Một fact không được ở trạng thái trung gian không giải thích được.
+
+#### 16. Semantic-ready criteria
+
+Fact/report chỉ `SEMANTIC_READY` nếu các field bắt buộc theo loại statement đã
+verified:
+
+```text
+document identity
+document role
+statement type
+period semantics
+scope
+unit
+column role
+provenance
+```
+
+Nếu field bắt buộc unresolved:
+
+```text
+semantic_ready = false
+```
+
+#### 17. Revision không xử lý trong R3
+
+R3 không resolve 7 revision groups.
+
+Giữ:
+
+```text
+revision_relation = UNKNOWN
+```
+
+Revision sẽ được review riêng trong:
+
+```text
+FIN-PIT-2-R4
+```
+
+R3 chỉ đảm bảo không tạo revision conclusion mới.
+
+#### 18. Timing preservation
+
+Không thay:
+
+```text
+4 A_EXACT_TIMESTAMP
+28 B_OFFICIAL_DATE_D1
+```
+
+Không sửa:
+
+```text
+publication_date
+eligible_from
+timing_grade
+```
+
+Không tạo exact timestamp mới.
+
+#### 19. Taxonomy
+
+Không final-promote taxonomy.
+
+Chỉ update candidate context nếu period/scope resolution thay đổi context.
+
+#### 20. Canonicalization
+
+Không ghi:
+
+```text
+canonical financial rows
+financial features
+```
+
+Bắt buộc:
+
+```text
+CANONICAL_ROWS_WRITTEN = 0
+FINANCIAL_FEATURES_WRITTEN = 0
+```
+
+#### 21. Final disposition artifact
+
+R3 phải tạo artifact machine-readable cho mọi report/candidate trong scope:
+
+```text
+candidate_id
+ticker
+period
+document_hash
+previous_status
+quarantine_reason
+actions_taken
+evidence_reviewed
+period_final
+scope_final
+document_role_final
+linkage_final
+ocr_final_status
+semantic_ready
+final_disposition
+final_reason
+```
+
+#### 22. Output artifact
+
+Đề xuất:
+
+```text
+artifacts/financial_pit/fin-pit-2-r3-semantic-closure-v1/
+```
+
+Tối thiểu:
+
+```text
+quarantine_inventory.jsonl
+quarantine_reason_matrix.jsonl
+
+period_closure_review.jsonl
+scope_closure_review.jsonl
+linkage_closure_review.jsonl
+document_role_review.jsonl
+
+ocr_targeted_remediation.jsonl
+
+report_candidates_updated.jsonl
+fact_candidates_updated.jsonl
+
+final_dispositions.jsonl
+
+conflicts.jsonl
+quarantine_final.jsonl
+
+semantic_coverage_before_after.json
+semantic_closure_report.json
+
+manifest.json
+checksums.json
+gate.json
+```
+
+#### 23. Before/after metrics
+
+Bắt buộc báo:
+
+```text
+BEFORE R3
+AFTER R3
+```
+
+Tối thiểu:
+
+```text
+period_partial
+period_unresolved
+period_final_excluded
+period_verified
+
+scope_conflicts
+scope_resolved
+scope_final_excluded
+
+linkage_ambiguous
+linkage_verified
+linkage_final_excluded
+
+ocr_low_confidence
+ocr_recovered
+ocr_irrecoverable
+
+quarantine_total
+quarantine_recovered
+quarantine_final_excluded
+
+semantic_ready_reports
+semantic_ready_facts
+
+final_dispositions_total
+```
+
+Phân tách theo:
+
+```text
+FPT
+VNM
+PVS
+ACV
+```
+
+#### 24. Gate
+
+Status:
+
+```text
+PASS
+PARTIAL
+BLOCKED
+FAIL
+```
+
+##### PASS
+
+Khi:
+
+```text
+- mọi candidate trong R3 scope có final disposition;
+- không còn semantic ambiguity không có reason;
+- period/scope/linkage/OCR blocker đều:
+  VERIFIED hoặc FINAL_EXCLUDED;
+- raw evidence preserved;
+- OPEN-11 preserved;
+- timing unchanged;
+- no canonical output.
+```
+
+PASS không yêu cầu quarantine = 0.
+
+##### PARTIAL
+
+Khi còn candidate:
+
+```text
+unreviewed
+unclassified
+quarantine không có final reason
+```
+
+##### BLOCKED
+
+Khi missing artifacts/dependency khiến không thể review subset cần thiết.
+
+##### FAIL
+
+Khi:
+
+```text
+- semantic ambiguity bị force-promote;
+- scope merge sai;
+- period bị assume;
+- raw/OCR provenance mất;
+- OPEN-11 bị generalize;
+- timing bị thay;
+- canonical rows được ghi.
+```
+
+#### 25. Điều kiện hoàn thành R3
+
+R3 được coi là hoàn tất khi:
+
+```text
+every in-scope candidate
+→ VERIFIED
+hoặc
+→ FINAL_EXCLUDED_WITH_REASON
+```
+
+Không cần mọi candidate đi tiếp.
+
+#### 26. Next stage
+
+Nếu R3 PASS:
+
+```text
+FIN-PIT-2-R4
+Revision lineage remediation
+```
+
+Nếu R3 PARTIAL:
+
+```text
+không mở R4 ngay
+→ xử lý các candidate chưa có final disposition
+```
+
+Không chạy FIN-PIT-3 trực tiếp từ R3 nếu project đang theo closure-first strategy.
+
+#### 27. Handoff format
+
+```text
+STAGE:
+FIN-PIT-2-R3
+
+EXECUTION_MODE:
+
+STATUS:
+
+SCOPE EXECUTED:
+SCOPE NOT EXECUTED:
+
+INPUT ARTIFACTS + HASHES:
+OUTPUT ARTIFACTS + HASHES:
+
+NETWORK REQUEST COUNT:
+
+PERIOD CLOSURE:
+- reviewed:
+- verified:
+- standalone:
+- YTD:
+- unresolved_final:
+- excluded:
+
+SCOPE CLOSURE:
+- conflicts reviewed:
+- resolved:
+- not_applicable:
+- unresolved_final:
+- excluded:
+
+LINKAGE CLOSURE:
+- reviewed:
+- verified:
+- unresolved_final:
+- excluded:
+
+OCR REMEDIATION:
+- pages reviewed:
+- recovered:
+- irrecoverable:
+- not_required:
+
+QUARANTINE:
+- before:
+- recovered/promoted:
+- final excluded:
+- remaining without final disposition:
+
+SEMANTIC_READY:
+- reports before:
+- reports after:
+- facts before:
+- facts after:
+
+FINAL DISPOSITIONS:
+- verified:
+- excluded_period:
+- excluded_scope:
+- excluded_linkage:
+- excluded_ocr:
+- excluded_document_role:
+- not_applicable_supporting:
+
+REVISION GROUPS:
+must remain unchanged for R4
+
+TIMING PRESERVATION:
+
+CANONICAL_ROWS_WRITTEN:
+must equal 0
+
+FINANCIAL_FEATURES_WRITTEN:
+must equal 0
+
+TESTS RUN:
+TEST RESULTS:
+
+GATE REASONING:
+
+REMAINING FIN-PIT-2 ISSUES AFTER R3:
+
+EXACT NEXT STAGE:
+FIN-PIT-2-R4 if PASS.
+Do not execute it.
+
+STOP CONDITION CONFIRMED:
+YES
+```
+
 ### FIN-PIT-3 — Evidence review và policy decision
 
 Mục tiêu:
