@@ -269,7 +269,12 @@ Khi thuyết trình Slide 09, bạn trình bày chi tiết từng bước mà mo
    - Phân tích chuỗi 44 tháng sau gap để xuất bản file `candidate_windows.csv` gồm 4 lựa chọn:
      + *Cửa sổ 1 (Pre-benchmark gap short):* 01/2023 - 04/2023 (4 tháng, 87 - 518 mã) -> Quá ngắn để đánh giá độ ổn định.
      + *Cửa sổ 2 (Contiguous main):* 11/2023 - 01/2025 (15 tháng liên tục không đứt đoạn, quy mô từ 142 đến 780 mã) -> **Đề xuất làm Cửa sổ phát triển (Development Window)**.
+       * *Mục đích 1 - Khám phá và tinh chỉnh mô hình:* Dùng để huấn luyện các thuật toán phân cụm (K-Means Baseline, Hierarchical Ward, PCA-KMeans), so sánh ma trận tiền xử lý và xác định số cụm tối ưu toàn cục (global k) dựa trên các chỉ số nội tại (Silhouette, Davies-Bouldin).
+       * *Mục đích 2 - Đánh giá độ ổn định thời gian liên tục (Temporal Stability):* Nhờ chuỗi 15 tháng liền mạch 100% không bị ngắt quãng, mô hình có thể đo lường chính xác ma trận chuyển dịch cụm (transition matrix), tỷ lệ duy trì thành viên cụm (cluster persistence) và chỉ số ARI/NMI tháng-liền-kề mà không bị méo mó bởi các khoảng gián đoạn dữ liệu.
+       * *Mục đích 3 - Đảm bảo độ dày thống kê an toàn:* Quy mô mã dao động từ 142 đến 780 mã, luôn vượt ngưỡng tối thiểu 120 mã (bảo đảm mỗi cụm có trung bình ít nhất 15 cổ phiếu khi thử nghiệm k lên đến 8).
      + *Cửa sổ 3 (Latest recovery):* 02/2026 - 08/2026 (7 tháng gần nhất, quy mô từ 253 đến 905 mã) -> **Đề xuất làm Cửa sổ niêm phong (Holdout Window)**.
+       * *Mục đích 1 - Kiểm định ngoài mẫu độc lập (Out-of-Sample Generalization):* Được niêm phong tuyệt đối trong suốt quá trình phát triển mô hình và chỉ mở ra kiểm thử đúng 1 lần duy nhất sau khi đã đóng băng toàn bộ tham số, thuật toán và số cụm k. Điều này giúp kiểm chứng năng lực tổng quát hóa của cấu trúc cụm trên dữ liệu hoàn toàn chưa từng thấy (unseen data), triệt tiêu hoàn toàn rủi ro quá khớp (overfitting) và sai lệch lựa chọn (p-hacking / data snooping).
+       * *Mục đích 2 - Đánh giá tính ứng dụng trên quy mô thị trường hiện hành:* Đây là giai đoạn gần nhất với thực tế (kết thúc tại snapshot mới nhất ngày 28/08/2026 với 905 mã), phản ánh đầy đủ nhất độ sâu và thanh khoản hiện tại của thị trường chứng khoán Việt Nam trước khi chuyển sang giai đoạn M3.
      + *Cửa sổ 4 (Full post history with skips):* 01/2023 - 08/2026 (44 tháng, có 18 tháng zero-readiness) -> Yêu cầu chính sách bỏ qua rõ ràng.
 4. **Bước 4: Thiết lập quy tắc ngưỡng tối thiểu n_eligible >= 120 mã/snapshot:**
    - Xuất phát từ Cửa sổ phát triển 15 tháng (11/2023 - 01/2025) có tháng thấp nhất đạt 142 mã.
