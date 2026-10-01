@@ -133,6 +133,46 @@ Hiện tượng cụm nhỏ (8-21 mã) siêu thanh khoản được ghi nhận v
 
 ## Stage tiếp theo
 
+## FIN-PIT-2 — document linkage và semantic extraction
+
+FIN-PIT-2 đã chạy offline trên immutable FIN-PIT-1 artifact với gate `PARTIAL`.
+Stage xử lý 32 document unique-content và 40 linkage candidates, nhận diện 4 primary
+financial reports và 2 supporting explanatory documents. Ba báo cáo năm 2022 của
+PVS có text layer đủ evidence đạt `SEMANTIC_READY`; 29 report candidates còn lại bị
+quarantine do scan/semantic chưa đủ và không có OCR engine trong environment.
+
+Kết quả candidate gồm 220 facts (216 balance-sheet instant semantic-ready, 4
+unresolved), 220 taxonomy candidates chưa final-promote, 6 linkage `VERIFIED`, 34
+`AMBIGUOUS`, 0 conflict. Cả 7 revision groups vẫn giữ `revision_relation=UNKNOWN`.
+Timing được preserve ở cấp report candidate: 4 `A_EXACT_TIMESTAMP`, 28
+`B_OFFICIAL_DATE_D1`; không tạo timestamp giả. Artifact nằm tại
+`artifacts/financial_pit/fin-pit-2-semantic-extraction-v1/`.
+
+FIN-PIT-2 không ghi canonical financial row, không bật financial feature và không
+tự mở FIN-PIT-3. Phần scan cần một OCR run riêng có engine/version/page/confidence
+provenance trước khi có thể nâng coverage.
+
+## FIN-PIT-2-R1 — OCR remediation
+
+FIN-PIT-2-R1 đã chạy offline bằng Tesseract OCR `v5.4.0.20240606` trên đúng 26
+tài liệu scan/mixed chưa phân loại chắc chắn. Preflight review 32 tài liệu, chọn 209
+trang; 205 trang đạt OCR quality gate và 4 trang `LOW_CONFIDENCE` bị loại khỏi
+semantic evidence. Raw PDF và timing handoff không đổi.
+
+Gate là `PARTIAL`. OCR tăng document classified từ 6 lên 32, linkage `VERIFIED`
+từ 6 lên 27 và giảm `AMBIGUOUS` từ 34 xuống 4. Đồng thời evidence mới phát hiện 9
+`CONFLICT` scope giữa disclosure candidate và nội dung attachment; các conflict này
+được giữ fail-closed. Quarantine giảm 29 xuống 26, semantic-ready reports tăng 3 lên
+6, fact candidates tăng 220 lên 242 nhưng semantic-ready facts giữ 216. Unit verified
+tăng 9 lên 30; scope verified tăng 6 lên 29; assurance verified tăng 3 lên 8.
+
+Q2/Q3 duration vẫn chưa đủ evidence để promote: 0 `STANDALONE`, 0 `YTD`, 26 facts
+duration `UNKNOWN`. Cả 7 revision groups tiếp tục `UNKNOWN`; timing vẫn 4
+`A_EXACT_TIMESTAMP` và 28 `B_OFFICIAL_DATE_D1`. Artifact nằm tại
+`artifacts/financial_pit/fin-pit-2-r1-ocr-remediation-v1/`. Stage không ghi canonical
+row, không bật financial feature và không tự mở FIN-PIT-3; nếu mở stage sau chỉ được
+review một verified subset được freeze rõ.
+
 **M2 Nhiệm vụ 4 — CHẠY PHƯƠNG ÁN A: K-MEANS BASELINE**: Đóng gói và hoàn thiện
 kết quả K-Means chính thức với Global K = 2 trên 15 development snapshots, chuẩn bị cho
 Nhiệm vụ 5 (Ward) và Nhiệm vụ 6 (PCA + K-Means). Không mở holdout và không backtest.
