@@ -18,11 +18,11 @@
    - [Căn cứ và Trình tự chốt ngưỡng n_eligible >= 120 mã/snapshot](#căn-cứ-và-trình-tự-chốt-ngưỡng-n_eligible--120-mãsnapshot)
    - [Quy trình 5 bước thực hiện của M2-PREP](#quy-trình-5-bước-thực-hiện-của-m2-prep)
 5. [Quá trình thực hiện chi tiết của từng Slide (Dành cho Thuyết trình sâu)](#5-quá-trình-thực-hiện-chi-tiết-của-từng-slide-dành-cho-thuyết-trình-sâu)
-   - [Slide 04: Chi tiết quá trình vận hành Pipeline 5 tầng](#slide-04-chi-tiết-quá-trình-vận-hành-pipeline-5-tầng)
-   - [Slide 05: Chi tiết quá trình lọc phễu 952 -> 922 -> 905 và phân rã 47 mã loại trừ](#slide-05-chi-tiết-quá-trình-lọc-phễu-952---922---905-và-phân-rã-47-mã-loại-trừ)
-   - [Slide 06: Chi tiết công thức tính toán và chuẩn hóa 8 đặc trưng thị trường](#slide-06-chi-tiết-công-thức-tính-toán-và-chuẩn-hóa-8-đặc-trưng-thị-trường)
-   - [Slide 08: Chi tiết quét chuỗi 80 tháng và lan truyền lỗi của 2 gián đoạn hệ thống](#slide-08-chi-tiết-quét-chuỗi-80-tháng-và-lan-truyền-lỗi-của-2-gián-đoạn-hệ-thống)
-   - [Slide 09: Chi tiết 6 bước kỹ thuật thiết lập khung thực nghiệm M2-PREP](#slide-09-chi-tiết-6-bước-kỹ-thuật-thiết-lập-khung-thực-nghiệm-m2-prep)
+   - [Slide 02: Chi tiết quá trình vận hành Pipeline 5 tầng](#slide-02-chi-tiết-quá-trình-vận-hành-pipeline-5-tầng)
+   - [Slide 03: Chi tiết quá trình lọc phễu 952 -> 922 -> 905 và phân rã 47 mã loại trừ](#slide-03-chi-tiết-quá-trình-lọc-phễu-952---922---905-và-phân-rã-47-mã-loại-trừ)
+   - [Slide 04: Chi tiết công thức tính toán và chuẩn hóa 8 đặc trưng thị trường](#slide-04-chi-tiết-công-thức-tính-toán-và-chuẩn-hóa-8-đặc-trưng-thị-trường)
+   - [Slide 05: Chi tiết quét chuỗi 80 tháng và lan truyền lỗi của 2 gián đoạn hệ thống](#slide-05-chi-tiết-quét-chuỗi-80-tháng-và-lan-truyền-lỗi-của-2-gián-đoạn-hệ-thống)
+   - [Slide 06: Chi tiết 6 bước kỹ thuật thiết lập khung thực nghiệm M2-PREP](#slide-06-chi-tiết-6-bước-kỹ-thuật-thiết-lập-khung-thực-nghiệm-m2-prep)
 6. [Hướng dẫn trả lời câu hỏi vấn đáp của Mentor (Q&A Defense Guide)](#6-hướng-dẫn-trả-lời-câu-hỏi-vấn-đáp-của-mentor-qa-defense-guide)
 
 ---
@@ -177,7 +177,7 @@ Tóm tắt quy trình mà module `src/delta_t1/experiments/m2_prep.py` đã th�
 
 Phần này cung cấp toàn bộ chi tiết kỹ thuật trong mã nguồn, giải thích cặn kẽ cơ chế vận hành để người thuyết trình có thể tự tin trả lời bất kỳ câu hỏi chuyên sâu nào từ Hội đồng/Mentor theo từng trang Slide:
 
-### Slide 04: Chi tiết quá trình vận hành Pipeline 5 tầng
+### Slide 02: Chi tiết quá trình vận hành Pipeline 5 tầng
 Khi thuyết trình Slide 04, bạn cần giải thích rõ cơ chế vận hành độc lập và ngăn chặn lỗi của từng tầng:
 1. **Tầng 1 (Raw Ingestion - CafeF & Benchmark):**
    - *Cách thực hiện:* Sử dụng adapter chuyên biệt gọi API `TradeHistoryNew` của CafeF để lấy lịch sử giao dịch từng mã và chỉ số VN-Index.
@@ -197,7 +197,7 @@ Khi thuyết trình Slide 04, bạn cần giải thích rõ cơ chế vận hàn
 
 ---
 
-### Slide 05: Chi tiết quá trình lọc phễu 952 -> 922 -> 905 và phân rã 47 mã loại trừ
+### Slide 03: Chi tiết quá trình lọc phễu 952 -> 922 -> 905 và phân rã 47 mã loại trừ
 Khi thuyết trình Slide 05, bạn giải thích chi tiết cơ chế phân tầng lọc cổ phiếu tại snapshot 28/08/2026:
 1. **Nấc 1: 952 mã ứng viên ban đầu (Candidate Universe):**
    - Xuất phát từ universe khảo sát gồm 500 mã thuộc tập baseline C5 ban đầu và 452 mã mở rộng (expansion) đã hoàn thành thu thập dữ liệu (còn 148 mã expansion tạm hoãn do giới hạn nguồn). Tổng cộng có 952 cổ phiếu được đưa vào rà soát tại snapshot 28/08/2026.
@@ -214,7 +214,7 @@ Khi thuyết trình Slide 05, bạn giải thích chi tiết cơ chế phân t�
 
 ---
 
-### Slide 06: Chi tiết công thức tính toán và chuẩn hóa 8 đặc trưng thị trường
+### Slide 04: Chi tiết công thức tính toán và chuẩn hóa 8 đặc trưng thị trường
 Khi thuyết trình Slide 06, bạn trình bày rõ cơ sở toán học và tài chính của 8 đặc trưng trong file `src/delta_t1/features/market.py`:
 1. **Trục Động lượng (Momentum) - 4 đặc trưng:**
    - Sử dụng xấp xỉ theo số phiên giao dịch chuẩn thay vì tính theo ngày lịch: 21 phiên (~1 tháng), 63 phiên (~3 tháng), 126 phiên (~6 tháng), 252 phiên (~12 tháng).
@@ -240,7 +240,7 @@ Khi thuyết trình Slide 06, bạn trình bày rõ cơ sở toán học và tà
 
 ---
 
-### Slide 08: Chi tiết quét chuỗi 80 tháng và lan truyền lỗi của 2 gián đoạn hệ thống
+### Slide 05: Chi tiết quét chuỗi 80 tháng và lan truyền lỗi của 2 gián đoạn hệ thống
 Khi thuyết trình Slide 08, bạn phân tích chi tiết cơ chế lan truyền lỗi (error propagation) trong 80 tháng (01/2020 đến 08/2026):
 1. **Quá trình quét chuỗi thời gian:**
    - Script đánh giá quét qua 80 thời điểm chốt tháng liên tục. Từ năm 2020 đến 2022, số lượng mã sẵn sàng tăng dần từ 87 lên 518 mã theo sự mở rộng của thị trường.
@@ -257,14 +257,14 @@ Khi thuyết trình Slide 08, bạn phân tích chi tiết cơ chế lan truyề
 
 ---
 
-### Slide 09: Chi tiết 6 bước kỹ thuật thiết lập khung thực nghiệm M2-PREP
+### Slide 05: Chi tiết 6 bước kỹ thuật thiết lập khung thực nghiệm M2-PREP
 Khi thuyết trình Slide 09, bạn trình bày chi tiết từng bước mà module `src/delta_t1/experiments/m2_prep.py` đã thực hiện:
 1. **Bước 1: Tiếp nhận và xác thực tính toàn vẹn (Integrity Verification):**
    - Tự động nạp các tệp bất biến từ M1: `candidate_universe.csv`, `feature_snapshots.jsonl` và `monthly_market_readiness.csv`.
    - Kiểm tra mã băm SHA-256 đối chiếu với `manifest.json`. Thực thi kiểm tra chéo độc lập để tái lập chính xác con số 905/952 mã tại ngày 28/08/2026.
 2. **Bước 2: Khóa quy chuẩn tư cách ứng viên theo snapshot (Eligibility Freeze):**
    - Đóng băng công thức: `market_experiment_eligible(t) = market_feature_ready_v2(t)` tại cùng thời điểm t.
-   - Chặn đứng hoàn toàn lỗi sai lệch sống sót (Survivorship bias): Tại mỗi tháng t trong quá khứ, mô hình chỉ được nạp những cổ phiếu thực sự đủ điều kiện tại tháng t đó, tuyệt đối không dùng danh sách 905 mã của hiện tại để lọc ngược lịch sử.
+   - Chặn đứng hoàn toàn lỗi sai lệch sống sót (Survivorship bias): Tại mỗi tháng t trong quá khứ, mô hình chỉ được nạp những cổ phiếu thực sự đủ điều kiện tại tháng t đó: Có đủ 253 phiên giao dịch thực tế trong 1 năm tính từ ngày t trở về trước; Có đủ 253 phiên giao dịch thực tế trong 1 năm tính từ ngày t trở về trước; Tính toán ra đầy đủ cả 8 đặc trưng động lượng - rủi ro - thanh khoản, tuyệt đối không dùng danh sách 905 mã của hiện tại để lọc ngược lịch sử.
 3. **Bước 3: Đo lường và phân đoạn 4 Cửa sổ thời gian (Candidate Windows Inventory):**
    - Phân tích chuỗi 44 tháng sau gap để xuất bản file `candidate_windows.csv` gồm 4 lựa chọn:
      + *Cửa sổ 1 (Pre-benchmark gap short):* 01/2023 - 04/2023 (4 tháng, 87 - 518 mã) -> Quá ngắn để đánh giá độ ổn định.

@@ -17,6 +17,14 @@ Kết quả khóa: 922 `feature_complete`, 905 `market_feature_ready_v2`, 47 mar
 
 Supplemental acquisition cho 148 deferred rows là optional future stage, không phải điều kiện để bắt đầu M2-PREP. Financial taxonomy/PIT, historical identity authority và final research sample-size/density vẫn là workstream riêng, fail-closed.
 
+## Financial PIT workstream
+
+- [x] FIN-PIT-1A-R5 technical gate và bounded-pilot approval cho `B_OFFICIAL_DATE_D1_V1`.
+- [x] FIN-PIT-1 bounded official source/document pilot với 32 unique documents và 40 linkage candidates.
+- [x] FIN-PIT-2 offline semantic extraction gate `PARTIAL`: 3 report candidates và 216 balance-sheet instant facts semantic-ready trong text-based PVS subset; scanned/ambiguous documents quarantine, 7 revision relations giữ `UNKNOWN`, canonical/features bằng 0.
+- [x] FIN-PIT-2-R1 selective OCR remediation gate `PARTIAL`: 26 documents/209 pages OCR, 205 pages usable; linkage verified 6→27, ambiguous 34→4, 9 scope conflicts được giữ fail-closed, quarantine 29→26, semantic-ready reports 3→6; Q2/Q3 duration vẫn unresolved, canonical/features bằng 0.
+- [ ] FIN-PIT-3 chỉ được mở bằng session riêng sau manual scope freeze; với R1 `PARTIAL`, không được claim coverage toàn bounded pilot và chỉ review verified subset có evidence.
+
 ## M2 — Clustering Research
 
 - [x] Static K-Means deterministic baseline và label alignment/transition tracking.

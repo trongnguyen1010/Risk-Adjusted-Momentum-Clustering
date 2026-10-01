@@ -21,10 +21,15 @@
 | `artifacts/cafef_primary/cafef-c8-verify-v1/` | Compact C8-VERIFY evidence được track |
 | `artifacts/repository/r1-consolidation-v1/` | Before/after inventory, deletion inventory và R1 verification manifest |
 | `artifacts/reports/m1-market-foundation-v1/` | Compact M1 market-foundation report, report-level tables và deterministic plots |
+| `artifacts/financial_pit/fin-pit-2-semantic-extraction-v1/` | FIN-PIT-2 report/fact/linkage/taxonomy/revision candidates và gate `PARTIAL`; không phải canonical financial data |
+| `artifacts/financial_pit/fin-pit-2-r1-ocr-remediation-v1/` | FIN-PIT-2-R1 derived OCR/page provenance, updated semantic candidates, before/after coverage và gate `PARTIAL`; raw PDF không bị thay thế |
 | `scripts/run_cafef_c8_complete_only.py` | Heavy C8 runner; không dùng cho verify thông thường |
 | `scripts/verify_cafef_c8_results.py` | One-time compact C8 verification artifact generator; không rerun khi output tồn tại |
 | `scripts/verify_repository_r1.py` | Exact-inventory verifier cho frozen R1 revision; không phải current-tree gate hậu M1/D1 |
 | `scripts/build_m1_market_foundation_report.py` | Offline deterministic M1 report generator/verifier |
+| `scripts/run_fin_pit_2_semantic_extraction.py` | Dry-run, offline semantic extraction, resume-as-verify và verifier FIN-PIT-2 |
+| `scripts/run_fin_pit_2_r1_ocr_remediation.py` | Preflight inventory, selective local OCR, semantic re-extraction, resume và offline verifier FIN-PIT-2-R1 |
+| `src/delta_t1/ingestion/financial_pit_ocr.py` | Page-scoped OCR/provenance, quality controls, numeric fail-closed và before/after coverage cho FIN-PIT-2-R1 |
 | `scripts/run_cafef_expansion_worker.py` | Frozen C6 acquisition runner |
 | `scripts/run_cafef_supplemental_worker.py` | Deferred supplemental acquisition runner |
 | `scripts/consolidate_cafef_expansion_handoffs.py` | Central offline consolidation |
