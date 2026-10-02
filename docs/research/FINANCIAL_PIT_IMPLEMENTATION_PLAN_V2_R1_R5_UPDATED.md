@@ -4942,6 +4942,133 @@ STOP CONDITION CONFIRMED:
 YES
 ```
 
+### FIN-PIT-2-R3 — Actual execution result
+
+Execution date: `2026-10-02`
+
+Execution mode: `AI_EXECUTES_OFFLINE`
+
+Status: `PASS`
+
+R3 chỉ review bounded subset đã đăng ký: 11 period cases, 5 scope conflicts, 24
+quarantined candidates, 4 ACV Q3 low-confidence pages và linkage/document-role
+liên quan trực tiếp. Không chạy FIN-PIT-2-R4 hoặc FIN-PIT-3. Network request count
+bằng `0`.
+
+Input artifact bindings:
+
+| Input | SHA-256 của `checksums.json` |
+|---|---|
+| FIN-PIT-1 source-document pilot | `7e3077b37e2d70325b0d1cf9e9bac212c7dc01d9bb7936e28d29d17c49126fd7` |
+| FIN-PIT-2-R2 | `80dcdb8462c90d6d0f4bc3cb00d944494d462642ec5c9652efd47bf427b1a1a2` |
+| OPEN-11 | `864e3cbb2e0dab8c81e376734e40d1d0465390033a0148010cdf82f133f88c11` |
+
+Output artifact:
+
+`artifacts/financial_pit/fin-pit-2-r3-semantic-closure-v1/`
+
+| File | SHA-256 |
+|---|---|
+| `quarantine_inventory.jsonl` | `98477f924cd0723e905cae7d1666e89dbc46c5e9f52df478f2fc2081fdf67c8d` |
+| `quarantine_reason_matrix.jsonl` | `a6702bf1d81f445aaf371fe2fd98bb65a253d20e46ca84b81ebf7b202d33213b` |
+| `period_closure_review.jsonl` | `cbbbe7e0a428ea9c45ca6d2667f8e9c6bc69fc82a0040c00ce9fe24fcaa84ff4` |
+| `scope_closure_review.jsonl` | `7959237ef5d50ac089bab7d1ca9db80dfb4b968a5fb0e310ee5d9f1ec6008534` |
+| `linkage_closure_review.jsonl` | `70c8f0478e0e7e72d0398fce9ea7adfc06f749b9785c75d8c91da8e6bf89ac20` |
+| `document_role_review.jsonl` | `c1bc51887511ba4d94788996cb3f8dc02fbcb4425aaa34af7f573ce05b2025f1` |
+| `ocr_targeted_remediation.jsonl` | `86b0eeb549ab617b6326333a5f46c526dd91259dcd9576bf6d17075d5b0f626e` |
+| `report_candidates_updated.jsonl` | `1500fc10dd16d2a5c39369edc47fed29fadd01b8afd16d33ecd925baf45ba281` |
+| `fact_candidates_updated.jsonl` | `e938bcddca997ebf510a126e8e7d3687742176cc6315faa0d4cb26954c0df5d0` |
+| `final_dispositions.jsonl` | `cfa630866fb3bad44465e44ee1dcecf24b009edd21abd5a2b8284d83289afaf2` |
+| `conflicts.jsonl` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| `quarantine_final.jsonl` | `1ade794c6b5125052e0f98ec9e22f3b55e59e6a40cb2381d2b4fd6d14e62db45` |
+| `semantic_coverage_before_after.json` | `5ab2c8eb4000d26ed5f29d685aef9fbef779457fad2eb5b25c295e724c0c6f99` |
+| `semantic_closure_report.json` | `3196ab188b1a594c3842fc63968d9a147d5b3ebb003ad4d915edc584c5bb911c` |
+| `manifest.json` | `0445ae2a656b641ff0ad5becd9d3e518efb6df7076b8b1933fbfad4fdff4d674` |
+| `gate.json` | `604101baa3a9ca9e3e6e589ac3a6f230a89009d8e161b7d9420b1ee253613d69` |
+
+Closure results:
+
+- Period: review đủ 11/11; 0 case mới đủ explicit heading để verify, 6 primary
+  cases final-exclude (`2` period unresolved và `4` OCR irrecoverable), 5 supporting
+  attachments được đóng `NOT_APPLICABLE`. Không derive standalone bằng subtraction.
+- Scope: 5/5 conflicts được phân loại
+  `SUPPORTING_ATTACHMENT_NOT_SCOPE_BEARING`; scope final là `NOT_APPLICABLE`, không
+  merge consolidated/separate primary reports.
+- Linkage: review 24/24; 13 `VERIFIED`, 11 `NOT_APPLICABLE`, 0 force-match và 0
+  linkage case thiếu final state.
+- OCR: đúng 4 ACV Q3 page 6, tổng 16 bounded attempts; 0 `RECOVERED`, 4
+  `IRRECOVERABLE_LOW_CONFIDENCE`. Mỗi attempt lưu DPI, rotation, preprocessing,
+  language, PSM, engine/config hash, rendered-image hash, confidence và excerpt.
+  Raw PDF hashes trước/sau giống nhau.
+- OPEN-11: giữ nguyên exact reviewed ACV/HNX primary-report mapping
+  “Báo cáo tài chính tổng hợp” → `SEPARATE`; không áp dụng cho attachment, issuer,
+  source hoặc hash ngoài approved set.
+
+Before → after metrics:
+
+| Metric | Before | After |
+|---|---:|---:|
+| period partial | 4 | 0 |
+| period unresolved | 7 | 0 |
+| period verified | 3 | 3 |
+| period final excluded | 0 | 6 |
+| scope conflicts | 5 | 0 |
+| scope resolved | 0 | 5 |
+| linkage ambiguous | 4 | 0 |
+| linkage verified | 29 | 30 |
+| OCR low confidence | 4 | 0 |
+| OCR recovered | 0 | 0 |
+| OCR irrecoverable | 0 | 4 |
+| quarantine total | 24 | 23 |
+| quarantine recovered/promoted | 0 | 1 |
+| quarantine without final disposition | 24 | 0 |
+| semantic-ready reports | 8 | 9 |
+| semantic-ready facts | 216 | 216 |
+| final dispositions total | 0 | 24 |
+
+Final disposition counts:
+
+- `VERIFIED`: 1;
+- `EXCLUDED_PERIOD_UNRESOLVED`: 2;
+- `EXCLUDED_OCR_IRRECOVERABLE`: 4;
+- `NOT_APPLICABLE_SUPPORTING_ATTACHMENT`: 11;
+- `QUARANTINED_WITH_FINAL_REASON`: 6;
+- scope/linkage/document-role exclusions: 0.
+
+Ticker split: ACV `14` in scope (`1` verified, `13` final-excluded/not-applicable),
+FPT `2/0/2`, VNM `1/0/1`, PVS `7/0/7`; không ticker nào còn candidate thiếu
+final disposition.
+
+Preservation and stage boundaries:
+
+- 7 revision groups vẫn `UNKNOWN`; `REVISION_GROUPS_CHANGED = 0`;
+- `publication_date`, `eligible_from`, `timing_grade`, timing policy/source và phân
+  bố `4 A_EXACT_TIMESTAMP / 28 B_OFFICIAL_DATE_D1` không đổi;
+- `CANONICAL_ROWS_WRITTEN = 0`;
+- `FINANCIAL_FEATURES_WRITTEN = 0`;
+- taxonomy không được final-promote.
+
+Verification performed:
+
+- R3 preflight và dry-run: `PASS`;
+- R3 offline verifier: `VERIFIED`, 16 hashed files, 24 final dispositions, 0 thiếu
+  final reason;
+- 7 targeted R3 assertions: `PASS` (period headings, fail-closed insufficient
+  evidence, scope attachment handling, OPEN-11 exact/non-generalized mapping,
+  bounded OCR/raw hash, non-forced linkage, closure/timing/revision boundaries);
+- FIN-PIT-2, R1, R2 và OPEN-11 offline artifact verifiers: `PASS/VERIFIED` với stage
+  status lịch sử được giữ nguyên;
+- repository `pytest` không chạy được vì interpreter Python 3.12.7 hiện tại không
+  cài package `pytest`; không cài dependency qua network trong offline stage.
+
+Gate reasoning: `PASS` vì 24/24 in-scope candidates có final disposition và final
+reason; period/scope/linkage/OCR ambiguity đều được verify, đóng not-applicable hoặc
+final-exclude, không force-promote. PASS không có nghĩa quarantine bằng 0.
+
+Remaining FIN-PIT-2 issue duy nhất thuộc stage kế tiếp là 7 revision groups chưa
+resolve. Exact next stage là `FIN-PIT-2-R4 — Revision lineage remediation`. R3 không
+thực thi R4 hoặc FIN-PIT-3.
+
 ### FIN-PIT-3 — Evidence review và policy decision
 
 Mục tiêu:
