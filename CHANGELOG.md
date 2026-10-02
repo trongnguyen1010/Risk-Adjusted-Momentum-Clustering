@@ -1,3 +1,29 @@
+# Chưa phát hành — FIN-PIT-2-R1 OCR remediation (2026-10-01)
+
+- Thêm selective local OCR runner dùng Tesseract `v5.4.0.20240606`, preflight 5 trạng
+  thái, page-level provenance/bounding boxes/confidence, immutable raw-hash checks,
+  numeric ambiguity fail-closed, semantic re-extraction và 15 targeted contract tests.
+- OCR đúng 26 scan/mixed documents và 209 pages; 205 pages đạt quality gate, 4 pages
+  `LOW_CONFIDENCE` không được semantic-promote. Linkage verified tăng 6→27,
+  ambiguous giảm 34→4; 9 scope conflicts mới được giữ nguyên thay vì ép match.
+- Gate `PARTIAL`: quarantine 29→26, semantic-ready reports 3→6, fact candidates
+  220→242 nhưng semantic-ready facts giữ 216; 7 revision groups vẫn `UNKNOWN`, Q2/Q3
+  duration chưa resolve. Preserve 4 `A_EXACT_TIMESTAMP`, 28 `B_OFFICIAL_DATE_D1`,
+  canonical/features bằng 0 và không mở FIN-PIT-3.
+
+# Chưa phát hành — FIN-PIT-2 semantic extraction (2026-10-01)
+
+- Thêm offline FIN-PIT-2 extractor/verifier và 13 contract tests cho document linkage,
+  statement/period/scope/assurance/unit semantics, taxonomy candidates, provenance,
+  revision `UNKNOWN`, R5 timing preservation và no-canonical/no-feature boundary.
+- Sinh artifact `fin-pit-2-semantic-extraction-v1` từ immutable FIN-PIT-1 evidence:
+  32 documents, 40 linkages, 4 primary reports, 220 fact candidates, 29 quarantine,
+  0 conflicts; gate `PARTIAL` vì phần lớn PDF scan không có usable text layer và OCR
+  engine không khả dụng.
+- Preserve 4 `A_EXACT_TIMESTAMP` và 28 report-document candidates dùng
+  `B_OFFICIAL_DATE_D1`; không thay methodology R5, không final-promote taxonomy/revision,
+  không ghi canonical rows và không bật financial features.
+
 # Chưa phát hành — M2 Ward reporting (2026-09-30)
 
 - Viết lại notebook và báo cáo nhiệm vụ 7, 8, 9 cho phần Ward theo kế hoạch: quality tại Global K=2, profile trên tám feature gốc, temporal trên giao tập mã với aligned ID, drift và entry/exit đầy đủ.
