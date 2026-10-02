@@ -5061,6 +5061,32 @@ Verification performed:
 - repository `pytest` không chạy được vì interpreter Python 3.12.7 hiện tại không
   cài package `pytest`; không cài dependency qua network trong offline stage.
 
+Execution record và verification bổ sung:
+
+- implementation, tests, artifacts và plan result được commit tại
+  `82ff2410790516442fd64cb720a6273cdb1ab1f5` với message
+  `feat: execute FIN-PIT-2-R3 semantic closure`;
+- `checksums.json` của output artifact có SHA-256
+  `f9cbaa4d4235b61cad7d53d56501406e7f803ee76b1c374a678a3a8d8d13ace6`;
+- toàn bộ 17 JSON/JSONL output files parse thành công;
+- `python -m compileall -q src tests scripts run.py`: `PASS`;
+- `configs/data/synthetic_smoke.example.json`: `PASS` với synthetic run hoàn tất;
+- scoped `git diff --check` cho R3 implementation, tests và authoritative plan:
+  `PASS`;
+- `PLAN_UPDATE_STATUS = PASS`;
+- repository-wide `git diff --check` còn báo trailing whitespace trong các file M2
+  đã có thay đổi ngoài R3 scope; R3 không sửa hoặc đưa các file đó vào commit.
+
+Self-review đã loại một OCR result có vẻ recover được nhưng chỉ dựa trên cụm
+“Quý 3”. Quarter number alone không đủ phân biệt `STANDALONE` với `YTD`, nên case
+này được trả về fail-closed. Final OCR result vì vậy là `0 RECOVERED / 4
+IRRECOVERABLE_LOW_CONFIDENCE`, phù hợp period evidence contract.
+
+Fact closure xác nhận cả 242 fact candidates đều kết thúc bằng
+`semantic_ready = true` hoặc một `final_disposition` kèm `final_reason`. Số
+semantic-ready facts giữ nguyên `216`; không dùng OCR remediation để tạo numeric
+fact mới.
+
 Gate reasoning: `PASS` vì 24/24 in-scope candidates có final disposition và final
 reason; period/scope/linkage/OCR ambiguity đều được verify, đóng not-applicable hoặc
 final-exclude, không force-promote. PASS không có nghĩa quarantine bằng 0.
@@ -5068,6 +5094,12 @@ final-exclude, không force-promote. PASS không có nghĩa quarantine bằng 0.
 Remaining FIN-PIT-2 issue duy nhất thuộc stage kế tiếp là 7 revision groups chưa
 resolve. Exact next stage là `FIN-PIT-2-R4 — Revision lineage remediation`. R3 không
 thực thi R4 hoặc FIN-PIT-3.
+
+Owner conclusion: 11/11 period cases, 5/5 scope conflicts, 4/4 OCR pages và 24/24
+quarantine candidates đã đạt terminal disposition. Semantic-ready reports tăng từ
+`8` lên `9`, semantic-ready facts giữ `216`, và không còn candidate thiếu final
+reason. Do gate R3 là `PASS`, owner có thể mở FIN-PIT-2-R4; không được bỏ qua R4 để
+chạy trực tiếp FIN-PIT-3 theo closure-first strategy.
 
 ### FIN-PIT-3 — Evidence review và policy decision
 
