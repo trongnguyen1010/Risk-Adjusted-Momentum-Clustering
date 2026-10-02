@@ -1542,260 +1542,446 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 - **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task6-pca-kmeans-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `pca_diagnostics.jsonl`, `manifest.json`; lưu trong M2 để push lên GitHub)
 
 
-# NHIỆM VỤ 7 — ĐÁNH GIÁ CHẤT LƯỢNG CỤM
+# NHIỆM VỤ 7 — ĐÁNH GIÁ CHẤT LƯỢNG CỤM (CLUSTER QUALITY EVALUATION)
 
 ## Mục đích của Nhiệm vụ 7
 
-Đánh giá từng phương án ở cấp mỗi snapshot.
-
-## Đầu vào
-
-Kết quả của K-Means, Ward và PCA + K-Means.
-
-## Phần 7.1 — Silhouette
-
-### Mục đích
-
-Đánh giá mức độ các điểm gần cụm của mình và xa cụm khác. Cao hơn thường tốt hơn.
-
-## Phần 7.2 — Davies–Bouldin
-
-### Mục đích
-
-Đánh giá độ gọn và mức tách biệt của các cụm. Thấp hơn thường tốt hơn.
-
-## Phần 7.3 — Calinski–Harabasz
-
-### Mục đích
-
-So sánh phân tán giữa cụm và trong cụm.
-
-## Phần 7.4 — Inertia
-
-### Mục đích
-
-Đo khoảng cách các điểm tới tâm cụm; chủ yếu dùng với K-Means.
-
-## Phần 7.5 — Cluster balance
-
-### Mục đích
-
-Kiểm tra có cụm quá lớn hoặc quá nhỏ không.
+Đánh giá chất lượng hình học và độ phân tách toán học của các cụm cổ phiếu được tạo ra trên 15 snapshots của Cửa sổ phát triển (11/2023 – 01/2025) bằng 5 chỉ số chất lượng nội bộ độc lập (Internal Cluster Quality Metrics):
+- **Đánh giá chuyên sâu cấu hình tối ưu K=2:** Tập trung phân tích chất lượng của cấu hình K=2 (đã được khóa từ Nhiệm vụ 3) xuyên suốt 15 tháng để nhận diện độ chặt chẽ nội cụm và mức độ tách biệt giữa các nhóm cổ phiếu.
+- **Theo dõi biến thiên qua chuỗi thời gian:** Đánh giá độ ổn định của 5 chỉ số chất lượng qua từng tháng, phát hiện các giai đoạn thị trường biến động mạnh hoặc xuất hiện hiện tượng phân mảnh cụm (fragmentation / outlier clusters).
+- **Thống nhất chuẩn đầu ra:** Đảm bảo cả 3 phương án (**K-Means Baseline**, **Ward Hierarchical**, **PCA + K-Means**) đều có cùng cấu trúc trình bày trong Notebook, cùng định dạng bảng biểu, cùng hệ thống biểu đồ và cùng schema file xuất xưởng ra đĩa.
+- **Tuân thủ ranh giới nghiên cứu M2:** Đánh giá chất lượng cụm hoàn toàn bằng các thước đo khoảng cách không gian đặc trưng, tuyệt đối không sử dụng tỷ suất sinh lời, Sharpe ratio hay các chỉ số đầu tư danh mục (thuộc M3).
 
 ## File code sử dụng trong nhiệm vụ và cách dùng
 
-Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+Nhiệm vụ 7 tuân thủ nguyên tắc cốt lõi của DELTA: **Tầng đánh giá chất lượng chỉ đọc dữ liệu chẩn đoán (diagnostics) đã được tạo ra từ pipeline huấn luyện ở Nhiệm vụ 4, 5, 6, không huấn luyện lại mô hình**.
 
-**\`src/delta_t1/evaluation/cluster_metrics.py\`** — file đã có; file chính của Nhiệm vụ 7.
+> **RÀO CHẮN KỸ THUẬT QUAN TRỌNG CHO NGƯỜI THỰC HIỆN / AI:**  
+> - Notebook của Nhiệm vụ 7 hoạt động **hoàn toàn độc lập**, chỉ sử dụng các thư viện chuẩn của Python (`pandas`, `matplotlib`, `os`).
+> - **TUYỆT ĐỐI KHÔNG import hoặc copy code từ 3 module backend** (`cluster_metrics.py`, `base.py`, `runner.py`). Toàn bộ tính toán mô hình và khoảng cách vector đã được các module này xử lý xong ở các nhiệm vụ trước.
+> - Các module backend bên dưới chỉ được liệt kê với vai trò **tài liệu tham chiếu nguồn gốc dữ liệu (provenance reference)** để phục vụ công tác kiểm toán học thuật.
 
-> Mục đích: Tập trung các phép đo chất lượng cụm.
->
-> Cách dùng trong nhiệm vụ này: Dùng các hàm hiện có để lấy Silhouette, DB, CH, inertia và cluster balance cho output của từng phương án.
+### Các module hệ thống tham chiếu nguồn gốc (Backend Reference Modules)
+- **`src/delta_t1/evaluation/cluster_metrics.py`** — Tài liệu tham chiếu công thức: Cung cấp định nghĩa toán học chuẩn của dự án cho 5 chỉ số (Silhouette, DB, CH, Inertia, Balance) mà pipeline đã sử dụng để tính toán. Người làm Nhiệm vụ 7 **không gọi lại hàm này**.
+- **`src/delta_t1/clustering/base.py`** — Tài liệu tham chiếu cấu trúc: Định nghĩa cấu trúc từ điển `diagnostics` gắn liền với từng snapshot.
+- **`src/delta_t1/experiments/runner.py`** — Bộ tạo dữ liệu: Đã điều phối quá trình fit mô hình trên 15 snapshots và xuất xưởng file kết quả `diagnostics.csv`.
 
-**\`src/delta_t1/clustering/base.py\`** — file đã có; nơi tạo diagnostics trong snapshot pipeline.
+### Các file code thực thi chính của Nhiệm vụ 7 (Notebooks)
+Người thực hiện từng phương án mở và thực thi trực tiếp notebook tương ứng trong thư mục `M2/notebooks/`:
+- **Phương án 1 (K-Means Baseline):** `M2/notebooks/07_cluster_quality_evaluation_kmeans.ipynb`
+- **Phương án 2 (Ward Hierarchical):** `M2/notebooks/07_cluster_quality_evaluation_ward.ipynb`
+- **Phương án 3 (PCA + K-Means):** `M2/notebooks/07_cluster_quality_evaluation_pca_kmeans.ipynb`
 
-> Mục đích: Gắn kết labels/dữ liệu snapshot với metric.
->
-> Cách dùng trong nhiệm vụ này: Không cần tính tay lại nếu diagnostics đã được tạo đúng trong lúc fit snapshot.
+### Quy trình phối hợp 5 bước (Workflow)
+1. **Bước 1 (Đọc dữ liệu chẩn đoán):** Sử dụng `pandas` đọc trực tiếp file `diagnostics.csv` từ thư mục artifact của phương án tương ứng.
+2. **Bước 2 (Trích xuất & Tính toán bảng tổng hợp):** Lọc lấy 15 dòng dữ liệu ứng với cấu hình K=2, dùng các hàm thống kê mô tả cơ bản của pandas để tính Mean, Median, Min, Max cho 5 chỉ số và tự động xuất ra file `quality_summary.csv`.
+3. **Bước 3 (Hiển thị 2 Bảng chuẩn):** Hiển thị Bảng tổng hợp (Bảng 1) và Bảng chi tiết 15 snapshots (Bảng 2) dưới dạng bảng HTML tương tác (`display()`).
+4. **Bước 4 (Trực quan hóa 5 Biểu đồ đường):** Dùng `matplotlib` vẽ 5 biểu đồ chuỗi thời gian cho 5 chỉ số chất lượng từ Mục 7.1 đến 7.5 kèm đường tham chiếu Median nét đứt màu đỏ.
+5. **Bước 5 (Soạn thảo Nhận định kinh tế & Rào chắn học thuật):** Trình bày phân tích hiện tượng thị trường và giới hạn toán học trực tiếp vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập.
 
-**\`src/delta_t1/experiments/runner.py\`** — file đã có; nơi gom và ghi diagnostics.
+## Quy chuẩn Dữ liệu Đầu vào (Input Contract)
 
-> Mục đích: Ghi \`snapshot\["diagnostics"\]\` thành artifact theo nhiều snapshot.
->
-> Cách dùng trong nhiệm vụ này: Đọc \`diagnostics.jsonl/csv\` làm bảng đầu vào cho phần tổng hợp chất lượng.
+Nhiệm vụ 7 chỉ nhận duy nhất file kết quả chẩn đoán **`diagnostics.csv`** (chính là `per-snapshot diagnostics` theo quy chuẩn `DELTA_UNIFIED_PROJECT_PLAN.md`) đã được pipeline sinh ra sẵn từ Nhiệm vụ 4, 5, 6:
+- **K-Means:** `M2/artifacts/m2-task4-kmeans-baseline-v1/diagnostics.csv`
+- **Ward:** `M2/artifacts/m2-task5-ward-v1/diagnostics.csv`
+- **PCA + K-Means:** `M2/artifacts/m2-task6-pca-kmeans-v1/diagnostics.csv`
 
-### Cách các file phối hợp
+*(Lưu ý về quy mô dữ liệu: File chẩn đoán gốc lưu trữ toàn bộ các mức K khảo sát ban đầu từ 2 đến 8 gồm 105 dòng. **Nhiệm vụ 7 chỉ trích xuất và phân tích duy nhất 15 dòng ứng với cấu hình tối ưu K=2 đã khóa ở Nhiệm vụ 3**).*
 
-> artifact của 3 phương án → base/cluster_metrics.py → runner diagnostics → bảng snapshot × phương án × metric.
+Cấu trúc các cột bắt buộc phải có trong file diagnostics: `snapshot_date`, `k`, `silhouette`, `davies_bouldin`, `calinski_harabasz`, `inertia`, `cluster_balance`, `cluster_sizes`, `converged`.
 
-## Kết quả cần đạt của Nhiệm vụ 7
+## Quy chuẩn File Artifacts xuất ra đĩa (Disk Output Contract)
 
-Bảng snapshot × phương án × metric.
+Sau khi chạy xong Notebook, code bắt buộc phải tự động lưu **duy nhất 1 file CSV** đại diện cho **`quality metrics`** của mô hình tại K=2 vào đúng thư mục evaluation chuẩn của từng phương án:
+- **K-Means:** `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv`
+- **Ward:** `M2/artifacts/m2-evaluation-ward/quality_summary.csv`
+- **PCA + K-Means:** `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv`
 
-## Vị trí trong repo & Đường dẫn output
+### Schema cố định gồm đúng 7 cột:
+Tất cả các file `quality_summary.csv` xuất xưởng của cả 3 mô hình bắt buộc phải có đúng 7 cột với tên và thứ tự như sau:
+1. `metric` (String: Tên 5 chỉ số lần lượt theo hàng: `silhouette`, `davies_bouldin`, `calinski_harabasz`, `inertia`, `cluster_balance`)
+2. `n_total` (Int: Tổng số snapshots đánh giá = 15)
+3. `n_available` (Int: Số snapshots có giá trị hợp lệ = 15)
+4. `mean` (Float: Giá trị trung bình qua 15 tháng)
+5. `median` (Float: Giá trị trung vị qua 15 tháng — *Thước đo chính để Nhiệm vụ 10 so sánh xếp hạng mô hình*)
+6. `minimum` (Float: Giá trị nhỏ nhất trong 15 tháng)
+7. `maximum` (Float: Giá trị lớn nhất trong 15 tháng)
 
-- **Code phân tích / Đánh giá**: `M2/notebooks/07_cluster_quality_evaluation.ipynb` (sử dụng `src/delta_t1/evaluation/cluster_metrics.py`)
-- **Mô hình**: Không fit model mới; đọc models từ `M2/models/` của Nhiệm vụ 4, 5, 6
-- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-evaluation/quality_metrics_comparison.csv` (lưu trong M2 để push lên GitHub)
+## Các phần thực hiện chi tiết trong Notebook & Bảng Output chuẩn
 
-# NHIỆM VỤ 8 — PHÂN TÍCH HỒ SƠ CỤM
+Cả 3 notebook đều phải trình bày cấu trúc thống nhất qua 5 chỉ số và xuất ra **2 bảng số liệu chuẩn**:
+
+### Bảng Output chuẩn 1 — Tóm tắt thống kê chất lượng cụm K=2 (Kích thước 5 dòng x 7 cột)
+Hiển thị ở phần đầu notebook qua hàm `display()`:
+
+| Cột dữ liệu | Kiểu dữ liệu | Ý nghĩa |
+| :--- | :--- | :--- |
+| `metric` | String | Tên chỉ số (`silhouette`, `davies_bouldin`, `calinski_harabasz`, `inertia`, `cluster_balance`) |
+| `n_total` | Int | Tổng số snapshot đánh giá (15) |
+| `n_available` | Int | Số snapshot có dữ liệu hợp lệ (15) |
+| `mean` | Float | Giá trị trung bình 15 tháng |
+| `median` | Float | Giá trị trung vị 15 tháng (Thước đo chính xếp hạng mô hình ở Nhiệm vụ 10) |
+| `minimum` | Float | Giá trị thấp nhất ghi nhận |
+| `maximum` | Float | Giá trị cao nhất ghi nhận |
+
+### Bảng Output chuẩn 2 — Chi tiết chất lượng qua 15 Snapshots tại K=2 (Kích thước 15 dòng x 6 cột)
+Hiển thị chi tiết diễn biến từng tháng của cấu hình K=2 qua hàm `display()`:
+
+| Tên cột | Kiểu dữ liệu | Ý nghĩa |
+| :--- | :--- | :--- |
+| `Snapshot` | String | Ngày chốt dữ liệu (2023-11-30 đến 2025-01-24) |
+| `Silhouette` | Float | Điểm Silhouette tại snapshot |
+| `DB` | Float | Chỉ số Davies-Bouldin tại snapshot |
+| `CH` | Float | Chỉ số Calinski-Harabasz tại snapshot |
+| `Inertia` | Float | Quán tính nội cụm tại snapshot |
+| `Balance` | Float | Tỷ số kích thước cụm (`min_size / max_size`) |
+
+## Quy chuẩn Trực quan hóa (Visualization Contract)
+
+Cả 3 notebook bắt buộc phải vẽ **đầy đủ 5 biểu đồ đường (Line plots)** tương ứng với 5 tiểu mục 7.1 đến 7.5:
+
+1. **Biểu đồ 7.1 — Silhouette Score qua 15 tháng:**
+   - Trục hoành: 15 ngày snapshot; Trục tung: Điểm Silhouette.
+   - Bắt buộc vẽ **đường nét đứt màu đỏ** thể hiện `Median` của Silhouette kèm nhãn giá trị cụ thể.
+   - Định hướng: Điểm càng cao càng tốt (ngưỡng chấp nhận > 0.5; ngưỡng xuất sắc > 0.7).
+2. **Biểu đồ 7.2 — Davies-Bouldin Index qua 15 tháng:**
+   - Trục hoành: 15 ngày snapshot; Trục tung: Giá trị DB Index.
+   - Bắt buộc vẽ đường nét đứt màu đỏ thể hiện `Median`.
+   - Định hướng: Giá trị càng thấp càng tốt (các cụm cách xa nhau và gọn gàng).
+3. **Biểu đồ 7.3 — Calinski-Harabasz Index qua 15 tháng:**
+   - Trục hoành: 15 ngày snapshot; Trục tung: Điểm CH Index.
+   - Bắt buộc vẽ đường nét đứt màu đỏ thể hiện `Median`.
+   - Định hướng: Giá trị càng cao càng tốt (phương sai liên cụm vượt trội phương sai nội cụm).
+4. **Biểu đồ 7.4 — Quán tính nội cụm (Inertia) qua 15 tháng:**
+   - Trục hoành: 15 ngày snapshot; Trục tung: Quán tính Inertia.
+   - Ghi chú rõ trên biểu đồ hoặc tiêu đề: Biến thiên tỷ lệ thuận với số lượng cổ phiếu quan sát N.
+5. **Biểu đồ 7.5 — Tỷ số cân bằng cụm (Cluster Balance) qua 15 tháng:**
+   - Trục hoành: 15 ngày snapshot; Trục tung: Tỷ số cân bằng (`min_size / max_size`).
+   - Bắt buộc vẽ đường nét đứt màu đỏ thể hiện `Median` và **đường nét chấm đỏ đậm thể hiện ngưỡng tối thiểu 5% (0.05)** để cảnh báo hiện tượng phân mảnh.
+
+*Quy cách đồ thị: Kích thước chuẩn `figsize=(10, 3.8)`, xoay nhãn ngày 45 độ, lưới mờ `alpha=0.5`.*
+
+## Nhận định kinh tế tài chính & Rào chắn học thuật (Academic Invariants)
+
+Sau khi chạy code hiển thị bảng và biểu đồ, người thực hiện **bắt buộc phải tạo các ô Markdown trong Notebook** để trình bày bằng văn bản 3 nội dung trọng tâm sau:
+
+### 1. Phân cấp ưu tiên tiêu chí theo DELTA_UNIFIED_PROJECT_PLAN.md
+- **Tiêu chí cấp 1 (Primary Criterion):** `Median Silhouette cao nhất`. Đây là cơ sở toán học cao nhất để chứng minh K=2 tạo ra ranh giới tách biệt rõ ràng nhất giữa các nhóm cổ phiếu trên thị trường Việt Nam.
+- **Tiêu chí phá vỡ thế cân bằng (Secondary Tie-breaker):** `Median Davies-Bouldin thấp hơn`. Dùng khi Silhouette giữa các phương án xấp xỉ nhau.
+- **Tiêu chí kiểm định an toàn (Sanity Diagnostics):** `Calinski-Harabasz` và `Cluster Balance` dùng để kiểm tra độ tin cậy, cảnh báo nguy cơ phân cụm bị chi phối bởi các cổ phiếu dị biệt.
+
+### 2. Hiện tượng kinh tế và cấu trúc vi mô thị trường
+- **Giải thích hiện tượng Balance thấp (Fragmentation / Outlier Clusters):** Nếu Cluster Balance ở mức thấp (< 0.05 hoặc cụm nhỏ chỉ có vài mã đến vài chục mã), phải diễn giải rõ: Thuật toán đang tách thị trường thành một nhóm đại trà (phần lớn thị trường) và một nhóm cực đoan (gồm các cổ phiếu siêu động lượng, siêu thanh khoản hoặc biến động dị biệt). Đây là đặc tính tự nhiên của dữ liệu tài chính có đuôi dài (heavy tails).
+- **Phân tích hiện tượng biến động (Spikes):** Đánh giá các tháng có điểm chất lượng sụt giảm mạnh (ví dụ tháng 07/2024) hoặc tăng đột biến (cuối năm 2024 khi số mã tăng lên ~800 mã).
+
+### 3. Ranh giới kỷ luật phương pháp luận (Methodology Boundaries)
+- **Cảnh báo về Inertia trên chuỗi thời gian:** Tuyệt đối không so sánh giá trị Inertia tuyệt đối giữa các tháng với nhau vì quy mô mã N tăng từ 142 lên 780 làm Inertia tăng cơ học. Inertia chỉ có giá trị khi so sánh các K khác nhau trong cùng 1 tháng.
+- **Nghiêm cấm tối ưu hóa bằng lợi nhuận:** Không được đưa Return, Sharpe hay ROI vào Nhiệm vụ 7 để chọn mô hình có chất lượng "tốt hơn". Đánh giá chất lượng cụm độc lập hoàn toàn với bài toán danh mục.
+
+## Kết quả cần đạt & Đường dẫn bàn giao (Deliverables)
+
+Mỗi mô hình khi hoàn thành Nhiệm vụ 7 phải có đầy đủ bộ sản phẩm:
+1. **Notebook thực thi hoàn chỉnh:**
+   - K-Means: `M2/notebooks/07_cluster_quality_evaluation_kmeans.ipynb`
+   - Ward: `M2/notebooks/07_cluster_quality_evaluation_ward.ipynb`
+   - PCA + K-Means: `M2/notebooks/07_cluster_quality_evaluation_pca_kmeans.ipynb`
+2. **File Artifact xuất ra đĩa chuẩn hóa:**
+   - K-Means: `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv` (7 cột chuẩn)
+   - Ward: `M2/artifacts/m2-evaluation-ward/quality_summary.csv` (7 cột chuẩn)
+   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv` (7 cột chuẩn)
+3. **Báo cáo chuyên đề Markdown:**
+   - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_KMeans.md`
+   - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_Ward.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans.md`
+
+# NHIỆM VỤ 8 — PHÂN TÍCH HỒ SƠ CỤM (CLUSTER PROFILING)
 
 ## Mục đích của Nhiệm vụ 8
 
-Hiểu ý nghĩa của từng cụm.
-
-## Phần 8.1 — Tổng hợp feature theo cụm
-
-### Mục đích
-
-Xác định đặc điểm điển hình.
-
-Tổng hợp các feature đại diện của từng cluster.
-
-## Phần 8.2 — So sánh giữa các cụm
-
-### Mục đích
-
-Xác định feature nào làm các cụm khác nhau.
-
-So sánh động lượng, rủi ro, beta và thanh khoản giữa các cụm.
-
-## Phần 8.3 — Giới hạn diễn giải
-
-### Mục đích
-
-Không biến kết quả M2 thành khuyến nghị đầu tư.
-
-Không kết luận cluster nào là cluster nên mua.
+Khắc họa và nhận diện rõ nét tính chất kinh tế của 2 cụm cổ phiếu (K=2) dựa trên 8 đặc trưng tài chính cốt lõi (Unscaled Features).
+- Hiểu rõ động lực phân tách của các cụm qua các khía cạnh: Động lượng (Momentum), Rủi ro hệ thống (Beta), Biến động & Sụt giảm (Vol, MDD) và Thanh khoản (Liquidity).
+- Đảm bảo tính nhất quán tuyệt đối về cấu trúc số liệu, bảng biểu và đồ thị giữa 3 phương án: **K-Means Baseline**, **Ward Hierarchical** và **PCA + K-Means**.
+- Tuân thủ ranh giới nghiên cứu M2: Đánh giá thuần túy cấu trúc vi mô, không biến hồ sơ cụm thành khuyến nghị đầu tư danh mục (thuộc M3).
 
 ## File code sử dụng trong nhiệm vụ và cách dùng
 
-Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+Nhiệm vụ 8 tuân thủ nguyên tắc cốt lõi của DELTA: **Tầng đánh giá & phân tích hồ sơ chỉ tiêu thụ artifacts đã đóng băng, không chạy lại quy trình huấn luyện hay trích xuất đặc trưng**.
 
-**\`src/delta_t1/clustering/base.py\`** — file đã có; file chính để tạo cluster profile.
+### Các module hệ thống tham chiếu (Backend Modules)
+- **`src/delta_t1/experiments/runner.py`** — Module điều phối thực nghiệm: Đã thực thi ở Nhiệm vụ 4, 5, 6 để huấn luyện mô hình, tính toán tâm cụm và xuất xưởng file artifact `cluster_profiles.csv` (13 cột chuẩn). Người làm Nhiệm vụ 8 **không gọi lại runner.py**.
+- **`src/delta_t1/clustering/base.py`** — Module cơ sở phân cụm: Đóng vai trò là tài liệu tham chiếu định nghĩa hồ sơ cụm (`ClusterProfile`) và thuật toán căn chỉnh nhãn (`aligned_cluster_id`) giữa các tháng.
+- **`src/delta_t1/features/preprocessing.py`** — Module tiền xử lý đặc trưng: Cung cấp tham số chuẩn hóa RobustScaler (median và IQR) được lưu trong file model JSON để hỗ trợ vẽ biểu đồ Radar trên thang Robust Z-Score.
 
-> Mục đích: Tạo profile/centroid và các thông tin đại diện của cluster trong snapshot.
->
-> Cách dùng trong nhiệm vụ này: Dùng profile theo 8 feature để mô tả cụm: momentum, volatility, MDD, beta, liquidity.
+### Các file code thực thi chính của Nhiệm vụ 8 (Notebooks)
+Người thực hiện từng phương án mở và chạy trực tiếp notebook tương ứng của mình trong thư mục `M2/notebooks/`:
+- **Phương án 1 (K-Means Baseline):** `M2/notebooks/08_cluster_profiling_kmeans.ipynb`
+- **Phương án 2 (Ward Hierarchical):** `M2/notebooks/08_cluster_profiling_ward.ipynb`
+- **Phương án 3 (PCA + K-Means):** `M2/notebooks/08_cluster_profiling_pca_kmeans.ipynb`
 
-**\`src/delta_t1/experiments/runner.py\`** — file đã có; lưu profile theo snapshot.
+### Quy trình phối hợp (Workflow)
+1. **Bước 1 (Đã hoàn thành ở Nhiệm vụ 4, 5, 6):** Pipeline huấn luyện tự động xuất ra file `cluster_profiles.csv` (13 cột chuẩn) vào thư mục artifact tương ứng.
+2. **Bước 2 (Nạp dữ liệu vào Notebook):** Notebook đọc trực tiếp file CSV vào DataFrame bằng 1 dòng lệnh duy nhất.
+3. **Bước 3 (Tổng hợp số liệu & Trực quan hóa):** Chạy code pandas để xuất ra 3 Bảng số liệu chuẩn và 2 Biểu đồ chuẩn (Radar Chart, Heatmap).
+4. **Bước 4 (Viết nhận định & Báo cáo):** Soạn thảo nhận định tài chính và giới hạn học thuật vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập.
 
-> Mục đích: Gom \`snapshot\["profiles"\]\` và ghi thành \`profiles.jsonl/csv\`.
->
-> Cách dùng trong nhiệm vụ này: Đọc artifact này để so sánh profile giữa các cụm/tháng/phương án.
+## Quy chuẩn Dữ liệu Đầu vào (Input Contract)
 
-**\`src/delta_t1/features/preprocessing.py\`** — file đã có; dùng để hiểu phép biến đổi.
+Nhiệm vụ 8 chỉ nhận duy nhất file kết quả **`cluster_profiles.csv`** gồm đúng **13 cột chuẩn** đã được tạo ra từ Nhiệm vụ 4, 5, 6:
+- K-Means: `M2/artifacts/m2-task4-kmeans-baseline-v1/cluster_profiles.csv`
+- Ward: `M2/artifacts/m2-task5-ward-v1/cluster_profiles.csv`
+- PCA + K-Means: `M2/artifacts/m2-task6-pca-kmeans-v1/cluster_profiles.csv` (đã được ánh xạ ngược inverse transform về 8 chiều gốc ngay từ Nhiệm vụ 6, không chứa chuỗi JSON thô).
 
-> Mục đích: Cho biết dữ liệu đã được scale/PCA như thế nào.
->
-> Cách dùng trong nhiệm vụ này: Khi diễn giải, cần quay lại 8 feature gốc; đặc biệt PCA+KMeans không được chỉ diễn giải bằng component.
+*(Cấu trúc 13 cột chuẩn: `snapshot_date`, `raw_cluster_id`, `aligned_cluster_id`, `size`, `size_ratio`, `mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126`, `liquidity_21`).*
 
-### Cách các file phối hợp
+## Các phần thực hiện chi tiết trong Notebook & Bảng Output chuẩn
 
-> profiles/assignments do runner tạo → base.py profile/centroid → diễn giải trên 8 feature gốc → profile summary.
+### Phần 8.1 — Tổng hợp hồ sơ đặc trưng theo cụm (Cluster Profiles)
 
-## Kết quả cần đạt của Nhiệm vụ 8
+**Mục đích:** Xác định chân dung điển hình của từng cụm xuyên suốt toàn bộ 15 tháng phát triển (2023-11-30 đến 2025-01-24).
 
-Cluster profiles dễ đọc và có thể giải thích.
+**Quy tắc thống kê:**
+- **Độ đo chính:** Tính **Giá trị trung bình (Mean)** của 8 đặc trưng gốc và quy mô `size` theo từng cụm qua 15 tháng.
+- **Độ đo kiểm chứng:** Bổ sung dòng **Trung vị (Median)** ngay dưới dòng Mean để đánh giá mức độ ảnh hưởng của các quan sát ngoại lai.
+- **Chuẩn hóa đơn vị:** Cột thanh khoản `liquidity_21` bắt buộc quy đổi sang đơn vị **tỷ VNĐ/phiên** (chia cho 10^9).
 
-## Vị trí trong repo & Đường dẫn output
+**Bảng Output chuẩn 1 (Kích thước 4 dòng x 10 cột):**
 
-- **Code phân tích / Profiling**: `M2/notebooks/08_cluster_profiling.ipynb` (trực quan hóa radar chart, phân phối feature từ `src/delta_t1/clustering/base.py`)
-- **Mô hình**: Không fit model mới; đọc centroids và profiles từ `M2/models/`
-- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-evaluation/cluster_profiles.csv` (lưu trong M2 để push lên GitHub)
+| Cột dữ liệu | Kiểu dữ liệu | Ý nghĩa |
+| :--- | :--- | :--- |
+| `aligned_cluster_id` | String | Nhãn cụm: Cụm 0 (Mean), Cụm 0 (Median), Cụm 1 (Mean), Cụm 1 (Median) |
+| `size` | Float / Int | Số lượng cổ phiếu bình quân thuộc cụm |
+| `liquidity_21_ty_vnd` | Float | Thanh khoản bình quân 21 phiên (tỷ VNĐ/phiên) |
+| `beta_126` | Float | Hệ số rủi ro thị trường 126 phiên so với VNINDEX |
+| `vol_63` | Float | Độ biến động lịch sử 63 phiên |
+| `mdd_126` | Float | Mức sụt giảm tối đa 126 phiên (giá trị âm) |
+| `mom_21` | Float | Động lượng giá 1 tháng |
+| `mom_63` | Float | Động lượng giá 3 tháng |
+| `mom_126` | Float | Động lượng giá 6 tháng |
+| `mom_252` | Float | Động lượng giá 12 tháng (1 năm) |
 
-# NHIỆM VỤ 9 — ĐÁNH GIÁ ĐỘ ỔN ĐỊNH THEO THỜI GIAN
+### Phần 8.2 — So sánh đối đầu và chuỗi thời gian
+
+**Mục đích:** Đo lường mức độ phân tách giữa 2 cụm và theo dõi độ ổn định về quy mô và thanh khoản qua 15 tháng. Cả 3 notebook đều phải xuất ra **2 bảng so sánh chuẩn**:
+
+**Bảng Output chuẩn 2: So sánh đối đầu giữa Cụm 0 và Cụm 1 (Kích thước 9 dòng x 4 cột):**
+
+| Tên cột | Ý nghĩa |
+| :--- | :--- |
+| `Đặc trưng` | Lần lượt 9 dòng: size, liquidity_21 (tỷ VND), beta_126, vol_63, mdd_126, mom_21, mom_63, mom_126, mom_252 |
+| `Cụm 0 (Mean)` | Giá trị trung bình 15 tháng của Cụm 0 |
+| `Cụm 1 (Mean)` | Giá trị trung bình 15 tháng của Cụm 1 |
+| `Chênh lệch (Cụm 0 - Cụm 1)` | Hiệu số giữa Cụm 0 và Cụm 1 để chỉ rõ động lực phân cụm chính |
+
+**Bảng Output chuẩn 3: Chuỗi thời gian quy mô và thanh khoản qua 15 Snapshots (Kích thước 15 dòng x 5 cột):**
+
+| Tên cột | Ý nghĩa |
+| :--- | :--- |
+| `Snapshot` | Ngày chốt dữ liệu (2023-11-30 đến 2025-01-24) |
+| `Size Cụm 0` | Số lượng cổ phiếu của Cụm 0 tại snapshot |
+| `Size Cụm 1` | Số lượng cổ phiếu của Cụm 1 tại snapshot |
+| `Liquidity Cụm 0 (tỷ VND)` | Thanh khoản trung bình Cụm 0 tại snapshot |
+| `Liquidity Cụm 1 (tỷ VND)` | Thanh khoản trung bình Cụm 1 tại snapshot |
+
+### Phần 8.3 — Trực quan hóa chuẩn hóa (Visualization Contract)
+
+Cả 3 notebook bắt buộc phải sinh ra **cùng 2 biểu đồ** trực quan:
+
+#### Biểu đồ 1: Radar Chart (Biểu đồ mạng nhện đa trục)
+- **Hệ trục:** Trục tọa độ cực (polar plot) với 8 đỉnh tương ứng 8 đặc trưng: `mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126`, `liquidity_21`.
+- **Thang đo:** Sử dụng giá trị chuẩn hóa **Robust Z-Score** giới hạn trong biên độ [-3, 3].
+- **Đường tham chiếu:** Bắt buộc vẽ đường tròn nét đứt màu xám tại `y = 0` đại diện cho **Trung vị thị trường (Market Median)**.
+- **Tương tác:** Có Dropdown widget cho phép chọn xem từng snapshot hoặc hiển thị snapshot gần nhất.
+
+#### Biểu đồ 2: Heatmap 2D (Bản đồ nhiệt ma trận đặc trưng)
+- **Cấu trúc:** Ma trận kích thước 2 hàng (Cụm 0, Cụm 1) x 8 cột (8 đặc trưng).
+- **Màu sắc:** Bảng màu chuẩn hóa `cmap='RdBu_r'`, điểm trung hòa tại `center = 0`.
+- **Hiển thị số:** Bật hiển thị số thực trực tiếp trên các ô (`annot=True`, định dạng 2 chữ số thập phân).
+
+### Phần 8.4 — Nhận định kinh tế tài chính & Giới hạn diễn giải học thuật
+
+Sau khi chạy code hiển thị bảng và biểu đồ, người thực hiện **bắt buộc phải tạo các ô Markdown trong Notebook** để trình bày bằng văn bản 2 nội dung then chốt sau:
+
+#### 1. Nhận định kinh tế tài chính (Financial Interpretations)
+Diễn giải ý nghĩa kinh tế thực tế của các con số trên thị trường chứng khoán Việt Nam:
+- **Thanh khoản:** Phân tích sự chênh lệch dòng tiền giữa Cụm 0 và Cụm 1 (Cụm thanh khoản lớn gồm các mã Blue-chip/Mid-cap dẫn dắt hay Cụm thanh khoản thấp chiếm đa số).
+- **Rủi ro hệ thống (Beta):** Phân tích tương quan chuyển động của cụm so với VNINDEX (Cụm nhạy sóng khuếch đại thị trường với Beta > 1 hay cụm phòng thủ ít nhạy với Beta < 1).
+- **Động lượng giá:** Đánh giá xu hướng tăng trưởng giá ngắn hạn (21, 63 ngày) và dài hạn (126, 252 ngày).
+- **Bản chất phân tách:** Tóm lược động lực chính khiến thuật toán tách thị trường thành 2 nhóm.
+
+#### 2. Giới hạn diễn giải học thuật (Academic Invariants & Boundaries)
+Ghi nhận đầy đủ các rào chắn kỷ luật nghiên cứu để đảm bảo tính chuẩn mực học thuật:
+- **Mean nhạy với quan sát cực đoan:** Giá trị trung bình của cụm không đại diện cho phân phối của từng cổ phiếu đơn lẻ bên trong cụm.
+- **Tuyệt đối không khuyến nghị đầu tư:** Sự vượt trội về thanh khoản hay động lượng ở giai đoạn M2 chỉ mô tả đặc tính nhóm trong quá khứ, không suy diễn thành khuyến nghị "nên mua cổ phiếu thuộc Cụm 0".
+- **Duy trì nhãn trung tính:** Giữ nguyên tên gọi trung tính "Cụm 0" và "Cụm 1", không tùy tiện gán nhãn chủ quan như "siêu cổ phiếu", "tinh hoa" hay "penny".
+- **Ranh giới M2 và M3:** Đánh giá tỷ suất sinh lời hay Sharpe ratio thuộc về bước Backtest (Milestone M3), nghiêm cấm đưa các chỉ số lợi nhuận vào Nhiệm vụ 8.
+
+## Kết quả cần đạt & Đường dẫn bàn giao (Deliverables)
+
+Mỗi mô hình khi hoàn thành Nhiệm vụ 8 phải có đầy đủ bộ bàn giao gồm:
+1. **Notebook thực thi hoàn chỉnh:**
+   - K-Means: `M2/notebooks/08_cluster_profiling_kmeans.ipynb`
+   - Ward: `M2/notebooks/08_cluster_profiling_ward.ipynb`
+   - PCA + K-Means: `M2/notebooks/08_cluster_profiling_pca_kmeans.ipynb`
+2. **Hình ảnh biểu đồ xuất xưởng (lưu vào thư mục báo cáo):**
+   - `radar_chart.png`
+   - `heatmap.png`
+3. **Báo cáo chuyên đề Markdown:**
+   - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_KMeans.md`
+   - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_Ward.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_PCA_KMeans.md`
+
+# NHIỆM VỤ 9 — ĐÁNH GIÁ ĐỘ ỔN ĐỊNH THEO THỜI GIAN (TEMPORAL STABILITY)
 
 ## Mục đích của Nhiệm vụ 9
 
-Kiểm tra cụm có ổn định giữa các tháng không, cổ phiếu chuyển cụm nhiều hay ít và tâm cụm thay đổi thế nào.
-
-## Đầu vào
-
-Cluster assignments của các snapshot liên tiếp.
-
-## Phần 9.1 — ARI
-
-### Mục đích
-
-Đo mức tương đồng giữa hai phân cụm.
-
-## Phần 9.2 — NMI
-
-### Mục đích
-
-Đo mức thông tin chung giữa hai kết quả.
-
-## Phần 9.3 — Persistence
-
-### Mục đích
-
-Đo tỷ lệ cổ phiếu giữ cụm.
-
-## Phần 9.4 — Migration
-
-### Mục đích
-
-Đo tỷ lệ cổ phiếu chuyển cụm.
-
-## Phần 9.5 — Transition matrix
-
-### Mục đích
-
-Xác định cụm nào chuyển sang cụm nào.
-
-## Phần 9.6 — Centroid drift
-
-### Mục đích
-
-Đo sự thay đổi đặc trưng đại diện của cụm.
-
-## Phần 9.7 — Entry / Exit
-
-### Mục đích
-
-Tách mã xuất hiện mới, mã biến mất và mã tồn tại ở cả hai tháng.
-
-## Phần 9.8 — Reset temporal chain tại gap
-
-### Mục đích
-
-Không tạo liên kết giả qua khoảng dữ liệu bị đứt.
-
-Các gap quan trọng:  
-2023-05 → 2023-10  
-2025-02 → 2026-01
+Đánh giá mức độ ổn định của cấu trúc phân cụm 2 nhóm (K=2) qua 14 cặp snapshot hàng tháng liên tiếp trong khung thời gian phát triển (Development Window: từ 2023-11-30 đến 2025-01-24).
+- **Ổn định nhãn và thông tin:** Đo lường mức độ tương đồng giữa các phân hoạch qua chỉ số Adjusted Rand Index (ARI) và Normalized Mutual Information (NMI).
+- **Tính bền vững thành viên:** Đánh giá xác suất cổ phiếu giữ nguyên cụm (Persistence) và tỷ lệ chuyển cụm (Migration) giữa các tháng.
+- **Dịch chuyển dòng tiền:** Lập ma trận chuyển dịch cụm (Transition Matrix) 2x2 để xác định hướng luân chuyển giữa Cụm 0 và Cụm 1.
+- **Độ trôi tâm cụm (Centroid Drift):** Đo lường mức độ dịch chuyển tọa độ tâm cụm trên 8 đặc trưng gốc qua thời gian.
+- **Kiểm soát nhiễu Universe & Reset Gap:** Quản lý số lượng cổ phiếu mới vào hoặc rớt khỏi tập nghiên cứu (Entry/Exit) và kiểm tra cơ chế ngắt chuỗi tại điểm đứt gãy dữ liệu (Gap).
+- **Chuẩn hóa đối sánh:** Đảm bảo cả 3 phương án K-Means Baseline, Ward và PCA + K-Means đều xuất ra cùng một bộ 4 Bảng số liệu chuẩn và 2 Biểu đồ chuẩn để so sánh chéo ở Nhiệm vụ 10.
 
 ## File code sử dụng trong nhiệm vụ và cách dùng
 
-Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+Nhiệm vụ 9 tuân thủ nguyên tắc cốt lõi của DELTA: **Tầng đánh giá & phân tích chỉ tiêu thụ artifacts đã đóng băng, không chạy lại quy trình huấn luyện mô hình**.
 
-**\`src/delta_t1/evaluation/temporal_metrics.py\`** — file đã có; file chính của Nhiệm vụ 9.
+### Các module hệ thống tham chiếu (Backend Modules)
+- **`src/delta_t1/evaluation/temporal_metrics.py`** — Module tính toán độ ổn định chuỗi thời gian: Đã được gọi tự động ở Nhiệm vụ 4, 5, 6 để so sánh từng cặp tháng liên tiếp và sinh ra các file artifact temporal. Người làm Nhiệm vụ 9 **không gọi lại file này**.
+- **`src/delta_t1/experiments/runner.py`** — Module điều phối thực nghiệm: Đã kiểm soát tính liên tục của các snapshot và tự động ngắt chuỗi (reset gap) khi khoảng cách giữa 2 snapshot vượt quá 1 tháng.
+- **`src/delta_t1/clustering/base.py`** — Module cơ sở phân cụm: Đóng vai trò là tài liệu tham chiếu định nghĩa thuật toán khớp nhãn giữa 2 tháng liên tiếp (Hungarian matching).
 
-> Mục đích: So sánh hai snapshot liên tiếp và tính các chỉ số temporal.
->
-> Cách dùng trong nhiệm vụ này: Dùng để tính ARI, NMI, persistence, migration, transition, centroid drift và entry/exit theo implementation hiện tại.
+### Các file code thực thi chính của Nhiệm vụ 9 (Notebooks)
+Người thực hiện từng phương án mở và chạy trực tiếp notebook tương ứng của mình trong thư mục `M2/notebooks/`:
+- **Phương án 1 (K-Means Baseline):** `M2/notebooks/09_temporal_stability_kmeans.ipynb`
+- **Phương án 2 (Ward Hierarchical):** `M2/notebooks/09_temporal_stability_ward.ipynb`
+- **Phương án 3 (PCA + K-Means):** `M2/notebooks/09_temporal_stability_pca_kmeans.ipynb`
 
-**\`src/delta_t1/experiments/runner.py\`** — file đã có; quản lý chuỗi snapshot.
+### Quy trình phối hợp (Workflow)
+1. **Bước 1 (Đã hoàn thành ở Nhiệm vụ 4, 5, 6):** Pipeline huấn luyện tự động xuất ra bộ 3 file CSV chuẩn gồm `temporal_stability.csv`, `transition_matrices.csv` và `centroid_drift.csv` vào thư mục artifact tương ứng.
+2. **Bước 2 (Nạp dữ liệu vào Notebook):** Notebook đọc trực tiếp 3 file CSV bằng lệnh `pd.read_csv()`.
+3. **Bước 3 (Tổng hợp số liệu & Trực quan hóa):** Chạy code pandas để xuất ra đúng 4 Bảng số liệu chuẩn và 2 Biểu đồ chuẩn (Đồ thị xu hướng đa panel và Heatmap ma trận chuyển dịch).
+4. **Bước 4 (Viết nhận định & Báo cáo):** Soạn thảo nhận định tài chính và giới hạn học thuật vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập.
 
-> Mục đích: Giữ snapshot trước, gọi temporal comparison khi hai tháng liên tiếp và reset khi có gap.
->
-> Cách dùng trong nhiệm vụ này: Runner ghi \`stability.jsonl/csv\` và \`transitions.jsonl/csv\`; đây là artifact chính cho Nhiệm vụ 9.
+## Quy chuẩn Dữ liệu Đầu vào (Unified Input Contract)
 
-**\`src/delta_t1/clustering/base.py\`** — file đã có; cung cấp rows/labels/profiles.
+Nhiệm vụ 9 của cả 3 mô hình đều đọc vào **bộ 3 file CSV phẳng** có cấu trúc cột cố định từ thư mục artifact của task trước:
+- K-Means: `M2/artifacts/m2-evaluation-kmeans/` (hoặc `m2-task4-kmeans-baseline-v1/`)
+- Ward: `M2/artifacts/m2-evaluation-ward/` (hoặc `m2-task5-ward-v1/`)
+- PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/` (hoặc `m2-task6-pca-kmeans-v1/`)
 
-> Mục đích: Tạo dữ liệu đầu vào cần thiết để so sánh temporal.
->
-> Cách dùng trong nhiệm vụ này: Không tính lại feature ở nhiệm vụ này; dùng output clustering đã có.
+### Chi tiết cấu trúc 3 file input:
+1. **`temporal_stability.csv` (10 cột chuẩn, 14 dòng = 14 cặp tháng liên tiếp):**
+   - Cột: `from_date`, `to_date`, `n_common`, `ari`, `nmi`, `persistence_probability`, `migration_rate`, `entered_count`, `exited_count`, `status`.
+2. **`transition_matrices.csv` (6 cột chuẩn, 56 dòng = 14 cặp tháng x 4 ô ma trận 2x2):**
+   - Cột: `from_date`, `to_date`, `from_cluster`, `to_cluster`, `count`, `rate`.
+3. **`centroid_drift.csv` (7 cột chuẩn, 224 dòng = 14 cặp tháng x 2 cụm x 8 feature):**
+   - Cột: `from_date`, `to_date`, `aligned_cluster_id`, `feature`, `value_from`, `value_to`, `delta`.
 
-### Cách các file phối hợp
+*(Nghiêm cấm để cột dạng chuỗi JSON thô trong file CSV nạp vào notebook).*
 
-> snapshot t + snapshot t+1 → temporal_metrics.py → runner.py align/reset gap → stability + transitions artifact.
+## Các phần thực hiện chi tiết trong Notebook & Bảng Output chuẩn
 
-## Kết quả cần đạt của Nhiệm vụ 9
+### Phần 9.1 & 9.2 — Đánh giá tương đồng cấu trúc nhãn (ARI & NMI)
+- **Mục đích:** Đo lường mức độ trùng khớp của cấu trúc phân cụm giữa tháng t và tháng t+1 trên tập các cổ phiếu chung (giao tập hợp), loại trừ ảnh hưởng của hiện tượng hoán đổi nhãn ngẫu nhiên.
+- **Tiêu chuẩn học thuật:** Trị số ARI và NMI càng gần 1 càng chứng tỏ cấu trúc cụm ổn định cao (ngưỡng chấp nhận tốt trong tài chính: ARI > 0.70).
 
-- ARI;
+### Phần 9.3 & 9.4 — Tính bền vững thành viên (Persistence & Migration Rate)
+- **Mục đích:** Đánh giá xác suất một cổ phiếu tiếp tục ở lại cụm cũ trong tháng tiếp theo (Persistence probability) và tỷ lệ cổ phiếu bị chuyển dịch sang cụm khác (Migration rate = 1 - Persistence).
+- **Tiêu chuẩn học thuật:** Cấu trúc phân cụm tốt cần có Persistence cao (> 95%) để hạn chế chi phí đảo danh mục trong thực tế.
 
-- NMI;
+**Bảng Output chuẩn 1: Tổng hợp các chỉ số Temporal toàn kỳ (Kích thước 4 dòng x 6 cột):**
 
-- persistence;
+| Chỉ số (Metric) | Số cặp quan sát | Trung bình (Mean) | Trung vị (Median) | Nhỏ nhất (Min) | Lớn nhất (Max) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| `ARI` | 14 | Float | Float | Float | Float |
+| `NMI` | 14 | Float | Float | Float | Float |
+| `Persistence (%)` | 14 | Float (%) | Float (%) | Float (%) | Float (%) |
+| `Migration (%)` | 14 | Float (%) | Float (%) | Float (%) | Float (%) |
 
-- migration;
+### Phần 9.5 — Ma trận chuyển dịch cụm tích lũy (Transition Matrix)
+- **Mục đích:** Xác định hướng dịch chuyển của cổ phiếu giữa Cụm 0 và Cụm 1 qua toàn bộ 14 cặp tháng.
 
-- transition matrices;
+**Bảng Output chuẩn 2: Ma trận chuyển dịch tích lũy 2x2 (Kích thước 4 dòng x 5 cột):**
 
-- centroid drift;
+| Từ Cụm (From) | Sang Cụm (To) | Tổng số lượt (Count) | Tổng số cơ sở (Denominator) | Tỷ lệ xác suất (Rate %) |
+| :---: | :---: | :---: | :---: | :---: |
+| Cụm 0 | Cụm 0 (Giữ nguyên) | Int | Int | Float (%) |
+| Cụm 0 | Cụm 1 (Chuyển cụm) | Int | Int | Float (%) |
+| Cụm 1 | Cụm 1 (Giữ nguyên) | Int | Int | Float (%) |
+| Cụm 1 | Cụm 0 (Chuyển cụm) | Int | Int | Float (%) |
 
-- entry/exit.
+### Phần 9.6 — Độ trôi dạt tâm cụm (Centroid Drift)
+- **Mục đích:** Đo lường mức độ biến động tọa độ tâm cụm của từng đặc trưng giữa các tháng để kiểm tra xem bản chất của cụm có bị thay đổi theo thời gian hay không.
 
-## Vị trí trong repo & Đường dẫn output
+**Bảng Output chuẩn 3: Độ lệch tâm tuyệt đối trung bình trên 8 đặc trưng (Kích thước 8 dòng x 3 cột):**
 
-- **Code phân tích / Temporal**: `M2/notebooks/09_temporal_stability.ipynb` (sử dụng `src/delta_t1/evaluation/temporal_metrics.py`)
-- **Mô hình**: Không fit model mới; đọc cluster assignments chuỗi thời gian từ các nhiệm vụ trước
-- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-evaluation/temporal_stability.csv`, `M2/artifacts/m2-evaluation/transition_matrices.jsonl` (lưu trong M2 để push lên GitHub)
+| Đặc trưng | Độ lệch tuyệt đối Cụm 0 (Mean \|Delta\|) | Độ lệch tuyệt đối Cụm 1 (Mean \|Delta\|) |
+| :--- | :---: | :---: |
+| `liquidity_21` (tỷ VND) | Float | Float |
+| `beta_126` | Float | Float |
+| `vol_63` | Float | Float |
+| `mdd_126` | Float | Float |
+| `mom_21` | Float | Float |
+| `mom_63` | Float | Float |
+| `mom_126` | Float | Float |
+| `mom_252` | Float | Float |
+
+### Phần 9.7 — Biến động Universe (Entry / Exit)
+- **Mục đích:** Tách bạch rõ các cổ phiếu mới lọt vào Universe (Entry) hoặc bị loại khỏi Universe (Exit) để bảo đảm việc tính toán ARI/NMI chỉ thực hiện trên tập cổ phiếu chung (`n_common`).
+
+**Bảng Output chuẩn 4: Theo dõi biến động Universe qua 14 cặp tháng (Kích thước 14 dòng x 5 cột):**
+
+| Cặp Snapshot (From -> To) | Số mã chung (n_common) | Số mã mới (Entry) | Số mã rớt (Exit) | Tỷ lệ luân chuyển (%) |
+| :---: | :---: | :---: | :---: | :---: |
+| 2023-11 -> 2023-12 | Int | Int | Int | Float (%) |
+| ... (14 dòng) | ... | ... | ... | ... |
+
+### Phần 9.8 — Cơ chế Reset Temporal Chain tại Gap
+- **Mục đích:** Kiểm tra và khẳng định nguyên tắc bất biến: **Không tạo liên kết giả qua khoảng dữ liệu bị đứt gãy**.
+- **Yêu cầu thực hiện:** In dòng thông báo kiểm tra xác nhận chuỗi 15 snapshot trong Development Window (2023-11-30 đến 2025-01-24) hoàn toàn liên tục từng tháng và chuỗi được ngắt an toàn tại điểm đứt gãy hệ thống tháng 02/2025.
+
+### Phần 9.9 — Trực quan hóa chuẩn hóa (Visualization Contract)
+
+Cả 3 notebook bắt buộc phải sinh ra **cùng 2 biểu đồ chuẩn**:
+
+#### Biểu đồ 1: Biểu đồ đường xu hướng ổn định đa bảng (Multi-panel Temporal Trends)
+- Kích thước đồ thị: Gồm 2 đồ thị con xếp dọc (`figsize=(12, 8)`):
+  - **Đồ thị trên:** Biến thiên của **ARI** và **NMI** qua 14 cặp tháng. Trục tung từ 0 đến 1. Bắt buộc vẽ 2 đường nét đứt biểu diễn giá trị trung vị của ARI và NMI.
+  - **Đồ thị dưới:** Biến thiên của **Persistence** (xác suất giữ cụm) và **Migration** (tỷ lệ chuyển cụm). Có đường nét đứt trung vị.
+- Trục hoành hiển thị rõ nhãn của 14 cặp tháng (ví dụ: `11->12`, `12->01`,...).
+
+#### Biểu đồ 2: Heatmap Ma trận chuyển đổi cụm (Transition Matrix Heatmap)
+- Ma trận kích thước 2 hàng x 2 cột thể hiện xác suất dịch chuyển giữa Cụm 0 và Cụm 1.
+- Bảng màu chuẩn hóa `cmap='Blues'`, bật hiển thị phần trăm trên các ô (`fmt='.2f%'`).
+
+### Phần 9.10 — Nhận định tài chính & Giới hạn diễn giải học thuật
+
+Sau khi hiển thị bảng và biểu đồ, người thực hiện **bắt buộc phải tạo ô Markdown trong Notebook** để trình bày bằng văn bản 2 nội dung:
+
+#### 1. Nhận định kinh tế tài chính
+- **Độ bền vững cấu trúc:** Đánh giá trị số ARI và NMI trung bình (thường đạt quanh mức 0.75 - 0.80) chứng minh cấu trúc 2 cụm phân tách rất rõ ràng, không bị xáo trộn ngẫu nhiên.
+- **Tính gắn kết thành viên:** Đánh giá chỉ số Persistence (> 98%) cho thấy các mã cổ phiếu cực kỳ ổn định trong cụm của mình; nhóm thanh khoản cao Bluechip/Midcap rất hiếm khi bị rớt sang nhóm thanh khoản thấp và ngược lại.
+- **Tính ổn định tâm cụm:** Phân tích độ lệch tâm Centroid Drift để khẳng định ranh giới giữa 2 cụm giữ nguyên bản chất qua các tháng thị trường tăng lẫn giảm.
+
+#### 2. Giới hạn học thuật bất biến
+- **Không phải Dynamic Clustering:** Phân cụm độc lập từng tháng rồi nối lại đo lường ARI/chuyển dịch chỉ là phương pháp đánh giá độ bền (Temporal Stability Diagnostic), **tuyệt đối không được gọi đây là thuật toán Dynamic Clustering**.
+- **Không tối ưu hóa theo lợi nhuận:** Không được phép dùng chỉ số ổn định thời gian để suy diễn cụm nào sinh lời tốt hơn hay can thiệp vào chiến lược đầu tư (thuộc Milestone M3).
+
+## Kết quả cần đạt & Đường dẫn bàn giao (Deliverables)
+
+Mỗi mô hình khi hoàn thành Nhiệm vụ 9 phải có đầy đủ bộ bàn giao gồm:
+1. **Notebook thực thi hoàn chỉnh:**
+   - K-Means: `M2/notebooks/09_temporal_stability_kmeans.ipynb`
+   - Ward: `M2/notebooks/09_temporal_stability_ward.ipynb`
+   - PCA + K-Means: `M2/notebooks/09_temporal_stability_pca_kmeans.ipynb`
+2. **Hình ảnh biểu đồ xuất xưởng (lưu vào thư mục báo cáo):**
+   - `temporal_trends.png`
+   - `transition_heatmap.png`
+3. **Báo cáo chuyên đề Markdown:**
+   - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_KMeans.md`
+   - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_Ward.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_PCA_KMeans.md`
 
 # NHIỆM VỤ 10 — SO SÁNH CÁC PHƯƠNG ÁN VÀ CHỌN RA 1 MÔ HÌNH TỐT NHẤT (FINAL METHOD SELECTION)
 
