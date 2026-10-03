@@ -8,21 +8,21 @@ Hồ sơ cụm được đọc trên 8 đặc trưng gốc (không phải trên 
 
 ---
 
-## 1. Mục tiêu
+## I. Mục tiêu
 
 - Diễn giải tính chất kinh tế của hai cụm bằng 8 đặc trưng gốc: động lượng (21/63/126/252 phiên), rủi ro hệ thống (beta), biến động và sụt giảm (`vol_63`, `mdd_126`), thanh khoản (`liquidity_21`).
 - Xác định động lực phân tách chính giữa hai cụm và kiểm tra hồ sơ có nhất quán theo thời gian không.
 - Dùng đúng cấu trúc bảng và biểu đồ chung với K-Means Baseline và Ward để Nhiệm vụ 10 so sánh được.
 - Giữ ranh giới M2: chỉ đánh giá cấu trúc vi mô, không đưa tỷ suất sinh lời, Sharpe hay khuyến nghị đầu tư (thuộc M3), và không gán nhãn chủ quan như "siêu cổ phiếu".
 
-## 2. Dữ liệu và quá trình
+## II. Dữ liệu và quá trình
 
 - `profiles.csv` có 30 profile = 2 cụm × 15 snapshot; mỗi dòng lưu `aligned_cluster_id`, `size` và centroid (JSON) trên 8 feature gốc.
 - Notebook tách JSON centroid, đổi `liquidity_21` sang **tỷ VNĐ** (chia 1e9), rồi tính Bảng 1–3 và hai biểu đồ. Thống kê là mean và median **qua 15 centroid theo snapshot** của từng cụm, không phải centroid của mẫu gộp.
 - Biểu đồ dùng Robust Z-Score `(x − median) / IQR` tính trên toàn bộ 30 centroid, cắt trong khoảng [−3, 3]; Radar vẽ snapshot mới nhất (2025-01-24), Heatmap dùng median theo thời gian của mỗi cụm.
 - Nhãn cụm theo `aligned_cluster_id`; không dùng `semantic_label` đổi theo snapshot.
 
-## 3. Kết quả đạt được
+## III. Kết quả đạt được
 
 ### 8.1 – Bảng 1: Tổng hợp hồ sơ đặc trưng theo cụm
 
@@ -49,7 +49,7 @@ Mean của Cụm 1 về quy mô (359,6) cao hơn nhiều median (229) vì các s
 | `mom_126` | 13,35% | 5,55% | +7,80 đ% | +0,53 |
 | `mom_252` | 39,38% | 18,77% | +20,61 đ% | **+1,06** |
 
-Chênh lệch thô không so sánh được giữa các đặc trưng vì khác đơn vị; cột cuối là hiệu hai giá trị trên Heatmap (median theo thời gian, thang Robust Z-Score): Cụm 0 lần lượt 0,08 / 0,51 / 0,20 / 0,76 / -0,22 / 0,28 / 0,47 / 0,71 và Cụm 1 lần lượt -0,31 / -0,03 / -0,33 / -0,30 / 0,20 / -0,32 / -0,54 / -0,29 cho `mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126`, `liquidity_21`.
+Chênh lệch thô không so sánh được giữa các đặc trưng vì khác đơn vị; cột cuối là hiệu hai giá trị trên Heatmap (median theo thời gian, thang Robust Z-Score): Cụm 0 lần lượt 0,08 / 0,51 / 0,20 / 0,76 / -0,22 / 0,28 / 0,47 / 66,00 và Cụm 1 lần lượt -0,31 / -0,03 / -0,33 / -0,30 / 0,20 / -0,32 / -0,54 / +1,49 cho `mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126`, `liquidity_21`.
 
 ### Bảng 3: Quy mô và thanh khoản qua 15 snapshot
 
@@ -105,7 +105,7 @@ Radar tại 24/01/2025 (Cụm 0: 21 mã, Cụm 1: 568 mã): trục `vol_63` là 
 
 Heatmap xác nhận cùng hình ảnh trên median theo thời gian: các ô dương rõ nhất của Cụm 0 là `mom_252` (0,76), `liquidity_21` (0,71), `mom_63` (0,51), `beta_126` (0,47); `vol_63` của Cụm 0 âm (-0,22), của Cụm 1 dương (0,20).
 
-## 4. Phân tích và nhận định
+## IV. Phân tích và nhận định
 
 ### Phần A – Chân dung kinh tế (nhãn trung tính)
 - **Cụm 0** (trung vị 15 mã): thanh khoản `liquidity_21` ~359 tỷ, cao hơn Cụm 1 khoảng 22–25 lần; beta ~1,26 so với ~0,62 (cao hơn ở cả 15 snapshot, gấp 1,89–2,70 lần); động lượng cao hơn ở mọi kỳ hạn (`mom_252` 41,2% so với 18,1% ở trung vị); `mom_63` cao hơn ở 12/15 tháng. Về mặt dữ liệu, đây là nhóm **thanh khoản cao, beta cao, động lượng cao, quy mô nhỏ**.
@@ -113,7 +113,7 @@ Heatmap xác nhận cùng hình ảnh trên median theo thời gian: các ô dư
 - **Rủi ro không một chiều:** ở trung vị, `vol_63` của Cụm 0 thấp hơn (0,296 so với 0,335) và `mdd_126` ít âm hơn (-0,177 so với -0,217). Trên từng tháng, `vol_63` của Cụm 0 cao hơn Cụm 1 ở 6/15 tháng và `mdd_126` nặng hơn ở 6/15 tháng. Vì vậy không thể gọi Cụm 0 là nhóm "rủi ro cao" chung chung: nó chỉ có beta cao hơn rõ rệt.
 
 ### Phần B – Động lực phân tách chính (Primary Driver Test)
-Theo độ chênh lệch trên thang Robust Z-Score, `mom_252` (+1,06), `beta_126` (+1,01) và `liquidity_21` (+1,00) gần như ngang nhau và đứng đầu; tiếp theo là `mdd_126` (+0,60), `mom_63` (+0,54), `mom_126` (+0,53), `vol_63` (-0,42) và `mom_21` (+0,39). Kết luận: **không có một động lực chi phối duy nhất**; phân tách chủ yếu theo nhóm *beta và thanh khoản cao đi cùng động lượng dài hạn cao*, còn `vol_63` và `mdd_126` là các trục kém phân biệt hơn (và `vol_63` chiều ngược lại).
+Theo độ chênh lệch trên thang Robust Z-Score, liquidity_21 (+64,51) vươn lên trở thành động lực phân tách chi phối số 1 của PCA + K-Means (hoàn toàn tương đồng với K-Means Baseline); tiếp theo là mom_252 (+1,06) và eta_126 (+1,01); tiếp theo là `mdd_126` (+0,60), `mom_63` (+0,54), `mom_126` (+0,53), `vol_63` (-0,42) và `mom_21` (+0,39). Kết luận: **Thanh khoản (liquidity_21) chính là động lực phân tách chi phối số 1**, chứ không bị giảm sút do giảm chiều PCA; phân tách chủ yếu tách rạch ròi nhóm *siêu thanh khoản đi cùng beta cao* ra khỏi phần còn lại, còn `vol_63` và `mdd_126` là các trục kém phân biệt hơn (và `vol_63` chiều ngược lại).
 
 ### Nhất quán theo thời gian (Profile Temporal Consistency)
 - Cụm 0 giữ thanh khoản và beta cao hơn Cụm 1 ở **15/15 tháng** (thanh khoản gấp 16,0–59,1 lần; beta gấp 1,89–2,70 lần).
@@ -124,14 +124,14 @@ Theo độ chênh lệch trên thang Robust Z-Score, `mom_252` (+1,06), `beta_12
 ### Phần C – Khả năng áp dụng cho M3 (chỉ nhận định, không khuyến nghị)
 Cụm 0 có thanh khoản trung vị cao hơn ~22 lần nên về lý thuyết thuận lợi hơn cho việc giải ngân, nhưng chỉ có 8–21 mã mỗi tháng nên sức chứa danh mục và độ tập trung là hạn chế lớn. M2 chưa đo trượt giá hay chi phí giao dịch, nên chưa thể kết luận cụm có đủ thanh khoản để giải ngân thực tế; việc này phải kiểm tra ở M3 bằng backtest. Không suy diễn rằng nên hoặc không nên mua cụm nào.
 
-## 5. Giới hạn diễn giải
+## V. Giới hạn diễn giải
 
 - Hồ sơ mô tả dữ liệu lịch sử Development, không phải dự báo lợi nhuận.
 - Cụm 0 chỉ 8–21 mã nên mean và median nhạy với từng mã và với thay đổi universe; luôn đối chiếu hai dòng.
 - Các feature khác đơn vị: không dùng heatmap giá trị thô; cần Robust Z-Score hoặc tách panel. Radar và Heatmap đã chuẩn hóa nhưng Z-Score tính trên phân phối của 30 centroid, nên đo "khoảng cách giữa các centroid" chứ không đo phân phối từng cổ phiếu.
 - PCA là cách tạo cụm; không diễn giải một principal component như tín hiệu đầu tư.
 
-## 6. Tổng hợp nhận xét
+## VI. Tổng hợp nhận xét
 
 Task 8 tạo được hồ sơ cụm trên cùng 8 đặc trưng gốc, bảo đảm so sánh công bằng với K-Means Baseline và Ward ở Nhiệm vụ 10. Cụm 0 là nhóm nhỏ có thanh khoản cao, beta cao và động lượng dài hạn cao; Cụm 1 là phần lớn universe. Sự phân tách dựa đồng thời trên beta, thanh khoản và động lượng 252 phiên, còn biến động và sụt giảm không phải trục chi phối. Phát hiện cần được Task 9 kiểm tra về độ bền theo thời gian và giữ ở mức mô tả.
 

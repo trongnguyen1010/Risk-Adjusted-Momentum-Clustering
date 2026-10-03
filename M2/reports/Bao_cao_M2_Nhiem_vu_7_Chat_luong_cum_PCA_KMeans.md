@@ -8,14 +8,14 @@ Tại Global K = 2, PCA + K-Means đạt chất lượng hình học nội bộ 
 
 ---
 
-## 1. Mục tiêu
+## I. Mục tiêu
 
 - Đánh giá chất lượng hình học và độ tách biệt của cụm PCA + K-Means tại **K = 2** (đã khóa từ Nhiệm vụ 3) qua 15 snapshot Development bằng 5 chỉ số nội bộ: Silhouette, Davies–Bouldin (DB), Calinski–Harabasz (CH), Inertia, Cluster Balance.
 - Theo dõi biến thiên theo thời gian, nhận diện giai đoạn chất lượng thay đổi mạnh và hiện tượng phân mảnh (fragmentation / outlier cluster).
 - Giữ cùng cấu trúc bảng, biểu đồ và schema `quality_summary.csv` với hai phương án còn lại (K-Means Baseline, Ward) để Nhiệm vụ 10 có thể so sánh.
 - Tuân thủ ranh giới M2: không dùng return, Sharpe, ROI hay holdout để đánh giá chất lượng cụm.
 
-## 2. Dữ liệu và quá trình thực hiện
+## II. Dữ liệu và quá trình thực hiện
 
 | Bước | Thực hiện |
 |---|---|
@@ -38,7 +38,7 @@ Notebook chỉ đọc diagnostics đã có, **không huấn luyện lại mô h�
 | Inertia | Không xếp hạng theo thời gian | Phụ thuộc số quan sát N và thang dữ liệu |
 | Cluster Balance | Gần 1 hơn | `min_size / max_size`; < 0,05 là ngưỡng cảnh báo phân mảnh |
 
-## 3. Kết quả đạt được
+## III. Kết quả đạt được
 
 ### Bảng 1 – Tóm tắt thống kê chất lượng K = 2
 
@@ -107,7 +107,7 @@ Median **1.963,07**, khoảng 1.219,02–328.111,44. Inertia gần như phẳng 
 
 Median **0,0677**, khoảng 0,0104–0,0950. Median nằm trên ngưỡng 0,05 nhưng **7/15 tháng dưới ngưỡng**: 2024-06 (0,0480) và toàn bộ sáu tháng từ 2024-08 đến 2025-01 (thấp nhất 0,0104 tại 2024-11, cụm nhỏ chỉ 8 mã trên 780 mã). Cụm nhỏ luôn chỉ 8–21 mã. Median một mình che khuất việc balance xấu đi hệ thống ở nửa sau chuỗi.
 
-## 4. Tổng hợp theo hai giai đoạn
+## IV. Tổng hợp theo hai giai đoạn
 
 | Giai đoạn | Số snapshot | N | Silhouette TB | DB | Balance |
 |---|---:|---|---:|---|---|
@@ -116,7 +116,7 @@ Median **0,0677**, khoảng 0,0104–0,0950. Median nằm trên ngưỡng 0,05 n
 
 Chất lượng nội bộ **tốt lên** ở giai đoạn sau (Silhouette cao hơn, DB thấp hơn) nhưng balance **xấu đi**. Hai xu hướng này đi cùng nhau, không độc lập.
 
-## 5. Nhận định kinh tế – cấu trúc vi mô thị trường
+## V. Nhận định kinh tế – cấu trúc vi mô thị trường
 
 **Phân cấp tiêu chí (theo kế hoạch dự án).** Tiêu chí cấp 1 là median Silhouette cao nhất; tiêu chí phá thế cân bằng là median DB thấp hơn; CH và Balance là kiểm định an toàn. Theo thứ tự này, PCA + K-Means có Silhouette 0,7717 và DB 0,5155 ở mức tốt, nhưng kiểm định an toàn (Balance) phát tín hiệu cảnh báo. Việc xếp hạng so với hai phương án khác thuộc Nhiệm vụ 10, vì artefact của K-Means và Ward chưa có trong báo cáo này.
 
@@ -126,7 +126,7 @@ Chất lượng nội bộ **tốt lên** ở giai đoạn sau (Silhouette cao h
 
 **Bước nhảy 08/2024 (universe tăng từ 247 lên 595 mã).** Silhouette tăng từ 0,6595 lên 0,9069 và balance giảm từ 0,0739 xuống 0,0366. Theo Nhiệm vụ 9, có 349 mã mới vào universe ở chuyển tiếp này. Profile Nhiệm vụ 8 cho thấy ngay tháng đó cụm lớn có thanh khoản trung vị giảm từ 20,24 xuống 6,73 tỷ và beta từ 0,66 xuống 0,47, nhất quán với việc nhóm mã mới có thanh khoản thấp làm phần đại trà đồng nhất hơn và đẩy các mã thanh khoản cao ra xa hơn. Đây là diễn giải dựa trên số liệu hiện có, chưa phải kiểm định nguyên nhân.
 
-## 6. Ranh giới phương pháp luận
+## VI. Ranh giới phương pháp luận
 
 - **Inertia không dùng để so sánh giữa các tháng.** N tăng từ 142 lên 780 làm Inertia tăng cơ học. Lưu ý thêm: Inertia chia cho N cũng không phẳng, khoảng 6,4–8,6 khi N ≤ 247 nhưng khoảng 79–421 từ 08/2024. Như vậy mức tăng không chỉ do N mà còn do phân bố dữ liệu của universe mở rộng (nhiều giá trị cực đoan hơn sau Robust Scaling). Đây là quan sát cần kiểm tra thêm, không phải kết luận.
 - **CH chỉ so trong cùng snapshot** vì phụ thuộc cỡ mẫu.
@@ -134,7 +134,7 @@ Chất lượng nội bộ **tốt lên** ở giai đoạn sau (Silhouette cao h
 - **Không dùng return, Sharpe, ROI hay holdout** để đánh giá chất lượng; đánh giá hoàn toàn độc lập với bài toán danh mục (M3).
 - **So sánh liên phương án** cần lưu ý PCA đo trong không gian 4 chiều còn K-Means/Ward đo trong không gian gốc; chỉ nên xếp hạng ở Nhiệm vụ 10 với cùng protocol và có chú thích này.
 
-## 7. Khung kết luận ba phần (theo notebook 07)
+## VII. Khung kết luận ba phần (theo notebook 07)
 
 **Phần A – Phán quyết kỹ thuật.** PCA + K-Means (K = 2) đạt điểm tách biệt tốt: median Silhouette 0,7717 và median DB 0,5155 đều ở mức tốt. Cluster Balance là điểm yếu: median 0,0677 vượt ngưỡng 0,05 nhưng 7/15 tháng nằm dưới ngưỡng, cụm nhỏ chỉ có 8–21 mã. Chưa thể nói hiện tượng này "giống K-Means Baseline" vì artifact của K-Means Baseline chưa có trong báo cáo này; việc đối chiếu thuộc Nhiệm vụ 10.
 
@@ -142,7 +142,7 @@ Chất lượng nội bộ **tốt lên** ở giai đoạn sau (Silhouette cao h
 
 **Phần C – Bàn giao cho Nhiệm vụ 10.** Với Silhouette và DB tốt, nhánh PCA đủ điều kiện vào vòng so sánh ở Nhiệm vụ 10 (qua `quality_summary.csv`). Mất cân bằng cụm là đặc tính cần mang theo khi so sánh, không phải lý do loại. Không xếp hạng phương pháp ở báo cáo này.
 
-## 8. Tổng hợp nhận xét
+## VIII. Tổng hợp nhận xét
 
 PCA + K-Means K = 2 đạt chất lượng hình học nội bộ tốt trên Development (Silhouette median 0,7717; DB median 0,5155), nhưng đánh đổi bằng mất cân bằng cụm: 7/15 tháng dưới ngưỡng 0,05 và cụm nhỏ chỉ 8–21 mã. Kết quả đủ để đóng phần đánh giá chất lượng cho nhánh PCA và làm đầu vào Nhiệm vụ 10, chưa đủ để kết luận PCA vượt trội so với K-Means hay Ward, càng không đủ để khẳng định giá trị đầu tư.
 
