@@ -135,14 +135,3 @@ Cụm 0 có thanh khoản trung vị cao hơn ~22 lần nên về lý thuyết t
 
 Task 8 tạo được hồ sơ cụm trên cùng 8 đặc trưng gốc, bảo đảm so sánh công bằng với K-Means Baseline và Ward ở Nhiệm vụ 10. Cụm 0 là nhóm nhỏ có thanh khoản cao, beta cao và động lượng dài hạn cao; Cụm 1 là phần lớn universe. Sự phân tách dựa đồng thời trên beta, thanh khoản và động lượng 252 phiên, còn biến động và sụt giảm không phải trục chi phối. Phát hiện cần được Task 9 kiểm tra về độ bền theo thời gian và giữ ở mức mô tả.
 
-**Bàn giao:** notebook `08_cluster_profiling_pca_kmeans.ipynb`; `radar_chart.png`, `heatmap.png`; báo cáo này.
-
-## 7. Lưu ý kiểm tra notebook
-
-Ô kết luận Markdown cuối notebook 08 **mâu thuẫn với chính số liệu của notebook** và cần sửa trước khi nộp:
-1. Notebook gọi Cụm 0 là "Nhóm Cổ phiếu Cô lập ngoại lai / Siêu biến động" và nói Cụm 0 có MDD và `vol_63` cực đại. Số liệu cho thấy ngược lại: `vol_63` trung vị 0,296 so với 0,335 và Z-Score -0,22 (thấp hơn median thị trường), `mdd_126` ít âm hơn. Tên gọi "siêu biến động" cũng trái nguyên tắc nhãn trung tính của kế hoạch.
-2. Notebook kết luận động lực phân tách số 1 là `vol_63` và `mdd_126` dựa trên "độ chênh lệch tuyệt đối" của Bảng 2. So sánh chênh lệch thô giữa các đặc trưng khác đơn vị không có ý nghĩa; trên thang Robust Z-Score, `vol_63` chỉ đứng áp chót về độ lớn (|0,42|) và `mdd_126` ở giữa.
-3. Notebook kết luận Cụm 0 chứa MDD quá cao nên không nên giải ngân và Cụm 1 "phù hợp làm nền tảng cốt lõi". Đây vừa không được số liệu ủng hộ vừa gần với khuyến nghị đầu tư, điều kế hoạch cấm ở M2.
-4. Mô tả "Cụm 1 kích thước trung bình > 250 mã" đúng với mean (359,6) nhưng median là 229.
-5. Notebook chưa tính độ chênh trên thang Robust Z-Score theo quy tắc Primary Driver Test của kế hoạch; mục 4 Phần B của báo cáo này lấy giá trị từ các ô Heatmap.
-6. Tỷ số C0/C1 trong Bảng 3 của báo cáo là phép tính bổ sung, không có trong notebook.

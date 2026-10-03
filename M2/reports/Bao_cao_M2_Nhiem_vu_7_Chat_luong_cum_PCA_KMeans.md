@@ -146,13 +146,3 @@ Chất lượng nội bộ **tốt lên** ở giai đoạn sau (Silhouette cao h
 
 PCA + K-Means K = 2 đạt chất lượng hình học nội bộ tốt trên Development (Silhouette median 0,7717; DB median 0,5155), nhưng đánh đổi bằng mất cân bằng cụm: 7/15 tháng dưới ngưỡng 0,05 và cụm nhỏ chỉ 8–21 mã. Kết quả đủ để đóng phần đánh giá chất lượng cho nhánh PCA và làm đầu vào Nhiệm vụ 10, chưa đủ để kết luận PCA vượt trội so với K-Means hay Ward, càng không đủ để khẳng định giá trị đầu tư.
 
-**Bàn giao:** notebook `07_cluster_quality_evaluation_pca_kmeans.ipynb`; `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv` (7 cột) và `plot_7.1.png` … `plot_7.5.png`; báo cáo này.
-
-## 9. Lưu ý kiểm tra notebook (không ảnh hưởng số liệu ở Bảng 1 và Bảng 2)
-
-1. **Notebook không lưu output**; số liệu trong báo cáo khớp với kết quả lần chạy trước của chính notebook này và với `diagnostics.csv`.
-2. **Ô kết luận Markdown viết chung chung, chưa gắn số liệu.** Câu "Cluster Balance Median đôi lúc trượt xuống dưới 0.05" chưa chính xác: median là 0,0677; chính xác là 7/15 từng tháng dưới 0,05.
-3. **Các nhận định chưa có bằng chứng trong notebook:** "giống với K-Means Baseline" (không có artifact đối chiếu) và "PCA giúp K-Means bắt tụ điểm nhiễu nhanh hơn" (không có phép đo tốc độ hội tụ).
-4. **Biểu đồ 7.1–7.4 chỉ có đường Median**, chỉ biểu đồ 7.5 có đường ngưỡng 0,05; nếu muốn đọc Silhouette theo ngưỡng thì cần thêm đường 0,5 và 0,7.
-5. **Bảng 2 trong notebook chưa có cột N và kích thước cụm**; hai cột này trong báo cáo lấy từ `cluster_sizes` của diagnostics. Notebook cũng chưa kiểm tra cột `converged`.
-6. Đường dẫn `project_root` trong notebook là đường dẫn tuyệt đối trên máy cục bộ.

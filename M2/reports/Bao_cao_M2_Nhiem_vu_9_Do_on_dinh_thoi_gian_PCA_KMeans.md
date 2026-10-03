@@ -122,13 +122,3 @@ Nhánh PCA + K-Means đạt các ngưỡng độ bền của kế hoạch (persi
 
 Nhánh PCA + K-Means cho assignment bền trên phần universe chung: median ARI 0,7983, NMI 0,6613, persistence 98,56% và migration 1,44%, mọi cặp đều trong ngưỡng an toàn. Hạn chế là các thay đổi universe lớn (đỉnh 349 mã vào) và sự bất cân xứng giữa hai nhóm (nhóm nhỏ giữ cụm kém hơn). Kết quả đủ làm đầu vào Nhiệm vụ 10, chưa đủ kết luận PCA bền hơn K-Means hay Ward.
 
-**Bàn giao:** notebook `09_temporal_stability_pca_kmeans.ipynb`; `temporal_trends.png`, `transition_heatmap.png`; báo cáo này.
-
-## 7. Lưu ý kiểm tra dữ liệu và notebook (cần xử lý trước khi nộp)
-
-1. **Ô kết luận Markdown trong notebook lệch với số liệu chính nó in ra.** Notebook viết "Median ARI = 0.845, NMI = 0.77, Persistence 98.9%, Migration ~1.02%", trong khi Bảng 1 notebook tính ra 0,7983; 0,6613; 98,56%; 1,44% (khớp với biểu đồ 9.1). Báo cáo này dùng số do code tính ra; ô kết luận cần sửa.
-2. **Báo cáo bản trước có median sai.** Bản trước ghi median ARI 0,8162, NMI 0,6790, persistence 98,65%, migration 1,52% — đó là giá trị thứ 8 trong 14 cặp đã sắp xếp, trong khi median của 14 giá trị là trung bình của giá trị thứ 7 và thứ 8 (ARI: (0,7803 + 0,8162)/2 = 0,7983). Các median số mã chung (238), entry (11), exit (2) của bản trước cũng sai vì cùng lỗi; số đúng là 229,5; 10; 1,5. Các slide hoặc văn bản đã dùng số bản trước cần cập nhật.
-3. **Ma trận chuyển dịch khó khớp với Task 8.** `transition_matrices.csv` cho cơ sở 4.293 lượt ở "Cụm 0" và 512 lượt ở "Cụm 1", trong khi hồ sơ Task 8 cho thấy Cụm 0 là nhóm chỉ 8–21 mã/tháng (khoảng 199 lượt sau 14 cặp) và Cụm 1 là nhóm lớn. Bản báo cáo trước ghi 161/199 và 4.574/4.606. Tổng số lượt (4.805), tổng giữ cụm (4.735) và tổng chuyển cụm (70) khớp giữa hai nguồn, nhưng cách chia theo cụm khác nhau, nghĩa là nhãn cụm trong `transition_matrices.csv` có thể được căn chỉnh khác `aligned_cluster_id` của `profiles.csv`. Báo cáo này lấy số của notebook và mô tả theo "nhóm có cơ sở nhỏ hơn" để kết luận không phụ thuộc nhãn; cần đối chiếu file trước khi gắn tên cụm vào Bảng 2.
-4. **Kiểm tra gap quá yếu.** Ô kiểm tra chỉ xác nhận không có cặp nào xuất phát từ 2025-01-24 (snapshot cuối), nên không thực sự kiểm tra cơ chế reset. Nên bổ sung kiểm tra khoảng cách giữa các `to_date` và `from_date` liên tiếp.
-5. **Nhận định "không tạo cụm ảo", "tối ưu chi phí giao dịch tối đa" vượt quá bằng chứng:** migration không gồm entry/exit và M2 chưa đo chi phí; nên bỏ hoặc hạ giọng.
-6. Notebook chưa xuất tỷ lệ chuyển cụm theo từng cặp tháng và chưa đối chiếu các tháng ARI thấp với VN-Index.
