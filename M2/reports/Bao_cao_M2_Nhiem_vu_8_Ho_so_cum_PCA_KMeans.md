@@ -99,11 +99,9 @@ Chênh lệch thô không so sánh được giữa các đặc trưng vì khác 
 
 ![Heatmap](../artifacts/m2-evaluation-pca-kmeans/heatmap.png)
 
-![Biểu đồ 8.1 – Radar Chart (Robust Z-Score), 2025-01-24](figures_task8/hinh_1.png)
 
 Radar tại 24/01/2025 (Cụm 0: 21 mã, Cụm 1: 568 mã): trục `vol_63` là nơi Cụm 1 cao hơn rõ và Cụm 0 thấp hơn median thị trường; trục `beta_126` và `liquidity_21_ty_vnd` thì Cụm 0 cao hơn Cụm 1 (số liệu tháng này: beta 1,2357 so với 0,5132; thanh khoản 201,76 so với 6,19 tỷ). Radar chỉ phản ánh một snapshot nên cần đọc cùng Heatmap.
 
-![Biểu đồ 8.2 – Heatmap đặc trưng cụm](figures_task8/hinh_2.png)
 
 Heatmap xác nhận cùng hình ảnh trên median theo thời gian: các ô dương rõ nhất của Cụm 0 là `mom_252` (0,76), `liquidity_21` (0,71), `mom_63` (0,51), `beta_126` (0,47); `vol_63` của Cụm 0 âm (-0,22), của Cụm 1 dương (0,20).
 

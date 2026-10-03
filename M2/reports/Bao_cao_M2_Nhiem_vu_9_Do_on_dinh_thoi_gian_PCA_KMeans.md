@@ -89,9 +89,7 @@ Số mã chung: trung vị 229,5 (140–608), trung bình 343,2. Entry: trung v�
 
 ![Transition Heatmap](../artifacts/m2-evaluation-pca-kmeans/transition_heatmap.png)
 
-![Biểu đồ 9.1 – Xu hướng ARI, NMI, Persistence, Migration](figures_task9/hinh_1.png)
 
-![Biểu đồ 9.2 – Heatmap xác suất chuyển cụm](figures_task9/hinh_2.png)
 
 Biểu đồ 9.1 cho thấy ARI và NMI dao động trong 0,44–0,96 quanh các đường median (0,80 và 0,66), trong khi persistence gần như phẳng ở 95–99% và migration luôn dưới 5%.
 

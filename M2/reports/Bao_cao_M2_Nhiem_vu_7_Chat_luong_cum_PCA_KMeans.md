@@ -74,7 +74,8 @@ Notebook chỉ đọc diagnostics đã có, **không huấn luyện lại mô h�
 
 ### 7.1 – Silhouette
 
-![Biểu đồ 7.1](figures_task7/bieu_do_7_1.png)
+![Silhouette](../artifacts/m2-evaluation-pca-kmeans/plot_7.1.png)
+
 
 Median **0,7717**, dao động 0,6595–0,9512. Cả 15 tháng đều vượt ngưỡng chấp nhận 0,5; 13/15 tháng vượt ngưỡng xuất sắc 0,7, chỉ hai tháng thấp hơn là 2024-03 (0,6764) và 2024-07 (0,6595). Từ 2024-08 Silhouette nhảy lên 0,88–0,95. Đây là tiêu chí cấp 1: hai nhóm tách biệt rõ trong không gian PCA.
 
@@ -82,7 +83,6 @@ Median **0,7717**, dao động 0,6595–0,9512. Cả 15 tháng đều vượt ng
 
 ![Davies-Bouldin](../artifacts/m2-evaluation-pca-kmeans/plot_7.2.png)
 
-![Biểu đồ 7.2](figures_task7/bieu_do_7_2.png)
 
 Median **0,5155**, khoảng 0,3550–0,7167. 14/15 tháng ≤ 0,6; điểm xấu nhất là 2024-07 (0,7167), tốt nhất là 2024-09 (0,3550). DB thấp và Silhouette cao nhất quán với nhau; hai chỉ số cùng xấu nhất tại 2024-07 và cùng tốt lên từ 2024-08.
 
@@ -90,19 +90,20 @@ Median **0,5155**, khoảng 0,3550–0,7167. 14/15 tháng ≤ 0,6; điểm xấu
 
 ![Calinski-Harabasz](../artifacts/m2-evaluation-pca-kmeans/plot_7.3.png)
 
-![Biểu đồ 7.3](figures_task7/bieu_do_7_3.png)
 
 Median **361,53**, khoảng 176,31–2.065,15. CH thấp nhất tại 2024-07 (176,31) và cao nhất tại 2024-09 (2.065,15), tăng mạnh ở các tháng universe lớn. CH phụ thuộc cỡ mẫu nên chỉ dùng làm kiểm định an toàn, so trong cùng snapshot.
 
 ### 7.4 – Inertia
 
-![Biểu đồ 7.4](figures_task7/bieu_do_7_4.png)
+![Inertia](../artifacts/m2-evaluation-pca-kmeans/plot_7.4.png)
+
 
 Median **1.963,07**, khoảng 1.219,02–328.111,44. Inertia gần như phẳng (1.219–2.010) khi N = 142–247, rồi tăng vọt sau 2024-08 và đạt đỉnh 328.111 tại 2024-11 (N = 780). Không dùng Inertia để xếp hạng chất lượng theo thời gian (xem mục 6).
 
 ### 7.5 – Cluster Balance
 
-![Biểu đồ 7.5](figures_task7/bieu_do_7_5.png)
+![Cluster Balance](../artifacts/m2-evaluation-pca-kmeans/plot_7.5.png)
+
 
 Median **0,0677**, khoảng 0,0104–0,0950. Median nằm trên ngưỡng 0,05 nhưng **7/15 tháng dưới ngưỡng**: 2024-06 (0,0480) và toàn bộ sáu tháng từ 2024-08 đến 2025-01 (thấp nhất 0,0104 tại 2024-11, cụm nhỏ chỉ 8 mã trên 780 mã). Cụm nhỏ luôn chỉ 8–21 mã. Median một mình che khuất việc balance xấu đi hệ thống ở nửa sau chuỗi.
 
