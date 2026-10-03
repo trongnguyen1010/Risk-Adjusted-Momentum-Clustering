@@ -124,12 +124,11 @@ Không lấy cố định 905 mã của snapshot 08/2026 áp ngược toàn bộ
 
 Để quản lý thống nhất giữa các thành viên, toàn bộ mã nguồn mô hình, mô hình đã huấn luyện, tài liệu báo cáo và kết quả thực nghiệm của M2 được phân bổ theo quy ước chuẩn:
 
-- **Code model / Thực thi (cả .ipynb và .py đều lưu trong `M2/notebooks/`)**:
-  - Toàn bộ file mã nguồn thực thi mô hình và phân tích của M2 đều được lưu trữ thống nhất trong thư mục `M2/notebooks/`.
-  - **Khi nào dùng `.ipynb` (nhiều cell)**: Tác vụ mang tính khám phá (EDA), phân tích từng bước, cần vẽ biểu đồ và trực quan hóa (như Scree plot, Radar chart hồ sơ cụm, Heatmap ma trận chuyển dịch cụm, biểu đồ Boxplot so sánh chất lượng). Phù hợp nhất cho **Nhiệm vụ 6, 7, 8, 9, 10**.
-  - **Khi nào dùng `.py` (chạy một mạch)**: Tác vụ là pipeline thực thi tự động, batch runner chạy một mạch từ đầu đến cuối không cần ngắt quãng xem cell, hoặc script kiểm định (verify/audit). Phù hợp cho **Nhiệm vụ 4, 5, 11, 12, 13** (các script `.py` này cũng được đặt trực tiếp trong `M2/notebooks/` để tập trung toàn bộ code vào một nơi).
+- **Code model / Thực thi (Lưu trữ thống nhất trong `M2/notebooks/`)**:
+  - Toàn bộ file mã nguồn thực thi mô hình, đánh giá chất lượng, so sánh phương án, kiểm định holdout, kiểm toán hệ thống và tổng kết bàn giao M2 đều được lưu trữ thống nhất dưới dạng Jupyter Notebooks (`.ipynb`) từ Nhiệm vụ 4 đến Nhiệm vụ 13.
+  - Mỗi notebook bắt buộc phải có đầy đủ các ô code thực thi, bảng số liệu thống kê xuất xưởng và ô Markdown biện luận học thuật (diagnostic rubrics) đối chiếu 100% với dữ liệu thực chứng trước khi xuất artifacts.
 - **Mô hình / Trọng số (Fitted models & objects)**: Lưu trữ trong thư mục `M2/models/` (các file đối tượng mô hình đã fit, scalers, weights, centroids, linkages, PCA transformers được lưu trữ tuần tự theo nhiệm vụ và thuật toán, bao gồm thư mục `M2/models/final_selected_model/` cho 1 mô hình tốt nhất được chọn sau Nhiệm vụ 10).
-- **Báo cáo (Reports & Documents)**: Lưu trữ trong thư mục `M2/reports/` (các file Word `.docx`, báo cáo tổng kết `.md`, tài liệu kiểm định, slide thuyết trình của từng nhiệm vụ và toàn bộ M2).
+- **Báo cáo (Reports & Documents)**: Lưu trữ trong thư mục `M2/reports/` (các báo cáo chuyên đề Markdown `.md` và tài liệu nghiệm thu kỹ thuật của từng nhiệm vụ và toàn bộ M2).
 - **Artifacts thực nghiệm chuẩn hóa (System & Pipeline Artifacts)**: Lưu trữ trong thư mục `M2/artifacts/` (các artifact bất biến do hệ thống runner ghi nhận: `assignments.jsonl`, `diagnostics.jsonl`, `profiles.jsonl`, `manifest.json`, `metric_matrix.csv` theo protocol đã freeze; lưu tại `M2/artifacts/` để không bị `.gitignore` chặn và có thể push lên GitHub phục vụ phối hợp giữa các thành viên).
 
 # HƯỚNG DẪN NHỜ AI GIẢI NÉN VÀ THIẾT LẬP DỮ LIỆU NỀN TẢNG (DELTA_01_ACTIVE_M2_M3.zip)
@@ -691,7 +690,7 @@ Kết quả của Nhiệm vụ 4 phải đủ để sử dụng tiếp cho:
 - artifact K-Means Global K từ Nhiệm vụ 3 nếu có thể tái sử dụng.
 
 Ví dụ:
-Global K = 2 (hoặc minh họa K = 4)
+Global K = 2 (đã khóa từ Nhiệm vụ 3)
 
 Snapshot:
 30/11/2023
@@ -729,7 +728,7 @@ Không được lấy cố định universe của snapshot cuối rồi áp ngư
 Đảm bảo snapshot đủ điều kiện để chạy mô hình.
 
 Cần kiểm tra:
-- số mã >= minimum eligible ($n\_eligible \ge 120$)
+- số mã >= minimum eligible (n_eligible >= 120)
 - đủ đúng 8 feature
 - không có NaN
 - không có Inf
@@ -757,7 +756,7 @@ Robust Scaling
 240 × 8 đã chuẩn hóa
 
 Công thức:
-$$x' = \frac{x - \text{Median}}{\text{IQR}}$$
+`x_scaled = (x - Median) / IQR`
 
 Scaler chỉ thuộc snapshot này. Sang tháng tiếp theo phải tính scaler mới.  
 Không: tính scaler tháng 11 rồi dùng lại cho tháng 12.
@@ -769,7 +768,7 @@ Không: tính scaler tháng 11 rồi dùng lại cho tháng 12.
 Tạo kết quả phân cụm chính thức cho snapshot.
 
 Ví dụ:
-Global K = 2 (hoặc K = 4)
+Global K = 2 (đã khóa từ Nhiệm vụ 3)
 
 thì:
 240 × 8 đã scale  
@@ -945,9 +944,9 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 
 ## Vị trí trong repo & Đường dẫn output
 
-- **Code model / Thực thi**: `M2/notebooks/04_kmeans_baseline.py` (script batch chạy một mạch; hoặc `04_kmeans_baseline.ipynb` nếu muốn vẽ trực quan hóa cụm; phối hợp `src/delta_t1/clustering/kmeans.py` và `src/delta_t1/experiments/runner.py`)
+- **Code model / Thực thi**: `M2/notebooks/04_kmeans_baseline.ipynb` (phối hợp `src/delta_t1/clustering/kmeans.py` và `src/delta_t1/experiments/runner.py`)
 - **Mô hình / Trọng số (Models & Centroids)**: `M2/models/kmeans/` (lưu trữ model K-Means fitted, centroids và snapshot scaler parameters)
-- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_4_KMeans_Baseline.docx` (hoặc `.md`)
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_4_KMeans_Baseline.md`
 - **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task4-kmeans-baseline-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `manifest.json`; lưu trong M2 để push lên GitHub)
 
 # NHIỆM VỤ 5 — CHẠY PHƯƠNG ÁN B: WARD
@@ -982,7 +981,7 @@ Như vậy mới có thể đánh giá sự khác biệt do thuật toán.
 - protocol đã freeze.
 
 Ví dụ:
-Global K = 2 (hoặc K = 4)
+Global K = 2 (đã khóa từ Nhiệm vụ 3)
 
 Snapshot:
 30/11/2023
@@ -1049,7 +1048,7 @@ Ward → Z-score trong khi K-Means → Robust Scaling nếu protocol chung đang
 Tạo kết quả phân cụm Ward.
 
 Ví dụ:
-Global K = 2 (hoặc K = 4)
+Global K = 2 (đã khóa từ Nhiệm vụ 3)
 
 Pipeline:
 dữ liệu đã scale  
@@ -1223,9 +1222,9 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 
 ## Vị trí trong repo & Đường dẫn output
 
-- **Code model / Thực thi**: `M2/notebooks/05_ward_hierarchical.py` (script batch chạy một mạch; hoặc `05_ward_hierarchical.ipynb` nếu muốn vẽ dendrogram; phối hợp `src/delta_t1/clustering/hierarchical.py` và `src/delta_t1/experiments/runner.py`)
+- **Code model / Thực thi**: `M2/notebooks/05_ward_hierarchical.ipynb` (phối hợp `src/delta_t1/clustering/hierarchical.py` và `src/delta_t1/experiments/runner.py`)
 - **Mô hình / Trọng số (Models & Linkages)**: `M2/models/ward/` (lưu trữ ma trận linkage, cluster representatives, scaler parameters)
-- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_5_Ward.docx` (hoặc `.md`)
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_5_Ward.md`
 - **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task5-ward-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `manifest.json`; lưu trong M2 để push lên GitHub)
 
 # NHIỆM VỤ 6 — CHẠY PHƯƠNG ÁN C: PCA + K-MEANS
@@ -1256,7 +1255,7 @@ PCA chỉ thuộc phương án C, không áp dụng chung cho K-Means baseline h
 - protocol M2.
 
 Ví dụ:
-Global K = 2 (hoặc K = 4)
+Global K = 2 (đã khóa từ Nhiệm vụ 3)
 
 Snapshot:
 30/11/2023
@@ -1538,7 +1537,7 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 
 - **Code model / Thực thi**: `M2/notebooks/06_pca_kmeans.ipynb` (kết hợp PCA trong `src/delta_t1/features/preprocessing.py` và `src/delta_t1/clustering/kmeans.py`)
 - **Mô hình / Trọng số (Models & Transformers)**: `M2/models/pca_kmeans/` (lưu trữ PCA transformer objects, explained variance ratios, fitted KMeans models theo từng snapshot)
-- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_6_PCA_KMeans.docx` (hoặc `.md`)
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_6_PCA_KMeans.md`
 - **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task6-pca-kmeans-v1/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `pca_diagnostics.jsonl`, `manifest.json`; lưu trong M2 để push lên GitHub)
 
 
@@ -1573,11 +1572,20 @@ Người thực hiện từng phương án mở và thực thi trực tiếp not
 - **Phương án 3 (PCA + K-Means):** `M2/notebooks/07_cluster_quality_evaluation_pca_kmeans.ipynb`
 
 ### Quy trình phối hợp 5 bước (Workflow)
-1. **Bước 1 (Đọc dữ liệu chẩn đoán):** Sử dụng `pandas` đọc trực tiếp file `diagnostics.csv` từ thư mục artifact của phương án tương ứng.
-2. **Bước 2 (Trích xuất & Tính toán bảng tổng hợp):** Lọc lấy 15 dòng dữ liệu ứng với cấu hình K=2, dùng các hàm thống kê mô tả cơ bản của pandas để tính Mean, Median, Min, Max cho 5 chỉ số và tự động xuất ra file `quality_summary.csv`.
+1. **Bước 1 (Đọc dữ liệu chẩn đoán đầu vào):** Sử dụng `pandas` đọc trực tiếp file `diagnostics.csv` từ thư mục artifact chuẩn hóa của phương án tương ứng:
+   - K-Means: `M2/artifacts/m2-task4-kmeans-baseline-v1/diagnostics.csv`
+   - Ward: `M2/artifacts/m2-task5-ward-v1/diagnostics.csv`
+   - PCA + K-Means: `M2/artifacts/m2-task6-pca-kmeans-v1/diagnostics.csv`
+2. **Bước 2 (Trích xuất & Xuất file tóm tắt chất lượng đầu ra):** Lọc lấy 15 dòng dữ liệu ứng với cấu hình K=2, dùng các hàm thống kê mô tả cơ bản của pandas để tính Mean, Median, Min, Max cho 5 chỉ số và tự động xuất ra file `quality_summary.csv` vào đúng đường dẫn đích:
+   - K-Means: `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv`
+   - Ward: `M2/artifacts/m2-evaluation-ward/quality_summary.csv`
+   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv`
 3. **Bước 3 (Hiển thị 2 Bảng chuẩn):** Hiển thị Bảng tổng hợp (Bảng 1) và Bảng chi tiết 15 snapshots (Bảng 2) dưới dạng bảng HTML tương tác (`display()`).
 4. **Bước 4 (Trực quan hóa 5 Biểu đồ đường):** Dùng `matplotlib` vẽ 5 biểu đồ chuỗi thời gian cho 5 chỉ số chất lượng từ Mục 7.1 đến 7.5 kèm đường tham chiếu Median nét đứt màu đỏ.
-5. **Bước 5 (Soạn thảo Nhận định kinh tế & Rào chắn học thuật):** Trình bày phân tích hiện tượng thị trường và giới hạn toán học trực tiếp vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập.
+5. **Bước 5 (Soạn thảo Nhận định kinh tế & Rào chắn học thuật):** Trình bày phân tích hiện tượng thị trường và giới hạn toán học trực tiếp vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập:
+   - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_KMeans.md`
+   - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_Ward.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans.md`
 
 ## Quy chuẩn Dữ liệu Đầu vào (Input Contract)
 
@@ -1661,22 +1669,46 @@ Cả 3 notebook bắt buộc phải vẽ **đầy đủ 5 biểu đồ đường
 
 *Quy cách đồ thị: Kích thước chuẩn `figsize=(10, 3.8)`, xoay nhãn ngày 45 độ, lưới mờ `alpha=0.5`.*
 
-## Nhận định kinh tế tài chính & Rào chắn học thuật (Academic Invariants)
+## Nhận định kinh tế tài chính & Rào chắn học thuật (Academic Invariants & Diagnostic Rubrics)
 
-Sau khi chạy code hiển thị bảng và biểu đồ, người thực hiện **bắt buộc phải tạo các ô Markdown trong Notebook** để trình bày bằng văn bản 3 nội dung trọng tâm sau:
+> **RÀO CHẮN HỌC THUẬT BẮT BUỘC VỀ KỊCH BẢN GIẢ ĐỊNH & RÀNG BUỘC THỰC CHỨNG (EVIDENCE-FIRST RULE):**
+> 1. **Các kịch bản chỉ mang tính chất GIẢ ĐỊNH HƯỚNG DẪN (Hypothetical-Only Scenarios):** Các kịch bản (Kịch bản A, B...) và các ngưỡng số liệu nêu dưới đây thuần túy là bộ quy tắc phân tích theo điều kiện (Diagnostic Rubrics) để định hướng tư duy học thuật. AI / người thực hiện **TUYỆT ĐỐI KHÔNG ĐƯỢC sao chép các kịch bản này làm kết luận định kiến (hindsight bias)**, không được tự suy đoán hoặc xem các giả định là kết quả đã có sẵn.
+> 2. **Ràng buộc số liệu thực tế (Ground-Truth Binding):** Mọi phán quyết, đánh giá và kết luận bắt buộc phải căn cứ 100% vào số liệu thực tế thu được từ file `quality_summary.csv` và 2 bảng thống kê, 5 biểu đồ được sinh ra trong chính Notebook thực thi. Khi đưa ra bất kỳ kết luận nào, bắt buộc phải trích dẫn chính xác con số thực tế đi kèm (ví dụ: Median Silhouette = ..., Cluster Balance = ...).
+> 3. **Quy tắc tổng hợp 3 tầng (Three-tier Synthesis):** Tuyệt đối không chỉ đọc lại các con số cơ học. Bắt buộc phải biện luận qua 3 tầng: Hiện tượng toán học quan sát được -> Nguyên nhân bản chất thị trường chứng khoán Việt Nam -> Ý nghĩa thực tế và tác động đến các nhiệm vụ tiếp theo.
 
-### 1. Phân cấp ưu tiên tiêu chí theo DELTA_UNIFIED_PROJECT_PLAN.md
+Sau khi chạy code hiển thị 2 bảng và 5 biểu đồ, người thực hiện **bắt buộc phải tạo các ô Markdown trong Notebook** để trình bày phân tích học thuật theo đúng 2 phần nội dung chuẩn hóa dưới đây:
+
+### 1. Bộ quy tắc phân tích theo điều kiện (Diagnostic Rubrics)
+
+#### Quy tắc kiểm định mức độ cân bằng cụm (Balance Diagnostic Test):
+- **Công thức tính:** Tỷ trọng cụm nhỏ trên toàn thị trường `pct_small = min_size / N` và tỷ số cân bằng cụm `Cluster Balance = min_size / max_size`.
+- **Kịch bản A (Nếu Balance < 0.10 hoặc cụm nhỏ chiếm < 10% thị trường):**
+  - **Kết luận bắt buộc:** Phải khẳng định đây là hiện tượng "Phân cụm bất đối xứng / Cô lập nhóm ngoại lai" (Asymmetric Outlier Isolation). Thuật toán không chia thị trường thành 2 nửa cân bằng, mà đang gom đại đa số thị trường vào 1 Cụm lớn và tách một nhóm nhỏ các mã cực đoan vào Cụm nhỏ.
+  - **Giải thích nguyên nhân:** Do thị trường chứng khoán Việt Nam có tính đầu cơ cao, tạo ra các cổ phiếu "siêu động lượng" hoặc biến động cực đại (heavy tails). Do dự án thống nhất không dùng Clipping/Winsorization nên các quan sát ngoại lai này hút tâm cụm.
+  - **Cảnh báo học thuật:** Điểm Silhouette cao trong trường hợp này phản ánh khoảng cách hình học xa của nhóm ngoại lai, không đồng nghĩa với việc thị trường có 2 chế độ cân bằng.
+- **Kịch bản B (Nếu Balance >= 0.30):**
+  - **Kết luận:** Thị trường có sự phân hóa tương đối đồng đều thành 2 chế độ vận động song song (Dual-regime market).
+
+#### Quy tắc kiểm định Quán tính nội cụm (Inertia Caveat Rule):
+- **Nguyên tắc:** Quán tính Inertia tỷ lệ thuận với số lượng cổ phiếu quan sát N.
+- **Kết luận bắt buộc:** Tuyệt đối không so sánh Inertia tuyệt đối giữa các tháng có quy mô mã khác nhau (ví dụ không so sánh tháng có 140 mã với tháng có gần 800 mã). Inertia chỉ có giá trị khi so sánh các cấu hình K trong cùng một tháng.
+
+#### Phân cấp ưu tiên tiêu chí theo DELTA_UNIFIED_PROJECT_PLAN.md:
 - **Tiêu chí cấp 1 (Primary Criterion):** `Median Silhouette cao nhất`. Đây là cơ sở toán học cao nhất để chứng minh K=2 tạo ra ranh giới tách biệt rõ ràng nhất giữa các nhóm cổ phiếu trên thị trường Việt Nam.
 - **Tiêu chí phá vỡ thế cân bằng (Secondary Tie-breaker):** `Median Davies-Bouldin thấp hơn`. Dùng khi Silhouette giữa các phương án xấp xỉ nhau.
 - **Tiêu chí kiểm định an toàn (Sanity Diagnostics):** `Calinski-Harabasz` và `Cluster Balance` dùng để kiểm tra độ tin cậy, cảnh báo nguy cơ phân cụm bị chi phối bởi các cổ phiếu dị biệt.
 
-### 2. Hiện tượng kinh tế và cấu trúc vi mô thị trường
-- **Giải thích hiện tượng Balance thấp (Fragmentation / Outlier Clusters):** Nếu Cluster Balance ở mức thấp (< 0.05 hoặc cụm nhỏ chỉ có vài mã đến vài chục mã), phải diễn giải rõ: Thuật toán đang tách thị trường thành một nhóm đại trà (phần lớn thị trường) và một nhóm cực đoan (gồm các cổ phiếu siêu động lượng, siêu thanh khoản hoặc biến động dị biệt). Đây là đặc tính tự nhiên của dữ liệu tài chính có đuôi dài (heavy tails).
-- **Phân tích hiện tượng biến động (Spikes):** Đánh giá các tháng có điểm chất lượng sụt giảm mạnh (ví dụ tháng 07/2024) hoặc tăng đột biến (cuối năm 2024 khi số mã tăng lên ~800 mã).
+#### Ranh giới phương pháp luận nghiêm ngặt:
+- **Nghiêm cấm tối ưu hóa bằng lợi nhuận:** Không được đưa Return, Sharpe hay ROI vào Nhiệm vụ 7 để chọn mô hình có chất lượng "tốt hơn". Đánh giá chất lượng cụm độc lập hoàn toàn với bài toán danh mục M3.
 
-### 3. Ranh giới kỷ luật phương pháp luận (Methodology Boundaries)
-- **Cảnh báo về Inertia trên chuỗi thời gian:** Tuyệt đối không so sánh giá trị Inertia tuyệt đối giữa các tháng với nhau vì quy mô mã N tăng từ 142 lên 780 làm Inertia tăng cơ học. Inertia chỉ có giá trị khi so sánh các K khác nhau trong cùng 1 tháng.
-- **Nghiêm cấm tối ưu hóa bằng lợi nhuận:** Không được đưa Return, Sharpe hay ROI vào Nhiệm vụ 7 để chọn mô hình có chất lượng "tốt hơn". Đánh giá chất lượng cụm độc lập hoàn toàn với bài toán danh mục.
+---
+
+### 2. Khung kết luận 3 phần bắt buộc ở Cell cuối Notebook 7:
+
+Cuối Notebook 7, bắt buộc phải có một ô Markdown tổng kết phán quyết học thuật gồm đầy đủ 3 phần:
+- **Phần A (Phán quyết Kỹ thuật):** Tóm tắt điểm mạnh toán học (độ phân tách Silhouette, độ gọn DB theo số liệu thực chứng) và điểm yếu cố hữu (mức độ mất cân bằng tỷ trọng Cluster Balance).
+- **Phần B (Bản chất thị trường):** Cấu trúc cụm phản ánh đặc trưng gì về hành vi dòng tiền và phân phối dữ liệu thị trường Việt Nam (tính phân hóa dòng tiền, hiện tượng cô lập cổ phiếu cực đoan).
+- **Phần C (Handoff cho Nhiệm vụ 10):** Đánh giá xem mô hình có đủ tiêu chuẩn chất lượng hình học để bước vào vòng so sánh đối đầu ở Nhiệm vụ 10 hay không.
 
 ## Kết quả cần đạt & Đường dẫn bàn giao (Deliverables)
 
@@ -1719,10 +1751,16 @@ Người thực hiện từng phương án mở và chạy trực tiếp noteboo
 - **Phương án 3 (PCA + K-Means):** `M2/notebooks/08_cluster_profiling_pca_kmeans.ipynb`
 
 ### Quy trình phối hợp (Workflow)
-1. **Bước 1 (Đã hoàn thành ở Nhiệm vụ 4, 5, 6):** Pipeline huấn luyện tự động xuất ra file `cluster_profiles.csv` (13 cột chuẩn) vào thư mục artifact tương ứng.
-2. **Bước 2 (Nạp dữ liệu vào Notebook):** Notebook đọc trực tiếp file CSV vào DataFrame bằng 1 dòng lệnh duy nhất.
+1. **Bước 1 (Đọc dữ liệu hồ sơ cụm đầu vào):** Pipeline huấn luyện tự động xuất ra file `cluster_profiles.csv` (13 cột chuẩn) vào thư mục artifact tương ứng, Notebook sẽ đọc trực tiếp từ:
+   - K-Means: `M2/artifacts/m2-task4-kmeans-baseline-v1/cluster_profiles.csv`
+   - Ward: `M2/artifacts/m2-task5-ward-v1/cluster_profiles.csv`
+   - PCA + K-Means: `M2/artifacts/m2-task6-pca-kmeans-v1/cluster_profiles.csv`
+2. **Bước 2 (Nạp dữ liệu vào DataFrame):** Notebook nạp file CSV tương ứng từ đường dẫn trên bằng lệnh `pd.read_csv()`.
 3. **Bước 3 (Tổng hợp số liệu & Trực quan hóa):** Chạy code pandas để xuất ra 3 Bảng số liệu chuẩn và 2 Biểu đồ chuẩn (Radar Chart, Heatmap).
-4. **Bước 4 (Viết nhận định & Báo cáo):** Soạn thảo nhận định tài chính và giới hạn học thuật vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập.
+4. **Bước 4 (Viết nhận định & Báo cáo):** Soạn thảo nhận định tài chính và giới hạn học thuật vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập:
+   - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_KMeans.md`
+   - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_Ward.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_PCA_KMeans.md`
 
 ## Quy chuẩn Dữ liệu Đầu vào (Input Contract)
 
@@ -1797,23 +1835,43 @@ Cả 3 notebook bắt buộc phải sinh ra **cùng 2 biểu đồ** trực quan
 - **Màu sắc:** Bảng màu chuẩn hóa `cmap='RdBu_r'`, điểm trung hòa tại `center = 0`.
 - **Hiển thị số:** Bật hiển thị số thực trực tiếp trên các ô (`annot=True`, định dạng 2 chữ số thập phân).
 
-### Phần 8.4 — Nhận định kinh tế tài chính & Giới hạn diễn giải học thuật
+### Phần 8.4 — Nhận định kinh tế tài chính & Rào chắn học thuật (Profiling Rubrics & Academic Invariants)
 
-Sau khi chạy code hiển thị bảng và biểu đồ, người thực hiện **bắt buộc phải tạo các ô Markdown trong Notebook** để trình bày bằng văn bản 2 nội dung then chốt sau:
+> **RÀO CHẮN HỌC THUẬT BẮT BUỘC VỀ KỊCH BẢN GIẢ ĐỊNH & RÀNG BUỘC THỰC CHỨNG (EVIDENCE-FIRST RULE):**
+> 1. **Các kịch bản chỉ mang tính chất GIẢ ĐỊNH HƯỚNG DẪN (Hypothetical-Only Scenarios):** Các định danh nhóm và quy tắc điều kiện dưới đây thuần túy là bộ khung phương pháp luận (Profiling Rubrics) để hướng dẫn tư duy phân tích. AI / người thực hiện **TUYỆT ĐỐI KHÔNG ĐƯỢC sao chép các kịch bản này làm kết luận định kiến**, không tự suy đoán hoặc gán ghép kết quả nếu chưa kiểm tra số liệu thực tế.
+> 2. **Ràng buộc số liệu thực tế (Ground-Truth Binding):** Mọi nhận định về hồ sơ đặc trưng bắt buộc phải căn cứ 100% vào số liệu thực tế từ file `cluster_profiles.csv`, 3 bảng thống kê và 2 biểu đồ (Radar Chart, Heatmap) được xuất ra trong chính Notebook thực thi. Khi nhận định, bắt buộc phải trích dẫn giá trị Mean/Median và Robust Z-Score cụ thể của từng đặc trưng.
+> 3. **Quy tắc tổng hợp 3 tầng (Three-tier Synthesis):** Phân tích qua 3 tầng: Mức chênh lệch đặc trưng thực tế -> Bản chất hành vi dòng tiền và khẩu vị rủi ro trên TTCK Việt Nam -> Ý nghĩa thực tế đối với bài toán phân bổ vốn ở Milestone M3.
 
-#### 1. Nhận định kinh tế tài chính (Financial Interpretations)
-Diễn giải ý nghĩa kinh tế thực tế của các con số trên thị trường chứng khoán Việt Nam:
-- **Thanh khoản:** Phân tích sự chênh lệch dòng tiền giữa Cụm 0 và Cụm 1 (Cụm thanh khoản lớn gồm các mã Blue-chip/Mid-cap dẫn dắt hay Cụm thanh khoản thấp chiếm đa số).
-- **Rủi ro hệ thống (Beta):** Phân tích tương quan chuyển động của cụm so với VNINDEX (Cụm nhạy sóng khuếch đại thị trường với Beta > 1 hay cụm phòng thủ ít nhạy với Beta < 1).
-- **Động lượng giá:** Đánh giá xu hướng tăng trưởng giá ngắn hạn (21, 63 ngày) và dài hạn (126, 252 ngày).
-- **Bản chất phân tách:** Tóm lược động lực chính khiến thuật toán tách thị trường thành 2 nhóm.
+Sau khi chạy code hiển thị bảng và biểu đồ, người thực hiện **bắt buộc phải tạo các ô Markdown trong Notebook** để trình bày phân tích học thuật theo đúng các nội dung chuẩn hóa dưới đây:
+
+#### 1. Bộ quy tắc phân tích theo điều kiện (Profiling Rubrics)
+
+##### Quy tắc xác định Động lực phân cụm chính (Primary Driver Test):
+- **Cách đo lường:** Tính độ chênh lệch chuẩn hóa (Delta trên thang Robust Z-Score) giữa Cụm 0 và Cụm 1 trên cả 8 đặc trưng.
+- **Kết luận bắt buộc:** Căn cứ vào độ chênh lệch cực đại từ số liệu thực tế, chỉ rõ đặc trưng nào (Thanh khoản `liquidity_21`, Động lượng ngắn hạn `mom_21`, hay Rủi ro hệ thống `beta_126`) là "Động lực phân tách chi phối số 1" khiến thuật toán chia tách thị trường.
+
+##### Quy tắc định danh Chân dung kinh tế (Economic Persona Mapping):
+- **Cơ chế đối chiếu:** Đối chiếu vị trí tâm cụm với đường tham chiếu Trung vị thị trường (đường tròn nét đứt `y = 0` trên biểu đồ Radar Chart):
+  - **Kịch bản Cụm dẫn dắt / Thu hút dòng tiền:** Nếu Cụm có Thanh khoản và Động lượng vượt trội dương (`> 0` trên thang Robust Z-Score) -> Gán nhãn học thuật chuẩn mực (ví dụ: "Nhóm Cổ phiếu Dẫn dắt / Thu hút dòng tiền tích cực").
+  - **Kịch bản Cụm đại trà / Dòng tiền thờ ơ:** Nếu Cụm có Thanh khoản thấp và Động lượng âm hoặc mờ nhạt (`< 0` trên thang Robust Z-Score) -> Gán nhãn học thuật chuẩn mực (ví dụ: "Nhóm Cổ phiếu Đại trà / Dòng tiền thờ ơ / Phòng thủ").
+
+##### Quy tắc kiểm tra tính nhất quán theo thời gian (Profile Temporal Consistency):
+- Đánh giá xem qua 15 tháng, Cụm dẫn dắt có giữ vững được đặc tính động lượng cao hay không, hay vào những giai đoạn thị trường giảm mạnh (như tháng 04/2024 hoặc 07/2024), Cụm này lại trở thành nhóm sụt giảm mạnh nhất do có hệ số Beta cao?
 
 #### 2. Giới hạn diễn giải học thuật (Academic Invariants & Boundaries)
-Ghi nhận đầy đủ các rào chắn kỷ luật nghiên cứu để đảm bảo tính chuẩn mực học thuật:
-- **Mean nhạy với quan sát cực đoan:** Giá trị trung bình của cụm không đại diện cho phân phối của từng cổ phiếu đơn lẻ bên trong cụm.
-- **Tuyệt đối không khuyến nghị đầu tư:** Sự vượt trội về thanh khoản hay động lượng ở giai đoạn M2 chỉ mô tả đặc tính nhóm trong quá khứ, không suy diễn thành khuyến nghị "nên mua cổ phiếu thuộc Cụm 0".
-- **Duy trì nhãn trung tính:** Giữ nguyên tên gọi trung tính "Cụm 0" và "Cụm 1", không tùy tiện gán nhãn chủ quan như "siêu cổ phiếu", "tinh hoa" hay "penny".
+- **Mean nhạy với quan sát cực đoan:** Giá trị trung bình của cụm không đại diện cho phân phối của từng cổ phiếu đơn lẻ bên trong cụm; cần đối chiếu thêm với dòng Trung vị (Median).
+- **Tuyệt đối không khuyến nghị đầu tư:** Sự vượt trội về thanh khoản hay động lượng ở giai đoạn M2 chỉ mô tả đặc tính nhóm trong quá khứ, không suy diễn thành khuyến nghị "nên mua cổ phiếu thuộc Cụm dẫn dắt".
+- **Duy trì nhãn trung tính:** Giữ nguyên tên gọi kỹ thuật trung tính "Cụm 0" và "Cụm 1", không tùy tiện gán nhãn chủ quan như "siêu cổ phiếu", "tinh hoa" hay "penny".
 - **Ranh giới M2 và M3:** Đánh giá tỷ suất sinh lời hay Sharpe ratio thuộc về bước Backtest (Milestone M3), nghiêm cấm đưa các chỉ số lợi nhuận vào Nhiệm vụ 8.
+
+---
+
+#### 3. Khung kết luận 3 phần bắt buộc ở Cell cuối Notebook 8:
+
+Cuối Notebook 8, bắt buộc phải có một ô Markdown tổng kết phán quyết học thuật gồm đầy đủ 3 phần:
+- **Phần A (Chân dung kinh tế):** Định danh bản chất kinh tế rõ ràng của 2 cụm dựa trên các số liệu thực chứng (không dùng từ ngữ cảm tính).
+- **Phần B (Động lực phân tách chính):** Khẳng định yếu tố cốt lõi nào tạo nên sự khác biệt giữa 2 cụm (dòng tiền thanh khoản hay tốc độ tăng giá động lượng).
+- **Phần C (Tính khả thi cho M3):** Nhận định xem cụm dẫn dắt có đủ thanh khoản thực tế để quỹ đầu tư giải ngân mà không bị trượt giá lớn ở giai đoạn Backtest M3 hay không.
 
 ## Kết quả cần đạt & Đường dẫn bàn giao (Deliverables)
 
@@ -1822,9 +1880,10 @@ Mỗi mô hình khi hoàn thành Nhiệm vụ 8 phải có đầy đủ bộ bà
    - K-Means: `M2/notebooks/08_cluster_profiling_kmeans.ipynb`
    - Ward: `M2/notebooks/08_cluster_profiling_ward.ipynb`
    - PCA + K-Means: `M2/notebooks/08_cluster_profiling_pca_kmeans.ipynb`
-2. **Hình ảnh biểu đồ xuất xưởng (lưu vào thư mục báo cáo):**
-   - `radar_chart.png`
-   - `heatmap.png`
+2. **Hình ảnh biểu đồ xuất xưởng (lưu vào đúng thư mục evaluation của từng mô hình):**
+   - K-Means: `M2/artifacts/m2-evaluation-kmeans/radar_chart.png`, `M2/artifacts/m2-evaluation-kmeans/heatmap.png`
+   - Ward: `M2/artifacts/m2-evaluation-ward/radar_chart.png`, `M2/artifacts/m2-evaluation-ward/heatmap.png`
+   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/radar_chart.png`, `M2/artifacts/m2-evaluation-pca-kmeans/heatmap.png`
 3. **Báo cáo chuyên đề Markdown:**
    - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_KMeans.md`
    - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_Ward.md`
@@ -1858,17 +1917,23 @@ Người thực hiện từng phương án mở và chạy trực tiếp noteboo
 - **Phương án 3 (PCA + K-Means):** `M2/notebooks/09_temporal_stability_pca_kmeans.ipynb`
 
 ### Quy trình phối hợp (Workflow)
-1. **Bước 1 (Đã hoàn thành ở Nhiệm vụ 4, 5, 6):** Pipeline huấn luyện tự động xuất ra bộ 3 file CSV chuẩn gồm `temporal_stability.csv`, `transition_matrices.csv` và `centroid_drift.csv` vào thư mục artifact tương ứng.
-2. **Bước 2 (Nạp dữ liệu vào Notebook):** Notebook đọc trực tiếp 3 file CSV bằng lệnh `pd.read_csv()`.
+1. **Bước 1 (Đọc dữ liệu độ ổn định thời gian đầu vào):** Pipeline huấn luyện tự động xuất ra bộ 3 file CSV chuẩn gồm `temporal_stability.csv`, `transition_matrices.csv` và `centroid_drift.csv` vào thư mục artifact evaluation tương ứng, Notebook sẽ đọc trực tiếp từ:
+   - K-Means: `M2/artifacts/m2-evaluation-kmeans/`
+   - Ward: `M2/artifacts/m2-evaluation-ward/`
+   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/`
+2. **Bước 2 (Nạp dữ liệu vào Notebook):** Notebook đọc trực tiếp 3 file CSV từ các đường dẫn trên bằng lệnh `pd.read_csv()`.
 3. **Bước 3 (Tổng hợp số liệu & Trực quan hóa):** Chạy code pandas để xuất ra đúng 4 Bảng số liệu chuẩn và 2 Biểu đồ chuẩn (Đồ thị xu hướng đa panel và Heatmap ma trận chuyển dịch).
-4. **Bước 4 (Viết nhận định & Báo cáo):** Soạn thảo nhận định tài chính và giới hạn học thuật vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập.
+4. **Bước 4 (Viết nhận định & Báo cáo):** Soạn thảo nhận định tài chính và giới hạn học thuật vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập:
+   - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_KMeans.md`
+   - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_Ward.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_PCA_KMeans.md`
 
 ## Quy chuẩn Dữ liệu Đầu vào (Unified Input Contract)
 
-Nhiệm vụ 9 của cả 3 mô hình đều đọc vào **bộ 3 file CSV phẳng** có cấu trúc cột cố định từ thư mục artifact của task trước:
-- K-Means: `M2/artifacts/m2-evaluation-kmeans/` (hoặc `m2-task4-kmeans-baseline-v1/`)
-- Ward: `M2/artifacts/m2-evaluation-ward/` (hoặc `m2-task5-ward-v1/`)
-- PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/` (hoặc `m2-task6-pca-kmeans-v1/`)
+Nhiệm vụ 9 của cả 3 mô hình đều đọc vào **bộ 3 file CSV phẳng** có cấu trúc cột cố định từ thư mục artifact evaluation của từng mô hình:
+- K-Means: `M2/artifacts/m2-evaluation-kmeans/`
+- Ward: `M2/artifacts/m2-evaluation-ward/`
+- PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/`
 
 ### Chi tiết cấu trúc 3 file input:
 1. **`temporal_stability.csv` (10 cột chuẩn, 14 dòng = 14 cặp tháng liên tiếp):**
@@ -1955,18 +2020,42 @@ Cả 3 notebook bắt buộc phải sinh ra **cùng 2 biểu đồ chuẩn**:
 - Ma trận kích thước 2 hàng x 2 cột thể hiện xác suất dịch chuyển giữa Cụm 0 và Cụm 1.
 - Bảng màu chuẩn hóa `cmap='Blues'`, bật hiển thị phần trăm trên các ô (`fmt='.2f%'`).
 
-### Phần 9.10 — Nhận định tài chính & Giới hạn diễn giải học thuật
+### Phần 9.10 — Nhận định tài chính & Rào chắn học thuật (Stability Rubrics & Academic Invariants)
 
-Sau khi hiển thị bảng và biểu đồ, người thực hiện **bắt buộc phải tạo ô Markdown trong Notebook** để trình bày bằng văn bản 2 nội dung:
+> **RÀO CHẮN HỌC THUẬT BẮT BUỘC VỀ KỊCH BẢN GIẢ ĐỊNH & RÀNG BUỘC THỰC CHỨNG (EVIDENCE-FIRST RULE):**
+> 1. **Các kịch bản chỉ mang tính chất GIẢ ĐỊNH HƯỚNG DẪN (Hypothetical-Only Scenarios):** Các ngưỡng số liệu (>= 80%, < 60%, <= 15%, > 25%...) và tình huống nêu dưới đây thuần túy là bộ khung quy tắc điều kiện (Stability Rubrics) để định hướng tư duy phân tích. AI / người thực hiện **TUYỆT ĐỐI KHÔNG ĐƯỢC sao chép các kịch bản này làm kết luận định kiến**, không tự suy đoán nếu chưa đối chiếu số liệu tính toán thực tế.
+> 2. **Ràng buộc số liệu thực tế (Ground-Truth Binding):** Mọi nhận định về độ ổn định bắt buộc phải căn cứ 100% vào số liệu thực tế từ 3 file input CSV (`temporal_stability.csv`, `transition_matrices.csv`, `centroid_drift.csv`), 4 bảng thống kê và 2 biểu đồ (Temporal Trends, Transition Heatmap) được xuất ra trong chính Notebook thực thi. Bắt buộc phải trích dẫn giá trị Mean/Median của ARI, NMI, Persistence, Migration Rate cụ thể.
+> 3. **Quy tắc tổng hợp 3 tầng (Three-tier Synthesis):** Phân tích qua 3 tầng: Điểm số ổn định thực tế quan sát được -> Bản chất luân chuyển dòng tiền và hành vi cổ phiếu qua các chu kỳ thị trường -> Tác động trực tiếp đến chi phí giao dịch danh mục và tính khả thi khi vận hành chiến lược ở Milestone M3.
 
-#### 1. Nhận định kinh tế tài chính
-- **Độ bền vững cấu trúc:** Đánh giá trị số ARI và NMI trung bình (thường đạt quanh mức 0.75 - 0.80) chứng minh cấu trúc 2 cụm phân tách rất rõ ràng, không bị xáo trộn ngẫu nhiên.
-- **Tính gắn kết thành viên:** Đánh giá chỉ số Persistence (> 98%) cho thấy các mã cổ phiếu cực kỳ ổn định trong cụm của mình; nhóm thanh khoản cao Bluechip/Midcap rất hiếm khi bị rớt sang nhóm thanh khoản thấp và ngược lại.
-- **Tính ổn định tâm cụm:** Phân tích độ lệch tâm Centroid Drift để khẳng định ranh giới giữa 2 cụm giữ nguyên bản chất qua các tháng thị trường tăng lẫn giảm.
+Sau khi hiển thị bảng và biểu đồ, người thực hiện **bắt buộc phải tạo ô Markdown trong Notebook** để trình bày phân tích học thuật theo đúng các nội dung chuẩn hóa dưới đây:
 
-#### 2. Giới hạn học thuật bất biến
-- **Không phải Dynamic Clustering:** Phân cụm độc lập từng tháng rồi nối lại đo lường ARI/chuyển dịch chỉ là phương pháp đánh giá độ bền (Temporal Stability Diagnostic), **tuyệt đối không được gọi đây là thuật toán Dynamic Clustering**.
-- **Không tối ưu hóa theo lợi nhuận:** Không được phép dùng chỉ số ổn định thời gian để suy diễn cụm nào sinh lời tốt hơn hay can thiệp vào chiến lược đầu tư (thuộc Milestone M3).
+#### 1. Bộ quy tắc phân tích theo điều kiện (Stability Rubrics)
+
+##### Quy tắc đánh giá Quán tính cụm (Persistence Diagnostic Rule):
+- **Kịch bản Quán tính cao (Nếu Persistence >= 80%):** Kết luận cấu trúc phân cụm có độ bám dính cao, phân loại cụm có tính bền vững qua các tháng; các mã cổ phiếu không bị xáo trộn ngẫu nhiên.
+- **Kịch bản Xáo trộn ngẫu nhiên (Nếu Persistence < 60%):** Cảnh báo hiện tượng xáo trộn ngẫu nhiên (Cluster Churning / Noise), ranh giới giữa các cụm không ổn định và không đủ độ bền làm tín hiệu phân loại cho các chiến lược tiếp theo.
+
+##### Quy tắc đánh giá Chi phí giao dịch tiềm tàng ở M3 (Turnover Impact Rule):
+- **Nguyên lý kết nối M2 - M3:** Tỷ lệ nhảy cụm hàng tháng (`Migration Rate = 1 - Persistence`) tương ứng trực tiếp với tỷ lệ tái cơ cấu danh mục tối thiểu (Turnover) mỗi tháng ở giai đoạn Backtest M3.
+- **Kịch bản Vận hành an toàn (Nếu Migration <= 15%):** Kết luận mức độ luân chuyển danh mục ở ngưỡng an toàn, chi phí giao dịch và thuế ước tính ở M3 sẽ ở mức thấp, bảo toàn hiệu quả danh mục.
+- **Kịch bản Cảnh báo rủi ro bào mòn lợi nhuận (Nếu Migration > 25%):** Bắt buộc phải đưa ra kết luận cảnh báo nguy cơ: "Chi phí giao dịch và thuế ở M3 sẽ bào mòn lợi nhuận thực tế" do danh mục đầu tư phải mua/bán tái cơ cấu quá nhiều mỗi tháng.
+
+##### Quy tắc giải mã cú sốc thị trường (Market Shock Analysis):
+- Xác định các tháng có điểm ARI hoặc NMI sụt giảm bất thường (ví dụ ARI < 0.50):
+- Đối chiếu với bối cảnh thực tế của thị trường chung VN-Index tại các tháng đó để rút ra kết luận: Khi thị trường đảo chiều hoặc gãy xu hướng mạnh (ví dụ các đợt điều chỉnh sâu trong năm 2024), cấu trúc phân cụm bị biến động ra sao?
+
+#### 2. Giới hạn học thuật bất biến (Academic Invariants)
+- **Không phải Dynamic Clustering:** Phân cụm độc lập từng snapshot tháng rồi nối lại đo lường ARI và ma trận chuyển dịch chỉ là phương pháp đánh giá độ bền chuỗi thời gian (Temporal Stability Diagnostic), **tuyệt đối không được gọi đây là thuật toán Dynamic Clustering**.
+- **Không tối ưu hóa theo lợi nhuận:** Không được phép dùng chỉ số ổn định thời gian để suy diễn cụm nào sinh lời tốt hơn hay can thiệp vào việc chọn mã đầu tư (thuộc Milestone M3).
+
+---
+
+#### 3. Khung kết luận 3 phần bắt buộc ở Cell cuối Notebook 9:
+
+Cuối Notebook 9, bắt buộc phải có một ô Markdown tổng kết phán quyết học thuật gồm đầy đủ 3 phần:
+- **Phần A (Phán quyết độ ổn định):** Đánh giá mức độ ổn định tổng thể của cấu trúc cụm (dựa trên giá trị ARI, NMI trung vị thực chứng).
+- **Phần B (Độ bền dòng tiền & Tác động Turnover):** Nhận định về mức độ luân chuyển cổ phiếu (Persistence / Migration thực tế) và cảnh báo rủi ro chi phí giao dịch đối với nhà đầu tư ở M3.
+- **Phần C (Handoff cho Nhiệm vụ 10):** Đánh giá xem mô hình có đạt chuẩn về độ bền chuỗi thời gian để bước vào bảng so sánh đối đầu toàn diện ở Nhiệm vụ 10 hay không.
 
 ## Kết quả cần đạt & Đường dẫn bàn giao (Deliverables)
 
@@ -1975,9 +2064,10 @@ Mỗi mô hình khi hoàn thành Nhiệm vụ 9 phải có đầy đủ bộ bà
    - K-Means: `M2/notebooks/09_temporal_stability_kmeans.ipynb`
    - Ward: `M2/notebooks/09_temporal_stability_ward.ipynb`
    - PCA + K-Means: `M2/notebooks/09_temporal_stability_pca_kmeans.ipynb`
-2. **Hình ảnh biểu đồ xuất xưởng (lưu vào thư mục báo cáo):**
-   - `temporal_trends.png`
-   - `transition_heatmap.png`
+2. **Hình ảnh biểu đồ xuất xưởng (lưu vào đúng thư mục evaluation của từng mô hình):**
+   - K-Means: `M2/artifacts/m2-evaluation-kmeans/temporal_trends.png`, `M2/artifacts/m2-evaluation-kmeans/transition_heatmap.png`
+   - Ward: `M2/artifacts/m2-evaluation-ward/temporal_trends.png`, `M2/artifacts/m2-evaluation-ward/transition_heatmap.png`
+   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/temporal_trends.png`, `M2/artifacts/m2-evaluation-pca-kmeans/transition_heatmap.png`
 3. **Báo cáo chuyên đề Markdown:**
    - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_KMeans.md`
    - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_Ward.md`
@@ -1987,556 +2077,512 @@ Mỗi mô hình khi hoàn thành Nhiệm vụ 9 phải có đầy đủ bộ bà
 
 ## Mục đích của Nhiệm vụ 10
 
-Tổng hợp toàn diện kết quả của K-Means, Ward và PCA + K-Means trên cùng protocol development, và **chính thức lựa chọn duy nhất 1 mô hình phân cụm tốt nhất (Final Method)** để khóa lại trước khi mở Final Holdout (Nhiệm vụ 11) và chuyển giao cho M3.
+Tổng hợp toàn diện kết quả của K-Means Baseline, Ward Hierarchical và PCA + K-Means trên cùng protocol development (15 snapshots, Global K = 2, 8 market features), và **chính thức lựa chọn duy nhất 1 mô hình phân cụm tốt nhất (Final Method)** để đóng băng trước khi mở Final Holdout (Nhiệm vụ 11) và chuyển giao cho Milestone M3.
 
-Hai phương án còn lại không bị loại bỏ mà được giữ nguyên trong toàn bộ tài liệu và báo cáo dưới vai trò các phương án đối chứng (*comparator baselines*) để chứng minh tính thuyết phục của quá trình thực nghiệm.
+Hai phương án còn lại không bị loại bỏ mà được lưu trữ đầy đủ trong toàn bộ artifacts và báo cáo dưới vai trò các phương án đối chứng (comparator baselines) để chứng minh tính chặt chẽ của quá trình thực nghiệm.
 
 ## Vị trí của bước chọn phương án trong workflow
 
-Bước lựa chọn 1 mô hình tốt nhất diễn ra ngay tại Nhiệm vụ 10 (sau khi đã có đủ kết quả chất lượng, hồ sơ cụm, độ ổn định thời gian) và **trước khi mở Nhiệm vụ 11 – Final Holdout**:
+Bước lựa chọn 1 mô hình tốt nhất diễn ra ngay tại Nhiệm vụ 10 (sau khi đã hoàn tất đánh giá chất lượng, hồ sơ cụm, độ ổn định thời gian) và **bắt buộc phải hoàn tất trước khi mở Nhiệm vụ 11 — Final Holdout**:
 
-Development (15 snapshots)  
+Development (15 snapshots: 2023-11-30 đến 2025-01-24)  
 ↓  
-K-Means / Ward / PCA + K-Means  
+Chạy độc lập: K-Means Baseline / Ward Hierarchical / PCA + K-Means  
 ↓  
-Nhiệm vụ 7 – Quality  
+Nhiệm vụ 7 — Đánh giá chất lượng cụm (Cluster Quality: Silhouette, DB, CH, Balance)  
 ↓  
-Nhiệm vụ 8 – Cluster profile  
+Nhiệm vụ 8 — Lập và diễn giải hồ sơ cụm (Cluster Profiles: 8 đặc trưng gốc)  
 ↓  
-Nhiệm vụ 9 – Temporal stability  
+Nhiệm vụ 9 — Đánh giá độ ổn định chuỗi thời gian (Temporal Stability: ARI, NMI, Migration)  
 ↓  
-Nhiệm vụ 10 – So sánh 3 phương án  
+Nhiệm vụ 10 — So sánh đối đầu 3 phương án trên 5 tiêu chí học thuật  
 ↓  
-**CHỌN VÀ KHÓA 1 MÔ HÌNH PHÂN CỤM TỐT NHẤT (FINAL METHOD)**  
+**CHỌN VÀ ĐÓNG BĂNG DUY NHẤT 1 MÔ HÌNH PHÂN CỤM TỐT NHẤT (FINAL METHOD)**  
 ↓  
-Nhiệm vụ 11 – Final Holdout (chỉ chạy duy nhất mô hình đã chọn)  
+Nhiệm vụ 11 — Mở và chạy Final Holdout (CHỈ CHẠY DUY NHẤT 1 MÔ HÌNH ĐÃ CHỌN)  
 ↓  
-Nhiệm vụ 12 – Verify  
+Nhiệm vụ 12 — M2 Verify (Audit rào chắn học thuật, không rò rỉ dữ liệu)  
 ↓  
-Nhiệm vụ 13 – Report / Handoff M3
+Nhiệm vụ 13 — Handoff cho Milestone M3 (Portfolio / Backtest)
 
-## Nguyên tắc bắt buộc khi lựa chọn
+## Nguyên tắc bất biến khi lựa chọn mô hình (Selection Invariants)
 
-- Việc chọn phương án chỉ được dựa trên kết quả giai đoạn development. Final holdout tuyệt đối không được mở trước khi final method đã được quyết định và khóa.
-- Không dùng future return, CAGR, Sharpe, Sortino, ROI, Calmar, alpha hoặc kết quả backtest để chọn thuật toán M2.
-- Không nhìn kết quả holdout rồi quay lại thay đổi phương án.
-- Không thay đổi feature set, Global K, scaling hoặc PCA rule riêng cho từng phương án chỉ để cải thiện kết quả so sánh.
-- Các phương án phải được so sánh trên cùng development window, cùng universe rule, cùng 8 feature và cùng Global K đã khóa.
+- **Quyết định hoàn toàn trên tập Development:** Việc chọn phương án chỉ được dựa trên kết quả giai đoạn development (15 snapshots). Final holdout tuyệt đối không được mở trước khi final method đã được quyết định và đóng băng thành artifact.
+- **Cấm tuyệt đối dùng chỉ số đầu tư:** Không dùng future return, CAGR, Sharpe, Sortino, ROI, Calmar, alpha hoặc kết quả backtest để chọn thuật toán M2 (tuân thủ nghiêm ngặt docs/DELTA_UNIFIED_PROJECT_PLAN.md mục 4.5 và mục 8).
+- **Quy tắc một chiều (No Hindsight Bias):** Không được nhìn kết quả holdout rồi quay lại thay đổi phương án hoặc retune siêu tham số.
+- **Môi trường so sánh đồng nhất (Ceteris Paribus):** Ba phương án phải được so sánh trên cùng development window (15 snapshots), cùng universe rule (market_experiment_eligible), cùng 8 feature gốc và cùng Global K = 2 đã khóa.
 
-## Phần 10.1 — So sánh quality
+## Phần 10.1 — So sánh chất lượng phân cụm hình học (Cluster Quality Comparison)
 
-### Mục đích
+So sánh trực diện chất lượng phân tách cấu trúc cụm giữa 3 phương án dựa trên 15 snapshots:
+- **Median Silhouette Score:** Chỉ số quyết định chính. Đánh giá độ chặt chẽ nội cụm và khoảng cách phân tách giữa các cụm. Giá trị cao hơn thể hiện ranh giới rõ ràng hơn.
+- **Median Davies-Bouldin Index:** Chỉ số xác nhận (tie-breaker). Đánh giá tỷ lệ phân tán nội cụm so với khoảng cách giữa các tâm cụm. Giá trị thấp hơn thể hiện chất lượng tốt hơn.
+- **Median Calinski-Harabasz Index:** Chỉ số bổ trợ hình học. Đánh giá tỷ số giữa phương sai liên cụm và phương sai nội cụm.
+- **Median Cluster Balance (min_size / max_size):** Kiểm tra mức độ cân bằng phân bổ, phát hiện nguy cơ cô lập nhóm ngoại lai cực đoan.
 
-So sánh chất lượng cấu trúc cụm giữa 3 phương án:
-- So sánh median Silhouette (cao hơn thường tốt hơn, chỉ số chính).
-- So sánh median Davies–Bouldin (thấp hơn thường tốt hơn, dùng xác nhận).
-- So sánh Calinski–Harabasz (chỉ số bổ sung).
+## Phần 10.2 — So sánh độ ổn định chuỗi thời gian (Temporal Stability Comparison)
 
-## Phần 10.2 — So sánh temporal stability
+So sánh độ bền vững của cấu trúc phân cụm qua 14 cặp tháng liên tiếp:
+- **Median Adjusted Rand Index (ARI):** Đánh giá mức độ nhất quán của việc phân nhóm giữa snapshot t và t+1 trên tập cổ phiếu chung.
+- **Median Normalized Mutual Information (NMI):** Đo lường lượng thông tin chung được bảo toàn giữa hai snapshot liên tiếp.
+- **Median Persistence Probability:** Xác suất cổ phiếu giữ nguyên cụm cũ ở tháng tiếp theo.
+- **Median Migration Rate:** Tỷ lệ cổ phiếu nhảy cụm giữa hai tháng liên tiếp (phản ánh trực tiếp chi phí tái cơ cấu danh mục tiềm tàng ở Milestone M3).
+- **Centroid Drift:** Đo lường mức độ trôi dạt của tọa độ tâm cụm trong không gian đặc trưng qua thời gian.
 
-### Mục đích
+## Phần 10.3 — So sánh khả năng diễn giải kinh tế và Sanity Check
 
-So sánh độ ổn định theo thời gian:
-- So sánh ARI và NMI trung vị giữa hai snapshot liên tiếp ($t$ và $t+1$).
-- Persistence probability (xác suất giữ nguyên cụm) và Migration rate (tỷ lệ chuyển dịch cụm).
-- Centroid drift (mức độ biến động tâm cụm theo thời gian).
+- **Sanity Check mức độ cân bằng:** Loại trừ phương án sinh ra cụm suy biến (cụm rác có kích thước nhỏ hơn 5 mã hoặc phân mảnh bất thường).
+- **Khả năng diễn giải kinh tế (Economic Interpretability):** Đánh giá hồ sơ tâm cụm của phương án nào phân hóa rõ nét nhất trên 8 đặc trưng động lượng và thanh khoản gốc (Momentum, Volatility, Liquidity, Drawdown, Beta).
+- **Đánh đổi của PCA (PCA Trade-off):** Đối với nhánh PCA + K-Means, kiểm tra xem việc giảm chiều có thực sự mang lại cấu trúc cụm vượt trội hay chỉ làm phức tạp hóa pipeline và gây khó khăn khi diễn giải ngược về 8 đặc trưng gốc.
 
-## Phần 10.3 — So sánh cân bằng và khả năng diễn giải hồ sơ cụm
+## Phần 10.4 — Ma trận đánh đổi 5 tiêu chí và Dao cạo Occam (Decision Matrix & Occam's Razor)
 
-### Mục đích
+> **RÀO CHẮN HỌC THUẬT BẮT BUỘC VỀ KỊCH BẢN GIẢ ĐỊNH & RÀNG BUỘC THỰC CHỨNG (EVIDENCE-FIRST RULE):**
+> 1. **Các kịch bản chỉ mang tính chất GIẢ ĐỊNH HƯỚNG DẪN (Hypothetical-Only Scenarios):** Các ngưỡng số liệu (ví dụ chênh lệch Silhouette < 0.03, ARI > 0.60...) và các tình huống so sánh dưới đây thuần túy là bộ khung quy tắc điều kiện (Decision Rubrics) để định hướng tư duy phân tích. AI / người thực hiện **TUYỆT ĐỐI KHÔNG ĐƯỢC sao chép các kịch bản này làm kết luận định kiến**, không được khẳng định trước mô hình nào thắng nếu chưa tổng hợp bảng đối đầu từ kết quả thực tế của Nhiệm vụ 7, 8, 9.
+> 2. **Ràng buộc số liệu thực tế (Ground-Truth Binding):** Quyết định chọn mô hình bắt buộc phải dựa 100% trên bảng tổng hợp đối đầu từ các file artifact đã xuất xưởng (quality_summary.csv, cluster_profiles.csv, temporal_stability.csv của cả 3 mô hình). Mọi luận điểm lựa chọn hay loại bỏ đều phải trích dẫn số liệu trung vị đối chiếu cụ thể.
+> 3. **Quy tắc tổng hợp 3 tầng (Three-tier Synthesis):** Phân tích đối đầu qua 3 tầng: Chênh lệch số liệu toán học giữa 3 phương án -> Ý nghĩa thực tế về mặt cấu trúc và hành vi thị trường -> Quyết định chọn mô hình tối ưu nhất về mặt vận hành và ứng dụng.
 
-- **Cluster balance**: Sanity check phát hiện cụm suy biến (cụm rác hoặc cụm quá bé < 5 mã).
-- **Khả năng diễn giải**: Xem cluster profile của phương án nào thể hiện rõ ràng và hợp lý nhất theo 8 đặc trưng gốc (Động lượng, Biến động, MDD, Beta, Thanh khoản). Đối với PCA + K-Means, kiểm tra trade-off giữa việc giảm chiều và độ phức tạp khi giải thích ngược về 8 feature gốc.
+Thứ tự ưu tiên quyết định tuân thủ nghiêm ngặt hệ thống 5 tầng theo docs/DELTA_UNIFIED_PROJECT_PLAN.md mục 6.7:
 
-## Phần 10.4 — Các nhóm tiêu chí và thứ tự ưu tiên chọn 1 mô hình tốt nhất
-
-Đánh giá lựa chọn theo thứ tự ưu tiên 5 cấp độ:
-
-| **Ưu tiên** | **Nhóm tiêu chí** | **Chỉ số / bằng chứng** | **Mục đích** | **Vai trò** |
+| Thứ tự ưu tiên | Nhóm tiêu chí | Chỉ số thực chứng | Mục đích & Rào chắn học thuật | Vai trò quyết định |
 | :---: | :--- | :--- | :--- | :--- |
-| **1** | **Chất lượng phân cụm** | Silhouette, Davies–Bouldin | Đánh giá cụm có rõ nét, chặt chẽ và tách biệt không | **Tiêu chí quyết định chính** |
-| **2** | **Độ ổn định thời gian** | ARI, Persistence, Migration, Centroid drift | Đánh giá cấu trúc cụm có ổn định qua các tháng không | **Tiêu chí quan trọng thứ hai** |
-| **3** | **Cân bằng cụm** | Phân phối kích thước cụm | Loại trừ hiện tượng cụm suy biến / quá nhỏ | **Sanity check** |
-| **4** | **Khả năng diễn giải** | Profile trên 8 đặc trưng gốc | Đảm bảo cụm có ý nghĩa kinh tế rõ ràng | **Tiêu chí hỗ trợ** |
-| **5** | **Độ đơn giản & Tái lập** | Số bước, số siêu tham số, reproducibility | Ưu tiên phương pháp ít phức tạp hơn nếu kết quả tương đương | **Tie-breaker** |
+| **Tầng 1** | **Chất lượng phân cụm** | Median Silhouette Score | Đánh giá độ chặt chẽ nội cụm và khoảng cách phân tách hình học | **Tiêu chí quyết định tiên quyết** |
+| **Tầng 2** | **Xác nhận chất lượng** | Median Davies-Bouldin | Giải quyết trường hợp điểm Silhouette tương đương (Tie-breaker) | **Tiêu chí xác nhận thứ hai** |
+| **Tầng 3** | **Kiểm tra suy biến** | Min Cluster Size, Cluster Balance | Loại trừ mô hình có cụm suy biến, cô lập quá mức (< 5 mã) | **Sanity check bắt buộc** |
+| **Tầng 4** | **Độ ổn định chuỗi thời gian** | Median ARI, Median Migration Rate | Đánh giá độ bền cấu trúc và chi phí tái cơ cấu danh mục ở M3 | **Tiêu chí kiểm tra độ bền** |
+| **Tầng 5** | **Dao cạo Occam (Occam's Razor)** | Độ phức tạp pipeline, tính tái lập | Ưu tiên mô hình đơn giản hơn nếu chất lượng toán học tương đương | **Nguyên lý phán quyết cuối cùng** |
 
-*Lưu ý: Không dùng công thức điểm tổng hợp trọng số cảm tính (như 40% Silhouette + 30% ARI...) để tránh quyết định chủ quan.*
+### Nguyên lý Dao cạo Occam (Occam's Razor Principle):
+- **Quy tắc thực thi:** Nếu sự chênh lệch về Median Silhouette giữa mô hình đơn giản (K-Means Baseline) và mô hình phức tạp hơn (Ward hoặc PCA + K-Means) là không đáng kể (chênh lệch tuyệt đối nhỏ hơn 0.03), thì mô hình đơn giản hơn, dễ tái lập hơn và giải thích trực tiếp trên dữ liệu gốc bắt buộc phải được ưu tiên lựa chọn.
+- **Rào chắn chống phức tạp hóa:** Không chấp nhận đưa thêm bước chuyển đổi PCA làm méo mó không gian đặc trưng hoặc thuật toán phân cấp Ward nặng về tính toán nếu không chứng minh được sự vượt trội áp đảo và bền vững trên dữ liệu thực tế.
 
-## Phần 10.5 — Quy trình ra quyết định và lập Decision Artifact
+## Phần 10.5 — Quy trình thực thi 5 bước trong Notebook 10
 
-1. Tổng hợp bảng đối đầu 3 phương án theo đầy đủ các chỉ số median trên development.
-2. Áp dụng quy tắc ưu tiên:
-   - Nếu một phương án vượt trội rõ nét ở cả Silhouette và Davies–Bouldin → Chọn phương án đó làm Final Method.
-   - Nếu chất lượng cụm giữa các phương án sát nhau → So sánh độ ổn định theo thời gian (ARI, Migration).
-   - Nếu vẫn tương đương → Xét khả năng diễn giải và ưu tiên phương án có pipeline đơn giản hơn (ví dụ K-Means gốc đơn giản hơn PCA + K-Means).
-3. Lập **Decision Artifact** (`final_method_decision.json` hoặc `.md`) lưu rõ: phương án được chọn, bảng số liệu đối đầu, lý do lựa chọn, và cam kết khóa mô hình.
+Quy trình thực thi trong notebook `M2/notebooks/10_model_comparison.ipynb` gồm đúng 5 bước tuần tự:
 
-## File code sử dụng trong nhiệm vụ và cách dùng
+- **Bước 1: Nạp và kiểm định tính toàn vẹn của dữ liệu đầu vào (Input Ingestion & Integrity Check)**
+  Nạp 9 file artifacts đã đóng băng từ Nhiệm vụ 7, 8, 9 của cả 3 mô hình:
+  - 3 file chất lượng: `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv`, `M2/artifacts/m2-evaluation-ward/quality_summary.csv`, `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv`
+  - 3 file hồ sơ cụm: `M2/artifacts/m2-task4-kmeans-baseline-v1/cluster_profiles.csv`, `M2/artifacts/m2-task5-ward-v1/cluster_profiles.csv`, `M2/artifacts/m2-task6-pca-kmeans-v1/cluster_profiles.csv`
+  - 3 file ổn định thời gian: `M2/artifacts/m2-evaluation-kmeans/temporal_stability.csv`, `M2/artifacts/m2-evaluation-ward/temporal_stability.csv`, `M2/artifacts/m2-evaluation-pca-kmeans/temporal_stability.csv`
+  Kiểm tra xác nhận đủ 15 snapshots và 14 cặp tháng cho cả 3 mô hình trước khi tính toán.
 
-Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file `.py` riêng lẻ; thông thường `runner.py` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+- **Bước 2: Tổng hợp các chỉ số thống kê trung tâm (Metrics Aggregation)**
+  Tính toán các giá trị thống kê: Median, Mean, Min, Max, Độ lệch chuẩn cho từng chỉ số (Silhouette, Davies-Bouldin, Calinski-Harabasz, Balance, ARI, NMI, Persistence, Migration Rate) của từng mô hình.
 
-**`src/delta_t1/experiments/runner.py`** — file đã có; nguồn artifact chuẩn hóa.
-> Mục đích: Đã ghi diagnostics, profiles, stability và transitions cho từng run.  
-> Cách dùng trong nhiệm vụ này: Nhiệm vụ 10 đọc các artifact này của ba phương án, không cần fit lại mô hình chỉ để so sánh.
+- **Bước 3: Lập bảng so sánh đối đầu toàn diện (Comparative Matrix Construction)**
+  Tổng hợp thành file bảng dữ liệu chuẩn hóa `M2/artifacts/m2-evaluation/methodology_comparison.csv` gồm đúng 12 cột:
+  - `method`: Tên phương án (`KMeans_Baseline`, `Ward_Hierarchical`, `PCA_KMeans`)
+  - `global_k`: Giá trị K toàn cục (`2`)
+  - `median_silhouette`: Trung vị Silhouette
+  - `mean_silhouette`: Trung bình Silhouette
+  - `median_davies_bouldin`: Trung vị Davies-Bouldin
+  - `median_calinski_harabasz`: Trung vị Calinski-Harabasz
+  - `median_cluster_balance`: Trung vị tỷ số cân bằng cụm
+  - `median_ari`: Trung vị Adjusted Rand Index
+  - `median_nmi`: Trung vị Normalized Mutual Information
+  - `median_persistence`: Trung vị xác suất giữ nguyên cụm
+  - `median_migration_rate`: Trung vị tỷ lệ chuyển cụm
+  - `pipeline_complexity`: Mức độ phức tạp pipeline (`Low`, `Medium`, `High`)
 
-**`src/delta_t1/evaluation/cluster_metrics.py`** — file đã có; nguồn quality.
-> Mục đích: Cung cấp định nghĩa/giá trị quality metrics.  
-> Cách dùng trong nhiệm vụ này: Tổng hợp median/summary của Silhouette, DB, CH và balance theo phương án.
+- **Bước 4: Thực thi thuật toán lựa chọn theo 5 tầng tiêu chí (Decision Logic Execution)**
+  Áp dụng bộ tiêu chí 5 tầng tại Phần 10.4 để xác định duy nhất 1 mô hình chiến thắng (Winner Method). Đối chiếu chi tiết với Dao cạo Occam để biện luận thuyết phục về việc lựa chọn mô hình chiến thắng và loại bỏ 2 phương án đối chứng.
 
-**`src/delta_t1/evaluation/temporal_metrics.py`** — file đã có; nguồn temporal.
-> Mục đích: Cung cấp chỉ số ổn định qua thời gian.  
-> Cách dùng trong nhiệm vụ này: Tổng hợp ARI, NMI, persistence, migration và centroid drift để so sánh.
+- **Bước 5: Đóng băng quyết định, lưu trữ trọng số và xuất tài liệu bàn giao (Decision Freeze & Artifact Export)**
+  - Xuất file artifact quyết định chuẩn hóa `M2/artifacts/m2-evaluation/final_method_decision.json`.
+  - Sao chép các tệp mô hình đã huấn luyện của phương án chiến thắng vào thư mục mô hình chính thức `M2/models/final_selected_model/`.
+  - Xuất biểu đồ so sánh chuẩn hóa `M2/artifacts/m2-evaluation/model_comparison_radar_or_bar.png` (Biểu đồ cột nhóm so sánh đa tiêu chí giữa 3 mô hình).
+  - Soạn thảo báo cáo chuyên đề đầy đủ `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md`.
 
-**`src/delta_t1/experiments/reporting.py`** — file đã có; hỗ trợ xuất kết quả.
-> Mục đích: Có các hàm tạo bảng/report/plot từ artifact.  
-> Cách dùng trong nhiệm vụ này: Dùng để trình bày bảng so sánh cuối thay vì viết lại logic clustering.
+## Phần 10.6 — Cấu trúc chuẩn hóa của file `final_method_decision.json`
 
-### Cách các file phối hợp
+File artifact quyết định bắt buộc phải tuân thủ đúng cấu trúc JSON gồm 8 trường thông tin sau:
 
-> diagnostics + profiles + stability + transitions của 3 phương án → tổng hợp quality/temporal/interpretability → reporting.py → bảng so sánh/decision evidence → chọn & khóa 1 Final Method.
+```json
+{
+  "decision_timestamp": "ISO-8601 Timestamp",
+  "selected_method": "Tên mô hình chiến thắng (ví dụ: KMeans_Baseline)",
+  "comparator_methods": ["Tên mô hình đối chứng 1", "Tên mô hình đối chứng 2"],
+  "global_k": 2,
+  "decision_criteria_rank": [
+    "1. Median Silhouette (Primary)",
+    "2. Median Davies-Bouldin (Confirmation / Tie-breaker)",
+    "3. Cluster Balance (Sanity check)",
+    "4. Temporal Stability (ARI / Migration)",
+    "5. Occam's Razor (Simplicity & direct interpretability)"
+  ],
+  "selection_rationale": "Tóm tắt 3 luận điểm cốt lõi lựa chọn mô hình chiến thắng",
+  "rejection_rationales": {
+    "Mo_hinh_doi_chung_1": "Lý do loại bỏ dựa trên số liệu thực chứng",
+    "Mo_hinh_doi_chung_2": "Lý do loại bỏ dựa trên số liệu thực chứng"
+  },
+  "frozen_artifacts_manifest": {
+    "comparison_table": "M2/artifacts/m2-evaluation/methodology_comparison.csv",
+    "selected_model_directory": "M2/models/final_selected_model/"
+  },
+  "status": "FROZEN_FOR_HOLDOUT"
+}
+```
 
-## Kết quả cần đạt của Nhiệm vụ 10
+## Phần 10.7 — Khung biện luận 3 luận điểm bắt buộc trong Báo cáo Quyết định
 
-- Bảng so sánh đa chiều thống nhất giữa K-Means, Ward, PCA + K-Means;
-- Quyết định lựa chọn duy nhất 1 mô hình phân cụm tốt nhất (Final Method);
-- Decision Artifact ghi nhận căn cứ lựa chọn;
-- Khóa cấu hình mô hình được chọn để chuyển tiếp sang Nhiệm vụ 11 (Final Holdout).
+Báo cáo `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md` bắt buộc phải có đủ 3 luận điểm phản biện chính:
+- **Luận điểm 1 — Vì sao mô hình chiến thắng được lựa chọn?** Nêu rõ các bằng chứng thực nghiệm về sự cân bằng tối ưu giữa chất lượng phân tách hình học, độ bền vững chuỗi thời gian, hồ sơ cụm dễ diễn giải và tính khả thi khi vận hành danh mục ở Milestone M3.
+- **Luận điểm 2 — Vì sao hai mô hình đối chứng bị loại bỏ? (Rejection Analysis):** Phân tích rõ các nhược điểm cố hữu của hai phương án đối chứng dựa trên số liệu thực tế (ví dụ: tính phân cực cực đoan, thiếu cơ chế gán nhãn cho quan sát mới, hoặc việc giảm chiều làm phức tạp hóa pipeline mà không mang lại sự vượt trội về Silhouette).
+- **Luận điểm 3 — Cam kết đóng băng phương pháp luận (Methodology Freeze Commitment):** Tuyên bố chính thức đóng băng phương pháp luận, khẳng định việc lựa chọn hoàn tất 100% trước khi mở tập dữ liệu ngoài mẫu, cam kết tuân thủ nguyên tắc kiểm định một chiều ở Nhiệm vụ 11.
 
-## Vị trí trong repo & Đường dẫn output
+## Kết quả cần đạt & Đường dẫn bàn giao của Nhiệm vụ 10
 
-- **Code tổng hợp / So sánh**: `M2/notebooks/10_model_comparison.ipynb` (hoặc `10_model_comparison.py`, lưu trong `M2/notebooks/`)
-- **Mô hình được chọn**: `M2/models/final_selected_model/` (lưu trữ model và scaler parameters của phương án chiến thắng)
-- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-evaluation/methodology_comparison.csv`, `M2/artifacts/m2-evaluation/final_method_decision.json` (lưu trong M2 để push lên GitHub)
+1. **Notebook thực thi hoàn chỉnh:**
+   - `M2/notebooks/10_model_comparison.ipynb`
+2. **Thư mục lưu trữ mô hình chiến thắng:**
+   - `M2/models/final_selected_model/`
+3. **Artifacts thực nghiệm chuẩn hóa:**
+   - `M2/artifacts/m2-evaluation/methodology_comparison.csv`
+   - `M2/artifacts/m2-evaluation/final_method_decision.json`
+   - `M2/artifacts/m2-evaluation/model_comparison_radar_or_bar.png`
+4. **Báo cáo chuyên đề Markdown:**
+   - `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md`
 
-# NHIỆM VỤ 11 — MỞ VÀ CHẠY FINAL HOLDOUT
+---
+
+# NHIỆM VỤ 11 — MỞ VÀ CHẠY FINAL HOLDOUT (OUT-OF-SAMPLE VALIDATION)
 
 ## Mục đích của Nhiệm vụ 11
 
-Kiểm tra xem **duy nhất 1 mô hình phân cụm tốt nhất** đã được chọn và khóa ở Nhiệm vụ 10 có tiếp tục hoạt động ổn định và hợp lý trên giai đoạn dữ liệu mới (holdout) hay không. Final holdout chỉ dùng để kiểm định độc lập, tuyệt đối không dùng để tìm mô hình tốt hơn hoặc thay đổi lại mô hình đã chọn.
+Kiểm định độc lập năng lực tổng quát hóa ngoài mẫu (out-of-sample generalization) của **DUY NHẤT 1 MÔ HÌNH PHÂN CỤM TỐT NHẤT** đã được lựa chọn và đóng băng tại Nhiệm vụ 10 trên giai đoạn dữ liệu tương lai năm 2026.
 
-Development  
-→ xây, so sánh và chọn ra 1 mô hình tốt nhất  
+Final Holdout là bài kiểm tra một chiều nghiêm ngặt nhằm xác nhận xem cấu trúc phân cụm có bền vững trước sự dịch chuyển của thời gian hay không. **Tuyệt đối không dùng Final Holdout để tìm mô hình tốt hơn, không so sánh lại các mô hình đã bị loại, và không dùng để điều chỉnh lại bất kỳ siêu tham số nào**.
+
+Development (15 snapshots: 2023-11-30 đến 2025-01-24)  
+→ Xây dựng, so sánh đối đầu và CHỌN XONG DUY NHẤT 1 MÔ HÌNH  
   
-Final Holdout  
-→ kiểm định duy nhất mô hình đã khóa
+Final Holdout (7 snapshots: 2026-02-27 đến 2026-08-28)  
+→ KIỂM ĐỊNH MỘT CHIỀU DUY NHẤT MÔ HÌNH ĐÃ ĐÓNG BĂNG
 
-Trước khi mở holdout phải khóa 8 feature, universe rule, minimum eligible threshold, missing policy, outlier policy, scaling, Global K, PCA rule (nếu chọn PCA), và thuật toán đã chọn. Không thử lại K=2..8 và không chạy lại các phương án đã bị loại trên holdout.
+## Rào chắn học thuật bất biến cho Final Holdout (Strict Holdout Invariants)
 
-## Đầu vào của Nhiệm vụ 11
-
-### Final holdout
-
-27/02/2026 → 28/08/2026  
-7 snapshot liên tục
-
-### Methodology đã freeze
-
-Feature: 8 market features  
-Scaling: Robust Scaling theo snapshot  
-Global K: giá trị đã khóa  
-Algorithm: Duy nhất 1 mô hình phân cụm tốt nhất được chọn từ Nhiệm vụ 10 (Final Method)
-
-## Phần 11.1 — Chỉ mở holdout sau khi development freeze và khóa Final Method
-
-### Mục đích
-
-Ngăn holdout ảnh hưởng đến quá trình lựa chọn methodology.
-
-Development hoàn tất → Global K khóa → So sánh 3 phương án xong → Chọn & Khóa 1 Final Method → Decision artifact freeze → mới mở holdout.
-
-## Phần 11.2 — Lấy snapshot holdout đầu tiên
-
-### Mục đích
-
-Tạo dữ liệu đầu vào holdout theo đúng rule development.
-
-Ví dụ 27/02/2026 → lọc universe tại đúng ngày này → lấy 8 feature → kiểm tra hợp lệ → kiểm tra số mã \>=120. Không dùng 905 mã của 08/2026 áp cho tháng 02/2026.
-
-## Phần 11.3 — Chuẩn hóa snapshot holdout
-
-### Mục đích
-
-Giữ nguyên preprocessing đã freeze.
-
-Với mỗi snapshot, tính Median và IQR của chính snapshot đó rồi Robust Scaling. Development và holdout đều dùng snapshot-fit. Không dùng một scaler chung của toàn development và không đổi sang Z-score.
-
-## Phần 11.4 — Chạy K-Means trên holdout
-
-### Mục đích
-
-Kiểm tra baseline K-Means trên dữ liệu mới.
-
-snapshot → lọc universe → 8 feature → Robust Scaling → K-Means Global K → assignment → centroid → profile → quality metrics. Không thử K khác.
-
-## Phần 11.5 — Chạy Ward trên holdout
-
-### Mục đích
-
-Kiểm tra Ward trên cùng điều kiện.
-
-snapshot → same universe → same 8 feature → same scaling rule → Ward → Global K → assignment → metrics.
-
-## Phần 11.6 — Chạy PCA + K-Means trên holdout
-
-### Mục đích
-
-Kiểm tra nhánh giảm chiều đã freeze.
-
-snapshot → 8 feature → Robust Scaling → PCA theo rule đã khóa → K-Means Global K. Không dùng holdout để chọn lại số PCA components.
-
-## Phần 11.7 — Lặp lại cho toàn bộ 7 snapshot
-
-### Mục đích
-
-Đánh giá methodology trên toàn holdout.
-
-Mỗi snapshot: lọc universe → lấy 8 feature → fit RobustScaler riêng → chạy 3 phương án → lưu output.
-
-## Phần 11.8 — Đánh giá quality từng snapshot holdout
-
-### Mục đích
-
-Kiểm tra chất lượng phân cụm trên dữ liệu mới.
-
-Tính Silhouette, DB, CH, balance và inertia khi phù hợp cho từng snapshot × phương án.
-
-## Phần 11.9 — Phân tích cluster profile holdout
-
-### Mục đích
-
-Kiểm tra các cụm trên dữ liệu mới còn có ý nghĩa và dễ diễn giải không.
-
-Nếu profile thay đổi mạnh thì ghi nhận, phân tích và đưa vào limitations; không retune.
-
-## Phần 11.10 — Temporal stability trong holdout
-
-### Mục đích
-
-Kiểm tra sự ổn định giữa các tháng holdout.
-
-Tính ARI, NMI, persistence, migration, transition matrix, centroid drift và entry/exit cho các cặp tháng liên tiếp trong holdout.
-
-## Phần 11.11 — Không nối development sang holdout qua gap
-
-### Mục đích
-
-Không tạo sự liên tục giả.
-
-Development kết thúc khoảng 01/2025, holdout bắt đầu 02/2026; không tính 01/2025 → 02/2026 như hai tháng liên tiếp. Phải reset temporal chain.
-
-## Phần 11.12 — So sánh development và holdout
-
-### Mục đích
-
-Đánh giá độ bền của methodology.
-
-So sánh median Silhouette, median DB, balance, ARI/NMI, migration và cluster profiles. Đây là đánh giá, không phải tuning.
-
-## Phần 11.13 — Nếu holdout cho kết quả xấu
-
-### Mục đích
-
-Đảm bảo holdout không bị biến thành development thứ hai.
-
-Nếu Silhouette giảm, DB tăng, ARI thấp hoặc migration cao thì giữ nguyên kết quả, phân tích nguyên nhân và báo cáo limitation. Không đổi K, scaler hay PCA rồi chạy lại. Nếu thay methodology thì tạo Protocol v2.
-
-## Phần 11.14 — Ví dụ toàn bộ một snapshot holdout
-
-### Mục đích
-
-Giúp thành viên hình dung một vòng chạy hoàn chỉnh.
-
-Ví dụ Global K=4, PCA=4 components: 27/02/2026 → universe hợp lệ → 8 feature → Robust Scaling riêng snapshot → K-Means K=4 / Ward K=4 / PCA 4 components → K-Means K=4 → lưu assignment, profile, metrics.
-
-## Phần 11.15 — Output từng snapshot holdout
-
-### Mục đích
-
-Đảm bảo output holdout tương thích với development.
-
-Lưu snapshot date, số mã đủ điều kiện, danh sách mã, Median, IQR, scaler parameters, PCA parameters, explained variance nếu có, assignments, cluster sizes, centroid/profile và quality metrics.
-
-## Phần 11.16 — Output toàn holdout
-
-### Mục đích
-
-Tạo evidence hoàn chỉnh cho M2-VERIFY.
-
-Cần có assignments của 7 snapshot, cluster profiles, quality metrics, aggregate metrics, ARI, NMI, persistence, migration, transition matrices, centroid drift, entry/exit, PCA information, skipped snapshot reasons nếu có, manifest và hashes.
-
-| **Snapshot** | **Phương án** | **Silhouette** | **DB** | **CH** | **Balance** |
-|--------------|---------------|----------------|--------|--------|-------------|
-| 02/2026      | K-Means       | ...            | ...    | ...    | ...         |
-| 02/2026      | Ward          | ...            | ...    | ...    | ...         |
-| 02/2026      | PCA + K-Means | ...            | ...    | ...    | ...         |
-
-## File code sử dụng trong nhiệm vụ và cách dùng
-
-Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
-
-**\`src/delta_t1/experiments/protocol.py\`** — file đã có; kiểm tra protocol đã freeze.
-
-> Mục đích: Ngăn holdout chạy với config khác rule development.
->
-> Cách dùng trong nhiệm vụ này: Validate config trước khi mở/chạy holdout.
-
-**\`src/delta_t1/experiments/runner.py\`** — file đã có; điều phối 7 snapshot holdout.
-
-> Mục đích: Tái sử dụng pipeline đã kiểm thử ở development.
->
-> Cách dùng trong nhiệm vụ này: Đọc holdout window từ config, lọc snapshot, gọi final method và lưu artifact.
-
-**\`src/delta_t1/clustering/base.py\`** — file đã có; xử lý từng holdout snapshot.
-
-> Mục đích: Giữ cùng eligibility/preprocessing/output contract.
->
-> Cách dùng trong nhiệm vụ này: Mỗi snapshot được lọc, scale và fit độc lập đúng rule.
-
-**\`src/delta_t1/features/preprocessing.py\`** — file đã có; preprocessing đã freeze.
-
-> Mục đích: Áp dụng Robust Scaling và PCA nếu final method cần.
->
-> Cách dùng trong nhiệm vụ này: Không đổi scaler và không chọn lại PCA component trên holdout.
-
-**\`src/delta_t1/clustering/kmeans.py\` / \`src/delta_t1/clustering/hierarchical.py\`** — file đã có; chỉ dùng file phù hợp final method.
-
-> Mục đích: Thực hiện thuật toán đã được khóa sau development.
->
-> Cách dùng trong nhiệm vụ này: Nếu final method là K-Means thì gọi kmeans.py; nếu Ward thì gọi hierarchical.py; nếu PCA+KMeans thì preprocessing.py PCA rồi kmeans.py.
-
-**\`src/delta_t1/evaluation/cluster_metrics.py\` và \`src/delta_t1/evaluation/temporal_metrics.py\`** — file đã có; chỉ dùng để đánh giá.
-
-> Mục đích: Đo quality và temporal stability trên dữ liệu mới.
->
-> Cách dùng trong nhiệm vụ này: Không dùng kết quả holdout để retune K, scaler, PCA hay thuật toán.
-
-### Cách các file phối hợp
-
-> frozen config → protocol.py → runner.py → base.py → preprocessing.py → final algorithm → cluster_metrics + temporal_metrics → holdout artifact; không retune.
-
-## Kết quả cần đạt của Nhiệm vụ 11
-
-- Kết quả kiểm định độc lập của **duy nhất 1 mô hình tốt nhất đã chọn** trên 7 snapshots holdout;
-- Không dùng kết quả holdout để thay đổi lại mô hình đã chọn hoặc retune siêu tham số;
-- Đánh giá chất lượng cụm và độ ổn định thời gian trên holdout so với development;
-- Ghi nhận đầy đủ giới hạn thực nghiệm.
-
-## Vị trí trong repo & Đường dẫn output
-
-- **Vị trí tài liệu tham chiếu**: `docs/DELTA_UNIFIED_PROJECT_PLAN.md` §6.2, §6.6, §6.7, §6.8, §9, `docs/EXPERIMENT_PROTOCOL.md`, `docs/METHODOLOGY.md`
-- **Code model / Thực thi holdout**: `M2/notebooks/11_final_holdout_execution.py` (script batch chạy một mạch; hoặc `11_final_holdout_execution.ipynb` ngắn; chạy đóng băng trên 1 mô hình đã chọn)
-- **Mô hình / Trọng số (Models & Holdout Objects)**: `M2/models/holdout/` (lưu trữ fitted objects cho holdout snapshots)
-- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.docx` (hoặc `.md`)
-- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-final-holdout-v1/` (lưu trong M2 để push lên GitHub)
-
-# NHIỆM VỤ 12 — M2 VERIFY
+- **Cổng kiểm soát đóng băng (Freeze Gate Rule):** Final Holdout chỉ được phép kích hoạt sau khi file `M2/artifacts/m2-evaluation/final_method_decision.json` đã tồn tại với trạng thái `status: "FROZEN_FOR_HOLDOUT"`.
+- **Chỉ chạy duy nhất 1 mô hình (Single Model Execution):** Tuyệt đối không chạy lại 3 phương án trên Holdout. Hai phương án đã bị loại ở Nhiệm vụ 10 giữ nguyên vai trò đối chứng ở Development và không tham gia vào Holdout.
+- **Không thử lại K:** Giữ nguyên Global K = 2 đã đóng băng. Tuyệt đối không quét lại K = 2..8 trên dữ liệu Holdout.
+- **Giữ nguyên Preprocessing:** Áp dụng đúng công thức Robust Scaling per-snapshot: `x_scaled = (x - Median) / IQR`. Không dùng scaler của Development áp cho Holdout, không đổi sang Z-score.
+- **Kiểm định một chiều (Strict One-Way Validation):** Dù kết quả Holdout cao hay thấp, giữ nguyên trung thực 100% số liệu. Không quay lại thay đổi feature set, không thay đổi K, không đổi thuật toán. Mọi suy giảm chất lượng đều được ghi nhận vào phần Giới hạn học thuật (Limitations).
+
+## Phần 11.1 — Khung thời gian Holdout và 7 Snapshots thực tế
+
+Giai đoạn Final Holdout gồm đúng 7 snapshots hàng tháng trong năm 2026 đã được quy định tại docs/DELTA_UNIFIED_PROJECT_PLAN.md mục 6.2:
+
+1. Snapshot 1: `2026-02-27`
+2. Snapshot 2: `2026-03-31`
+3. Snapshot 3: `2026-04-29`
+4. Snapshot 4: `2026-05-29`
+5. Snapshot 5: `2026-06-30`
+6. Snapshot 6: `2026-07-31`
+7. Snapshot 7: `2026-08-28`
+
+## Phần 11.2 — Lọc Universe và Điều kiện đủ của từng Snapshot Holdout
+
+Tại mỗi snapshot `t` trong 7 tháng Holdout:
+- Áp dụng nguyên tắc Universe theo từng thời điểm: `market_experiment_eligible(t) = market_feature_ready_v2(t)`.
+- Tuyệt đối không lấy danh sách mã của snapshot cuối cùng (08/2026) áp đặt ngược lại cho các tháng trước đó.
+- **Ngưỡng kiểm định số lượng mã (Sanity Threshold):** Yêu cầu số mã đủ điều kiện `n_eligible >= 120`. Nếu một snapshot có số mã nhỏ hơn 120, snapshot đó phải bị bỏ qua (skip) kèm theo lý do ghi nhận rõ ràng trong manifest, không được gộp ngày hoặc nội suy dữ liệu giả.
+
+## Phần 11.3 — Chuẩn hóa Robust Scaling độc lập theo từng Snapshot Holdout
+
+Mỗi snapshot Holdout được xem là một phiên giao dịch thực tế độc lập:
+- Tính toán giá trị Median và IQR của 8 đặc trưng thị trường trên chính tập cổ phiếu đủ điều kiện của snapshot đó.
+- Áp dụng công thức: `x_scaled = (x - Median) / IQR`.
+- Lưu trữ các thông số chuẩn hóa (Median, IQR) của từng snapshot vào artifact để phục vụ việc kiểm toán tính tái lập tại Nhiệm vụ 12.
+
+## Phần 11.4 — Thực thi duy nhất mô hình chiến thắng trên 7 Snapshots Holdout
+
+- Nạp cấu hình và thuật toán đã được đóng băng từ `M2/artifacts/m2-evaluation/final_method_decision.json`.
+- Thực hiện phân cụm trên không gian đặc trưng đã chuẩn hóa với đúng Global K = 2.
+- Gán nhãn cụm cho từng mã cổ phiếu đủ điều kiện tại mỗi snapshot.
+- Tính toán tọa độ tâm cụm thực tế và biến đổi ngược về thang đo 8 đặc trưng gốc để phục vụ phân tích hồ sơ cụm.
+
+## Phần 11.5 — Đánh giá chất lượng phân cụm trên Holdout (Holdout Cluster Quality)
+
+Tính toán các chỉ số chất lượng phân cụm hình học trên từng snapshot trong số 7 snapshots Holdout:
+- Silhouette Score
+- Davies-Bouldin Index
+- Calinski-Harabasz Index
+- Cluster Balance (min_size / max_size) và quy mô từng cụm
+
+Tổng hợp thành bảng thống kê chất lượng Holdout `M2/artifacts/m2-final-holdout-v1/diagnostics.jsonl`.
+
+## Phần 11.6 — Đánh giá độ ổn định thời gian và Quy tắc ngắt chuỗi tại Gap (Temporal Stability & Gap Reset)
+
+Đo lường độ ổn định thời gian giữa 6 cặp snapshot liên tiếp trong giai đoạn Holdout:
+1. Cặp 1: `2026-02-27 -> 2026-03-31`
+2. Cặp 2: `2026-03-31 -> 2026-04-29`
+3. Cặp 3: `2026-04-29 -> 2026-05-29`
+4. Cặp 4: `2026-05-29 -> 2026-06-30`
+5. Cặp 5: `2026-06-30 -> 2026-07-31`
+6. Cặp 6: `2026-07-31 -> 2026-08-28`
+
+Với mỗi cặp tháng liên tiếp, tính toán:
+- Số lượng mã chung (n_common), số mã mới vào (Entry), số mã rớt ra (Exit).
+- Adjusted Rand Index (ARI) và Normalized Mutual Information (NMI).
+- Xác suất giữ cụm (Persistence) và Tỷ lệ luân chuyển cụm (Migration Rate).
+- Ma trận chuyển đổi cụm (Transition Matrix).
+
+> **QUY TẮC BẤT BIẾN VỀ NGẮT CHUỖI TẠI KHOẢNG ĐỨT GÃY (GAP RESET RULE):**  
+> Tuyệt đối không tính toán chỉ số ổn định thời gian nối giữa snapshot cuối của Development (2025-01-24) và snapshot đầu của Holdout (2026-02-27). Khoảng đứt gãy hệ thống kéo dài từ 02/2025 đến 01/2026 là gián đoạn cấu trúc dữ liệu thực tế; việc cố tình nối chuỗi qua khoảng cách này sẽ tạo ra các chỉ số giả mạo. Chuỗi ổn định thời gian bắt buộc phải được reset hoàn toàn khi bắt đầu Holdout.
+
+## Phần 11.7 — Bộ quy tắc đo lường Khoảng cách suy thoái ngoài mẫu (Generalization Gap Rubrics)
+
+> **RÀO CHẮN HỌC THUẬT BẮT BUỘC VỀ KỊCH BẢN GIẢ ĐỊNH & RÀNG BUỘC THỰC CHỨNG (EVIDENCE-FIRST RULE):**
+> 1. **Các kịch bản chỉ mang tính chất GIẢ ĐỊNH HƯỚNG DẪN (Hypothetical-Only Scenarios):** Các mức ngưỡng chênh lệch suy thoái (Delta_Silhouette >= -0.05, suy giảm > -0.20...) dưới đây thuần túy là bộ khung quy tắc chẩn đoán (Diagnostic Rubrics) để định hướng tư duy đánh giá. AI / người thực hiện **TUYỆT ĐỐI KHÔNG ĐƯỢC sao chép các kịch bản này làm kết luận định kiến**, không tự đoán trước kết quả Holdout nếu chưa thực thi đầy đủ trên 7 snapshot năm 2026.
+> 2. **Ràng buộc số liệu thực tế (Ground-Truth Binding):** Mọi nhận định về năng lực tổng quát hóa bắt buộc phải căn cứ 100% vào khoảng cách suy thoái thực tế giữa tập Development (15 tháng) và tập Holdout (7 tháng) thu được từ artifacts xuất xưởng.
+> 3. **Kỷ luật nghiên cứu một chiều tuyệt đối (Strict One-Way Validation Invariant):** Holdout là bài kiểm tra một chiều duy nhất. Tuyệt đối không được nhìn kết quả Holdout rồi quay lại thay đổi mô hình hay can thiệp vào các tham số đã đóng băng.
+
+So sánh trực diện chất lượng phân cụm giữa hai tập dữ liệu theo công thức:  
+`Delta_Silhouette = Median_Silhouette_Holdout - Median_Silhouette_Development`
+
+- **Kịch bản A (Thích ứng xuất sắc — Nếu Delta_Silhouette >= -0.05):**  
+  -> Kết luận: Mô hình có năng lực tổng quát hóa ngoài mẫu xuất sắc. Cấu trúc cụm không bị hiện tượng quá khớp (overfitting) trên tập phát triển; ranh giới phân tách toán học được bảo toàn ổn định trong tương lai.
+- **Kịch bản B (Suy giảm tự nhiên chấp nhận được — Nếu Delta_Silhouette suy giảm từ -0.05 đến -0.15):**  
+  -> Kết luận: Mô hình có độ suy giảm trong giới hạn chấp nhận được của thị trường tài chính, phản ánh sự biến động tự nhiên của môi trường vĩ mô năm 2026; cụm vẫn giữ được cấu trúc phân tách cơ bản.
+- **Kịch bản C (Dịch chuyển chế độ thị trường mạnh — Nếu Delta_Silhouette suy giảm > -0.20 hoặc Silhouette < 0.50):**  
+  -> Kết luận: Phải ghi nhận trung thực hiện tượng dịch chuyển chế độ thị trường (Macro Regime Shift). Không gian đặc trưng động lượng năm 2026 đã biến đổi mạnh so với giai đoạn 2023-2024; đây là bằng chứng thực nghiệm quan trọng làm ranh giới rủi ro cần bàn giao cho Milestone M3.
+
+## Phần 11.8 — Kiểm tra tính bền vững của Hồ sơ cụm (Profile Consistency Test)
+
+So sánh hồ sơ 8 đặc trưng gốc của các cụm giữa Development và Holdout:
+- Kiểm tra xem Cụm dẫn dắt (Leader Cluster) trên dữ liệu mới năm 2026 có còn duy trì bản chất "Động lượng vượt trội, Thanh khoản lớn" hay không.
+- Kiểm tra xem Cụm bám sau (Laggard Cluster) có duy trì đặc tính "Động lượng yếu, Biến động cao hoặc Thanh khoản thấp" hay không.
+- Nếu xuất hiện sự đảo chiều hồ sơ cụm, tiến hành đối chiếu với bối cảnh xu hướng chung của chỉ số VN-Index trong năm 2026 để giải thích nguyên nhân kinh tế và ghi nhận vào báo cáo.
+
+## Phần 11.9 — Quy trình thực thi 7 bước trong Notebook 11
+
+Quy trình thực thi trong notebook `M2/notebooks/11_final_holdout_execution.ipynb` gồm đúng 7 bước:
+
+- **Bước 1: Kiểm định Cổng đóng băng (Holdout Gate Verification)**  
+  Nạp file `M2/artifacts/m2-evaluation/final_method_decision.json`, kiểm tra điều kiện tiên quyết `status == "FROZEN_FOR_HOLDOUT"`. Nếu file không tồn tại hoặc trạng thái chưa đóng băng, lập tức dừng chương trình (fail-closed). Trích xuất tên mô hình chiến thắng và Global K = 2.
+- **Bước 2: Nạp dữ liệu 7 Snapshots Holdout từ Feature Store**  
+  Nạp 8 đặc trưng thị trường của 7 snapshots năm 2026 từ kho dữ liệu chuẩn hóa `data/canonical/market/` (phiên bản Feature Store `1.6.0`).
+- **Bước 3: Lọc Universe và Kiểm định Ngưỡng mã tối thiểu**  
+  Lọc universe theo snapshot (`market_experiment_eligible`), kiểm tra điều kiện `n_eligible >= 120` cho từng tháng trong 7 tháng.
+- **Bước 4: Chuẩn hóa Robust Scaling độc lập từng Snapshot**  
+  Tính Median và IQR riêng biệt cho từng snapshot và thực hiện chuẩn hóa: `(x - Median) / IQR`.
+- **Bước 5: Thực thi phân cụm mô hình chiến thắng trên Holdout**  
+  Thực hiện fit/predict mô hình chiến thắng đã chọn từ Nhiệm vụ 10 với Global K = 2. Xuất nhãn cụm ra `assignments.jsonl` và tâm cụm gốc ra `profiles.jsonl`.
+- **Bước 6: Đo lường Chất lượng, Độ ổn định và Khoảng cách suy thoái**  
+  - Tính Silhouette, Davies-Bouldin, Calinski-Harabasz, Balance cho 7 snapshots, lưu vào `diagnostics.jsonl`.
+  - Tính ARI, NMI, Persistence, Migration Rate cho 6 cặp tháng liên tiếp (áp dụng nghiêm ngặt Gap Reset Rule), lưu vào `temporal_stability.csv`.
+  - Tính toán `Delta_Silhouette` và lập bảng khoảng cách suy thoái `holdout_generalization_gap.csv`.
+- **Bước 7: Trực quan hóa, Tạo Manifest kiểm toán và Soạn thảo Báo cáo**  
+  - Vẽ biểu đồ quỹ đạo chất lượng `M2/artifacts/m2-final-holdout-v1/holdout_vs_dev_trajectory.png`.
+  - Tạo file kiểm toán `M2/artifacts/m2-final-holdout-v1/manifest.json` ghi nhận mã băm sha256 của tất cả các artifacts.
+  - Soạn thảo báo cáo chuyên đề `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`.
+
+## Phần 11.10 — Trực quan hóa chuẩn hóa: Biểu đồ Quỹ đạo Development vs Holdout
+
+Notebook 11 bắt buộc phải xuất biểu đồ `M2/artifacts/m2-final-holdout-v1/holdout_vs_dev_trajectory.png`:
+- Kích thước đồ thị: `figsize=(14, 6)`.
+- Trục tung: Điểm số Silhouette (từ 0.0 đến 1.0).
+- Trục hoành: Toàn bộ 22 mốc thời gian (15 mốc Development từ 2023-11-30 đến 2025-01-24, và 7 mốc Holdout từ 2026-02-27 đến 2026-08-28).
+- **Đường phân cách khoảng đứt gãy (Systemic Gap Boundary):** Bắt buộc phải có một đường thẳng đứng nét đứt màu đỏ (`linestyle='--'`, `color='red'`) phân tách rõ rệt giữa Development (tháng 01/2025) và Holdout (tháng 02/2026), có chú thích rõ vùng "Systemic Data Gap (2025-02 to 2026-01) — Temporal Chain Reset".
+- Thể hiện hai đường trung vị nằm ngang riêng biệt cho tập Development và tập Holdout để làm nổi bật khoảng cách suy thoái trực quan.
+
+## Kết quả cần đạt & Đường dẫn bàn giao của Nhiệm vụ 11
+
+1. **Notebook thực thi hoàn chỉnh:**
+   - `M2/notebooks/11_final_holdout_execution.ipynb`
+2. **Thư mục lưu trữ mô hình và đối tượng Holdout:**
+   - `M2/models/holdout/`
+3. **Artifacts thực nghiệm chuẩn hóa (Thư mục `M2/artifacts/m2-final-holdout-v1/`):**
+   - `M2/artifacts/m2-final-holdout-v1/assignments.jsonl` (gán nhãn cụm cho từng mã qua 7 snapshots holdout)
+   - `M2/artifacts/m2-final-holdout-v1/profiles.jsonl` (hồ sơ tâm cụm trên 8 đặc trưng gốc)
+   - `M2/artifacts/m2-final-holdout-v1/diagnostics.jsonl` (chỉ số chất lượng Silhouette, DB, CH, Balance theo từng snapshot)
+   - `M2/artifacts/m2-final-holdout-v1/temporal_stability.csv` (chỉ số ARI, NMI, Persistence, Migration giữa 6 cặp tháng holdout)
+   - `M2/artifacts/m2-final-holdout-v1/holdout_generalization_gap.csv` (bảng đối chiếu suy thoái chất lượng giữa Dev và Holdout)
+   - `M2/artifacts/m2-final-holdout-v1/holdout_vs_dev_trajectory.png` (biểu đồ quỹ đạo phân cụm xuyên suốt 22 snapshots)
+   - `M2/artifacts/m2-final-holdout-v1/manifest.json` (bằng chứng kiểm toán và mã băm sha256)
+4. **Báo cáo chuyên đề Markdown:**
+   - `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`
+
+# NHIỆM VỤ 12 — M2 VERIFY: KIỂM TOÁN TÍNH TOÀN VẸN VÀ RÀO CHẮN HỌC THUẬT
 
 ## Mục đích của Nhiệm vụ 12
 
-Kiểm tra toàn bộ M2 đã thực hiện đúng methodology, không leakage và có thể tái lập.
+Thực hiện kiểm toán toàn diện và độc lập toàn bộ quy trình thực nghiệm Milestone M2 trước khi chính thức bàn giao kết quả cho Milestone M3.
 
-## Phần 12.1 — Kiểm tra config và input
+Nhiệm vụ 12 đảm bảo rằng mọi kết quả nghiên cứu đều tuân thủ 100% các nguyên tắc bất biến quy định tại docs/DELTA_UNIFIED_PROJECT_PLAN.md Mục 4 và Mục 9, bao gồm: tính đóng băng của cấu hình, không rò rỉ dữ liệu tương lai hay holdout, ngắt chuỗi an toàn tại khoảng đứt gãy hệ thống, tính bất biến của artifacts, và khả năng tái lập xác định (deterministic reproducibility).
 
-### Mục đích
+## Bộ 8 Tiêu chí Kiểm toán Bắt buộc (8-point Audit Checklist)
 
-Đảm bảo đúng version dữ liệu và đúng config.
+Quá trình kiểm toán trong Nhiệm vụ 12 phải tự động kiểm tra và xuất phán quyết (PASS/FAIL) trên đúng 8 tiêu chí cốt lõi:
 
-Kiểm tra input hash, config hash và output hash.
+| Tiêu chí | Nội dung kiểm toán | Yêu cầu đối chiếu & Rào chắn học thuật | Phán quyết |
+| :---: | :--- | :--- | :---: |
+| **Audit 1** | **Config & Input Lineage** | Đối chiếu mã băm SHA-256 của tập dữ liệu đặc trưng Feature Store phiên bản 1.6.0. Đảm bảo dữ liệu đầu vào C8 là bất biến (immutable), không bị chỉnh sửa tại chỗ (no in-place mutation). | **PASS / FAIL** |
+| **Audit 2** | **Global K Selection Integrity** | Xác thực Global K = 2 được lựa chọn hoàn toàn từ 15 snapshot Development thông qua tiêu chí Median Silhouette cao nhất và Median DB tie-breaker. Xác nhận không nhìn trước Holdout và không dùng Sharpe/lợi nhuận để chọn K. | **PASS / FAIL** |
+| **Audit 3** | **Zero Future / Holdout Leakage** | Kiểm tra ranh giới thời gian nghiêm ngặt giữa Development (2023-11-30 đến 2025-01-24) và Holdout (2026-02-27 đến 2026-08-28). Đảm bảo không có bất kỳ quan sát hay scaler nào của Holdout bị rò rỉ ngược về Development. | **PASS / FAIL** |
+| **Audit 4** | **Systemic Gap Reset Verification** | Xác thực chuỗi ổn định thời gian đã bị ngắt tuyệt đối tại khoảng đứt gãy hệ thống (tháng 02/2025 đến tháng 01/2026). Xác nhận phiên 2025-02-03 có 0 mã equity và tuyệt đối không tồn tại cặp nối thời gian giữa 2025-01-24 và 2026-02-27. | **PASS / FAIL** |
+| **Audit 5** | **Per-Snapshot Universe Integrity** | Kiểm tra tính đủ điều kiện theo từng thời điểm: market_experiment_eligible(t) = market_feature_ready_v2(t) và n_eligible >= 120 cho toàn bộ 22 snapshots. Đảm bảo không lấy 905 mã terminal áp ngược lịch sử (no survivorship hindsight). | **PASS / FAIL** |
+| **Audit 6** | **Strict Single Winning Model Holdout** | Xác nhận trên Holdout chỉ chạy duy nhất 1 mô hình đã được đóng băng trong final_method_decision.json. Hai phương án đối chứng còn lại tuyệt đối không được thực thi trên Holdout. | **PASS / FAIL** |
+| **Audit 7** | **No Portfolio Metrics in Selection** | Quét toàn bộ mã nguồn và artifacts của M2, xác nhận không có bất kỳ lệnh tính toán Sharpe, CAGR, ROI, Calmar, Alpha nào tham gia vào việc chọn K hay chọn mô hình phân cụm. | **PASS / FAIL** |
+| **Audit 8** | **Deterministic Reproducibility** | Chạy lại kiểm thử tự động trên bộ dữ liệu kiểm định cố định (bounded fixtures trong tests/). Xác nhận nhãn phân cụm và các chỉ số hình học đạt độ trùng khớp 100% giữa các lần chạy. | **PASS / FAIL** |
 
-## Phần 12.2 — Kiểm tra Global K
+## Phần 12.1 — Kiểm tra tính toàn vẹn của cấu hình và nguồn dữ liệu (Config & Input Lineage)
+- Nạp file cấu hình chuẩn hóa `configs/experiments/m2_market_only_v1.json` và manifest của Feature Store `1.6.0`.
+- Tính toán mã băm SHA-256 của các tệp dữ liệu đặc trưng đầu vào trong `data/canonical/market/`.
+- Xác thực tính bất biến: Đảm bảo không có bất kỳ tập tin gốc nào từ Milestone M1 (C8) bị thay đổi nội dung hoặc thay đổi cấu trúc bảng.
 
-### Mục đích
+## Phần 12.2 — Kiểm toán quá trình lựa chọn Global K (Global K Audit)
+- Kiểm tra lại toàn bộ ma trận chẩn đoán `diagnostics.csv` (105 hàng tương ứng 15 snapshots x 7 giá trị K từ 2 đến 8).
+- Tái tính toán giá trị Median Silhouette và Median Davies-Bouldin cho từng K.
+- Đối chiếu với biên bản quyết định K tại Nhiệm vụ 3 để xác nhận Global K = 2 được chọn đúng theo thứ tự ưu tiên hình học, hoàn toàn không bị chi phối bởi bất kỳ yếu tố chủ quan nào.
 
-Đảm bảo Global K được chọn đúng rule và không thay đổi sau development.
+## Phần 12.3 — Kiểm toán rò rỉ dữ liệu ngoài mẫu (Zero Leakage Audit)
+- Kiểm tra tính độc lập của việc chuẩn hóa: Từng snapshot trong số 15 tháng Development và 7 tháng Holdout phải được fit RobustScaler riêng biệt bằng chính Median và IQR của tháng đó.
+- Kiểm tra nhãn thời gian của tất cả các vector đặc trưng: Tuyệt đối không có dữ liệu sau ngày 24/01/2025 xuất hiện trong các artifacts của Nhiệm vụ 4, 5, 6, 7, 8, 9, 10.
+- Xác nhận file quyết định `final_method_decision.json` có dấu thời gian hoàn thành trước khi dữ liệu Holdout năm 2026 được nạp vào bộ nhớ.
 
-Đối chiếu decision artifact với các run chính thức.
+## Phần 12.4 — Kiểm toán việc ngắt chuỗi tại khoảng đứt gãy hệ thống (Systemic Gap Reset Audit)
+- Kiểm tra toàn bộ danh sách 14 cặp tháng trong Development và 6 cặp tháng trong Holdout:
+  - Chuỗi Development kết thúc tại cặp: `2024-12-31 -> 2025-01-24`.
+  - Chuỗi Holdout bắt đầu tại cặp: `2026-02-27 -> 2026-03-31`.
+- Quét các bảng `temporal_stability.csv`, `transition_matrices.csv`, `centroid_drift.csv` để khẳng định không tồn tại bất kỳ dòng dữ liệu nào ghi nhận cặp `2025-01-24 -> 2026-02-27`. Xác nhận cơ chế Gap Reset hoạt động chính xác 100%.
 
-## Phần 12.3 — Kiểm tra leakage
+## Phần 12.5 — Kiểm toán tính tái lập xác định (Deterministic Reproducibility Audit)
+- Tái thực thi thuật toán phân cụm trên tập fixture cố định với cùng tham số `random_state`.
+- So sánh nhãn cụm (cluster assignments) và tọa độ tâm cụm (centroids) giữa lần chạy kiểm toán và kết quả đã lưu trong artifact.
+- Yêu cầu sai số tuyệt đối bằng 0 (Zero Tolerance Difference) đối với các phép gán nhãn cụm.
 
-### Mục đích
+## Phần 12.6 — Quy trình thực thi 5 bước trong Notebook 12
 
-Đảm bảo không dùng future data, holdout hoặc portfolio performance để tuning M2.
+Quy trình thực thi trong notebook `M2/notebooks/12_m2_verification_audit.ipynb` gồm đúng 5 bước tuần tự:
 
-Audit development/holdout boundary và các trường dữ liệu.
+- **Bước 1: Nạp Manifest và Khởi tạo Môi trường Kiểm toán**  
+  Nạp toàn bộ manifests từ các thư mục artifacts của Nhiệm vụ 1 đến 11, khởi tạo danh mục kiểm toán 8 tiêu chí.
+- **Bước 2: Quét mã nguồn và Kiểm định Dữ liệu Tự động**  
+  Chạy các hàm kiểm tra tự động đối với 8 tiêu chí kiểm toán; ghi nhận chi tiết giá trị kỳ vọng (expected) và giá trị thực tế quan sát được (observed).
+- **Bước 3: Chạy Kiểm thử Hồi quy Tái lập (Regression & Reproducibility Test)**  
+  Gọi bộ test kiểm định `pytest tests/unit/clustering/` và `pytest tests/integration/` để xác nhận toàn bộ hệ thống vượt qua các ràng buộc kỹ thuật.
+- **Bước 4: Xuất Bảng Bằng chứng Kiểm toán (Audit Evidence Construction)**  
+  Tổng hợp kết quả kiểm tra từng snapshot và từng module vào bảng `M2/artifacts/m2-verify-v1/audit_evidence.csv`.
+- **Bước 5: Ban hành Biên bản Phán quyết Kiểm toán và Báo cáo**  
+  Xuất file phán quyết chính thức `M2/artifacts/m2-verify-v1/verification_summary.json` và lập báo cáo chi tiết `M2/reports/Bao_cao_M2_Nhiem_vu_12_Verify_Audit.md`.
 
-## Phần 12.4 — Kiểm tra temporal gaps
+## Phần 12.7 — Cấu trúc chuẩn hóa của file `verification_summary.json`
 
-### Mục đích
+File phán quyết kiểm toán bắt buộc phải tuân thủ đúng cấu trúc JSON sau:
 
-Đảm bảo temporal chain reset đúng.
+```json
+{
+  "audit_timestamp": "ISO-8601 Timestamp",
+  "pipeline_milestone": "M2_CLUSTERING_RESEARCH",
+  "overall_verdict": "VERIFIED_PASS",
+  "checkpoints": {
+    "audit_1_config_and_input_lineage": { "status": "PASS", "details": "Feature store 1.6.0 immutable checksum verified" },
+    "audit_2_global_k_selection": { "status": "PASS", "details": "Global K=2 strictly frozen via median silhouette on dev window" },
+    "audit_3_zero_leakage": { "status": "PASS", "details": "Strict separation between Dev (15 snapshots) and Holdout (7 snapshots)" },
+    "audit_4_gap_reset": { "status": "PASS", "details": "Temporal chain safely reset across systemic gap 2025-02..2026-01" },
+    "audit_5_universe_eligibility": { "status": "PASS", "details": "Per-snapshot eligibility enforced, all snapshots have n_eligible >= 120" },
+    "audit_6_single_model_holdout": { "status": "PASS", "details": "Only winning method evaluated on holdout" },
+    "audit_7_no_portfolio_metrics": { "status": "PASS", "details": "Zero portfolio return/Sharpe used in clustering decisions" },
+    "audit_8_reproducibility": { "status": "PASS", "details": "Deterministic rerun matches 100% with zero tolerance" }
+  },
+  "verified_artifacts_count": 22,
+  "auditor_signature": "M2_AUTOMATED_VERIFICATION_SUITE"
+}
+```
 
-Không nối qua các gap đã xác định.
+## Kết quả cần đạt & Đường dẫn bàn giao của Nhiệm vụ 12
 
-## Phần 12.5 — Kiểm tra reproducibility
+1. **Notebook thực thi hoàn chỉnh:**
+   - `M2/notebooks/12_m2_verification_audit.ipynb`
+2. **Artifacts thực nghiệm chuẩn hóa (Thư mục `M2/artifacts/m2-verify-v1/`):**
+   - `M2/artifacts/m2-verify-v1/verification_summary.json` (biên bản phán quyết kiểm toán hệ thống)
+   - `M2/artifacts/m2-verify-v1/audit_evidence.csv` (bảng chi tiết bằng chứng đối chiếu từng checkpoint)
+3. **Báo cáo chuyên đề Markdown:**
+   - `M2/reports/Bao_cao_M2_Nhiem_vu_12_Verify_Audit.md`
 
-### Mục đích
+---
 
-Đảm bảo chạy lại trên fixture giới hạn cho kết quả xác định.
-
-Rerun bounded fixture và đối chiếu output.
-
-## File code sử dụng trong nhiệm vụ và cách dùng
-
-Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
-
-**\`src/delta_t1/experiments/artifacts.py\`** — file đã có; quản lý artifact/manifest.
-
-> Mục đích: Runner dùng file này để mở, hoàn tất và xác thực data/experiment run.
->
-> Cách dùng trong nhiệm vụ này: Đối chiếu manifest, run lineage và input đã verified.
-
-**\`src/delta_t1/experiments/protocol.py\`** — file đã có; kiểm tra config.
-
-> Mục đích: Xác nhận run dùng đúng protocol đã freeze.
->
-> Cách dùng trong nhiệm vụ này: So sánh config thực tế với rule M2 v1 và decision artifacts.
-
-**\`src/delta_t1/experiments/runner.py\`** — file đã có; nguồn evidence của run.
-
-> Mục đích: Tạo events, manifest, số snapshot, assignments và trạng thái complete/failed.
->
-> Cách dùng trong nhiệm vụ này: Dùng các artifact runner sinh ra để audit leakage, gap và số liệu đầu ra.
-
-**Các test hiện có trong repo** — dùng để kiểm tra reproducibility và integration.
-
-> Mục đích: Chứng minh cùng input/config cho kết quả xác định và market-only rule hoạt động đúng.
->
-> Cách dùng trong nhiệm vụ này: Chạy unit/integration test cho eligibility, terminal-universe, temporal gap và deterministic rerun; nếu thiếu test thì bổ sung test tương ứng.
-
-### Cách các file phối hợp
-
-> config + decision artifacts + manifest + events + hashes + tests → artifacts.py/protocol.py/runner outputs → audit → verify status + evidence.
-
-## Kết quả cần đạt của Nhiệm vụ 12
-
-- verify status;
-
-- evidence đầy đủ;
-
-- không có methodology violation.
-
-## Vị trí trong repo & Đường dẫn output
-
-- **Code kiểm định / Verify script**: `M2/notebooks/12_m2_verification_audit.py` (script kiểm định tự động chạy một mạch; hoặc `12_m2_verification_audit.ipynb`)
-- **Mô hình**: Kiểm tra tính toàn vẹn của tất cả model objects trong `M2/models/`
-- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_12_Verify_Audit.docx` (hoặc `.md`)
-- **Artifacts kiểm định**: `M2/artifacts/m2-verify-v1/verification_summary.json`, `M2/artifacts/m2-verify-v1/audit_evidence.csv` (lưu trong M2 để push lên GitHub)
-
-# NHIỆM VỤ 13 — BÁO CÁO VÀ BÀN GIAO M3
+# NHIỆM VỤ 13 — BÁO CÁO TỔNG KẾT VÀ BÀN GIAO CHO MILESTONE M3 (FINAL REPORT & M3 HANDOFF)
 
 ## Mục đích của Nhiệm vụ 13
 
-Tổng hợp toàn bộ M2 thành tài liệu để mentor hoặc nhóm M3 có thể tiếp nhận trực tiếp.
+Tổng hợp toàn diện thành quả nghiên cứu phân cụm động lượng M2 thành tài liệu kỹ thuật hoàn chỉnh và đóng gói **Bộ bàn giao chuẩn hóa (Standardized M3 Handoff Package)** để đội ngũ Milestone M3 (Portfolio / Backtest) tiếp nhận trực tiếp mà không cần tính toán lại bất kỳ mô hình nào.
 
-## Phần 13.1 — Báo cáo protocol
+Nhiệm vụ 13 thiết lập ranh giới phương pháp luận bất biến giữa M2 và M3: M2 hoàn tất việc phát hiện cấu trúc phân cụm trên dữ liệu thị trường; M3 tiếp nhận nhãn cụm để xây dựng và đánh giá chiến lược đầu tư.
 
-### Mục đích
+## Rào chắn ranh giới bất biến giữa M2 và M3 (M2/M3 Boundary Invariants)
 
-Cho biết M2 được thực hiện theo quy tắc nào.
+Theo docs/DELTA_UNIFIED_PROJECT_PLAN.md Mục 4, 10, 11 và 12, quá trình bàn giao M2 sang M3 phải tuân thủ nghiêm ngặt 3 nguyên tắc sau:
 
-Gồm development, holdout, feature, scaling, Global K, PCA và algorithms.
+- **Nguyên tắc một chiều (Strict One-Way Handoff):** Mô hình phân cụm M2 một khi đã được kiểm định và đóng băng thì trở thành bất biến. Nhóm M3 tuyệt đối không được phép yêu cầu thay đổi Global K, thay đổi cách scale, đổi PCA hay đổi thuật toán chỉ vì kết quả backtest danh mục bị lỗ hoặc Sharpe thấp.
+- **Tách biệt tuyệt đối hai hệ thống chỉ số (Metric Segregation):**
+  - Chỉ số thuộc M2 (Đánh giá cấu trúc cụm): Silhouette Score, Davies-Bouldin Index, Calinski-Harabasz Index, Cluster Balance, ARI, NMI, Persistence, Migration Rate.
+  - Chỉ số thuộc M3 (Đánh giá hiệu quả đầu tư): Cumulative Return, CAGR, Annualized Volatility, Sharpe Ratio, Sortino Ratio, Maximum Drawdown, Calmar Ratio, Turnover, Transaction Costs, Alpha, Beta, Information Ratio.
+  - Tuyệt đối không dùng chỉ số M3 để can thiệp vào M2.
+- **Tính khả thi vận hành Point-in-Time (PIT Execution Rule):** Tại mỗi thời điểm snapshot tháng t, nhóm M3 chỉ được sử dụng nhãn cụm được gán tại đúng snapshot t để thiết lập tỷ trọng danh mục và thực hiện giao dịch tái cơ cấu từ phiên giao dịch tiếp theo (t+1). Tuyệt đối không sử dụng thông tin nhãn cụm tương lai để mua bán trước.
 
-## Phần 13.2 — Báo cáo Global K selection
+## Đặc tả 5 thành phần trong Gói bàn giao M2 sang M3 (Thư mục `M2/artifacts/m2-final-handoff-v1/`)
 
-### Mục đích
+Gói bàn giao chuẩn hóa cho M3 bao gồm đúng 5 thành phần dữ liệu và mô hình:
 
-Chứng minh K không được chọn tùy ý.
+- **Thành phần 1 — Bảng nhãn cụm lịch sử 22 snapshots (`m2_cluster_labels_for_m3.csv`):**  
+  Chứa toàn bộ nhãn cụm (Cụm 0, Cụm 1) của mô hình chiến thắng cho tất cả các mã cổ phiếu đủ điều kiện qua đủ 22 snapshots (15 tháng Development và 7 tháng Holdout). Đây là đầu vào trực tiếp cho thuật toán phân bổ danh mục (cluster-to-portfolio mapping) của Milestone M3.  
+  *Các cột:* `snapshot_date`, `ticker`, `cluster_label`, `membership_period` (development / holdout).
 
-Thể hiện K=2..8 → metric từng snapshot → aggregate theo K → Global K.
+- **Thành phần 2 — Bảng hồ sơ kinh tế chuẩn hóa (`m2_cluster_profiles_for_m3.csv`):**  
+  Chân dung tâm cụm chuẩn hóa trên 8 đặc trưng gốc (Động lượng 1M/3M/6M/12M, Biến động, MDD, Beta, Thanh khoản) qua từng snapshot và trung vị toàn kỳ. Cung cấp căn cứ học thuật để M3 quyết định: Cụm nào là "Cụm Dẫn dắt" (mua / tăng tỷ trọng) và cụm nào là "Cụm Bám sau" (bán / giảm tỷ trọng).
 
-## Phần 13.3 — Báo cáo từng phương án
+- **Thành phần 3 — Dữ liệu tham chiếu luân chuyển danh mục (`m2_transition_turnover_reference.csv`):**  
+  Tổng hợp ma trận chuyển đổi cụm (Transition Matrix) và tỷ lệ chuyển cụm (Migration Rate) qua 20 cặp tháng thực tế (14 cặp Dev + 6 cặp Holdout). Nhóm M3 bắt buộc phải sử dụng dữ liệu này để ước lượng tỷ lệ tái cơ cấu danh mục tối thiểu hàng tháng và thiết lập mô hình chi phí giao dịch (Transaction Costs Modeling).
 
-### Mục đích
+- **Thành phần 4 — Thư mục mô hình và bộ chuẩn hóa đã đóng băng (`M2/models/final_selected_model/`):**  
+  Chứa đầy đủ các đối tượng mô hình (fitted model objects), tọa độ tâm cụm và các tham số chuẩn hóa RobustScaler (Median, IQR) đã được đóng băng. Cho phép M3 tái tạo việc gán nhãn cụm trong môi trường live mà không bị sai lệch.
 
-Trình bày đầy đủ kết quả của K-Means, Ward và PCA + K-Means.
+- **Thành phần 5 — Tệp siêu dữ liệu bàn giao (`m2_to_m3_handoff_manifest.json`):**  
+  Tệp metadata chuẩn hóa ghi nhận: Tên mô hình chiến thắng, Global K = 2, danh sách 22 ngày snapshot tái cơ cấu, mã băm SHA-256 của toàn bộ các file bàn giao, và xác nhận đã vượt qua kiểm toán tại Nhiệm vụ 12.
 
-Bao gồm assignments, profiles và metrics.
+## Khung báo cáo Giới hạn học thuật minh bạch (Academic Limitations & Non-claims)
 
-## Phần 13.4 — Báo cáo temporal stability
+Trong Báo cáo tổng kết, người thực hiện bắt buộc phải dành riêng một chương để tuyên bố minh bạch các giới hạn nghiên cứu nhằm tránh việc ngộ nhận hoặc diễn giải quá mức (overclaiming):
 
-### Mục đích
+- **Không phải Dynamic Clustering:** Phân cụm độc lập từng tháng rồi theo dõi ARI chỉ là phương pháp đo lường độ bền cấu trúc theo thời gian (Temporal Stability Diagnostic). Tuyệt đối không được tuyên bố đây là thuật toán Dynamic Clustering.
+- **Phạm vi nghiên cứu Market-only:** Nghiên cứu hiện tại chỉ sử dụng các đặc trưng hành vi giá, rủi ro và thanh khoản thị trường. Các chỉ số cơ bản của doanh nghiệp (Piotroski F-Score, Altman Z-Score, Beneish M-Score) tạm thời được hoãn lại (deferred) do yêu cầu khắt khe về tính Point-in-Time (PIT) của báo cáo tài chính (docs/DELTA_UNIFIED_PROJECT_PLAN.md Mục 14, 15).
+- **Giới hạn của giai đoạn Holdout 7 tháng năm 2026:** Giai đoạn Holdout ngắn (7 tháng) là một kiểm định bước đầu về độ tổng quát hóa ngoài mẫu. Nếu kết quả suy giảm (Delta_Silhouette âm), phải ghi nhận trung thực hiện tượng dịch chuyển chế độ thị trường (Macro Regime Shift) để nhóm M3 lường trước rủi ro khi vận hành.
 
-Trình bày sự thay đổi cụm theo thời gian.
+## Cấu trúc 6 chương trong Báo cáo Tổng kết `Bao_cao_tong_ket_M2_Ban_giao_M3.md`
 
-Tổng hợp ARI, NMI, persistence, migration, transitions và centroid drift.
+Báo cáo tổng kết M2 bắt buộc phải được soạn thảo hoàn chỉnh bằng định dạng Markdown gồm đúng 6 chương:
+- **Chương 1 — Tổng quan Phương pháp luận và Protocol thực nghiệm:** Trình bày không gian 8 đặc trưng thị trường, quy tắc chuẩn hóa Robust Scaling per-snapshot, ngưỡng lọc mã đủ điều kiện n_eligible >= 120, và phân định 15 tháng Dev vs 7 tháng Holdout.
+- **Chương 2 — Quá trình Lựa chọn và Đóng băng Global K:** Báo cáo chi tiết kết quả quét K từ 2 đến 8 trên tập Development, phân tích diễn biến Silhouette và Davies-Bouldin, lập luận chặt chẽ vì sao Global K = 2 là cấu trúc tối ưu và bền vững nhất.
+- **Chương 3 — Kết quả Thực nghiệm Đối đầu giữa 3 Phương án:** So sánh toàn diện K-Means Baseline, Ward Hierarchical và PCA + K-Means trên Ma trận đánh đổi 5 tiêu chí; lập luận việc lựa chọn mô hình chiến thắng theo Dao cạo Occam và phân tích lý do loại bỏ 2 phương án đối chứng.
+- **Chương 4 — Kết quả Kiểm định Ngoài mẫu Holdout năm 2026:** Đánh giá năng lực tổng quát hóa ngoài mẫu của mô hình chiến thắng qua 7 tháng năm 2026; phân tích chỉ số khoảng cách suy thoái Delta_Silhouette, độ ổn định thời gian và tính nhất quán của hồ sơ cụm.
+- **Chương 5 — Giới hạn Nghiên cứu và Cảnh báo Rủi ro:** Minh bạch các rào chắn học thuật (Non-claims), giải thích việc hoãn tích hợp chỉ số tài chính, và các cảnh báo về hành vi thị trường cho giai đoạn tiếp theo.
+- **Chương 6 — Hướng dẫn Tích hợp và Handoff cho Milestone M3:** Đặc tả chi tiết 5 thành phần trong Gói bàn giao, giải thích quy tắc ánh xạ cụm sang danh mục đầu tư, và cam kết ranh giới hoạt động giữa M2 và M3.
 
-## Phần 13.5 — Báo cáo holdout
+## Quy trình thực thi trong Notebook 13
 
-### Mục đích
+Notebook `M2/notebooks/13_m2_m3_handoff_summary.ipynb` thực thi tuần tự các bước:
+1. Nạp kết quả đã được xác thực từ `M2/artifacts/m2-verify-v1/verification_summary.json`. Xác nhận trạng thái `VERIFIED_PASS` trước khi tiến hành đóng gói.
+2. Nạp nhãn cụm và hồ sơ cụm của mô hình chiến thắng qua toàn bộ 22 snapshots (15 Dev + 7 Holdout).
+3. Đóng gói và xuất file `m2_cluster_labels_for_m3.csv` và `m2_cluster_profiles_for_m3.csv`.
+4. Trích xuất ma trận chuyển dịch và tính toán tỷ lệ luân chuyển danh mục tham chiếu, xuất file `m2_transition_turnover_reference.csv`.
+5. Tạo tệp siêu dữ liệu `m2_to_m3_handoff_manifest.json` kèm mã băm SHA-256 cho toàn bộ các file bàn giao.
+6. Soạn thảo và hoàn thiện văn bản báo cáo `M2/reports/Bao_cao_tong_ket_M2_Ban_giao_M3.md`.
 
-Thể hiện methodology hoạt động thế nào trên giai đoạn chưa dùng để tuning.
+## Kết quả cần đạt & Đường dẫn bàn giao của Nhiệm vụ 13
 
-Bao gồm quality holdout, temporal holdout, development vs holdout và limitations.
-
-## Phần 13.6 — Báo cáo hạn chế
-
-### Mục đích
-
-Tránh overclaim.
-
-Phải ghi rõ M2 là market-only experiment, independent monthly clustering chưa phải Dynamic Clustering, DBSCAN chưa thuộc M2 v1, GMM chưa hoàn thiện và M2 chưa đánh giá hiệu quả đầu tư.
-
-## File code sử dụng trong nhiệm vụ và cách dùng
-
-Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file \`.py\` riêng lẻ; thông thường \`runner.py\` hoặc entry point của experiment sẽ import/gọi các module còn lại.
-
-**\`src/delta_t1/experiments/reporting.py\`** — file đã có; file chính hỗ trợ báo cáo.
-
-> Mục đích: Cung cấp hàm tạo bảng CSV, plot và report.
->
-> Cách dùng trong nhiệm vụ này: Đọc artifact đã verify và tạo báo cáo, không chạy lại clustering.
-
-**\`src/delta_t1/experiments/runner.py\`** — file đã có; nguồn report/manifest gốc.
-
-> Mục đích: Mỗi experiment run đã có report/manifest và các artifact liên quan.
->
-> Cách dùng trong nhiệm vụ này: Dùng chúng làm evidence cho báo cáo tổng M2.
-
-**\`assignments.jsonl\`, \`profiles.jsonl\`, \`diagnostics.jsonl\`, \`stability.jsonl\`, \`transitions.jsonl\`, \`models/\`, manifest** — artifact do runner tạo; không phải file code.
-
-> Mục đích: Là dữ liệu thực tế để báo cáo Global K, cluster profile, temporal stability và holdout.
->
-> Cách dùng trong nhiệm vụ này: Đọc và tổng hợp; không chỉnh sửa trực tiếp artifact đã hoàn tất.
-
-**Các tài liệu trong \`docs/\` như \`DELTA_UNIFIED_PROJECT_PLAN.md\`, \`METHODOLOGY.md\`, \`EXPERIMENT_PROTOCOL.md\`** — tài liệu phương pháp.
-
-> Mục đích: Giúp mô tả đúng protocol, giới hạn và phạm vi M2.
->
-> Cách dùng trong nhiệm vụ này: Đối chiếu nội dung báo cáo với methodology đã freeze để tránh báo cáo khác với cách thực nghiệm thực sự.
-
-### Cách các file phối hợp
-
-> verified artifacts + protocol docs → reporting.py → report/notebook/handoff M3.
-
-## Kết quả cần đạt của Nhiệm vụ 13
-
-- report;
-
-- notebook;
-
-- methodology description;
-
-- selected Global K;
-
-- comparator results;
-
-- cluster profiles;
-
-- temporal results;
-
-- holdout results;
-
-- limitations;
-
-- handoff package M3.
-
-## Vị trí trong repo & Đường dẫn output
-
-- **Code tổng kết & Handoff**: `M2/notebooks/13_m2_m3_handoff_summary.py` (script tổng kết bàn giao; hoặc `13_m2_m3_handoff_summary.ipynb`)
-- **Mô hình bàn giao chính thức cho M3**: `M2/models/final_selected_model/` (gói model chuẩn hóa của 1 mô hình tốt nhất được chọn sau Task 10 và Holdout Task 11)
-- **Báo cáo tổng kết & Bàn giao (Reports)**: `M2/reports/Bao_cao_tong_ket_M2_Ban_giao_M3.docx` (hoặc `.md`, slide báo cáo tổng kết M2)
-- **Gói Artifact bàn giao hoàn chỉnh**: `M2/artifacts/m2-final-handoff-v1/` (lưu trong M2 để push lên GitHub)
+1. **Notebook thực thi hoàn chỉnh:**
+   - `M2/notebooks/13_m2_m3_handoff_summary.ipynb`
+2. **Gói Artifact bàn giao chuẩn hóa cho M3 (Thư mục `M2/artifacts/m2-final-handoff-v1/`):**
+   - `M2/artifacts/m2-final-handoff-v1/m2_cluster_labels_for_m3.csv` (nhãn cụm lịch sử 22 snapshots)
+   - `M2/artifacts/m2-final-handoff-v1/m2_cluster_profiles_for_m3.csv` (chân dung kinh tế tâm cụm 8 đặc trưng gốc)
+   - `M2/artifacts/m2-final-handoff-v1/m2_transition_turnover_reference.csv` (tham chiếu luân chuyển và chi phí giao dịch)
+   - `M2/artifacts/m2-final-handoff-v1/m2_to_m3_handoff_manifest.json` (tệp siêu dữ liệu bàn giao và mã băm SHA-256)
+3. **Thư mục mô hình bàn giao chính thức:**
+   - `M2/models/final_selected_model/` (trọng số và tham số scaler của mô hình chiến thắng)
+4. **Báo cáo chuyên đề Markdown tổng kết:**
+   - `M2/reports/Bao_cao_tong_ket_M2_Ban_giao_M3.md`
 
 # Cách phân công thành viên
 
