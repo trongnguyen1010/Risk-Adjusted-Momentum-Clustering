@@ -1,0 +1,26 @@
+{
+  "decision_timestamp": "2026-10-03T15:05:39+00:00",
+  "selected_method": "KMeans_Baseline",
+  "comparator_methods": [
+    "Ward_Hierarchical",
+    "PCA_KMeans"
+  ],
+  "global_k": 2,
+  "decision_criteria_rank": [
+    "1. Median Silhouette (Primary)",
+    "2. Median Davies-Bouldin (Confirmation / Tie-breaker)",
+    "3. Cluster Balance (Sanity check)",
+    "4. Temporal Stability (ARI / Migration)",
+    "5. Occam's Razor (Simplicity & direct interpretability)"
+  ],
+  "selection_rationale": "KMeans_Baseline được chọn sau khi cả ba phương án vượt sanity check. So với Ward_Hierarchical, KMeans có cùng Median Silhouette=0.755722 nhưng DB thấp hơn (0.521899 so với 0.534333), ARI cao hơn (0.798251 so với 0.537278) và Migration thấp hơn (0.014382 so với 0.037716). So với PCA_KMeans, PCA có Median Silhouette cao hơn (0.771666 so với 0.755722) và DB thấp hơn, nhưng chênh lệch Silhouette chỉ 0.015945, nhỏ hơn ngưỡng Occam 0.03; Balance và bốn chỉ số temporal của hai phương án bằng nhau. KMeans được ưu tiên nhờ pipeline Low complexity và diễn giải trực tiếp trên 8 feature gốc.",
+  "rejection_rationales": {
+    "Ward_Hierarchical": "Có cùng Median Silhouette=0.755722 và Balance=0.067669 với KMeans, nhưng DB cao hơn (0.534333), ARI thấp hơn (0.537278) và Migration cao hơn (0.037716); không có lợi thế để đánh đổi với pipeline Medium complexity.",
+    "PCA_KMeans": "Dẫn đầu nhẹ về Silhouette=0.771666 và DB=0.515502, nhưng hơn KMeans chỉ 0.015945 Silhouette, thấp hơn ngưỡng Occam 0.03; Balance, ARI, NMI, Persistence và Migration không tốt hơn KMeans. Pipeline High complexity không được ưu tiên."
+  },
+  "frozen_artifacts_manifest": {
+    "comparison_table": "M2/artifacts/m2-evaluation/methodology_comparison.csv",
+    "selected_model_directory": "M2/models/final_selected_model/"
+  },
+  "status": "FROZEN_FOR_HOLDOUT"
+}
