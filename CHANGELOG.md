@@ -24,12 +24,26 @@
   `B_OFFICIAL_DATE_D1`; không thay methodology R5, không final-promote taxonomy/revision,
   không ghi canonical rows và không bật financial features.
 
-# Chưa phát hành — M2 Ward reporting (2026-09-30)
+# Chưa phát hành — M2 Ward tasks 7–9 aligned with updated plan (2026-10-03)
 
-- Viết lại notebook và báo cáo nhiệm vụ 7, 8, 9 cho phần Ward theo kế hoạch: quality tại Global K=2, profile trên tám feature gốc, temporal trên giao tập mã với aligned ID, drift và entry/exit đầy đủ.
-- Thêm helper reporting kiểm tra checksum/coverage/nhãn/sizes/scaler và quan hệ temporal từ artifact hiện có; không đọc dữ liệu M1/holdout, không fit lại model hoặc thay methodology.
-- Xuất bảng cùng manifest trực tiếp vào `M2/artifacts/m2-evaluation/` theo kế hoạch; giữ nguyên artifact nguồn Ward. Bảng chất lượng dùng 15 snapshot tại Global K=2.
-- Kiểm tra: 8/8 tests reporting trên fixture tổng hợp; 16/16 code cells của ba notebook đã chạy và lưu output; compileall thành công. Chưa xác nhận độc lập implementation Ward, chưa hoàn tất so sánh ba phương án hoặc chọn final method.
+- Viết lại ba notebook Ward theo hợp đồng M2 mới, mỗi nhiệm vụ nằm trọn trong một
+  file `.ipynb`; không dùng helper `.py`, không fit lại Ward/scaler và không đọc M1
+  hoặc final holdout.
+- Nhiệm vụ 7 chỉ đọc `diagnostics.csv`, lọc 15 dòng Global K=2, xuất duy nhất
+  `quality_summary.csv`, hiển thị hai bảng chuẩn và năm biểu đồ có đường median.
+- Nhiệm vụ 8 chuẩn hóa `m2-evaluation-ward/cluster_profiles.csv` về đúng schema cố
+  định 13 cột của kế hoạch, xuất ba bảng chuẩn, bảng Robust Z, `radar_chart.png` và
+  `heatmap.png`; metadata gốc vẫn được giữ trong artifact Task 5, scaler JSON chỉ
+  dùng để đổi thang, clipping [-3, 3] chỉ dùng khi vẽ và widget state được lưu đồng
+  bộ để notebook render lại không lỗi.
+- Nhiệm vụ 9 đọc trực tiếp ba CSV phẳng trong `m2-evaluation-ward`, xuất bốn bảng
+  chuẩn cùng `temporal_trends.png` và `transition_heatmap.png`; bổ sung reset gap,
+  năm cặp ARI thấp và đối chiếu bối cảnh thị trường có nguồn, không suy diễn nhân quả.
+- Cả ba notebook tự ghi báo cáo Markdown tương ứng; migration được giữ là proxy cho
+  áp lực đổi thành viên, không bị gọi là portfolio turnover có trọng số.
+- Xóa các artifact reporting cũ ngoài hợp đồng, chuẩn hóa tên ba báo cáo với hậu tố
+  `Ward`, chạy sạch 14/14 code cells và lưu output; kiểm tra schema/row count/ảnh và
+  đối chiếu số liệu lõi với artifact Task 5 đều PASS.
 
 # Chưa phát hành — Post-M1 documentation alignment (2026-09-26)
 
