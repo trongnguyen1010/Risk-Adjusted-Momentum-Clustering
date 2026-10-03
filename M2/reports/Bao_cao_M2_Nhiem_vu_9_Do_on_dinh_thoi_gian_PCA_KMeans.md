@@ -8,7 +8,7 @@ Trên 14 cặp tháng liên tiếp, phân hoạch PCA + K-Means có mức tươn
 
 ---
 
-## 1. Mục tiêu
+## I. Mục tiêu
 
 - Đo mức tương đồng giữa các phân hoạch liên tiếp (ARI, NMI) và xác suất mã giữ/chuyển cụm (persistence, migration).
 - Lập ma trận chuyển dịch cụm 2 × 2, đo độ trôi tâm cụm (centroid drift) trên 8 feature gốc và theo dõi mã vào/rời universe (entry/exit).
@@ -16,14 +16,14 @@ Trên 14 cặp tháng liên tiếp, phân hoạch PCA + K-Means có mức tươn
 - Xuất cùng bộ 4 bảng và 2 biểu đồ chuẩn với K-Means Baseline và Ward để Nhiệm vụ 10 so sánh chéo.
 - Giữ ranh giới M2: đây là chẩn đoán độ bền chuỗi thời gian, không phải Dynamic Clustering và không dùng để suy diễn cụm nào sinh lời tốt hơn.
 
-## 2. Dữ liệu và quá trình
+## II. Dữ liệu và quá trình
 
 - Mỗi snapshot được phân cụm độc lập rồi so sánh với tháng kế tiếp trên **giao** của hai snapshot; nhãn cụm được căn chỉnh giữa hai tháng bằng thuật toán khớp nhãn (Hungarian) trước khi tính chỉ số. Notebook chỉ đọc artifact đã đóng băng, không huấn luyện lại.
 - Notebook kiểm tra cơ chế ngắt chuỗi: không tồn tại cặp nào bắt đầu từ 2025-01-24, tức chuỗi dừng đúng ở snapshot cuối của Development.
 - 15 snapshot là chuỗi tháng liên tiếp nên có đúng 14 chuyển tiếp và không cần reset bên trong Development.
 - Migration = 1 − Persistence trên giao universe, và không tính mã mới hoặc mã rời. Tỷ lệ luân chuyển ở Bảng 4 (notebook) = (Entry + Exit) / `n_common`.
 
-## 3. Kết quả đạt được
+## III. Kết quả đạt được
 
 ### Bảng 1 – Chỉ số temporal toàn kỳ (14 cặp)
 
@@ -93,7 +93,7 @@ Số mã chung: trung vị 229,5 (140–608), trung bình 343,2. Entry: trung v�
 
 Biểu đồ 9.1 cho thấy ARI và NMI dao động trong 0,44–0,96 quanh các đường median (0,80 và 0,66), trong khi persistence gần như phẳng ở 95–99% và migration luôn dưới 5%.
 
-## 4. Phân tích và nhận định
+## IV. Phân tích và nhận định
 
 ### Phần A – Độ ổn định cấu trúc
 Median ARI 0,7983 và NMI 0,6613 cho thấy phân hoạch giữa hai tháng liền kề khá giống nhau nhưng không bất biến; ARI vượt ngưỡng kỳ vọng 0,70 ở 11/14 cặp. NMI thấp hơn ARI, đặc biệt ở các cặp thấp nhất (2024-07→08: 0,4387; 2023-11→12: 0,4647), cho thấy thông tin phân cụm vẫn thay đổi khi membership thay đổi.
@@ -110,7 +110,7 @@ Không cặp nào có ARI dưới 0,50. Ba cặp thấp nhất đều trùng v�
 ### Phần C – Bàn giao cho Nhiệm vụ 10
 Nhánh PCA + K-Means đạt các ngưỡng độ bền của kế hoạch (persistence ≥ 80%, migration ≤ 15%, ARI median > 0,70) nên đủ điều kiện vào vòng so sánh. Tuy nhiên đây là bằng chứng cho riêng nhánh PCA; chưa có artifact cùng protocol của K-Means Baseline và Ward nên chưa thể nói PCA bền hơn.
 
-## 5. Giới hạn học thuật
+## V. Giới hạn học thuật
 
 - Phân cụm độc lập từng snapshot rồi nối lại chỉ là chẩn đoán độ bền, không phải Dynamic Clustering.
 - Không dùng chỉ số ổn định để suy diễn cụm nào sinh lời hay chọn mã (thuộc M3).
@@ -118,7 +118,7 @@ Nhánh PCA + K-Means đạt các ngưỡng độ bền của kế hoạch (persi
 - Drift tuyệt đối theo đơn vị gốc không so sánh được giữa các feature.
 - Thanh khoản và quy mô cụm khác nhau nên migration tổng hợp bị chi phối bởi nhóm lớn.
 
-## 6. Tổng hợp nhận xét
+## VI. Tổng hợp nhận xét
 
 Nhánh PCA + K-Means cho assignment bền trên phần universe chung: median ARI 0,7983, NMI 0,6613, persistence 98,56% và migration 1,44%, mọi cặp đều trong ngưỡng an toàn. Hạn chế là các thay đổi universe lớn (đỉnh 349 mã vào) và sự bất cân xứng giữa hai nhóm (nhóm nhỏ giữ cụm kém hơn). Kết quả đủ làm đầu vào Nhiệm vụ 10, chưa đủ kết luận PCA bền hơn K-Means hay Ward.
 
