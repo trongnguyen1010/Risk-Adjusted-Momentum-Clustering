@@ -10,7 +10,7 @@
 Nhiệm vụ 8 tiến hành giải mã bản chất kinh tế và cấu trúc vi mô của 2 cụm cổ phiếu ($K=2$) được hình thành từ K-Means Baseline dựa trên **8 đặc trưng tài chính cốt lõi ở thang đo gốc (Unscaled Features)**.
 
 ### Nguyên tắc học thuật bắt biến:
-1. **Tiêu thụ Artifacts đã đóng băng:** Phân tích hoàn toàn trên file hồ sơ `cluster_profiles.csv` và tham số chuẩn hóa `profile_scaler_reference.csv` đã được lưu trữ sẵn, không chạy lại quá trình huấn luyện hay trích xuất đặc trưng.
+1. **Tiêu thụ Artifacts đã đóng băng:** Phân tích hoàn toàn trên file hồ sơ `cluster_profiles.csv` và tham số chuẩn hóa thị trường trích xuất trực tiếp từ `M2/artifacts/m2-task4-kmeans-baseline-v1/models/*.json` (đồng bộ 100% với phương án Ward), không chạy lại quá trình huấn luyện hay trích xuất đặc trưng.
 2. **Đối chiếu đa chiều:** Đánh giá động lực phân cụm qua 4 nhóm yếu tố: Thanh khoản (`liquidity_21`), Rủi ro hệ thống (`beta_126`), Rủi ro biến động (`vol_63`, `mdd_126`) và Động lượng chuỗi thời gian (`mom_21`, `mom_63`, `mom_126`, `mom_252`).
 3. **Ranh giới M2 / M3:** Hồ sơ cụm thuần túy mô tả hành vi thị trường và cấu trúc thanh khoản trong quá khứ, tuyệt đối không suy diễn thành khuyến nghị đầu tư danh mục (thuộc M3).
 

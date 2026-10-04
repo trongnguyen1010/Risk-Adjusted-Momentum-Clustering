@@ -2163,7 +2163,7 @@ Quy trình thực thi trong notebook `M2/notebooks/10_model_comparison.ipynb` g�
 - **Bước 1: Nạp và kiểm định tính toàn vẹn của dữ liệu đầu vào (Input Ingestion & Integrity Check)**
   Nạp 9 file artifacts đã đóng băng từ Nhiệm vụ 7, 8, 9 của cả 3 mô hình:
   - 3 file chất lượng: `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv`, `M2/artifacts/m2-evaluation-ward/quality_summary.csv`, `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv`
-  - 3 file hồ sơ cụm: `M2/artifacts/m2-task4-kmeans-baseline-v1/cluster_profiles.csv`, `M2/artifacts/m2-task5-ward-v1/cluster_profiles.csv`, `M2/artifacts/m2-task6-pca-kmeans-v1/cluster_profiles.csv`
+  - 3 file hồ sơ cụm: `M2/artifacts/m2-evaluation-kmeans/cluster_profiles.csv`, `M2/artifacts/m2-evaluation-ward/cluster_profiles.csv`, `M2/artifacts/m2-evaluation-pca-kmeans/cluster_profiles.csv`
   - 3 file ổn định thời gian: `M2/artifacts/m2-evaluation-kmeans/temporal_stability.csv`, `M2/artifacts/m2-evaluation-ward/temporal_stability.csv`, `M2/artifacts/m2-evaluation-pca-kmeans/temporal_stability.csv`
   Kiểm tra xác nhận đủ 15 snapshots và 14 cặp tháng cho cả 3 mô hình trước khi tính toán.
 
