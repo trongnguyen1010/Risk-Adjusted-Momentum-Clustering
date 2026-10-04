@@ -13,6 +13,9 @@ M2 Nhiệm vụ 1 đã freeze protocol và Nhiệm vụ 2 đã hoàn tất runne
 
 ## Theo mục đích
 
+- Final Holdout đã thực thi: [Notebook 11](../M2/notebooks/11_final_holdout_execution.ipynb),
+  [báo cáo](../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md). Rerun chỉ verify/nạp
+  evidence của single winning model; xem Current status trước khi thực hiện Task 12.
 - Thu thập CafeF có kiểm soát: [Data collection](crawl/README.md) và [CafeF semantics](crawl/sources/CAFEF.md).
 - Quyết định methodology: [Decisions](DECISIONS.md), [Research questions](research/RESEARCH_QUESTIONS.md), [Literature matrix](research/LITERATURE_MATRIX.md), [Dynamic clustering review](research/DYNAMIC_CLUSTERING_REVIEW.md).
 - Evaluation/product: [Evaluation and backtest](EVALUATION_AND_BACKTEST.md), [Product](PRODUCT.md).
