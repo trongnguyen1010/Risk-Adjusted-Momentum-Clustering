@@ -2164,7 +2164,9 @@ Quy trình thực thi trong notebook `M2/notebooks/10_model_comparison.ipynb` g�
   Nạp 9 file artifacts đã đóng băng từ Nhiệm vụ 7, 8, 9 của cả 3 mô hình:
   - 3 file chất lượng: `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv`, `M2/artifacts/m2-evaluation-ward/quality_summary.csv`, `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv`
   - 3 file hồ sơ cụm: `M2/artifacts/m2-evaluation-kmeans/cluster_profiles.csv`, `M2/artifacts/m2-evaluation-ward/cluster_profiles.csv`, `M2/artifacts/m2-evaluation-pca-kmeans/cluster_profiles.csv`
+  - Notebook Nhiệm vụ 10 chuẩn hóa schema của ba file trong bộ nhớ trước khi so sánh: K-Means bỏ hậu tố `_mean`; Ward giữ 8 cột feature; PCA + K-Means giải mã `centroid` JSON. Không sao chép ngược hoặc sửa artifact nguồn trong `m2-task4/5/6-*-v1`.
   - 3 file ổn định thời gian: `M2/artifacts/m2-evaluation-kmeans/temporal_stability.csv`, `M2/artifacts/m2-evaluation-ward/temporal_stability.csv`, `M2/artifacts/m2-evaluation-pca-kmeans/temporal_stability.csv`
+  - Bổ sung chỉ đọc để kiểm chứng: ba `diagnostics.csv` của Nhiệm vụ 4/5/6 (lọc `K=2`, tính Std và đối chiếu `quality_summary.csv`) và ba `centroid_drift.csv` trong `m2-evaluation-*` (so sánh Centroid Drift theo Phần 10.2).
   Kiểm tra xác nhận đủ 15 snapshots và 14 cặp tháng cho cả 3 mô hình trước khi tính toán.
 
 - **Bước 2: Tổng hợp các chỉ số thống kê trung tâm (Metrics Aggregation)**
@@ -2192,7 +2194,7 @@ Quy trình thực thi trong notebook `M2/notebooks/10_model_comparison.ipynb` g�
   - Xuất file artifact quyết định chuẩn hóa `M2/artifacts/m2-evaluation/final_method_decision.json`.
   - Sao chép các tệp mô hình đã huấn luyện của phương án chiến thắng vào thư mục mô hình chính thức `M2/models/final_selected_model/`.
   - Xuất biểu đồ so sánh chuẩn hóa `M2/artifacts/m2-evaluation/model_comparison_radar_or_bar.png` (Biểu đồ cột nhóm so sánh đa tiêu chí giữa 3 mô hình).
-  - Soạn thảo báo cáo chuyên đề đầy đủ `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md`.
+  - Duy trì báo cáo chuyên đề `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md` độc lập với notebook; notebook không tự xuất hoặc ghi đè file này.
 
 ## Phần 10.6 — Cấu trúc chuẩn hóa của file `final_method_decision.json`
 
@@ -2241,7 +2243,7 @@ Báo cáo `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md
    - `M2/artifacts/m2-evaluation/methodology_comparison.csv`
    - `M2/artifacts/m2-evaluation/final_method_decision.json`
    - `M2/artifacts/m2-evaluation/model_comparison_radar_or_bar.png`
-4. **Báo cáo chuyên đề Markdown:**
+4. **Báo cáo chuyên đề Markdown độc lập:**
    - `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md`
 
 ---
