@@ -22,6 +22,23 @@ class M2MarketOnlyProtocolTests(unittest.TestCase):
         self.assertEqual(len(self.config["holdout_snapshots"]), 7)
         self.assertFalse(self.config["portfolio_evaluation"]["enabled"])
 
+    def test_pca_execution_requires_frozen_valid_component_count(self):
+        config = copy.deepcopy(self.config)
+        config["clustering"]["algorithm"] = "pca_kmeans"
+        with self.assertRaisesRegex(ValueError, "component_rule_status"):
+            validate_protocol(config)
+        config["clustering"]["pca"]["component_rule_status"] = "frozen_on_development"
+        for invalid in (None, True, 0, 9, 2.5):
+            with self.subTest(count=invalid):
+                config["clustering"]["pca"]["n_components"] = invalid
+                with self.assertRaisesRegex(ValueError, "n_components"):
+                    validate_protocol(config)
+        config["clustering"]["pca"]["n_components"] = 2
+        validate_protocol(config)
+        config["clustering"]["reduction"] = {"method": "pca", "n_components": 4}
+        with self.assertRaisesRegex(ValueError, "conflicts"):
+            validate_protocol(config)
+
     def test_missing_required_feature_fails_closed(self):
         broken = copy.deepcopy(self.config)
         broken["clustering"]["features"].pop()

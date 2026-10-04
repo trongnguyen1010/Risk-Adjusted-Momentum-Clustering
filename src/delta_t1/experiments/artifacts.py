@@ -128,7 +128,8 @@ def start_experiment(root: Path, data_run: Path, source: dict, config: dict) -> 
         target = custom if custom.is_absolute() else Path(root).resolve() / custom
     else:
         target = Path(root).resolve() / "data/experiments" / run_id
-    target.mkdir(parents=True, exist_ok=True)
+    # A frozen run, including a notebook-repaired v2, must never be overwritten.
+    target.mkdir(parents=True, exist_ok=False)
     package = Path(__file__).parents[1]
     with zipfile.ZipFile(target / "source_snapshot.zip", "w", zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(package.rglob("*")):
