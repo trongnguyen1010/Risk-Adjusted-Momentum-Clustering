@@ -1,5 +1,63 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Cập nhật 2026-10-04 — nhiệm vụ 11 Final Holdout đã thực thi
+
+Người dùng yêu cầu thực hiện nhiệm vụ 11 sau khi tự chạy Task 10. Quyết định active
+freeze `KMeans_Baseline`, K=2 lúc `2026-10-04T08:01:06+00:00`; holdout mở lúc
+`2026-10-04T08:14:18.565783+00:00` sau kiểm tra gate/model hashes. C8 và Task 10
+giữ nguyên. Đây là single winning method, monthly independent fitting/scaling;
+không chạy comparators hoặc quét K.
+
+- 7/7 holdout snapshots; universe 253–905 mã mỗi tháng; 4.624 assignments, 14 profiles,
+  7 fitted models, 6 cặp temporal, 24 transitions và 96 feature drift rows; không skip.
+- Median Silhouette 0,952683 so với Development 0,755722; Delta +0,196961.
+  DB 0,431560; ARI 0,895529; NMI 0,791375; Persistence 99,5835%; Migration 0,4165%.
+- Balance median 0,021445, cụm nhỏ 10–19 mã. Phân rã bình phương khoảng cách hai
+  centroid cho thấy liquidity median đóng góp 99,9980%; Silhouette cao cần đọc
+  cùng cảnh báo mất cân bằng/phân tách thanh khoản, không suy hiệu quả đầu tư.
+- Gap reset giữ đúng; không nối 2025-01-24 với 2026-02-27 và không nối qua skip.
+
+Mở `M2/notebooks/11_final_holdout_execution.ipynb`, chọn kernel Python M2 rồi Run All;
+root tự tìm từ repo hoặc thư mục notebook. Core ở `src/delta_t1/experiments/final_holdout.py`,
+config `configs/experiments/m2_final_holdout_v1.json`; output `M2/artifacts/m2-final-holdout-v1/`,
+model `M2/models/holdout/`, report `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`.
+Rerun chỉ kiểm tra checksum/nạp evidence, không fit lại. Không sửa decision/input
+sau khi đã mở holdout. 11 targeted tests đã qua, gồm frozen gate, tamper, late data,
+skip/reset, label permutation, kiểm chứng scaler/nhãn/profile từ C8 và verify-only rerun.
+Synthetic smoke/compile đã qua. Stage tiếp theo là Task 12; chưa thực hiện Task 12/M3.
+
+## Cập nhật 2026-10-04 — chuẩn hóa lại PCA notebooks nhiệm vụ 6–9 về v1
+
+Bốn notebook `06_pca_kmeans`, `07_cluster_quality_evaluation_pca_kmeans`,
+`08_cluster_profiling_pca_kmeans`, `09_temporal_stability_pca_kmeans` đã chạy trên
+development và lưu output. Theo yêu cầu mới của người dùng, bộ sửa lỗi trước đó
+mang tên v2 đã thay thế bộ v1 cũ và dùng các đường dẫn chuẩn:
+`M2/artifacts/m2-task6-pca-kmeans-v1/`, `M2/artifacts/m2-evaluation-pca-kmeans/`
+và `M2/models/pca_kmeans/`. Chạy 06 → 07 → 08 → 09 từ repo root hoặc thư mục
+notebook. Notebook 06 kiểm chứng trực tiếp bộ hiện hành, không phụ thuộc file cũ.
+Manifest giữ lineage gốc và ghi rõ migration theo ADR-051; không đổi model/số liệu.
+
+Giữ 15 snapshot, 5.615 assignments, Global K=2 và fixed PCA=4; toàn bộ model/scaler
+được tái dùng và kiểm chứng, không refit. Explained variance median 96,8639%, min
+93,6424%. ARI median 0,798251, NMI 0,661313, Persistence 98,5618%, Migration
+1,4382%. Transition probabilities dùng cùng aligned IDs: C0 giữ 80,9045% trên
+199 lượt, C1 giữ 99,3053% trên 4.606 lượt; tỷ lệ tổng hợp che bớt khác biệt giữa cụm.
+Drift giữ tọa độ gốc thật, không có placeholder `value_from=0`.
+
+Không mở nhiệm vụ 10/final holdout/backtest. Kiểm chứng số chiều trên development
+không tạo bằng chứng preregistration trước run v1; giới hạn này được giữ ở ADR-050.
+
+Notebook/code/output nhiệm vụ 10 không bị sửa hoặc chạy lại trong migration này.
+Các đường dẫn PCA mà notebook 10 đang đọc nay chứa bộ kết quả đã sửa; kết quả
+Task 10 lưu từ lần chạy trước vẫn là kết quả lịch sử, cần người dùng tự chạy lại.
+Bản sao khôi phục trước replacement ở `tmp/pca_notebook_repair/pca_before_replacement.zip`
+đã kiểm tra checksum, nằm ngoài artifacts active và được Git ignore.
+
+Kiểm tra sau replacement: bốn notebook chạy thành công, 19 targeted tests qua;
+51 file số liệu/model/biểu đồ giữ nguyên từng byte so với bộ sửa v2, chỉ config và
+manifest đổi metadata/đường dẫn. Toàn bộ 24 file Task 10 được đối chiếu vẫn nguyên
+checksum. Các thư mục v2, file legacy và report Task 6 tên cũ đã được loại khỏi active tree.
+
 ## Lineage và phạm vi
 
 Nhánh active: `m1-cafef-primary-experiment`.

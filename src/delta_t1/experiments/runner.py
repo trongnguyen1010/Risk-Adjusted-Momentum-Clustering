@@ -102,10 +102,16 @@ def m2_clustering_config(config: dict, **runtime_parameters) -> dict:
     cluster.setdefault("seed", 42)
     cluster.setdefault("n_init", 10)
     cluster.setdefault("max_iter", 300)
-    algo = runtime_parameters.get("algorithm") or cluster.get("algorithm")
-    if algo == "pca_kmeans":
-        cluster.setdefault("reduction", {"method": "pca", "n_components": 4})
     cluster.update(runtime_parameters)
+    algo = cluster.get("algorithm")
+    if algo == "pca_kmeans":
+        count = cluster.get("pca", {}).get("n_components")
+        if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= len(cluster["features"]):
+            raise ValueError("PCA requires an explicit valid frozen n_components")
+        reduction = {"method": "pca", "n_components": count}
+        if "reduction" in cluster and cluster["reduction"] != reduction:
+            raise ValueError("PCA reduction conflicts with frozen pca.n_components")
+        cluster["reduction"] = reduction
     return cluster
 
 

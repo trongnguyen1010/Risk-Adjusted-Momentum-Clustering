@@ -32,6 +32,10 @@ Supplemental acquisition cho 148 deferred rows là optional future stage, không
 - [x] **M2-PREP audit:** freeze eligibility semantics/feature set/firewall; tái lập 905/952; giải thích readiness gaps; audit implementation/literature và xuất `artifacts/experiments/m2-prep-v1/`. Status `MANUAL_REVIEW_REQUIRED`; không tạo final config hoặc chạy clustering.
 - [x] **M2 Nhiệm vụ 1 / protocol freeze:** khóa development/holdout snapshots, minimum 120/skip, 8 features, fail-closed missing, no clipping, Robust Scaling per-snapshot, `k=2..8`, Global K selection firewall, comparator-only PCA và scoped feature-version compatibility. Chưa chạy clustering/holdout/backtest; PCA component rule phải preregister trước comparator execution.
 - [x] **M2 Nhiệm vụ 2 / runner preparation:** adapter đọc trực tiếp C8 checksummed feature snapshots, lọc eligibility theo từng snapshot, fail-closed 8 feature, skip dưới 120 và terminal-universe/integration tests; không fit Global K.
+- [x] **M2 Nhiệm vụ 11 / Final Holdout (2026-10-04):** Task 10 freeze KMeans Baseline/K=2;
+  7 snapshots holdout, 4.624 assignments và 6 cặp tháng; giữ preprocessing/seed,
+  không K-scan/comparator, reset gap, checksum manifest và verify-only rerun.
+  Chưa thực hiện Task 12 hoặc M3; chi tiết hiện hành ở CURRENT_STATUS.
 - [ ] **M2 Nhiệm vụ 3 / Global K:** chạy K-Means `k=2..8` chỉ trên 15 development snapshots và khóa Global K theo protocol; chưa mở holdout.
 - [ ] Freeze feature registry và development/validation protocol; active snapshot 1.5 không chứa Sharpe và tách readiness, còn formula market giữ nguyên baseline 1.4.
 - [x] Có implementation PCA + K-Means snapshot-only, lưu scaler/PCA parameters và explained variance; chưa có real comparison evidence.
