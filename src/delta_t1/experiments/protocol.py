@@ -134,9 +134,19 @@ def _validate_m2_market_only_v1(config: dict) -> None:
     _require_equal(pca.get("applies_to"), ["pca_kmeans"], "clustering.pca.applies_to")
     _require_equal(pca.get("baseline_preprocessing"), False,
                    "clustering.pca.baseline_preprocessing")
-    _require_equal(pca.get("component_rule_status"),
-                   "must_be_frozen_before_pca_comparator_execution",
-                   "clustering.pca.component_rule_status")
+    if cluster.get("algorithm") == "pca_kmeans":
+        _require_equal(pca.get("component_rule_status"), "frozen_on_development",
+                       "clustering.pca.component_rule_status")
+        count = pca.get("n_components")
+        if isinstance(count, bool) or not isinstance(count, int) or not 1 <= count <= len(M2_MARKET_FEATURES):
+            raise ValueError("clustering.pca.n_components must be an integer in 1..8")
+        reduction = cluster.get("reduction")
+        if reduction is not None and reduction != {"method": "pca", "n_components": count}:
+            raise ValueError("PCA reduction conflicts with frozen pca.n_components")
+    else:
+        _require_equal(pca.get("component_rule_status"),
+                       "must_be_frozen_before_pca_comparator_execution",
+                       "clustering.pca.component_rule_status")
 
     holdout = config.get("holdout_policy")
     if not isinstance(holdout, dict):

@@ -116,12 +116,15 @@ class M2MarketOnlyRunnerTests(unittest.TestCase):
                     temp_path = Path(temp_dir)
                     cfg = copy.deepcopy(self.config)
                     cfg["clustering"]["algorithm"] = algo
+                    if algo == "pca_kmeans":
+                        cfg["clustering"]["pca"].update(
+                            n_components=4, component_rule_status="frozen_on_development")
                     cfg["output_dir"] = str(temp_path / ("exp_" + algo))
                     cfg_path = temp_path / "config.json"
                     cfg_path.write_text(json.dumps(cfg), encoding="utf-8")
                     with patch("delta_t1.experiments.runner.prepare_m2_market_only_snapshots",
                                return_value=(self.source, [self.november])):
-                        target, manifest = experiment(C8, cfg_path, ROOT)
+                        target, manifest = experiment(C8, cfg_path, temp_path)
                     self.assertEqual("complete", manifest["status"])
                     self.assertEqual(1, manifest["n_snapshots"])
                     self.assertEqual(142, manifest["n_assignments"])
@@ -144,7 +147,31 @@ class M2MarketOnlyRunnerTests(unittest.TestCase):
         row.update({feature: float(index + 1) for index, feature in enumerate(FEATURES)})
         return row
 
+    def test_pca_component_count_is_honored_without_silent_default(self):
+        config = copy.deepcopy(self.config)
+        config["clustering"]["algorithm"] = "pca_kmeans"
+        with self.assertRaisesRegex(ValueError, "explicit valid"):
+            m2_clustering_config(config)
+        config["clustering"]["pca"]["n_components"] = 2
+        cluster = m2_clustering_config(config)
+        self.assertEqual({"method": "pca", "n_components": 2}, cluster["reduction"])
+        with self.assertRaisesRegex(ValueError, "conflicts"):
+            m2_clustering_config(config, reduction={"method": "pca", "n_components": 4})
+
+    def test_existing_experiment_directory_is_never_overwritten(self):
+        import tempfile
+        from delta_t1.experiments.artifacts import start_experiment
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            target = root / "frozen"
+            target.mkdir()
+            sentinel = target / "manifest.json"
+            sentinel.write_bytes(b'{"status":"complete"}\n')
+            config = dict(self.config, output_dir="frozen")
+            with self.assertRaises(FileExistsError):
+                start_experiment(root, C8, self.source, config)
+            self.assertEqual(b'{"status":"complete"}\n', sentinel.read_bytes())
+
 
 if __name__ == "__main__":
     unittest.main()
-

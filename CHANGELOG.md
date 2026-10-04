@@ -1,3 +1,43 @@
+# Chưa phát hành — M2 Task 11 Final Holdout (2026-10-04)
+
+- Thêm freeze-gated offline runner `experiments/final_holdout.py`, config và notebook
+  11 bảy bước; đọc C8 immutable Feature Store 1.6.0, chỉ KMeans winner/K=2 với tham số
+  từ 15 selected models đã verify. Không sửa Task 10, C8 hoặc fit comparator.
+- Thực thi 7 holdout tháng 02–08/2026: 4.624 assignments, 14 profiles, 7 models và
+  6 cặp tháng; xuất quality/gap/temporal/transitions/drift/scalers, chart 22 mốc,
+  source snapshot, checksummed manifest và report. Reset chuỗi tại gap/skip.
+- Rerun verify-only, không refit/retune; fail-closed khi frozen inputs/checksum đổi.
+  Thêm 11 tests với fixtures và kiểm chứng độc lập saved labels/scalers/transitions;
+  targeted tests, compile và synthetic smoke qua. Task 12/backtest chưa thực hiện.
+
+# Chưa phát hành — PCA replacement v2 → v1 theo yêu cầu owner (2026-10-04)
+
+- Thay bộ PCA v1 cũ bằng kết quả sửa v2, dùng `m2-task6-pca-kmeans-v1`,
+  `m2-evaluation-pca-kmeans` và `M2/models/pca_kmeans`; giữ nguyên số liệu/model.
+- Cập nhật notebook 06–09, config, tests, report links và checksum manifest.
+  Notebook 06 tự kiểm chứng bộ hiện hành, không cần artifacts legacy đã loại bỏ.
+- Bỏ report Task 6 tên legacy, giữ report đúng tên trong kế hoạch. Ghi rõ
+  `storage_migration` và lineage gốc; bản sao khôi phục đã kiểm tra checksum
+  nằm ngoài active artifacts. Không chỉnh sửa hoặc chạy nhiệm vụ 10.
+
+# Chưa phát hành — PCA notebook nhiệm vụ 6–9 (2026-10-04)
+
+- Sửa root/import của bốn notebook PCA + K-Means, chạy độc lập từ `M2/notebooks`
+  và lưu output đầy đủ. Giữ fitted models/scaler/K=2/số chiều 4; không refit, đọc holdout
+  hoặc mở nhiệm vụ 10. Bảng development chứng minh fixed count=4 đủ ≥90% ở mọi tháng.
+- Xuất bộ `m2-task6-pca-kmeans-v2`/`m2-evaluation-pca-kmeans-v2` có lineage/checksum;
+  giữ v1 nguyên trạng. Bổ sung PC1–PC4, PCA diagnostics/loadings, profile 13 cột,
+  quality summary 5×7, bảng Mean/Median/đối đầu/chuỗi thời gian và widget snapshot.
+- Sửa transitions dùng aligned IDs xuyên chuỗi và drift có tâm gốc thật hai tháng;
+  thêm kiểm tra chain/schema/counts/checksum. Kết luận và reports lấy số liệu chạy thực tế,
+  tách migration/entry-exit khỏi chi phí/turnover danh mục. Radar giới hạn hiển thị
+  ±3 có đánh dấu ngoài biên; heatmap 2×8 giữ annotation Z thật.
+- Runner đọc PCA n_components từ config; protocol yêu cầu số chiều frozen hợp lệ,
+  từ chối reduction mâu thuẫn. Thêm regression tests cho cấu hình và artifacts;
+  cô lập model output trong test runner để không sửa model thật khi chạy tests.
+- Experiment writer từ chối thư mục output đã tồn tại, bảo vệ bộ v1/v2 khỏi
+  việc chạy runner đè lên evidence đã freeze.
+
 # Chưa phát hành — FIN-PIT-2-R1 OCR remediation (2026-10-01)
 
 - Thêm selective local OCR runner dùng Tesseract `v5.4.0.20240606`, preflight 5 trạng
