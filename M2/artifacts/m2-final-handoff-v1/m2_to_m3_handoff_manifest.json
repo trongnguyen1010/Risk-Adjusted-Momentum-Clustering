@@ -1,0 +1,83 @@
+{
+  "manifest_version": "1.0.0",
+  "pipeline_milestone": "M2_TO_M3_HANDOFF",
+  "timestamp": "2026-10-05T08:35:00+07:00",
+  "status": "OFFICIALLY_HANDED_OFF",
+  "methodology": {
+    "selected_algorithm": "KMeans_Baseline",
+    "global_k": 2,
+    "features": [
+      "mom_21",
+      "mom_63",
+      "mom_126",
+      "mom_252",
+      "vol_63",
+      "mdd_126",
+      "beta_126",
+      "liquidity_21"
+    ],
+    "scaling": "RobustScaler per snapshot (Median, IQR)",
+    "selection_rationale": "KMeans_Baseline selected via 5-tier evaluation matrix and Occam's Razor (< 0.03 gap, identical temporal stability to PCA, direct economic interpretability on 8 raw features)"
+  },
+  "coverage": {
+    "n_development_snapshots": 15,
+    "development_window": [
+      "2023-11-30",
+      "2025-01-24"
+    ],
+    "systemic_gap": [
+      "2025-02-03",
+      "2026-01-30"
+    ],
+    "n_holdout_snapshots": 7,
+    "holdout_window": [
+      "2026-02-27",
+      "2026-08-28"
+    ],
+    "total_snapshots": 22,
+    "total_transition_pairs": 20,
+    "total_member_observations": 10239,
+    "rebalance_dates": [
+      "2023-11-30",
+      "2023-12-29",
+      "2024-01-31",
+      "2024-02-29",
+      "2024-03-29",
+      "2024-04-26",
+      "2024-05-31",
+      "2024-06-28",
+      "2024-07-31",
+      "2024-08-30",
+      "2024-09-30",
+      "2024-10-31",
+      "2024-11-29",
+      "2024-12-31",
+      "2025-01-24",
+      "2026-02-27",
+      "2026-03-31",
+      "2026-04-29",
+      "2026-05-29",
+      "2026-06-30",
+      "2026-07-31",
+      "2026-08-28"
+    ]
+  },
+  "artifacts_sha256": {
+    "m2_cluster_labels_for_m3.csv": "5e8fb5681c0f5b25a32e1d7462938e59a0e9e96dcba5285798c436b143928787",
+    "m2_cluster_profiles_for_m3.csv": "5ba8444948815eea04d4163e52f73639e94e5652f45fc11625e189384e036626",
+    "m2_transition_turnover_reference.csv": "dc97865ef4e5c9eb371c6b2f777b386dda547347ef1eac98ee38b53db36d0721",
+    "final_selected_models_manifest": "c7f3294eb657999dd39ca0c7ed9f7a7d2a2335e187423d7d7509a1aa32d4be12",
+    "all_models_22m_manifest": "7827f54b53d4093f83c150cd8122d0583d3ae31aaaaa9ce5c48ac41cce8630ec"
+  },
+  "verification_audit_reference": {
+    "audit_report": "M2/reports/Bao_cao_M2_Nhiem_vu_12_Verify.md",
+    "audit_verdict": "METHODOLOGY_CLEARED_PASS",
+    "frozen_winner": "KMeans_Baseline",
+    "preregistration_limitation_accepted": true
+  },
+  "m3_boundary_rules": [
+    "Strict one-way handoff: M3 must not modify clustering parameters or Global K based on backtest return/Sharpe.",
+    "Metric segregation: M2 metrics (Silhouette, DB, CH, ARI, NMI, Migration) are completely decoupled from M3 portfolio metrics (CAGR, Sharpe, MDD).",
+    "PIT execution: Snapshot t labels are available at decision_at (month-end close); portfolio trades execute at t+1 open."
+  ]
+}

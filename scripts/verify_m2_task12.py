@@ -9,6 +9,11 @@ from statistics import median
 import subprocess
 import sys
 
+try:
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
+
 
 def sha(path):
     h = hashlib.sha256()

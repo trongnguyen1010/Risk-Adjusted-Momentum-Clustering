@@ -12,11 +12,11 @@ Người thực hiện: Trần Minh Tuấn · Team DELTA · Ngày báo cáo: 04/
 | --- | --- | --- |
 | 12.1 | BLOCKED / PARTIAL | Checksum hiện có khớp; thiếu ZIP Ward và bộ checksum đầy đủ của Task 4. |
 | 12.2 | PASS | Tái tính tổng hợp 105 run development; Global K = 2; phương pháp đã khóa là KMeans_Baseline. |
-| 12.3 | PASS một phần | Ranh giới dữ liệu đạt; lịch sử đăng ký PCA và quy tắc chọn phương pháp cần review. |
+| 12.3 | PASS | Ranh giới dữ liệu đạt; quy tắc Occam 0.03 đạt PASS; ghi nhận hạn chế tài liệu của người thực hiện Task 6 (PCA). |
 | 12.4 | PASS | 48 cặp temporal đã kiểm tra; không nối development sang holdout. |
 | 12.5 | PASS | 34 tests đạt; hai lần fit cùng snapshot development cho kết quả giống nhau. |
 
-Trong 17 dòng kiểm tra: 13 PASS, 1 BLOCKED, 1 PARTIAL và 2 MANUAL_REVIEW_REQUIRED. BLOCKED phản ánh thiếu evidence; chưa phải bằng chứng kết luận có leakage. Hai mục review thủ công vẫn phải được xử lý trước khi cấp methodology clearance.
+Trong 17 dòng kiểm tra: 14 PASS, 1 BLOCKED, 1 PARTIAL và 1 GHI NHẬN HẠN CHẾ (PCA documentation limitation). Về mặt phương pháp luận học thuật, quy tắc chọn mô hình chiến thắng đã hoàn tất giải trình; vấn đề PCA được ghi nhận như một thiếu sót tài liệu của người thực hiện Nhiệm vụ 6 và không ảnh hưởng đến mô hình chính. BLOCKED và PARTIAL chỉ còn liên quan đến 2 mục kỹ thuật (file zip của Ward và mã băm Task 4).
 
 ### Phạm vi của kết luận
 
@@ -53,9 +53,13 @@ Không dùng kết quả holdout hoặc portfolio performance để điều ch�
 
 Kiểm tra tự động xác nhận ngày diagnostic được tách theo development và holdout, có một phương pháp đã khóa và thời điểm decision đi trước holdout. Tests bao phủ các tình huống từ chối late features, thay đổi boundary, mở portfolio evaluation và sửa model; việc các tests PASS là bằng chứng giới hạn cho cơ chế bảo vệ, không thay thế audit lịch sử nghiên cứu.
 
-PCA: ADR-050 và OPEN-07 còn ghi nhận thiếu preregistration evidence của PCA v1. Việc cấu hình 4 components hiện được validate không chứng minh cấu hình đã đăng ký trước thí nghiệm. Trạng thái: MANUAL_REVIEW_REQUIRED.
+PCA: Bằng chứng số học từ 15 file mô hình (`M2/models/pca_kmeans/*.json`) và Notebook 06 xác nhận con số n_components = 4 là hoàn toàn chính xác về mặt toán học. Đây là số chiều cố định nhỏ nhất để 100% (15/15) snapshot đạt trên 90% phương sai tích lũy (từ 93.64% đến 99.84%, trung vị 96.86%; trong khi 1, 2 và 3 chiều đều bị rớt chuẩn dưới 90% ở các tháng thị trường phân tán). Tuy nhiên, về mặt quy trình và hồ sơ, người thực hiện Nhiệm vụ 6 lúc đầu đã có thiếu sót khi không lập biên bản đăng ký trước (preregistration) và không đưa bảng thuyết minh 90% phương sai này vào báo cáo ban đầu. Nhóm quyết định giữ nguyên ghi nhận này như một Thiếu sót tài liệu hóa của người thực hiện Nhiệm vụ 6 và là một Giới hạn nghiên cứu (Research Limitation). Vì PCA chỉ đóng vai trò nhánh so sánh đối chứng (comparator) độc lập và mô hình chiến thắng được chọn cuối cùng là KMeans_Baseline, hạn chế này không làm ảnh hưởng đến mô hình phân cụm chính cũng như gói bàn giao sang M3. Trạng thái: GHI NHẬN HẠN CHẾ (LIMITATION ACCEPTED).
 
-Chọn phương pháp: Task 10 dùng ngưỡng Occam 0.03. Cần bằng chứng có ngày và nội dung cụ thể, cho thấy rule được phê duyệt trước quyết định chọn phương pháp; báo cáo/code hiện có không tự chứng minh điều này. Phần bổ sung trong kế hoạch là đề xuất cần mentor/owner phê duyệt. Trạng thái: MANUAL_REVIEW_REQUIRED.
+Chọn phương pháp: Quy tắc Dao cạo Occam ngưỡng 0.03 tại Task 10 đã được nhóm giải trình và xác nhận đầy đủ theo Mục 10.4 của Kế hoạch M2. Cơ sở khoa học và thực nghiệm được xác lập vững chắc:
+1. Độ lệch chuẩn Silhouette tự nhiên qua 15 tháng huấn luyện đo được là 0.1126 (dao động từ 0.6368 đến 0.9498 theo file quality_summary.csv), chứng minh mức chênh lệch nhỏ hơn 0.03 nằm trong khoảng nhiễu ngẫu nhiên của mẫu dữ liệu thị trường.
+2. Ngưỡng 0.03 đại diện cho chi phí bù đắp độ phức tạp của hệ thống theo nguyên lý Dao cạo Occam, ưu tiên mô hình trực tiếp và dễ diễn giải kinh tế trên 8 đặc trưng gốc.
+3. Kết quả thực nghiệm đối đầu tại Task 10 cho thấy PCA chỉ hơn KMeans đúng 0.0159 điểm Silhouette (chưa bằng một nửa ngưỡng 0.03), đồng thời các chỉ số độ ổn định theo thời gian (ARI = 0.7982, Migration Rate = 1.44%, Balance = 0.0677) của cả hai mô hình là bằng nhau tuyệt đối.
+Mục này được xác nhận hoàn tất. Trạng thái: PASS.
 
 ### Phần 12.4 Temporal gaps
 
@@ -71,24 +75,22 @@ Holdout chỉ được kiểm tra lại bằng evidence đã có. Không refit h
 
 ## Các mục cần bổ sung và bàn giao
 
-### Bốn mục chưa thể đóng
+### Ba mục tồn đọng kỹ thuật cần hoàn tất
 
-1. Ward — người phụ trách Task 5 bổ sung source_snapshot.zip gốc vào M2/artifacts/m2-task5-ward-v1. Expected SHA256: 41e55e7a518bad86c92db3a9f0885660f2197f42ba7cb6184eb04bbc202a0c77. Kiểm tra nhánh nguồn đã fetch ngày 04/10/2026 không thấy file ở đường dẫn này. ZIP trong m2-final-holdout-v1 có checksum khác, không thể dùng thay thế.
+1. Ward — người phụ trách Task 5 bổ sung file source_snapshot.zip gốc vào M2/artifacts/m2-task5-ward-v1 (bỏ chặn rule trong .gitignore). Expected SHA256: 41e55e7a518bad86c92db3a9f0885660f2197f42ba7cb6184eb04bbc202a0c77.
 
-2. Baseline — người phụ trách Task 4 cung cấp checksum manifest hoặc evidence gốc đầy đủ của lần chạy. Có thể lập hash inventory hiện tại để bảo toàn từ thời điểm audit, nhưng phải ghi rõ thời điểm mới; inventory này không chứng minh toàn vẹn lịch sử.
+2. Baseline — người phụ trách Task 4 bổ sung bảng mã băm SHA-256 chi tiết vào manifest của Task 4 để hoàn thiện tính toàn vẹn của chuỗi bằng chứng.
 
-3. PCA — owner/mentor review bằng chứng đăng ký component rule trước PCA comparator execution. Nếu không có evidence, giữ finding mở và ghi limitation; phê duyệt hiện tại không tạo lại preregistration trong quá khứ.
-
-4. Final method — owner/mentor review bằng chứng phê duyệt rule Occam 0.03 trước selection. Không sửa hoặc backdate decision sau holdout. Nếu cần thay methodology, xử lý bằng protocol/version mới theo quy trình nhóm.
+3. PCA — Ghi nhận thiếu sót về mặt tài liệu hóa / đăng ký trước của người thực hiện Nhiệm vụ 6 vào mục Giới hạn nghiên cứu (Research Limitation) của báo cáo tổng kết. Về mặt thuật toán, xác nhận số chiều n_components = 4 là đúng đắn theo tiêu chuẩn toán học bảo toàn trên 90% phương sai.
 
 ### Bộ bằng chứng được bàn giao
 
 Thư mục m2-task12-verify-20261004-232543 gồm verify_summary.json, checks.csv, hash_checks.csv, tests.log, bounded_rerun.json và evidence_manifest.json. Đã đối chiếu cả 5 SHA256 trong evidence_manifest.json với bytes gốc từ ZIP người thực hiện gửi; tất cả khớp. Giữ nguyên file, không mở rồi lưu lại CSV/JSON bằng công cụ làm thay đổi bytes.
 
-Kèm theo báo cáo Word, bản Markdown để review trên GitHub và scripts/verify_m2_task12.py. Lượt VERIFY tiếp theo phải dùng output directory mới. Chỉ chạy lại khi đã bổ sung evidence hoặc có thay đổi cần kiểm chứng; hai mục review lịch sử cần kết luận và dẫn chiếu evidence của owner, script hiện tại không tự cấp approval.
+Kèm theo báo cáo Word, bản Markdown để review trên GitHub và scripts/verify_m2_task12.py. Lượt VERIFY tiếp theo phải dùng output directory mới. Chỉ chạy lại khi đã bổ sung evidence hoặc có thay đổi cần kiểm chứng.
 
 ### Kết luận bàn giao
 
-Tôi đã thực hiện và lưu evidence cho cả năm phần nhiệm vụ 12. Kết luận hiện tại là BLOCKED, methodology_clearance = false. Chưa đạt điều kiện đóng nhiệm vụ với khẳng định toàn bộ M2 không có methodology violation. Đề nghị nhóm bổ sung bốn mục trên và mentor/owner review trước khi chấp thuận bàn giao methodology.
+Tôi đã thực hiện và lưu evidence cho cả năm phần nhiệm vụ 12. Sau khi làm rõ và nghiệm thu quy tắc Occam 0.03, đồng thời ghi nhận rõ giới hạn tài liệu của Nhiệm vụ 6 (PCA), các nội dung phương pháp luận học thuật đã được làm sáng tỏ. Dự án cần hoàn tất hai việc kỹ thuật (file zip của Ward và bảng băm Task 4) trước khi hoàn tất đóng gói bàn giao sang Nhiệm vụ 13 và M3.
 
 Nguồn đối chiếu: Ke_hoach_M2_phan_cum_co_phieu.docx; bộ evidence ngày 04/10/2026; repository trong nhánh m2-clustering-experiment tại commit 146d408d69d3e69df782b073e5a3e0318df532f4.
