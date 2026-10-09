@@ -29,7 +29,7 @@
 - Raw/canonical/experiment artifact là immutable; sửa policy tạo version/run mới.
 - Không dùng current ticker membership làm final historical research universe; join strict research bằng historical `security_id` interval. Market-only M2 development chỉ dùng eligibility theo từng snapshot đã freeze và không tạo historical-identity claim.
 - Không forward-fill missing price, không đổi missing thành zero, không trộn raw/adjusted basis.
-- Chỉ dùng row có `available_at <= decision_at`; financial statement phải point-in-time và revision-aware.
+- Chỉ dùng row có `available_at <= decision_at`; financial DATE_ONLY daily/monthly dùng policy đã owner duyệt: `decision_date >= usable_from_date` (phiên exchange quan sát được đầu tiên sau ngày công bố, không suy giờ). Financial statement phải point-in-time và revision-aware; date overlay chưa tự mở feature/research gate.
 - Real clustering cần ít nhất ba calendar years usable observed history; mã ngắn lịch sử là `REFERENCE_ONLY`.
 - Market canonical dùng VND/share, volume dùng shares, traded value dùng VND; multiplier phải có evidence và không được suy từ magnitude.
 - Reconciliation so theo canonical entity/key ở field level; `source`/`fetched_at` khác nhau không tự tạo value conflict. Không average và không dùng source priority nếu policy chưa approved/versioned.

@@ -1,5 +1,9 @@
 # Hệ thống feature
 
+Công thức từng financial indicator, required fields/nguồn và phụ lục market:
+[Handbook chỉ số và dữ liệu cần thu thập](research/FINANCIAL_INDICATORS_AND_DATA_GUIDE.md).
+Definition/acceptance financial theo [contract](research/FINANCIAL_FEATURE_CONTRACT.md).
+
 ## Registry là source of truth
 
 Mỗi feature phải có metadata: `name`, `family`, `version`, `formula/description`, `required_source`, `lookback`, `point_in_time_rule`, `missing_policy`, `transform`, `cluster_eligible` và `reference/citation`.

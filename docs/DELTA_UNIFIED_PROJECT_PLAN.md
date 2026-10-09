@@ -1,4 +1,4 @@
-# DELTA — Unified Project Roadmap & Handoff Plan v1.0
+# DELTA — Unified Project Roadmap & Handoff Plan v1.1
 
 **Project:** Risk-Adjusted Momentum Clustering for Vietnamese Equities  
 **Active branch baseline:** `m1-cafef-primary-experiment`  
@@ -92,6 +92,12 @@ M2-PREP đã audit:
 
 Kết quả: `MANUAL_REVIEW_REQUIRED` vì một số methodology choice chưa freeze.
 
+Owner review ngày `2026-09-26` đã chấp thuận các đề xuất Protocol v1 ở Section 6
+làm input cho M2-R1. Status `MANUAL_REVIEW_REQUIRED` vẫn được giữ nguyên trong
+artifact M2-PREP như historical evidence; trạng thái active của project chuyển sang
+**M2-R1 — Protocol Freeze v1**. M2-R1 phải materialize quyết định thành config,
+ADR, validation và tests trước khi được xem là `PASS`.
+
 ### 3.3 Hai readiness discontinuities quan trọng
 
 - `2023-05 → 2023-10`: thiếu VNINDEX row ngày `2023-05-15`, làm `beta_126` fail theo strict paired-return window.
@@ -145,7 +151,7 @@ M2 market-only là một scope nghiên cứu hẹp để phát triển clusterin
 
 ## 6. M2 v1 — Quyết định methodology đề xuất để freeze
 
-Do hiện tại không thể xin mentor ngay, project owner có thể freeze **Protocol v1** trước khi xem kết quả clustering. Nếu sau này mentor yêu cầu thay đổi, tạo Protocol v2 và không overwrite v1.
+Project owner đã chấp thuận các đề xuất dưới đây làm input cho **Protocol v1** trước khi xem kết quả clustering. M2-R1 phải ghi chúng thành config/ADR/testable contract; chúng chưa phải executable contract chỉ vì xuất hiện trong plan. Nếu sau này mentor yêu cầu thay đổi, tạo Protocol v2 và không overwrite v1.
 
 ### 6.1 Development window
 
@@ -814,4 +820,134 @@ Sau M2-R1 mới sửa runner ở M2-R2.
 
 ---
 
-**End of Plan — Version 1.0**
+## 26. Kế hoạch thực thi financial data — owner giao 03/10/2026
+
+Workstream này nằm trong `SourceCode-CafeF`, nhánh `m1-cafef-primary-experiment`;
+market-only do nhóm khác phụ trách. Mục tiêu: dữ liệu có thể truy nguyên và dùng
+được cho F/M/Z, EPS, P/E, P/B theo [definition contract](research/FINANCIAL_FEATURE_CONTRACT.md).
+Không đo tiến độ bằng số PDF tải được hoặc đồng nhất raw presence với PIT-ready.
+
+| Stage | Deliverable và công việc | Acceptance |
+|---|---|---|
+| FIN-D1 — Task input matrix | Danh sách input, kỳ hiện tại/prior/beginning assets, source/mapping và blockers riêng cho sáu task | JSON tái lập cho 4 mã × 5 năm × 6 task; unknown field hiện rõ; không tính điểm |
+| FIN-D2 — FPT reference data | Đọc đủ bảng/thuyết minh 2019–2025; debt maturity, earnings, equity/issuance, depreciation, receivables và EPS notes; phân biệt original/comparative | Mỗi input có value/unit/scope/framework/page/hash, mapping review và accounting QA; missing có reason |
+| FIN-D3 — Publication và revision | Thu issuer/exchange disclosure listings và đúng attachments, giữ ngày/giờ theo precision nguồn; match nội dung/hash với từng vintage | Exact document link/content, actual availability/timezone và version lineage; date-only không suy timestamp |
+| FIN-D4 — Four-symbol closure | Áp mẫu cho PVS/ACV/VNM; bổ sung full VAS VNM 2019/20/21/25, quý và YTD cần cho TTM | Readiness theo task/mã/kỳ; tính kiểm tra sau khi semantics đủ; mọi input thiếu khiến total null |
+| FIN-D5 — Bounded expansion | Thử batch đa dạng template/sector sau pilot; resume/cache, rate caps, parser QA, exception queue; tăng dần tới market universe | Source/pilot gates đạt; coverage/error cost đo được; chỉ nhóm ngành có contract và data đủ được nghiệm thu |
+
+Thứ tự ưu tiên trong FIN-D2: F-Score → EPS notes → Z → M. Annual score target
+2021–2025 cần evidence 2019–2025. P/E cần EPS TTM và raw price cùng share basis;
+P/B cần equity/shares đúng ngày định giá; đủ annual inputs chưa đóng valuation.
+Historical security identity và sector là dependency riêng, không suy từ mã hiện tại.
+
+Nguồn/strategy: CafeF bảng/detail/document list làm acquisition candidates;
+issuer/exchange công bố gốc để bổ sung thiếu và publication evidence. Ưu tiên
+structured tables/embedded text; scans dùng bounded OCR và visual acceptance.
+Không dùng source priority để che conflicts. Thu notes một lần, index theo PDF/page,
+tái sử dụng ảnh/text có hash; chỉ manual-review exceptions và semantics chưa rõ.
+Không suy ordinary income/debt/issuance/parent equity từ alias chưa nghiệm thu.
+
+Execution 03/10/2026: FIN-D1 COMPLETE, output hiện hành
+`data/financial/task_readiness_v3` (120 rows). FIN-D2 PARTIAL: OCR thêm 352 trang,
+review thêm 82 observations, FPT EPS annual input presence 2021–2025 đạt 5/5;
+debt/PPE/earnings/issuance/EBIT mappings chưa nghiệm thu. FIN-D3 PARTIAL: đã thu
+listing chính thức và exact audited FPT 2025 attachment, publication_date
+19/03/2026 với DATE_ONLY; available_at/timezone chưa đủ, PIT chưa phê duyệt.
+Overlay `data/financial/pilot_readiness_v6` có 133 document-verified/PIT-pending,
+703 raw-unverified, 286 note-review và 54 missing trên 1.176 cells. FIN-D4/D5 pending
+acceptance predecessors; chưa chạy full universe. Config scope:
+`configs/data/financial_execution_plan_v1.json`. Report hiện hành:
+[financial execution v1](../artifacts/reports/financial-execution-v1/report.md).
+
+Mỗi stage ghi report/changelog: raw/document/semantic/PIT coverage tách riêng,
+exact runs/hashes, tests và blockers. Data không có công khai được giữ null với
+reason; xác định phạm vi mã/năm khả dụng thay vì điền giả để đạt 100%.
+
+**End of Plan — Version 1.1 + financial execution addendum**
+
+Financial automation addendum05/10/2026: owner yêu cầu tiếp tục nhiều bước để có flow
+scale. Runner chung đã kiểm batch engineering10 mã FY2025: checkpoint/resume cache,
+PDF/text/OCR candidates, review queue, reviewed reference adapters và transitive
+verifier. [Execution plan v8](../configs/data/financial_execution_plan_v8.json) giữ
+nguyên năm stages; FIN-D5 engineering có evidence nhưng accepted-data expansion
+pending. Không thay M2 market-only, feature variants hoặc financial/research gates.
+Candidate completeness không đồng nghĩa numeric/PIT readiness. Trước tăng accepted
+universe cần pilot closure, template ground truth, independent QA/cost thresholds,
+historical snapshots/identity và financial protocol review.
+[Report quá trình](../artifacts/reports/financial-batch-flow-v1/report.md).
+
+### FIN-D2 continuation — 03/10/2026
+
+Thêm 40 visually-reviewed observations và 7 QA records về EBIT/issuance/equity/debt.
+EBIT 2024–2025 reconciled từ same-document EBT + interest và printed
+operating/financial/associate/other bridge. Overlay v7 có 135 verified/PIT-pending
+cells; task matrix v4 cho FPT Z annual presence 7/7 năm 2024–2025, EPS 3/3 năm
+2021–2025; chưa tính score. Bounded workflow planner/CLI/recipes đã chạy output
+workflow_v4: 1.224 unique cells, 140 external requirements, reuse 460 OCR pages;
+known VNM full-VAS gaps giữ riêng. [Workflow runbook](crawl/README.md) và
+[report hiện hành](../artifacts/reports/financial-workflow-v1/report.md).
+FIN-D2 vẫn PARTIAL: ordinary income, debt/PPE/net-receivables/issuance/common-equity
+mapping và compatible-vintage QA chưa đóng; FIN-D3 publication history còn pending.
+
+### FIN-D3 và FIN-D4 discovery — cập nhật 03/10/2026
+
+Owner approval cho DATE_ONLY daily/monthly thay yêu cầu có giờ: sử dụng từ phiên
+exchange quan sát được đầu tiên sau ngày công bố; giữ available_at null và thêm
+usable_from_date, không suy timestamp. Publication link phải exact PDF hash;
+revisions chỉ dùng sau ngày công bố. Calendar C8 observed union chưa authoritative.
+
+Đã review 10 publication PDFs, thêm 17 FPT observations/tám QA PASS, OCR 30 prefix
+pages PVS/ACV và quarantine một PDF VEAM gắn nhãn ACV2022. Latest readiness_v10
+139/1.176 value-verified; date_pit_v4 124 date-reference cells, Z FPT2024–25 7/7 và
+EPS2021–25 3/3 temporal inputs; zero task/feature acceptance. Workflow_v6: 26 annual
+PDF candidates/488 reused OCR pages/1.224 cells/140 external dependencies.
+FIN-D1 COMPLETE; FIN-D2/3 PARTIAL; FIN-D4 STARTED/PARTIAL (publication/issuer prefix,
+chưa full statement closure); FIN-D5 pending. Không đổi năm stage/mục tiêu score,
+không thay market-only clustering protocol. [Report mới](../artifacts/reports/financial-date-pit-v1/report.md)
+và [runbook](crawl/README.md) chứa thiếu gì/điều kiện scale và validation.
+
+### FIN-D2 calculator/reference acceptance slice — 03/10/2026
+
+Đã nối executable PDF/OCR-template parsing, reference QA, date-PIT và EPS/EM-Z
+calculators cho original FPT2024/25. Latest reference_flow_v6: 22 numeric cells,
+bốn accounting bridges PASS; bốn unique EPS/Z task-year reference results.
+Known revised EPS2024 sau release2025 bị chặn pending comparative mapping.
+Không tính full F/M/PE/PB hoặc certify production financial features; value/date
+coverage 139/124 unchanged. Slice chạy được trên calibration cohort, không phải
+unseen-document accuracy hoặc unattended acquisition. FIN-D2 tổng thể PARTIAL;
+FIN-D3/4 statuses và FIN-D5 gate giữ nguyên. [Report](../artifacts/reports/financial-reference-flow-v1/report.md).
+
+### FIN-D2 EPS revision/F-score continuation — 03/10/2026
+
+Không thay năm stage hoặc scope nhóm market. Thêm 15 reviewed observations,
+overlay v11 đạt 150/1.176; date overlay v5 đạt 135. Flow v9 nghiệm thu revised
+EPS2024 4.292 từ 20/03/2026, giữ original 4.944 trước đó; EPS2025 5.216.
+F-score FPT2024/25 tính được 6/9 signals với original-maturity debt/parent ESOP
+mapping; total null vì ordinary-income reconciliation chưa đóng. Task matrix v7
+vẫn 0/120 production-ready. FIN-D2/3/4 PARTIAL, FIN-D5 pending.
+[Report](../artifacts/reports/financial-revision-fscore-v1/report.md).
+
+### FIN-D4 source research và VAS references — cập nhật 03/10/2026
+
+Latest update 04/10/2026: FPT reference handoff tại
+[acceptance report](../artifacts/reports/financial-fpt-acceptance-v2/report.md),
+[execution plan v6](../configs/data/financial_execution_plan_v6.json).
+Sáu families có reference values; bank proceeds/registered ESOP increase đã khớp,
+gross-capital P/B bổ sung với fees/cash classification unknown. FIN-D4 vẫn PARTIAL
+do VNM/PVS/ACV chưa reviewed closure; FIN-D5 pending. Năm stage và market-only
+workstream không đổi, không tự mở production/scale. Phần sau là lineage 03/10.
+
+Giữ năm giai đoạn FIN-D1→D5 và market-only M2 ownership. KBS structured pilot
+có đủ ba annual statements trên FPT/VNM/PVS/ACV; FPT có thêm Q1/H1 2026 PDF,
+80 OCR pages, 17 annual/13 H1 observations reviewed và hai transcription
+corrections theo exact original PDF. Readiness v12 đạt153/1.176, datev6=138,
+taskv8 vẫn0/120 strict-production-ready; workflowv8 giữ annual queue.
+
+Source completion v5/replayv4: F-score VAS2021–25=4/6/6/7/3, M2024/25 sensitivity,
+reported P/E/P/B20/03/2026≈14,30/3,48, H1EPS2026=2.967. Named variants không là
+strict original scores; production methodology MANUAL_REVIEW_REQUIRED. Latest
+TTM bị chặn bởi FTEL scope/reserve/share basis. Ba mã còn lại mới raw candidates,
+chưa full-PDF semantic QA. FIN-D2/3/4 PARTIAL; FIN-D5 scale chưa mở.
+
+[Execution config v4](../configs/data/financial_execution_plan_v4.json),
+[report](../artifacts/reports/financial-source-research-v1/report.md).

@@ -22,8 +22,9 @@ Supplemental acquisition cho 148 deferred rows là optional future stage, không
 - [x] Static K-Means deterministic baseline và label alignment/transition tracking.
 - [x] Tách cluster quality khỏi temporal/portfolio metrics ở architecture.
 - [x] **M2-PREP audit:** freeze eligibility semantics/feature set/firewall; tái lập 905/952; giải thích readiness gaps; audit implementation/literature và xuất `artifacts/experiments/m2-prep-v1/`. Status `MANUAL_REVIEW_REQUIRED`; không tạo final config hoặc chạy clustering.
-- [ ] **M2-PREP-REVIEW:** owner/mentor chọn development window, holdout, minimum coverage/skip rules, `k`, outlier/scaling, PCA components và feature-version resolution; sau đó mới implement narrow market-only runner/input adapter.
-- [ ] Freeze feature registry và development/validation protocol; active snapshot 1.5 không chứa Sharpe và tách readiness, còn formula market giữ nguyên baseline 1.4.
+- [x] **M2-PREP-REVIEW:** owner review ngày `2026-09-26` chấp thuận Protocol v1 trong Unified Project Plan làm input cho M2-R1; artifact M2-PREP vẫn giữ historical status `MANUAL_REVIEW_REQUIRED`.
+- [ ] **M2-R1 Protocol Freeze v1:** materialize development/holdout, minimum eligibility/skip rule, preprocessing, global-`k`, PCA, feature-version compatibility và portfolio firewall thành config, ADR, validation và tests; chưa chạy real clustering.
+- [ ] **M2-R2 Market-only Runner Adapter:** thêm explicit `market_only` mode, configurable eligibility field và checksummed C8 input adapter; giữ strict research path không đổi.
 - [x] Có implementation PCA + K-Means snapshot-only, lưu scaler/PCA parameters và explained variance; chưa có real comparison evidence.
 - [x] Có Ward/Agglomerative comparator deterministic; DBSCAN/GMM chờ protocol. Chưa có real comparator evidence.
 - [ ] Đánh giá cluster quality: Silhouette, Davies-Bouldin, Calinski-Harabasz, inertia, balance.
@@ -42,4 +43,4 @@ Supplemental acquisition cho 148 deferred rows là optional future stage, không
 
 ## Gates chung
 
-Mỗi phase phải chạy tests, compile/static checks, JSON parse, broken link/import check và ghi changed files. Regression chưa giải thích thì dừng. M2-PREP không được promote identity/research readiness, không chạy clustering/backtest và không chọn model bằng portfolio return. Không mở rộng auth, news/sentiment, watchlist, alert, microservice hoặc database migration trong active stage.
+Mỗi phase phải chạy tests, compile/static checks, JSON parse, broken link/import check và ghi changed files. Regression chưa giải thích thì dừng. M2-R1 không được promote identity/research readiness, không chạy clustering/backtest, không mở holdout và không chọn model bằng portfolio return. Không mở rộng auth, news/sentiment, watchlist, alert, microservice hoặc database migration trong active stage.

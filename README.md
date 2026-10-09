@@ -14,7 +14,7 @@ CafeF `TradeHistoryNew` là nguồn market active. Stage C8 đã được execut
 
 R1 đã hợp nhất repository sau C8: bỏ planning/history/runner superseded khỏi active tree, giữ code và evidence cần thiết để verify C8, duy trì acquisition có kiểm soát và chuẩn bị stage nghiên cứu tiếp theo. M1-REPORT đã hoàn tất tại `artifacts/reports/m1-market-foundation-v1/`; notebook inspection nằm tại `notebooks/eda/M1_CAFEF_MARKET_FOUNDATION.ipynb`. Các file đã xóa vẫn truy xuất được trong Git history.
 
-Trong M2-PREP, `market_experiment_eligible(t)` được định nghĩa theo từng snapshot là `market_feature_ready_v2(t)` dưới protocol M2 được freeze. Con số 905 chỉ là membership ở snapshot mới nhất `2026-08-28`, không phải bộ lọc terminal áp ngược về lịch sử và không đồng nghĩa `research_ready`.
+Trong M2-PREP, `market_experiment_eligible(t)` được định nghĩa theo từng snapshot là `market_feature_ready_v2(t)`. Owner review ngày `2026-09-26` đã chấp thuận các đề xuất Protocol v1 trong Unified Project Plan làm input cho M2-R1. Con số 905 chỉ là membership ở snapshot mới nhất `2026-08-28`, không phải bộ lọc terminal áp ngược về lịch sử và không đồng nghĩa `research_ready`.
 
 ## Quick start
 
@@ -42,7 +42,7 @@ artifacts/      Evidence được version hóa; heavy C8 artifact giữ local, i
 
 ## Stage tiếp theo
 
-Stage chính xác tiếp theo sau D1 là **M2-PREP — MARKET-ONLY EXPERIMENT PROTOCOL**: review/freeze eligibility theo snapshot, development/validation windows, preprocessing và evaluation contract trước khi chạy clustering. Stage này không được ngầm nâng 905 securities thành `research_ready`; mọi thay đổi gate identity hoặc strict research eligibility cần manual review.
+Stage chính xác tiếp theo là **M2-R1 — PROTOCOL FREEZE v1**: chuyển các quyết định đã được owner review thành config, ADR, validation và tests. M2-R1 không chạy real clustering, không mở holdout, không sửa runner market-only và không được ngầm nâng 905 securities thành `research_ready`. Sau khi M2-R1 PASS mới chuyển sang M2-R2 để sửa runner/input adapter.
 
 ## Disclaimer
 

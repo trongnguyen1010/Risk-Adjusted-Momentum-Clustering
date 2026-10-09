@@ -1,0 +1,27 @@
+{
+  "version": "financial-workflow-v1",
+  "symbols": ["FPT", "PVS", "ACV", "VNM"],
+  "max_symbols": 4,
+  "max_index_runs": 8,
+  "max_unique_documents": 32,
+  "max_reused_ocr_pages": 800,
+  "max_queue_cells": 2000,
+  "max_hints_per_field": 5,
+  "financial_features_allowed": false,
+  "full_universe_allowed": false,
+  "document_gaps": [{"symbol": "VNM", "years": [2019, 2020, 2021, 2025], "requirement": "FULL_CONSOLIDATED_VAS", "evidence": "artifacts/reports/financial-remediation-v2/report.md", "reason": "2025 annual-report IFRS tables and VAS audit extract do not establish full VAS statements"}],
+  "field_recipes": {
+    "income_before_extraordinary_items": {"requires_mapping": true, "search_terms": ["thu nhap khac", "chi phi khac", "extraordinary"], "qa": ["ORDINARY_EARNINGS_DEFINITION", "DO_NOT_ALIAS_NET_PROFIT", "SAME_VINTAGE_TAX_RECONCILIATION"]},
+    "long_term_debt_including_current_portion": {"requires_mapping": true, "search_terms": ["vay dai han", "trong vong 1 nam", "thue tai chinh"], "qa": ["ORIGINAL_MATURITY", "CURRENT_PORTION_NO_DOUBLE_COUNT", "LEASE_SCOPE", "NOTE_TO_BALANCE_SHEET"]},
+    "document_reconciled_long_term_debt": {"requires_mapping": true, "search_terms": ["vay dai han", "thue tai chinh"], "qa": ["MODEL_SPECIFIC_CURRENT_PORTION", "LEASE_SCOPE", "NO_CURRENT_LIABILITY_DOUBLE_COUNT"]},
+    "document_reconciled_net_receivables": {"requires_mapping": true, "search_terms": ["phai thu", "du phong"], "qa": ["CUSTOMER_RECEIVABLES_SCOPE", "ALLOWANCE_ALLOCATION", "CURRENT_LONG_TERM_SCOPE"]},
+    "parent_common_equity_issuance_verified": {"requires_mapping": true, "search_terms": ["phat hanh", "co phieu", "chu so huu"], "qa": ["PARENT_NOT_SUBSIDIARY", "ESOP_VS_STOCK_DIVIDEND", "SHARES_PAR_VALUE_BRIDGE"]},
+    "ppe_depreciation_excluding_amortization": {"requires_mapping": true, "search_terms": ["khau hao", "tai san co dinh"], "qa": ["TANGIBLE_OWNED_LEASE_SCOPE", "EXCLUDE_AMORTIZATION", "ROLL_FORWARD"]},
+    "document_reconciled_ebit": {"requires_mapping": true, "search_terms": ["truoc thue", "lai vay"], "qa": ["EBT_PLUS_INTEREST", "OPERATING_FINANCIAL_ASSOCIATE_OTHER_BRIDGE", "SAME_DOCUMENT"]},
+    "parent_common_equity": {"requires_mapping": true, "search_terms": ["chu so huu", "khong kiem soat"], "qa": ["EXCLUDE_NCI", "COMMON_PREFERRED_SCOPE", "EQUITY_NOTE_BRIDGE"]},
+    "share_basis_adjustment_history": {"requires_mapping": true, "search_terms": ["co phieu", "menh gia"], "qa": ["EVENT_EFFECTIVE_DATE", "SHARE_PRICE_BASIS", "NO_CURRENT_SHARES_BACKFILL"]},
+    "selling_expense": {"search_terms": ["ban hang"], "qa": ["FULL_ANNUAL_NOT_YTD_QUARTER", "SAME_DOCUMENT_COLUMN"]},
+    "administrative_expense": {"search_terms": ["quan ly"], "qa": ["FULL_ANNUAL_NOT_YTD_QUARTER", "SAME_DOCUMENT_COLUMN"]},
+    "retained_earnings": {"search_terms": ["phan phoi"], "qa": ["BALANCE_SHEET_EQUITY_NOTE_BRIDGE"]}
+  }
+}

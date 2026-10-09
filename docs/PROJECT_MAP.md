@@ -14,6 +14,27 @@
 
 ## Evidence và runner
 
+Financial CafeF-first trial50: `scripts/crawl_cafef_financial.py` và `.ps1` cung cấp
+doctor/plan/run/verify/feedback/prepare50; module
+`src/delta_t1/experiments/cafef_financial_trial.py` và durable journal
+`src/delta_t1/ingestion/financial_compact_trial.py`. Config pilot4/trial50 dưới
+`configs/data/`; report ở `artifacts/reports/cafef-financial-trial50-v1/`.
+`data/financial/cafef_pilot4*_20261008_v1` và `cafef_trial50_20261008_v1` giữ sealed
+raw/candidate lineage; epoch registry và dependencies quyết định retention closure.
+Đọc [runbook active](crawl/FINANCIAL_TRIAL_50_USER_GUIDE.md) trước dùng runner cũ.
+`configs/data/cafef_financial_trial50_handoff_v1.json` ghi bounded execution complete,
+candidate data PARTIAL và next document/template review; không rewrite plan v9 hoặc
+source-selection snapshot cũ, không tự bắt đầu stage100/financial clustering.
+
+Financial source review: `scripts/benchmark_financial_sources.py` chạy so sánh bounded
+CafeF/KBS; `scripts/analyze_financial_source_benchmark.py` phân tích sealed raw offline.
+Config `financial_source_benchmark_v1.json` giữ mẫu/targets/budgets, còn
+`financial_source_selection_v1.json` ghi recommendation engineering và closed gates.
+`scripts/financial_retention.py` inventory/archive/verify/restore exact bytes;
+`scripts/prune_financial_archives.ps1` chỉ gỡ direct financial leaf đã verify.
+Cold data nằm tại `artifacts/archives/financial-cleanup-20261008-v1/`, index là
+`prune-plan.json`; reports vẫn ở `artifacts/reports/`. Runbook trong docs/crawl/README.
+
 | Path | Vai trò |
 |---|---|
 | `artifacts/cafef_primary/cafef-c8-complete-only-v1/` | Heavy C8 output local bất biến, không track đầy đủ trong Git |
@@ -36,8 +57,14 @@ Notebook human-facing duy nhất của M1 report là
 `notebooks/eda/M1_CAFEF_MARKET_FOUNDATION.ipynb`; notebook đọc explicit report
 artifact và không chứa acquisition hoặc scientific gate logic riêng.
 
-Exact next stage là M2-PREP; project map này không cấp quyền chạy clustering, backtest hoặc supplemental crawl.
+Exact next stage là **M2-R1 — Protocol Freeze v1**; project map này không cấp quyền chạy real clustering, mở holdout, sửa market-only runner, chạy backtest hoặc supplemental crawl. Sau khi M2-R1 PASS mới chuyển sang M2-R2.
 
 ## Tài liệu canonical
 
 `docs/README.md` là index; `docs/CURRENT_STATUS.md` là active handoff; `docs/METHODOLOGY.md` và `docs/DECISIONS.md` giữ invariant/decision; `docs/REPRODUCIBILITY.md` định nghĩa cách verify. Git history giữ tài liệu superseded, không tạo archive song song trong working tree.
+
+Financial reference slice: `ingestion/financial_table_parser.py` đọc coordinate
+OCR candidates; `features/financial_reference.py` tính EPS/EM-Z reference qua
+registry riêng; `experiments/financial_reference_flow.py` kiểm chứng và orchestrate;
+CLI `scripts/run_financial_reference_flow.py`, config `financial_reference_flow_v1.json`.
+Các module này không tự promote financial features hoặc thay market runner.

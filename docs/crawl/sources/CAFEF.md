@@ -9,6 +9,92 @@
 - Financial PIT chưa ready và financial features không active.
 - Current profile/listing metadata không chứng minh historical identity hoặc final historical universe.
 
+## Financial CafeF-first trial50 — 2026-10-08
+
+Active financial structured runner dùng detail HTML, không summary JSON/KBS fallback:
+[report50](../../../artifacts/reports/cafef-financial-trial50-v1/report.md),
+[PowerShell runbook](../FINANCIAL_TRIAL_50_USER_GUIDE.md).50 frozen market-ready mã,
+600 base +120 gap requests,588/600 base parse;12 BVH302 không follow redirect.
+Annual2021–2025/quarter2024–2025:1.646/1.950 wire statement-periods chứa số liệu;
+chỉ5 mã đủ wire toàn13 kỳ/3 statements, không phải số mã score-ready.
+
+Strict parser kiểm ticker,4 distinct sorted headers với last period đúng requested
+anchor, row width và raw numeric grammar; nested chart excluded. Header display
+units, fiscal-year/scope/publication/revisions còn unverified; không nhân số theo
+magnitude, không relabel kỳ hoặc fill zero. Regular code+label crosswalk chỉ tạo
+candidate, sector templates chưa map Regular. Exact document/notes/PIT review queue
+giữ gaps;0 PDF/OCR mới/0 accepted facts/0 strict tasks-ready trong lượt50. Market
+TradeHistory source và financial/research/cluster/full-universe gates giữ nguyên.
+
+## Financial raw pilot — live 2026-10-02
+
+Kế thừa discovery, đã execute `cafef-financial-raw-pilot-v1` cho FPT/VNM/PVS/ACV,
+target 2021–2025, KQKD/CDKT/LCTT và QUY/NAM. Local immutable run:
+`data/financial/cafef_raw_pilot_v1/run-20261002T155840Z-652f827b/`.
+72 logical calls; execution PARTIAL, coverage PARTIAL; exact inventory/hash và
+offline coverage replay PASS. Raw không được redistribute/commit.
+
+| Mã | QUY KQKD / CDKT | NAM KQKD / CDKT | LCTT qua GetReportSummary |
+|---|---|---|---|
+| FPT | 19/20 kỳ mỗi loại; thiếu Q2-2024 | 5/5 năm mỗi loại | Không trả report group ở QUY/NAM |
+| VNM | 19/20 kỳ mỗi loại; thiếu Q2-2024 | 5/5 năm mỗi loại | Không trả report group ở QUY/NAM |
+| PVS | 20/20 kỳ mỗi loại | 5/5 năm mỗi loại | Không trả report group ở QUY/NAM |
+| ACV | 20/20 kỳ mỗi loại | 4/5 năm mỗi loại; page 2 lặp/overlap nên fail closed, chưa lấy 2021 | Không trả report group ở QUY/NAM |
+
+`isSuccess=true` không chứng minh đủ dữ liệu. LCTT không có ở path summary được
+kiểm tra không có nghĩa CafeF không có LCTT ở báo cáo chi tiết/tài liệu gốc.
+Annual period dùng provider `quater=0`; metadata `type`/`content` và template được
+giữ raw, không suy thành canonical scope/audit. FPT summary quan sát có basic EPS
+`KQKD_15`; không tự áp mã này cho mọi ngành/template, không tự tính diluted EPS.
+QUY/LUYKE duration, financial first-public timing, fact-to-document join và revision
+vẫn chưa verified. Financial PIT NOT_READY; mọi financial features tiếp tục khóa.
+
+Việc tiếp theo: targeted validation đường dẫn báo cáo chi tiết/LCTT, missing
+Q2-2024 và ACV annual pagination; sau đó xác minh đúng tài liệu/report vintage và
+publication evidence. Không lặp broad discovery hoặc scale crawl trước khi giải
+thích coverage failures. Runbook: [Financial raw pilot](../README.md).
+
+## Financial detail remediation — completed inspection 2026-10-03
+
+Handoff mới hơn: [report financial evidence v2](../../../artifacts/reports/financial-remediation-v2/report.md)
+và [contract](../../research/FINANCIAL_FEATURE_CONTRACT.md). Bounded annual/all-vintage
+acquisition + issuer supplement thêm 30 PDF, giữ 11 PDF trước đó; text index 41
+documents/3.101 trang, OCR first-18-pages cho 11 gap PDF (198 trang). Thêm 85
+visual-validated observations, tổng 130, không phải canonical facts. Annual VAS
+document candidates 24/28 mã-năm; VNM 2019/2020/2021/2025 còn thiếu full VAS.
+Một public-mirror annual report VNM 2025 chứa bảng IFRS và audit extract VAS,
+giữ riêng accounting framework. PIT NOT_READY, không infer publication hoặc promote.
+
+Đã kiểm tra UI `redirectBc` và paths public
+`/du-lieu/bao-cao-tai-chinh/{symbol}/{bsheet|incsta|cashflow|cashflowdirect}/{year}/{quarter}/0/1/bao-cao-tai-chinh-.chn`.
+Canonical path lowercase được server xác nhận qua 301. Header `tblGridData` và body
+`tableContent` cho 4 kỳ; nested chart không phải fact. Local detail run:
+`data/financial/cafef_detail_v1/run-2026-10-02T165041.053761-0000-eb9f3a1c/`.
+108 calls (88 detail + 20 FileBCTC lists), 19.644 in-target cell observations,
+exact hash/parse/coverage replay PASS. Period presence annual 60/60, quarterly
+225/240; không đồng nhất presence với full item/taxonomy/PIT readiness.
+
+ACV NAM 2021 đã có số liệu qua detail; summary overlap vẫn giữ quarantine.
+FPT/VNM Q2-2024 vẫn blank ở detail kể cả explicit Q2 anchor. Cashflow detail có
+thêm các quarterly gaps: FPT Q1/Q2-2025; VNM Q3-2023, Q1/Q2-2025; PVS Q3-2023,
+Q3/Q4-2024; ACV Q3-2023. Direct-method path được probe bốn anchors nhưng không
+giải quyết các missing periods. Các kỳ này không được fill hoặc suy zero.
+
+Tải được consolidated PDF cho cả 11 unique gap periods từ FileBCTC lists. FPT
+Q2-2024 initial và reviewed PDFs có EPS YTD 2.514 vs 2.515 và profit khác nhau.
+Reviewed PDF page 58 có weighted-average basic shares 1.460.448.066; page 59 có
+comparative 2023 share/EPS restatement. Đây là evidence có version differences,
+chưa phải verified provider supersession/first-public chain. VNM Q2 PDF có
+standalone IS và 6-month CF. Chỉ 45 PDF facts được visual-transcribe/QA; full OCR
+và balance-sheet extraction cho mọi gap document chưa hoàn tất.
+
+Detail HTML label `tỷ đồng` không được dùng để nhân raw cell; numeric candidates
+khớp 1.047 summary values ở restricted comparison crosswalk nhưng chưa approve
+mọi unit/field. Monetary và EPS cells không dùng chung multiplier. Candidate
+field checklist chỉ cho bốn non-bank issuers, không phải approved taxonomy.
+Publication timestamps/timezone/fact-document join vẫn unresolved; financial
+features tiếp tục khóa. Xem [report](../../../artifacts/reports/financial-remediation-v1/report.md).
+
 ## OLDER DISCOVERY FINDINGS (2026-09-16)
 
 Các mục bên dưới bảo toàn discovery evidence tại thời điểm ghi nhận. Trạng thái và khuyến nghị cũ không được đọc như current post-C8 decision.
@@ -413,3 +499,30 @@ Ghi chú phê duyệt:
 - Bản triển khai tiếp theo có thể mã hóa cấu trúc request công khai và định danh/metadata tài liệu đã xác minh trong khi **cố tình để trống** (unmapped) đối với fact giá, lịch sử cổ phiếu, dòng canonical sự kiện doanh nghiệp và fact PIT tài chính.
 - Adapter phải duy trì cơ chế fail-closed đối với `SOURCE_SMOKE` thực tế cho đến khi các trường smoke dự định, price basis, hành vi múi giờ/thời điểm công bố và quyền hạn được xác minh đầy đủ.
 - Không cấp trạng thái `PILOT_APPROVED` hay `PRODUCTION_APPROVED`.
+
+Financial evidence update 03/10/2026: sáu annual scan FPT 2019–2024 đã có OCR
+108 trang và visual review; cùng issuer annual 2025 đóng 49/49 annual core cells.
+PDF values phải giữ period/framework/unit và vintage: FPT 2020 reclassification,
+2024 EPS restatement không được trộn để tính lịch sử. Checklist document acceptance
+tách raw presence khỏi annual value verification, vẫn PIT NOT_READY.
+[Report và exact local inputs/output](../../../artifacts/reports/financial-pilot-closure-v1/report.md).
+
+### Financial date-PIT/issuer QA — 03/10/2026
+
+Owner đã duyệt DATE_ONLY daily/monthly: dùng từ phiên exchange quan sát được đầu
+tiên sau ngày công bố, không dựng timestamp. Ngày phải explicit disclosure và nối
+exact PDF hash; không dùng report/audit/signature/filename/ObjectId làm publication.
+Provider metadata có thể sai issuer: một ACV2022 attachment là VEAM, được quarantine
+ hash trong pilot_publication_review_v1; raw giữ nguyên, ACV2022 candidate khác vẫn còn.
+Latest date_pit_v4 có 124 date-reference cells; chưa financial features/research ready.
+[Report và coverage](../../../artifacts/reports/financial-date-pit-v1/report.md),
+[approved policy](../../../configs/data/financial_date_pit_v1.json).
+
+Continuation EPS revision/F-score: readiness_v11 có150 value cells,
+date_pit_v5 có135 date references. Exact original2025 PDF note55 cung cấp
+restated2024 shares/EPS; chỉ dùng từ20/03/2026, giữ original EPS trước đó.
+Original annual notes xác minh F-score debt gồm current portion và actual parent
+ESOP issuance; không alias VAS net profit thành ordinary earnings. FPT2024/25
+có6/9 reference signals, total null. Cached original PDFs đến từ CafeF attachments
+và exact issuer disclosure attachment2025; không crawl nguồn mới trong đợt này.
+[Report](../../../artifacts/reports/financial-revision-fscore-v1/report.md).

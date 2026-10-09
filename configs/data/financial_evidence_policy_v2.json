@@ -1,0 +1,94 @@
+{
+  "contract_version": "financial-evidence-policy-v2",
+  "decision_date": "2026-10-03",
+  "symbols": [
+    "FPT",
+    "VNM",
+    "PVS",
+    "ACV"
+  ],
+  "score_target_years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "annual_document_start_year": 2019,
+  "annual_document_end_year": 2025,
+  "max_pdf_downloads": 80,
+  "statement_scope": "CONSOLIDATED",
+  "sector_scope": "NON_FINANCIAL_ONLY_REQUIRES_HISTORICAL_CLASSIFICATION",
+  "score_frequency": "ANNUAL",
+  "missing_policy": "NULL_WITH_REASON_NO_ZERO_NO_PARTIAL_TOTAL_SCORE",
+  "ocr_policy": "EVIDENCE_ONLY_VISUAL_VERIFICATION_REQUIRED",
+  "financial_features_allowed": false,
+  "financial_pit_gate": "PARTIAL_DATE_EVIDENCE_SEMANTICS_AND_IDENTITY_PENDING",
+  "availability_policy": "EXACT_PDF_DATE_PUBLICATION_NEXT_OBSERVED_EXCHANGE_SESSION",
+  "date_only_policy": "APPROVED_DAILY_MONTHLY_NO_TIMESTAMP_INFERENCE",
+  "vintage_policy": "KEEP_ALL_VERSIONS_SELECT_AS_OF_DECISION_AT_ONLY_AFTER_VERIFICATION",
+  "quarterly_cf_policy": "YTD_UNTIL_DOCUMENT_VALIDATED_SUBTRACTION_REQUIRES_COMPATIBLE_VINTAGE_AND_MAX_INPUT_AVAILABILITY",
+  "eps_ttm_policy": "NO_BLIND_SUM_OF_RESTATED_QUARTER_EPS_REQUIRE_COMMON_SHARE_BASIS",
+  "pe_policy": "RAW_PRICE_VND_PER_SHARE_AND_COMPATIBLE_EPS_TTM_POSITIVE_ONLY",
+  "pb_policy": "PARENT_COMMON_EQUITY_AND_DATE_MATCHED_COMMON_SHARES_PRICE_BASIS",
+  "f_score": {
+    "variant": "PIOTROSKI_ANNUAL_TABLE1_AVERAGE_ASSETS_TURNOVER_EXPLICIT_VARIANT",
+    "reference": "https://www.chicagobooth.edu/~/media/FE874EE65F624AAEBD0166B1974FD74D.pdf",
+    "reference_pages": [
+      9,
+      10,
+      15
+    ],
+    "roa": "income_before_extraordinary_items / beginning_total_assets",
+    "cfo": "operating_cash_flow / beginning_total_assets",
+    "leverage": "long_term_debt_including_current_portion / average_total_assets",
+    "turnover": "net_sales / average_total_assets",
+    "signals": [
+      "roa > 0",
+      "cfo > 0",
+      "roa > prior_roa",
+      "cfo > roa",
+      "leverage < prior_leverage",
+      "current_ratio > prior_current_ratio",
+      "no_common_equity_issuance_verified",
+      "gross_margin > prior_gross_margin",
+      "turnover > prior_turnover"
+    ],
+    "adaptation_status": "VAS_INCOME_AND_DEBT_MAPPING_REQUIRES_DOCUMENT_REVIEW"
+  },
+  "m_score": {
+    "variant": "BENEISH_LEE_NICHOLS_2013_EIGHT_VARIABLE_CASH_FLOW_ACCRUALS",
+    "reference": "https://cpb-us-w2.wpmucdn.com/sites.udel.edu/dist/a/855/files/2020/07/Earnings-Manipulation-and-Expected-Returns.pdf",
+    "reference_pages": [
+      20,
+      21
+    ],
+    "intercept": -4.84,
+    "coefficients": {
+      "DSR": 0.92,
+      "GMI": 0.528,
+      "AQI": 0.404,
+      "SGI": 0.892,
+      "DEPI": 0.115,
+      "SGAI": -0.172,
+      "ACCRUALS": 4.679,
+      "LEVI": -0.327
+    },
+    "accruals": "(income_before_extraordinary_items - operating_cash_flow) / total_assets",
+    "ppe_policy": "NET_TANGIBLE_PPE_NOT_ALL_FIXED_ASSETS",
+    "depreciation_policy": "PPE_DEPRECIATION_EXCLUDES_GOODWILL_AND_INTANGIBLE_AMORTIZATION",
+    "leverage_policy": "(current_liabilities + long_term_debt) / total_assets",
+    "classification_threshold": null,
+    "interpretation": "CONTINUOUS_DIAGNOSTIC_NOT_FRAUD_DETERMINATION"
+  },
+  "z_score": {
+    "variant": "EMERGING_MARKET_Z_DOUBLE_PRIME_WITH_3_25_CONSTANT",
+    "reference": "https://www.imf.org/-/media/Files/Publications/WP/2019/WPIEA2019093.ashx",
+    "reference_page": 8,
+    "formula": "3.25 + 6.56 * ((current_assets-current_liabilities)/total_assets) + 3.26 * (retained_earnings/total_assets) + 6.72 * (ebit/total_assets) + 1.05 * (book_equity/total_liabilities)",
+    "ebit_policy": "DOCUMENT_RECONCILED_NO_BLIND_OPERATING_PROFIT_CODE30_ALIAS",
+    "classification_threshold": null,
+    "interpretation": "CONTINUOUS_NON_FINANCIAL_DIAGNOSTIC_NOT_CALIBRATED_VIETNAM_DEFAULT_PROBABILITY"
+  },
+  "date_pit_policy": "configs/data/financial_date_pit_v1.json"
+}
