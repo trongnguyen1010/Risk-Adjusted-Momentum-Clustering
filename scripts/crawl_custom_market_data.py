@@ -680,6 +680,14 @@ def main(argv=None) -> int:
         elif existing:
             missing_prior_only += 1
             obs = c8_observed_map.get(sym, 0)
+            if obs == 0 and existing:
+                csv_p = out_dir / "normalized" / f"{sym}.csv"
+                if csv_p.is_file():
+                    try:
+                        with open(csv_p, "r", encoding="utf-8") as f:
+                            obs = sum(1 for _ in f) - 1
+                    except Exception:
+                        obs = 0
             start_page = 1
             if missing and missing[0][1] <= "2019-12-31" and obs >= 150:
                 start_page = max(1, int(obs / 50) - 2)
