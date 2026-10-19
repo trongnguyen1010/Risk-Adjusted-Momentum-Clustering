@@ -1,5 +1,17 @@
 # Project Map
 
+## Planning market/financial history — 19/10/2026
+
+- [Market plan](crawl/MARKET_HISTORY10Y_1500_PLAN.md): 2016–2025, warm-up2013–2015,
+  ≥1.500 cổ phiếu lịch sử; source/identity/cache/QA/M3 handoff.
+- [Financial plan](crawl/FINANCIAL_HISTORY_PIT_PLAN.md): annual+quarterly2013–2025,
+  closing2012 theo dependency, selective PDF/OCR và reference/PIT deliveries.
+- [Registry team](../configs/data/securities_collection_registry_v1.csv): 1.522 discovery
+  candidates, legacy statuses/evidence và next actions, owner/batch riêng mỗi domain.
+
+Đây là tài liệu/inventory offline. Successor runners ghi trong plan là interface
+cần triển khai, chưa tồn tại; không thay execution pilot5 hoặc frozen M2/C8 contracts.
+
 ## Research Core
 
 | Khu vực | Nội dung active |
@@ -11,6 +23,23 @@
 | `src/delta_t1/evaluation/` | Cluster/temporal/portfolio metrics được tách biệt |
 | `configs/data/` | C8 complete-only, C6 expansion, supplemental recovery, identity review, minimal M1 universe compatibility và synthetic smoke |
 | `tests/` | Unit/integration/regression tests còn hiệu lực |
+
+## Financial flow hiện tại
+
+Closing-debt successor: `scripts/financial_pilot_completion.ps1`,
+`configs/data/financial_pilot5_completion_v1.json`,
+`data/financial/pilot5_completion_v1`; offline reviewed closing-stock pair →
+QA → recompute → immutable result/verify. Hiện29/30, VNM F chưa đủ input.
+
+Runner: `scripts/financial_cafef_pilot.ps1` / `.py`;
+config: `configs/data/financial_cafef_pilot5_execution_v1.json`;
+run: `data/financial/cafef_pilot5_execution_v1`;
+report: `artifacts/reports/financial-cafef-pilot5-execution-v1/report-v2.md`.
+Shared modules/tests và dependency evidence giữ nguyên. Các entry scripts
+legacy không được code/tests/config gọi đã chuyển vào
+`artifacts/archives/project-cleanup-20261019-v1/inactive-files.zip`.
+Prune đã hoàn tất; thêm 8 report folders superseded được lưu vào `superseded-reports.zip`
+trong cùng archive directory. Sections financial cũ bên dưới chỉ mô tả lineage; cần restore để chạy lại.
 
 ## Evidence và runner
 
@@ -57,7 +86,7 @@ Notebook human-facing duy nhất của M1 report là
 `notebooks/eda/M1_CAFEF_MARKET_FOUNDATION.ipynb`; notebook đọc explicit report
 artifact và không chứa acquisition hoặc scientific gate logic riêng.
 
-Exact next stage là **M2-R1 — Protocol Freeze v1**; project map này không cấp quyền chạy real clustering, mở holdout, sửa market-only runner, chạy backtest hoặc supplemental crawl. Sau khi M2-R1 PASS mới chuyển sang M2-R2.
+Trong critical path M2, next stage là **M2-R1 — Protocol Freeze v1**; project map này không cấp quyền chạy real clustering, mở holdout, sửa market-only runner hoặc chạy backtest. Sau khi M2-R1 PASS mới chuyển sang M2-R2. Workstream mở rộng dữ liệu mới đi theo M0/F0 của hai plan ở đầu tài liệu; registry chưa thay acquisition/source gates.
 
 ## Tài liệu canonical
 

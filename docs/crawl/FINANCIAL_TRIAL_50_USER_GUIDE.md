@@ -1,5 +1,10 @@
 # Chạy thử financial crawler 50 mã bằng PowerShell
 
+Update18/10/2026: [plan kiểm chứng lại CafeF trên12 mã](FINANCIAL_CAFEF_REVALIDATION_PLAN.md)
+là handoff mới cho agent; nhánh hiện quan sát `research/financial-data`. Config,
+nhánh và epoch trong hướng dẫn08/10 bên dưới là frozen historical execution,
+không checkout nhánh cũ hoặc chạy fresh lại. Plan12 cần version runner/config mới.
+
 ## Flow CafeF-first active — 08/10/2026
 
 Runner active là `scripts/crawl_cafef_financial.ps1`, config
@@ -105,7 +110,7 @@ không cần mở chat trong lúc job hoạt động. Không tạo scheduled tas
 
 Ngày07/10/2026 đã chạy production epoch trong
 `data/financial/crawl_50_live_20261007_v1`; xem
-[report kết quả/log](../../artifacts/reports/financial-crawl-50-live-v1/report.md).
+[report kết quả/log — archived](../../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip).
 50 mã có300 base responses parse được, nhưng quarterly duplicate headers/history
 payload thiếu Head và PDF gaps khiến collection PARTIAL. Không chạy lại lệnh fresh
 run bên dưới với cùng epoch: registry sẽ yêu cầu parent gần nhất. Đọc/verify/feedback

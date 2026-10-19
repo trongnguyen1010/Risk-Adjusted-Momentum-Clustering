@@ -885,7 +885,7 @@ cells; task matrix v4 cho FPT Z annual presence 7/7 năm 2024–2025, EPS 3/3 n�
 2021–2025; chưa tính score. Bounded workflow planner/CLI/recipes đã chạy output
 workflow_v4: 1.224 unique cells, 140 external requirements, reuse 460 OCR pages;
 known VNM full-VAS gaps giữ riêng. [Workflow runbook](crawl/README.md) và
-[report hiện hành](../artifacts/reports/financial-workflow-v1/report.md).
+[report hiện hành — archived](../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip).
 FIN-D2 vẫn PARTIAL: ordinary income, debt/PPE/net-receivables/issuance/common-equity
 mapping và compatible-vintage QA chưa đóng; FIN-D3 publication history còn pending.
 
@@ -915,7 +915,7 @@ Known revised EPS2024 sau release2025 bị chặn pending comparative mapping.
 Không tính full F/M/PE/PB hoặc certify production financial features; value/date
 coverage 139/124 unchanged. Slice chạy được trên calibration cohort, không phải
 unseen-document accuracy hoặc unattended acquisition. FIN-D2 tổng thể PARTIAL;
-FIN-D3/4 statuses và FIN-D5 gate giữ nguyên. [Report](../artifacts/reports/financial-reference-flow-v1/report.md).
+FIN-D3/4 statuses và FIN-D5 gate giữ nguyên. [Report — archived](../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip).
 
 ### FIN-D2 EPS revision/F-score continuation — 03/10/2026
 
@@ -925,7 +925,7 @@ EPS2024 4.292 từ 20/03/2026, giữ original 4.944 trước đó; EPS2025 5.216
 F-score FPT2024/25 tính được 6/9 signals với original-maturity debt/parent ESOP
 mapping; total null vì ordinary-income reconciliation chưa đóng. Task matrix v7
 vẫn 0/120 production-ready. FIN-D2/3/4 PARTIAL, FIN-D5 pending.
-[Report](../artifacts/reports/financial-revision-fscore-v1/report.md).
+[Report — archived](../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip).
 
 ### FIN-D4 source research và VAS references — cập nhật 03/10/2026
 

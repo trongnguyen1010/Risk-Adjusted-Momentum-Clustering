@@ -2,6 +2,19 @@
 
 DELTA là repository research + product cho thị trường cổ phiếu Việt Nam. Research Core xây market dataset point-in-time, feature snapshot và protocol clustering; Product Layer chỉ trình bày artifact đã version hóa, không tự fit lại model.
 
+## Flow financial hiện tại
+
+**Planning mở rộng 10 năm, chưa chạy crawl mới:**
+[market ≥1.500 cổ phiếu lịch sử](docs/crawl/MARKET_HISTORY10Y_1500_PLAN.md),
+[financial history/PIT cho M3](docs/crawl/FINANCIAL_HISTORY_PIT_PLAN.md) và
+[registry 1.522 candidates dùng chung cho team](configs/data/securities_collection_registry_v1.csv).
+Registry tách legacy acquisition, xử lý C8, coverage/PIT và phân công; số ticker
+discovery chưa phải số mã đủ điều kiện backtest. Flow pilot dưới đây vẫn là execution hiện hành.
+
+Pilot BRC/FPT/MWG/GMD/VNM đã tính lại và kiểm chứng 29/30 chỉ số tham chiếu.
+Đọc [START HERE](docs/README.md) và [PowerShell runbook](docs/crawl/FINANCIAL_CAFEF_PILOT5_USER_GUIDE.md).
+Đã gỡ 48 legacy financial entry scripts và 8 thư mục báo cáo cũ sau khi verify ZIP; hướng dẫn restore ở START HERE.
+
 ## Trạng thái hiện tại
 
 CafeF `TradeHistoryNew` là nguồn market active. Stage C8 đã được execute và C8-VERIFY đã xác minh offline, không rerun feature build:

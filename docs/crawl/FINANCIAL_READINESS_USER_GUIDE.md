@@ -1,10 +1,113 @@
 # Tự chạy financial readiness cho 50 mã
 
+**Flow pilot5 hiện hành18/10/2026:** dùng
+[runbook pilot5](FINANCIAL_CAFEF_PILOT5_USER_GUIDE.md) cho BRC/FPT/MWG/GMD/VNM.
+Runner mới đã thực chạy,29/30references; VNM F còn2closing-debt dependencies.
+Các hướng dẫn50/plan12 bên dưới giữ cho scope lịch sử, không phải config pilot5.
+
+## Handoff kiểm chứng lại CafeF — 18/10/2026
+
+Owner muốn audit lại nguồn và nới rule cho mục tiêu thực dụng. Đọc
+[plan agent R0–R5](FINANCIAL_CAFEF_REVALIDATION_PLAN.md) và
+[report tổng hợp](../../artifacts/reports/financial-replan-20261018-v1/report.md).
+Plan có prompt giao trọn công việc, mẫu12 mã, goal/outputs/termination và
+practical-vs-strict profiles; chưa execute hoặc có CLI mới. Hướng dẫn50/offline
+bên dưới là workflow hiện có, không phải lệnh chạy plan12 mới.
+
+## Kết quả agent chạy tiếp publication — 09/10/2026
+
+[Report/evidence/self-review](../../artifacts/reports/financial-publication-followup-v1/report.md):
+GMD official FY2025/FY2024 attachments exact hash-match2/2, ngày post30/03/2026
+và31/03/2025. Đây là publication candidates; thêm evidence class ngày post cần
+manual review trước khi apply PIT. MWG/VHC danh mục không đổi trong snapshot nhỏ;
+chưa xác minh sameURL byte freshness hoặc triển khai periodic refresh.
+32/300referencecells/10mã, production0. Deadline mạng runV2 đã hết; không chạy lại
+acquire/reset epoch để vượt hạn. `financial_resume.ps1` vẫn dùng offline.
+
+Replay stage checks không gọi mạng:
+
+```powershell
+Set-Location 'C:\Projects\Intern\SourceCode-CafeF'
+$financialPython = 'C:\Users\ASUS\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+$env:PYTHONDONTWRITEBYTECODE = '1'
+& $financialPython artifacts/reports/financial-publication-followup-v1/verify.py
+```
+
+Không chạy lại `fetch.py` hoặc `analyze.py` cùng output: artifact immutable,
+fetch giới hạn riêng đã thực hiện. Stage này không bàn giao unattended refresh.
+
+## Handoff active: continuation đã chuẩn bị — 09/10/2026
+
+Dùng nhánh **`research/financial-data`**, run **`data/financial/user_workflow50_v2`**,
+wrapper **`scripts/financial_resume.ps1`**. Run V1 và frozen code giữ nguyên.
+GMD2024 đã khôi phục; GMD có EPS/Z/F/M references. Assessment hiện tại32/300ô,
+10/50mã; chưa PIT/production/cluster-ready. [Report chi tiết](../../artifacts/reports/financial-continuation50-v2/report.md).
+
+AdapterV3 đã seal tại `configs/data/financial_resume50_v3/`; bản này bổ sung hash
+trong bộ nhớ cho inherited result summaries thiếu metadata. Không sửa những
+summaries đã seal, không dùng `financial_continue.ps1 -Action extract` trực tiếp.
+Run successor đã được prepare; không prepare hoặc tạo lại cùng output path.
+
+```powershell
+Set-Location 'C:\Projects\Intern\SourceCode-CafeF'
+.\scripts\financial_resume.ps1 -Action verify
+.\scripts\financial_resume.ps1 -Action audit
+```
+
+Default Python là `.venv/Scripts/python.exe`. Nếu executable không dùng được,
+truyền `-Python` với absolute path đã cài pypdf. Máy hiện tại đã kiểm bằng:
+
+```powershell
+$financialPython = 'C:\Users\ASUS\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
+.\scripts\financial_resume.ps1 -Action verify -Python $financialPython
+```
+
+Chọn PDF bằng SHA từ `documents.json` của assessment rồi chạy offline:
+
+```powershell
+# GMD2024 đã có đủ55trang: lệnh này chỉ kiểm/tái sử dụng cache, không OCR thêm.
+$gmdHistorySha = 'f1ebf12e6c1f4e5c99117fa35a4ccb3be4d848892e3cdda7940b812aa528904c'
+.\scripts\financial_resume.ps1 -Action extract -PdfSha $gmdHistorySha -FullOcr -Python $financialPython
+```
+
+Mỗi extract chọn đúng một PDF; giới hạn giữ250trang/PDF,320trang/batch,6000OCR
+reservations/run kế thừa. `-RetryFailed` chỉ retry OCR có ghi cost mới, không phải
+quyền retry network. `EXTRACTION_FAILED` có exitcode2; luôn kiểm status từng PDF.
+
+Review tiếp mã khác dùng exact main FY2025 hash từ documents inventory:
+
+```powershell
+# Thay biến bằng ticker/hash thực trong frozen50; không dùng placeholder để execute.
+.\scripts\financial_resume.ps1 -Action template -Symbol $financialSymbol -PdfSha $financialMainSha -Python $financialPython
+# Điền facts vào FILE INPUT MỚI, giữ template gốc; kiểm ảnh/thuyết minh/unit/kỳ/scope.
+.\scripts\financial_resume.ps1 -Action review -ReviewFile $financialReviewedInputPath -Python $financialPython
+.\scripts\financial_resume.ps1 -Action audit -Python $financialPython
+.\scripts\financial_resume.ps1 -Action verify -Python $financialPython
+```
+
+Các biến ở ví dụ review phải do owner đặt theo output thực; không chạy nguyên
+ví dụ với biến chưa khai báo. Template không phải accepted data; thiếu publication
+đúng từng PDF vẫn tính reference nhưng không mở PIT/financial gate. P/E TTM/P/B và
+sector adapters chưa được wrapper này hoàn thiện tự động.
+
+Recovery của GMD chỉ được phép một reservation, đã thực hiện thành công.
+Chạy recover lại finalize/replay cache, không download lần hai. Network deadline
+kế thừa là **09/10/2026 11:26:53UTC**; quá hạn network dừngGLOBAL_STOP. Offline
+extract/review/audit/verify vẫn chạy được. Không xóa receipts/journal, sửacreated_at,
+đổi epoch hoặc tăng budgets để vượt stop. Periodic refresh cần stage/version riêng.
+
+## Run V1: hướng dẫn lịch sử
+
 Trước khi điền template, đọc [handbook chỉ số/data](../research/FINANCIAL_INDICATORS_AND_DATA_GUIDE.md)
 để biết formula, field keys, kỳ dữ liệu, thuyết minh và PIT/QA của từng chỉ số.
 
-Flow này dùng checkout **`C:\Projects\Intern\SourceCode-CafeF`**, nhánh
-`m1-cafef-primary-experiment`. Mục tiêu: kiểm tra từng mã có đủ dữ liệu tính chỉ số
+Flow này dùng checkout **`C:\Projects\Intern\SourceCode-CafeF`**. Nhánh hiện tại
+09/10/2026 là **`research/financial-data`**; frozen configv1 được tạo trước đó với
+`expected_branch=m1-cafef-primary-experiment`. Không checkout nhánh cũ hoặc sửa
+frozen config chỉ để doctor PASS; cần branch-aligned handoff version trước batch
+mới. Existing-run `verify`/`audit`/`template`/`review` kiểm source pins theo run hiện có.
+[Report DGC/GMD và giới hạn handoff](../../artifacts/reports/financial-dgc-gmd-review-v1/report.md).
+Mục tiêu: kiểm tra từng mã có đủ dữ liệu tính chỉ số
 hay chưa, tải phần tài liệu còn thiếu và đưa công việc review thành hàng đợi cụ thể.
 Bạn chạy local, không cần mở một phiên Codex trong thời gian chờ crawl/OCR.
 

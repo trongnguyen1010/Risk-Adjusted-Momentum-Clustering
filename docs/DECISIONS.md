@@ -1,5 +1,44 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-19 — Hai plan lịch sử và registry team dùng chung
+
+Owner chốt market2016–2025 +warm-up2013–2015, mục tiêu≥1.500 cổ phiếu riêng biệt
+có dữ liệu thực trong cả cửa sổ; dùng historical universe gồm mã rời sàn, không
+đòi mọi mã đủ10năm. Financial annual/quarterly2013–2025 +closing2012 khi dependency
+cần; bàn giao reference và PIT subset riêng. Giữ market-only baseline, không tự
+mở financial cluster/M3 hoặc thay công thức để đủ metric.
+
+Materialize [market plan](crawl/MARKET_HISTORY10Y_1500_PLAN.md),
+[financial plan](crawl/FINANCIAL_HISTORY_PIT_PLAN.md),
+[registry1.522 current candidates](../configs/data/securities_collection_registry_v1.csv).
+Registry khóa provisional inventory IDs, source hashes, legacy acquisition,
+processing/readiness theo snapshot và next actions riêng domain; chưa phải
+historical census. Một maintainer merge, assignments pin registry hash/range/batch.
+Không duplicate ticker list, gộp ticker tái sử dụng, hoặc dùng legacy COMPLETE
+thay coverage10năm. Local export inventory là partial; thiếu evidence giữ unknown.
+
+Lượt này chỉ offline documents/inventory. Campaign cũ, sealed raw/canonical/results,
+pilot29/30 và gates giữ nguyên. Acquisition successor cầnM0/F0 và budgets/source
+gates; methodology-sensitive acceptance vẫn MANUAL_REVIEW_REQUIRED theo AGENTS.
+
+Provider/PDF reference policy19/10/2026 (`financial-provider-validation-v1`):
+theo yêu cầu owner, dùng pinned reviewed PDF reference để đối chiếu và giữ số khi
+API conflict; không ưu tiên một PDF bất kỳ, OCR chưa review hoặc phiên bản/scope khác.
+Giữ nguyên raw API và provenance từng field, không dịch hàng hoặc suy multiplier.
+Đây là reference-only policy; không thay canonical reconciliation/financial PIT/gates.
+VietFin0.2.0 được kiểm wheel/source, direct public route probes tách SDK execution:
+TCBS404/SSI403 không phải bằng chứng chất lượng numeric; SSI boundary phải giữ.
+
+Cleanup 19/10/2026: entry scripts financial superseded chỉ rời active tree sau
+khi archive exact bytes và verify hash. Source/tests/config và retained runners
+được kiểm caller trước khi gỡ; shared modules, assertions và evidence dependency
+giữ nguyên. Lệnh lịch sử cần restore; pilot5 là financial entry flow hiện tại.
+Đã thực thi prune thành công sau khi hệ thống duyệt hoạt động lại: 48 scripts,
+temporary work và 8 report folders superseded; 5.548 file được giữ exact bytes trong ZIP.
+Báo cáo lịch sử chỉ có pointer provenance được archive, không sửa sealed manifests;
+muốn verify/tái hiện các báo cáo đó cần restore trước.
+Cleanup không thay source acceptance, financial methodology hoặc campaign budget.
+
 Cập nhật 26/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation. Khi quyết định mới thu hẹp quyết định cũ, ID mới có ưu tiên cho active stage; historical rationale vẫn được giữ nguyên.
 
 | ID | Quyết định |
@@ -280,7 +319,7 @@ Notes cho thấy parent ESOP khác stock dividend và NCI capital; equity code40
 khác parent note do funding430 nên không tự approve parent common equity. Debt
 current loan portion không đủ bridge combined loan/lease với code338; giữ pending.
 No-issuance/ordinary-income/PPE/net-receivables/common-equity mapping chưa approved.
-Evidence: [report](../artifacts/reports/financial-workflow-v1/report.md),
+Evidence: [report — archived](../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip),
 configs/data/financial_workflow_v1.json, local mapping_review/readiness_v7/workflow_v4.
 Financial features false/PIT NOT_READY; không thay approved score formulas,
 availability policy hoặc market clustering protocol.
@@ -328,7 +367,7 @@ chặn dùng old original EPS từ phiên 20/03/2026 khi comparative share-basis
 chưa được nghiệm thu. Không backfill revised EPS về 17/03/2025.
 
 [Config](../configs/data/financial_reference_flow_v1.json),
-[report](../artifacts/reports/financial-reference-flow-v1/report.md), reference_flow_v6.
+[report — archived](../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip), reference_flow_v6.
 EPS2024/25 và Z2024/25 có reference outputs; F/M/PE/PB missing/unsupported rõ ràng.
 FIN-D2 tổng thể PARTIAL; financial_features_allowed/research_ready vẫn false.
 
@@ -350,7 +389,7 @@ adjustment; lineage/hash của cả hai PDF giữ nguyên. Chọn latest eligibl
 reference và exact reviewed template, không sửa snapshot cũ hoặc backfill.
 
 [Config v2](../configs/data/financial_reference_flow_v2.json),
-[report](../artifacts/reports/financial-revision-fscore-v1/report.md): FPT2024/25
+[report — archived](../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip): FPT2024/25
 EPS revision reference PASS; F-score 6/9 signals, total null. Reference registry
 riêng; chưa production acceptance hoặc mở scale. Việc đổi strict earnings sang
 VAS net-profit adaptation là methodology change riêng cần review cụ thể.
@@ -589,3 +628,154 @@ five-stage plan. Unattended acceptance/financial cluster vẫnMANUAL_REVIEW_REQU
 Workflow dùng immutable frozen pins/receipts/reports, cumulative transport counters và global boundary/budget latch; OCR page reservations tính cả attempt gián đoạn. Local batch giới hạn, cache đúngURL/hash, không re-request known source failures hoặc bypass challenge. Reviewed facts có PDF/page/units/vintage/reviewer và exact publication per source; calculator output là reference, không canonical promotion/source priority.
 
 PE TTM/PB với basis khác giữ ledger riêng; bulk wrapper chưa tự chốt TTM/event coverage. Sector/fiscal exceptions không ép Regular. Supporting comparative source thiếu ngày công bố làm metric đó PIT-pending; không copy ngày main PDF. Gates financial/cluster/research/full-universe/next100 giữfalse. Runbook ở `docs/crawl/FINANCIAL_READINESS_USER_GUIDE.md`, evidence ở `artifacts/reports/financial-user-workflow50-v2/`.
+
+## Financial continuation và explicit recovery — 09/10/2026
+
+Tạo successor trên research/financial-data khi frozen run pin branch/code cũ; không
+rewrite artifact hoặc code đã pin để làm replay xanh. Kế thừa cache, references,
+terminal receipts, network counters, unconfirmed byte/OCR reservations, deadline
+và access latch. Một exact transient failed PDF receipt được recovery đúng một
+explicit epoch mới trong global caps; HTTP404/access boundary không eligible.
+Crash sau cache commit được finalize receipt không re-download. Không cấp mới24h
+khi resume; campaign/periodic refresh mới cần execution contract riêng.
+
+V2 inherited result summaries thiếu pdf_sha256 được xử lý bằng sealed adapterV3:
+đọc từ sealed reservation trong bộ nhớ, không sửa result/manifests. Exact-hash OCR
+scope giữ legacy locks/caps; per-document failure được báo thành failure/exitcode2.
+Successor assessment chỉ target FY2025; nonannual ledgers gốc giữ lineage riêng.
+Đây là operational versioning, không đổi PIT/publication, formulas, source priority,
+human acceptance hoặc financial/cluster/research eligibility; mọi gates vẫnfalse.
+
+[Report và self-review](../artifacts/reports/financial-continuation50-v2/report.md),
+[runbook active](crawl/FINANCIAL_READINESS_USER_GUIDE.md).
+
+## 2026-10-09 — Proposed issuer post-date financial evidence: MANUAL_REVIEW_REQUIRED
+
+**Đề xuất, chưa approved/implemented**. GMD official posts FY2025/FY2024 hiển thị
+30/03/2026 và31/03/2025, direct financial attachments có exact SHA khớp hai PDFs
+đang review. Existing workflow chỉ accept `EXPLICIT_PUBLICATION_STATEMENT_VISUALLY_VERIFIED`;
+không gắn label này cho post-date evidence hoặc sửa ngày ký thành publication.
+
+[Proposal cụ thể](../artifacts/reports/financial-publication-followup-v1/decision-proposal.json)
+đề nghị thêm `ISSUER_POST_DATE_WITH_CURRENT_EXACT_HASH_ATTACHMENT`, giữ DATE_ONLY,
+first observed exchange session strictly after publication và closed gates.
+Current post/file joins không chứng minh archived historical byte availability;
+replacement/backdating uncertainty cần được chấp nhận rõ. Financial PIT là
+methodology-sensitive theo AGENTS, nên cần owner review trước runtime/version mới.
+
+[Report/worklog/checks](../artifacts/reports/financial-publication-followup-v1/report.md).
+Không đổi formulas, canonical selection, signature proxy, source priority hoặc
+financial cluster. Campaign evidence riêng không reset expired acquisition budget.
+
+## 2026-10-18 — Owner-directed practical financial revalidation plan
+
+Owner yêu cầu tổng hợp hiện trạng, kiểm lại giả thuyết CafeF đủ dữ liệu trên một
+mẫu nhỏ, giao agent làm đến khi có kết quả, và cho phép nới rule data/chỉ số khi cần.
+[Plan R0–R5](crawl/FINANCIAL_CAFEF_REVALIDATION_PLAN.md) cùng
+[planning config](../configs/data/financial_cafef_revalidation_plan_v1.json) ghi
+scope12mã, goals, evidence tiers, budgets, output contracts và tiêu chí dừng.
+
+Hướng được owner cho phép thiết kế/triển khai khi giao plan: PRACTICAL_FINANCIAL_V1,
+reported EPS/PE/PB dưới variant riêng, template-level QA, date/PIT flags tách khỏi
+numeric calculation, named proxies/partial-score intervals và sector applicability.
+Không cần quay lại xin phép những lựa chọn đã nằm rõ trong scope này. Triển khai
+phải version config/schema/adapter/tests riêng; không rewrite strict frozen runs.
+
+Không coi đây là approval mở strict historical PIT/backtest, source-priority merge
+vào canonical, thay market-only/M2 methodology, hoặc financial cluster. Signature
+proxy không phải publication; post-date evidence được giữ riêng cho exploration.
+Đề xuất strict GMD publication09/10 vẫn là historical pending decision; plan mới
+cho phép numerical/exploration work tiếp tục độc lập, không giả đã resolve nó.
+
+Trạng thái hiện tại **PLANNED_NOT_EXECUTED**: lượt18/10 không chạy source mới hoặc
+sửa runtime. Agent được giao trọn prompt trong plan thực hiện nhiều checkpoints
+R0–R5, single agent, đến evidence-based verdict/handoff hoặc blocker thật; không
+dừng chỉ vì một batch chưa100%. Giữ immutable evidence và access/budget hard stops.
+[Report tổng hợp](../artifacts/reports/financial-replan-20261018-v1/report.md).
+
+## 2026-10-18 — CafeF provider dates/deep tabs: discovery correction before rule relaxation
+
+Phản hồi UI của owner được kiểm trực tiếp: cột Thời gian gửi map từCreateDate của
+disclosure API, cùngID/LinkFile. FPTannual2025 cóID/link khớp FileBCTC cache; QNP
+LCTT códedicated GetReportLCTT JSON, không phụ thuộc group có trong summary không.
+Ba routes chưa có trong Python crawler. Discovery/integration gap phải được xử lý
+trước khi nói nguồn không có ngày/LCTT hoặc chọnproxy/nới công thức vì thiếu nguồn.
+
+[Source addendum](crawl/sources/CAFEF_DISCLOSURE_AND_FINANCIAL_TABS.md) là input
+bắt buộc trướcR1 củaplan12; giữ original sealed plan/report. Provider CreateDate
+được ghi raw và source-specific date basis, không tự trở thành issuer-first-public
+verified; initial/reviewed/audited versions riêng. Không thay strictPIT/calculators
+hoặc gate hiện có trong stage discovery. [Report/evidence](../artifacts/reports/financial-cafef-disclosure-ui-correction-v1/report.md).
+
+## 2026-10-18 — BRC route rediscovery và evidence levels
+
+[CAFEF.md](crawl/sources/CAFEF.md) cập nhật source map6main/6financial tabs,
+EPS weighted-share page, dates/documents, unit/duration và sector enrichment routes.
+Ưu tiên structured integration/sample QA, chỉ PDF/notes cho residual gaps; không
+gọi UI value/script route là raw JSON đã fetch. Targets/current ratios/current
+shares không thay realized/historical inputs. EPS provider-adjusted giữ variant
+riêng, không thay formula/canonical policy trong stage discovery.
+
+Campaign13attempts hard-stop tại EPS challenge, giữ latch=true/counters/deadline;
+không reset/switch client để vượt. Live API/sector/history validation **PARTIAL**,
+integrity replay kiểm riêng. Không mở50/100/financial cluster hoặc tăng accepted
+metric count từ provider arithmetic. [Report/worklog](../artifacts/reports/financial-cafef-rediscovery-v2/report.md).
+
+## 2026-10-18 — BRC documents và website sub-row QA
+
+Owner yêu cầu kiểm sâu từng tab/document và xác nhận normal UI access. Browser
+audit thu192links/92BCTC datejoins, tải6PDF, đọc notes; raw annual EPS/PPE/capital
+inputs đã tìm được. Không coi document listing là đã đọc nội dung hoặc text-empty
+PDF là không có dữ liệu. Không reset/call lại campaign EPS challenge cũ.
+
+Annual2025website debt row gắn số của other payables, còn số debt xuất hiện dưới
+label dự phòng. Giữ conflict/candidate provenance và bắt raw code/label/template
+QA trước scale; chưa xác định API root cause, không hard-code index correction.
+Đây là source audit, không thay accounting variant/PIT/acceptance;0production
+metrics/gatesfalse. [Report](../artifacts/reports/financial-cafef-brc-deep-audit-v1/report.md).
+
+## 2026-10-18 — Active financial handoff pilot5 v2
+
+Owner yêu cầu tổng hợp và lập lại plan để giao agent crawl tới metrics. Active
+handoff chuyển từ12mã sang BRC/FPT/MWG/GMD/VNM; BRC không được giả membership
+frozen50. [Planv2](crawl/FINANCIAL_CAFEF_PILOT5_EXECUTION_PLAN_V2.md),
+[report](../artifacts/reports/financial-cafef-pilot5-handoff-v2/report.md).
+
+Target30primary recomputed+checked family cells;3complete workflows là checkpoint,
+không thành goal completion. Reported/proxy/partial và historicalPIT giữ riêng;
+reuse existing calculators/named annual variants, không đổi formulas để lấp gap.
+Agent được giao thực hiện toànP0–P5 của một pilotstage, không dừng sau discovery
+hoặc từngbatch nếu còn xử lý được. Annual trước, TTM extension, sector/scale sau.
+
+Scope/caps version riêng, old plans/runs/boundaries bất biến. Không mở financial
+features/research/backtest/cluster, không thay market-only work. Lượt lậpplan
+chưa execute; METHOD changes ngoài practical scope vẫn cần explicit review.
+
+## 2026-10-18 — Pilot5 numerical execution và source-conflict handling
+
+Owner giao thực hiện trọn planv2. Pilot có29/30checked recomputed references;
+4complete workflows không thay target5mã. VNM F cần closing original-long-term
+current portions2024/2025; reclassification flow không thay closing stock,
+noncurrent-only debt không được alias để cófullF. Giữnull/interval4–5.
+
+RawCDKT/KQKD API đã tái hiện BRC code+label/value conflicts. Enabled adapter giữ
+raw template/group/source identity và quarantine; reviewedPDF/notes là input
+explicit cho reference, không dịchindex hoặc chữa bằngmagnitude. BasicEPS không
+đòi diluted; valuation dùng annualEPS/book snapshot có rawprice/date, parentcommon
+equity và treasury-excluded shares. Event-complete/historicalPIT không được suy
+từ việc có số. Calculators/formula/strict gates giữ nguyên.
+
+Executablecontract/journal/source snapshots version riêng; livingactivepointer
+supersession không waive hash của frozen inputs. New primarymetrics không cộng
+vào frozen50baseline32/300. [Report](../artifacts/reports/financial-cafef-pilot5-execution-v1/report-v2.md)
+và [runbook](crawl/FINANCIAL_CAFEF_PILOT5_USER_GUIDE.md). Full repository gate còn
+pre-existingM2-PREPdocs hasherror; không thay assertion/frozen M2 evidence.
+
+## 2026-10-19 — Closing-stock supplement cho pilot5
+
+Chỉ nhận explicit closing current+noncurrent của originally-long-term debt2024/2025,
+VAS hợp nhất, có reviewer/PDF-page/image/hash và sumQA. Không thay F9formula,
+không tự nhận OCR hoặc dùng phân loại lại trong năm làm closing stock.
+BCTC mẹ chỉ xác minh kỳ hạn khoản vay của mẹ. Supporting note mới chưa đủ input,
+giữ29/30 và VNM Finterval4–5. New-document campaign đúng1URL chưa request;
+oldCafeF/TCBS/SSI counters/access latches bất biến. Replay không đổi29metrics cũ.

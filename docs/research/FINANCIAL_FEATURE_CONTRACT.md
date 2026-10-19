@@ -129,7 +129,7 @@ production feature registry/methodology hoặc full research gate.
 EPS2024 original 4.944 không dùng sau known restatement release từ 20/03/2026 khi
 comparative share-basis acceptance chưa đủ; giữ null/revision blocker. EPS annual
 không là TTM. Z chỉ continuous diagnostic theo frozen EM variant, không threshold.
-[Report mới](../../artifacts/reports/financial-reference-flow-v1/report.md).
+[Report mới — archived](../../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip).
 
 Reference continuation v2: fiscal EPS2024 revised inputs từ original2025 PDF chỉ
 khả dụng từ 20/03/2026. Original no-dilution evidence + disclosed bonus-share
@@ -138,7 +138,7 @@ loan + finance lease theo original maturity đã gồm current portion; issuance
 indicator 1=actual parent common issuance verified, 0=verified absence, null=unknown.
 Calculator xuất cả chín signal với missing reasons; total chỉ có khi 9/9 known.
 FPT2024/25 hiện 6/9, strict income-before-extraordinary-items vẫn unresolved.
-[Report](../../artifacts/reports/financial-revision-fscore-v1/report.md).
+[Report — archived](../../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip).
 
 ## Explicit VAS adaptations và reported valuation reference
 
