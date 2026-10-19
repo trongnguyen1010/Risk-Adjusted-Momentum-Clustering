@@ -584,6 +584,7 @@ def main(argv=None) -> int:
     parser.add_argument("--symbols", help="Optional ticker override (e.g. FPT,VNM). If omitted, processes entire stock universe.")
     parser.add_argument("--start-date", default=DEFAULT_TARGET_START, help=f"Earliest historical target (default: {DEFAULT_TARGET_START})")
     parser.add_argument("--end-date", default=latest_data_date, help=f"Latest date target (default: {latest_data_date} - last date of existing data)")
+    parser.add_argument("--exchange", help="Chỉ cào các sàn chỉ định, cách nhau bằng dấu phẩy (ví dụ: HOSE,HNX hoặc UPCOM)")
     parser.add_argument("--new-only", action="store_true", help="Chỉ cào 571 mã mới, bỏ qua bổ sung 2010-2019 cho 952 mã cũ (mặc định: False, tự động xử lý toàn bộ 1,522 mã)")
     parser.add_argument("--output-dir", default=OUTPUT_DIR_DEFAULT, help=f"Output dir (default: {OUTPUT_DIR_DEFAULT})")
     parser.add_argument("--delay", type=float, default=1.0, help="Delay in seconds between requests (default: 1.0)")
@@ -600,6 +601,8 @@ def main(argv=None) -> int:
     print(f"[*] Định dạng đầu ra:          Canonical JSONL & CSV (chuẩn 28 trường C8)")
     print(f"[*] Khoảng thời gian thu thập: {args.start_date}  -->  {args.end_date} (ngày chốt dữ liệu hiện có)")
     print(f"[*] Phạm vi mã thu thập:       {'571 MÃ MỚI (chỉ mã mới)' if args.new_only else 'TOÀN BỘ 1,522 MÃ (952 mã cũ bổ sung 2010-2019 + 570 mã mới cào trọn 2010-2026)'}")
+    if args.exchange:
+        print(f"[*] Phân vùng sàn cào:         {args.exchange.upper()}")
     print(f"[*] Thư mục dữ liệu:           {out_dir}")
 
     # 0. Ensure C8 baseline is initialized in output_dir (one-time copy at the very start)
@@ -633,6 +636,11 @@ def main(argv=None) -> int:
     else:
         all_targets = market_catalog
         print(f"[*] Đã nạp toàn bộ danh mục thị trường: {len(all_targets)} cổ phiếu niêm yết.")
+
+    if args.exchange:
+        allowed_ex = {e.strip().upper() for e in args.exchange.split(",") if e.strip()}
+        all_targets = [t for t in all_targets if t.get("exchange", exchange_map.get(t["ticker"], "UNKNOWN")).upper() in allowed_ex]
+        print(f"[*] Lọc theo sàn: {','.join(sorted(allowed_ex))} -> còn {len(all_targets)} mã cần xử lý.")
 
     if args.limit:
         all_targets = all_targets[: args.limit]
