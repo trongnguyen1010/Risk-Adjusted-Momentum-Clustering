@@ -14,13 +14,16 @@ Zero duplicate crawling: Mathematically subtracts existing intervals from the re
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import csv
 import hashlib
 import json
 import math
 import os
 import re
+import shutil
 import sys
+import threading
 import time
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -585,9 +588,11 @@ def main(argv=None) -> int:
     parser.add_argument("--start-date", default=DEFAULT_TARGET_START, help=f"Earliest historical target (default: {DEFAULT_TARGET_START})")
     parser.add_argument("--end-date", default=latest_data_date, help=f"Latest date target (default: {latest_data_date} - last date of existing data)")
     parser.add_argument("--exchange", help="Chỉ cào các sàn chỉ định, cách nhau bằng dấu phẩy (ví dụ: HOSE,HNX hoặc UPCOM)")
+    parser.add_argument("--workers", type=int, default=5, help="Số luồng cào song song (mặc định: 5 luồng)")
+    parser.add_argument("--auto-zip", help="Đường dẫn file zip tự động nén checkpoint định kỳ và khi hoàn tất")
     parser.add_argument("--new-only", action="store_true", help="Chỉ cào 571 mã mới, bỏ qua bổ sung 2010-2019 cho 952 mã cũ (mặc định: False, tự động xử lý toàn bộ 1,522 mã)")
     parser.add_argument("--output-dir", default=OUTPUT_DIR_DEFAULT, help=f"Output dir (default: {OUTPUT_DIR_DEFAULT})")
-    parser.add_argument("--delay", type=float, default=1.0, help="Delay in seconds between requests (default: 1.0)")
+    parser.add_argument("--delay", type=float, default=0.1, help="Delay in seconds between requests (default: 0.1)")
     parser.add_argument("--dry-run", action="store_true", help="Print plan and missing intervals without crawling")
     parser.add_argument("--limit", type=int, help="Optional limit on number of symbols to process (for quick testing)")
 
@@ -753,39 +758,68 @@ def main(argv=None) -> int:
         print(f"Để thực hiện cào thực tế, chỉ cần chạy lệnh mà không có cờ --dry-run.")
         return 0
 
-    # 4. Execute plan
-    print(f"\n[*] Bắt đầu cào {len(to_crawl)} mã theo kế hoạch...")
+def save_checkpoint_zip(out_dir: Path, zip_path_str: str) -> None:
+    try:
+        zip_p = Path(zip_path_str)
+        zip_p.parent.mkdir(parents=True, exist_ok=True)
+        base = str(zip_p)[:-4] if str(zip_p).endswith(".zip") else str(zip_p)
+        shutil.make_archive(base, "zip", root_dir=out_dir.parent, base_dir=out_dir.name)
+    except Exception as e:
+        print(f"      [ZIP WARNING] Không thể cập nhật zip: {e}", flush=True)
 
+
+    # 4. Execute plan
     canonical_jsonl_file = out_dir / "canonical" / "prices_daily.jsonl"
     completed_syms = 0
+    total_syms = len(to_crawl)
+    jsonl_lock = threading.Lock()
+    print_lock = threading.Lock()
+    zip_lock = threading.Lock()
 
-    for idx, task in enumerate(to_crawl, 1):
+    def process_one_task(task):
+        nonlocal completed_syms
         sym = task["ticker"]
         ex = task["exchange"]
         missing = task["missing"]
         start_page = task.get("start_page", 1)
 
-        print(f"[{idx}/{len(to_crawl)}] {sym} ({ex}): Cần cào {len(missing)} khoảng: {missing}...", flush=True)
-
         new_total_rows = []
         for s, e in missing:
             sp = start_page if e <= "2019-12-31" else 1
-            if sp > 1:
-                print(f"      --> Đang lấy: {s} -> {e} (nhảy đến trang {sp} để bỏ qua dữ liệu 2020-2026 đã có)...", end=" ", flush=True)
-            else:
-                print(f"      --> Đang lấy: {s} -> {e}...", end=" ", flush=True)
             rows = crawl_missing_interval(sym, ex, s, e, out_dir, run_id=run_id, delay=args.delay, start_page=sp)
             new_total_rows.extend(rows)
-            print(f"xong ({len(rows)} phiên).", flush=True)
 
+        total_after_merge = 0
         if new_total_rows:
             total_after_merge = save_and_merge_outputs(out_dir, sym, ex, new_total_rows)
-            append_to_canonical_jsonl(canonical_jsonl_file, new_total_rows)
-            print(f"      [✓] Đã ghi nhận {len(new_total_rows)} phiên mới vào canonical/prices_daily.jsonl và normalized/{sym}.csv (Tổng: {total_after_merge} phiên).", flush=True)
-        else:
-            print(f"      [!] Không tìm thấy dữ liệu mới nào trên CafeF cho các khoảng này.", flush=True)
+            with jsonl_lock:
+                append_to_canonical_jsonl(canonical_jsonl_file, new_total_rows)
 
-        completed_syms += 1
+        with print_lock:
+            completed_syms += 1
+            if new_total_rows:
+                print(f"[{completed_syms}/{total_syms}] [✓] {sym} ({ex}): +{len(new_total_rows)} phiên mới (Tổng: {total_after_merge} phiên).", flush=True)
+            else:
+                print(f"[{completed_syms}/{total_syms}] [-] {sym} ({ex}): 0 phiên mới.", flush=True)
+
+            if args.auto_zip and (completed_syms % 25 == 0 or completed_syms == total_syms):
+                with zip_lock:
+                    save_checkpoint_zip(out_dir, args.auto_zip)
+                    print(f"      [ZIP CHECKPOINT] Đã cập nhật file nén định kỳ: {args.auto_zip}", flush=True)
+
+        return sym
+
+    workers = max(1, args.workers)
+    print(f"\n[*] Bắt đầu cào {total_syms} mã theo kế hoạch (Chạy đa luồng song song với {workers} luồng, delay={args.delay}s)...", flush=True)
+
+    if workers > 1:
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = [executor.submit(process_one_task, t) for t in to_crawl]
+            for f in as_completed(futures):
+                f.result()
+    else:
+        for task in to_crawl:
+            process_one_task(task)
 
     # Generate full C8-compliant audit and quality reports
     print("\n[*] Đang tổng hợp báo cáo kiểm kê phiên và chất lượng dữ liệu chuẩn C8...")
@@ -793,6 +827,10 @@ def main(argv=None) -> int:
     print("      [✓] full_history_session_audit.csv")
     print("      [✓] quality_summary.json")
     print("      [✓] manifest.json")
+
+    if args.auto_zip:
+        save_checkpoint_zip(out_dir, args.auto_zip)
+        print(f"      [✓] File ZIP hoàn chỉnh: {args.auto_zip}")
 
     print("\n================================================================================")
     print(f"[+] HOÀN THÀNH TOÀN BỘ TIẾN TRÌNH: {completed_syms} mã đã được cập nhật.")
