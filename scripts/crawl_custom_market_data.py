@@ -505,13 +505,16 @@ def generate_audit_and_quality_reports(output_dir: Path, run_id: str, snapshot_d
     tradability_counter = {"ACTIVE": 0, "OBSERVED_ZERO_VOLUME": 0, "UNKNOWN": 0}
 
     for csv_file in sorted(norm_dir.glob("*.csv")):
-        with open(csv_file, "r", encoding="utf-8") as f:
-            rows = list(csv.DictReader(f))
+        try:
+            with open(csv_file, "r", encoding="utf-8") as f:
+                rows = list(csv.DictReader(f))
+        except Exception:
+            continue
         if not rows:
             continue
-        ticker = rows[0]["ticker"]
-        exchange = rows[0]["exchange"]
-        security_id = rows[0]["security_id"]
+        ticker = rows[0].get("ticker") or rows[0].get("symbol") or csv_file.stem.upper()
+        exchange = rows[0].get("exchange") or "UNKNOWN"
+        security_id = rows[0].get("security_id") or f"KBS:{exchange}:{ticker}"
         dates = [r["trade_date"] for r in rows if r.get("trade_date")]
         audit_start = min(dates) if dates else snapshot_date
         obs_valid = sum(1 for r in rows if r.get("market_observation_status") == "OBSERVED_VALID")
@@ -578,7 +581,14 @@ def generate_audit_and_quality_reports(output_dir: Path, run_id: str, snapshot_d
         "total_files": len(files_map),
         "files": files_map,
     }
-    (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+def save_checkpoint_zip(out_dir: Path, zip_path_str: str) -> None:
+    try:
+        zip_p = Path(zip_path_str)
+        zip_p.parent.mkdir(parents=True, exist_ok=True)
+        base = str(zip_p)[:-4] if str(zip_p).endswith(".zip") else str(zip_p)
+        shutil.make_archive(base, "zip", root_dir=out_dir.parent, base_dir=out_dir.name)
+    except Exception as e:
+        print(f"      [ZIP WARNING] Không thể cập nhật zip: {e}", flush=True)
 
 
 def main(argv=None) -> int:
@@ -757,16 +767,6 @@ def main(argv=None) -> int:
         print(f"\n[DRY RUN] Kiểm tra kế hoạch thành công! Không có request mạng nào được gửi.")
         print(f"Để thực hiện cào thực tế, chỉ cần chạy lệnh mà không có cờ --dry-run.")
         return 0
-
-def save_checkpoint_zip(out_dir: Path, zip_path_str: str) -> None:
-    try:
-        zip_p = Path(zip_path_str)
-        zip_p.parent.mkdir(parents=True, exist_ok=True)
-        base = str(zip_p)[:-4] if str(zip_p).endswith(".zip") else str(zip_p)
-        shutil.make_archive(base, "zip", root_dir=out_dir.parent, base_dir=out_dir.name)
-    except Exception as e:
-        print(f"      [ZIP WARNING] Không thể cập nhật zip: {e}", flush=True)
-
 
     # 4. Execute plan
     canonical_jsonl_file = out_dir / "canonical" / "prices_daily.jsonl"
