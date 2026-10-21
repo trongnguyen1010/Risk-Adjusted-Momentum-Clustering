@@ -990,6 +990,26 @@ Universe:
 Input:
 116 × 8 đặc trưng
 
+## Phần 5.0 — Thiết lập file cấu hình thí nghiệm Ward (configs/experiments/m2_ward_market_only_v2.json)
+
+### Mục đích
+
+Đảm bảo phương án Ward chạy hoàn toàn độc lập mà không can thiệp hay làm thay đổi file cấu hình master của K-Means baseline.
+
+### Cách thực hiện (2 bước đơn giản)
+
+1. **Nhân bản từ Master Config:**  
+   Sao chép toàn bộ nội dung từ `configs/experiments/m2_market_only_v2.json` thành `configs/experiments/m2_ward_market_only_v2.json`.
+
+2. **Chỉ thay đổi duy nhất thuật toán phân cụm:**  
+   Trong khối `"clustering"`, chỉ định thuật toán Ward:
+   ```json
+   "clustering": {
+     "algorithm": "ward",
+     ...
+   ```
+   *Giữ nguyên 100% toàn bộ các trường khác:* 60 snapshots Development (2019-01-31 đến 2023-12-29), 8 đặc trưng thị trường gốc, chuẩn hóa Robust Scaling per-snapshot, Global K = 2 (đã khóa từ Nhiệm vụ 3), và `portfolio_evaluation.enabled = false`.
+
 ## Phần 5.1 — Lấy dữ liệu của từng snapshot
 
 ### Mục đích
@@ -1179,6 +1199,10 @@ Cần lưu:
 
 Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file `.py` riêng lẻ; thông thường `runner.py` hoặc entry point của experiment sẽ import/gọi các module còn lại.
 
+**`configs/experiments/m2_ward_market_only_v2.json`** — file cấu hình thí nghiệm Ward.
+> Mục đích: Định nghĩa chính xác thuật toán Ward và liên kết với Global K = 2 đã khóa.  
+> Cách dùng trong nhiệm vụ này: Nhân bản từ `m2_market_only_v2.json` ở Phần 5.0, sửa `"algorithm": "ward"` và truyền vào `runner.py` để thực thi.
+
 **`src/delta_t1/experiments/runner.py`** — file đã có; điều phối Ward qua các snapshot.
 > Mục đích: Giữ cùng development window, universe và Global K như K-Means.  
 > Cách dùng trong nhiệm vụ này: Đọc config Ward rồi duyệt từng snapshot như baseline.
@@ -1261,6 +1285,36 @@ Universe:
 
 Input:
 116 × 8 đặc trưng
+
+## Phần 6.0 — Thiết lập file cấu hình thí nghiệm PCA + K-Means (configs/experiments/m2_pca_market_only_v2.json)
+
+### Mục đích
+
+Đảm bảo phương án PCA + K-Means có cấu hình giảm chiều rõ ràng và độc lập với 2 phương án trước.
+
+### Cách thực hiện (2 bước đơn giản)
+
+1. **Nhân bản từ Master Config:**  
+   Sao chép `configs/experiments/m2_market_only_v2.json` thành `configs/experiments/m2_pca_market_only_v2.json`.
+
+2. **Cập nhật thuật toán và tham số giảm chiều PCA:**  
+   Trong khối `"clustering"`, thiết lập:
+   ```json
+   "algorithm": "pca_kmeans",
+   "pca": {
+     "role": "independent_comparator_only",
+     "applies_to": ["pca_kmeans"],
+     "baseline_preprocessing": false,
+     "component_rule_status": "frozen_on_development",
+     "n_components": 4
+   },
+   "reduction": {
+     "method": "pca",
+     "n_components": 4
+   }
+   ```
+   *(Trong đó `n_components` là số thành phần chính nhỏ nhất đạt phương sai tích lũy >= 90%, được xác định và đóng băng trên tập Development).*  
+   *Giữ nguyên 100% toàn bộ các trường còn lại (60 snapshots Dev, 8 đặc trưng gốc, Robust scaling, Global K = 2).*
 
 ## Phần 6.1 — Lấy dữ liệu của từng snapshot
 
@@ -1489,6 +1543,10 @@ Cần lưu:
 ## File code sử dụng trong nhiệm vụ và cách dùng
 
 Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file `.py` riêng lẻ; thông thường `runner.py` hoặc entry point của experiment sẽ import/gọi các module còn lại.
+
+**`configs/experiments/m2_pca_market_only_v2.json`** — file cấu hình thí nghiệm PCA + K-Means.
+> Mục đích: Định nghĩa thuật toán PCA + K-Means và số chiều giảm PCA đã đóng băng.  
+> Cách dùng trong nhiệm vụ này: Nhân bản từ `m2_market_only_v2.json` ở Phần 6.0, cấu hình `"algorithm": "pca_kmeans"` kèm `n_components` và truyền vào `runner.py` để thực thi.
 
 **`src/delta_t1/experiments/runner.py`** — file đã có; điều phối nhánh PCA + K-Means.
 > Mục đích: Chạy pipeline comparator theo từng snapshot.  
@@ -2275,6 +2333,26 @@ Final Holdout (24 snapshots: 2024-01-31 đến 2025-12-31)
 - Vũ trụ cổ phiếu: Lọc theo từng snapshot `market_experiment_eligible(t) = market_feature_ready_v2(t)` và `n_eligible >= 100`;
 - Chuẩn hóa: Đúng 8 đặc trưng thị trường, Robust Scaling độc lập theo từng snapshot;
 - Thư mục xuất artifact đầu ra: `M2/artifacts/m2-final-holdout-v1/` và mô hình tại `M2/models/holdout/`.
+
+## Phần 11.0 — Thiết lập file cấu hình Final Holdout (configs/experiments/m2_final_holdout_v2.json)
+
+### Mục đích
+
+Khóa cấu hình thực nghiệm trên 24 snapshots ngoài mẫu (2024 - 2025) cho duy nhất mô hình chiến thắng đã chọn ở Nhiệm vụ 10.
+
+### Cách thực hiện (3 bước)
+
+1. **Trích xuất thông tin mô hình chiến thắng:**  
+   Nạp file `M2/artifacts/m2-evaluation/final_method_decision.json`, kiểm tra `status == "FROZEN_FOR_HOLDOUT"`, trích xuất tên thuật toán chiến thắng (`winning_algorithm`) và Global K = 2.
+
+2. **Tạo file cấu hình Holdout:**  
+   Tạo file `configs/experiments/m2_final_holdout_v2.json` kế thừa cấu hình của mô hình chiến thắng, thiết lập:
+   - `"stage": "M2_TASK_11_HOLDOUT"`
+   - `"start": "2024-01-31"`, `"end": "2025-12-31"`
+   - Danh sách snapshot thực thi gồm đúng 24 snapshots Holdout từ `2024-01-31` đến `2025-12-31`.
+
+3. **Bảo toàn các tham số bất biến:**  
+   Giữ nguyên đúng 8 đặc trưng thị trường gốc, Robust Scaling độc lập từng snapshot, Global K = 2. Tuyệt đối không can thiệp hay thay đổi bất kỳ siêu tham số nào.
 
 ## Phần 11.1 — Khung thời gian Holdout và 24 Snapshots thực tế
 
