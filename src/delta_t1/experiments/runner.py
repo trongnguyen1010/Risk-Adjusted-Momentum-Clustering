@@ -164,7 +164,7 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
     data_run = Path(data_run).resolve()
     config = read_json(config_path)
     validate_protocol(config)
-    is_m2 = config.get("protocol_scope") == "m2_market_only_v1"
+    is_m2 = config.get("protocol_scope") in ("m2_market_only_v1", "m2_market_only_v2")
     if is_m2:
         source, prepared = prepare_m2_market_only_snapshots(data_run, config)
         tables = {}
@@ -181,7 +181,7 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
         if is_m2:
             features = [row for prep in prepared for row in prep["rows"]]
             clustering_config = m2_clustering_config(config)
-            minimum = config.get("min_eligible_count", 120)
+            minimum = config.get("min_eligible_count", 100 if config.get("protocol_scope") == "m2_market_only_v2" else 120)
             snapshot_items = [
                 (prep["snapshot_date"], prep["rows"], prep["status"], prep["reason"], prep["eligible_count"])
                 for prep in prepared
@@ -263,7 +263,7 @@ def experiment(data_run: Path, config_path: Path, root: Path) -> tuple[Path, dic
                             for profile in snapshot["profiles"])
             diagnostic_rows.extend(dict(row, snapshot_date=day) for row in snapshot["diagnostics"])
             write_json(target / "models" / (day + ".json"), snapshot["model"])
-            if config.get("protocol_scope") == "m2_market_only_v1" or str(config.get("stage", "")).startswith("M2_"):
+            if config.get("protocol_scope") in ("m2_market_only_v1", "m2_market_only_v2") or str(config.get("stage", "")).startswith("M2_"):
                 algo = config.get("clustering", {}).get("algorithm") or config.get("clustering", {}).get("baseline")
                 if algo in ("kmeans", "ward", "pca_kmeans"):
                     m2_models_dir = Path(root).resolve() / "M2" / "models" / algo
