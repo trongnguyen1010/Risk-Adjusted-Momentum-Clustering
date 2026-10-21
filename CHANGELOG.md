@@ -1,3 +1,17 @@
+# Chưa phát hành — PCA + K-Means dữ liệu mới V2 (2026-10-21)
+
+- Đưa lên Git bộ PCA + K-Means Nhiệm vụ 6–9 đã chạy trên 60 tháng development
+  2019–2023, 29.907 assignments, Global K=2 và PCA 2 chiều, kèm notebook, config,
+  60 models, báo cáo, bằng chứng freeze và checksum.
+- Theo yêu cầu owner, loại bốn notebook PCA cũ, config `m2_task6_pca.json`,
+  `m2-task6-pca-kmeans-v1` và `m2-evaluation-pca-kmeans` khỏi active tree.
+  Git history giữ bản cũ; không xóa lịch sử hoặc thay dữ liệu nguồn C8.
+- Chuyển đường dẫn kế hoạch và regression tests sang V2; bảo toàn byte artifact
+  qua Git để checksum không đổi khi checkout trên Windows.
+- Task 10 yêu cầu cùng development dates và nguồn dữ liệu trước khi so sánh;
+  lần chạy mới dùng output V2. Task 10–13 lịch sử không được coi là kết quả V2;
+  audit Task 12 lịch sử dừng rõ ràng nếu bộ PCA cũ không còn trong checkout.
+
 # Chưa phát hành — M2 Task 11 Final Holdout (2026-10-04)
 
 - Thêm freeze-gated offline runner `experiments/final_holdout.py`, config và notebook

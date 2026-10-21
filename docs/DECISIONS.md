@@ -157,3 +157,23 @@ Affected: canonical builder/config/tests, CafeF experiment plan và feature read
 Remaining limits: cần resolve đúng các missing sessions; CTR old UPCOM và SHB old HNX
 vẫn là structural coverage exceptions; historical identity, financial PIT và rights
 không được nâng cấp bởi quyết định này.
+
+## ADR — PCA + K-Means dữ liệu mới V2 và active Git tree (2026-10-21)
+
+Owner yêu cầu thay phần PCA + K-Means cũ trên Git bằng bộ đã chạy lại với data
+mới. Active PCA là 60 snapshot development 2019–2023, Global K=2, PCA 2 chiều
+được freeze từ development, cùng notebook/kết quả Nhiệm vụ 6–9 hậu tố V2.
+Bốn notebook cũ, config m2_task6_pca.json và hai thư mục artifact PCA cũ được
+loại khỏi active tree; Git history giữ nguyên evidence lịch sử, không rewrite.
+
+Task 10 mới phải kiểm tra cùng development dates, feature source và universe
+trước khi so sánh; chỉ ghi output V2. Các quyết định Task 10–13 đã freeze vẫn
+là lịch sử, không tự nâng thành quyết định cho data V2. Audit Task 12 lịch sử
+cần checkout cũ còn đủ evidence. Backend source đã được immutable source/holdout
+manifest tham chiếu được giữ để kiểm chứng lịch sử; config V2 ghi output_dir mới
+tường minh. Kết nối Git không đồng nghĩa thực thi stage mới, mở holdout, đổi
+Global K hay dùng portfolio performance chọn mô hình.
+
+Git phải giữ byte chính xác của artifact V2 và báo cáo được manifest tham chiếu;
+không tự chuyển CRLF/LF làm hỏng checksum. Các phương án KMeans/Ward và dữ liệu
+C8 nguồn nằm ngoài phạm vi thay thế PCA này.
