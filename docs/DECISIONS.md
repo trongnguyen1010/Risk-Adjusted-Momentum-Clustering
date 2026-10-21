@@ -187,3 +187,14 @@ không duy trì bản trùng `_v2_day_du.md`. Checksum báo cáo và metadata ng
 phụ thuộc được làm mới; numerical artifacts/model và quyết định Task 10 không đổi.
 Bản xuất trước nằm trong Git history. Notebook đánh giá 7–9 giữ bản đầy đủ khi
 hash khớp manifest đã lưu; báo cáo thay đổi ngoài manifest vẫn bị từ chối.
+
+### Cập nhật 2026-10-22 — Entry point Nhiệm vụ 11 V2
+
+Áp dụng split 60/24 và ngưỡng 100 đã ghi trong protocol/kế hoạch V2, không dùng
+runner legacy khóa 15/7/ngưỡng 120. Giữ duy nhất KMeans Baseline/sklearn đã được
+Task 10 chọn; kiểm chứng params và byte hash 60 selected models cùng development
+inputs trước khi mở C8. Runtime k_range=[2], Robust Scaling/fit độc lập từng tháng,
+reset chuỗi tại ranh giới Dev/Holdout, skip hoặc tháng không liên tiếp.
+Đầu ra V2 riêng; rerun chỉ verify complete, không xóa evidence/retune sau khi mở.
+Sửa LF chỉ khôi phục đúng byte có hash đã freeze, không thay giá trị hoặc chọn lại
+phương án. Bước chuẩn bị không đọc feature holdout hay sinh kết quả thật.

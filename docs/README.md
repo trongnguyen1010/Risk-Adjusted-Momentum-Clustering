@@ -13,6 +13,17 @@ M2 Nhiệm vụ 1 đã freeze protocol và Nhiệm vụ 2 đã hoàn tất runne
 
 ## Theo mục đích
 
+- Chạy Nhiệm vụ 11 trên dữ liệu mới: mở
+  [Notebook 11 V2](../M2/notebooks/11_final_holdout_execution_v2.ipynb), chọn kernel
+  Python đã dùng ở M2 và chạy các cell theo thứ tự. Bước 1 chỉ kiểm tra gate;
+  Bước 2 mới mở 24 tháng holdout 2024–2025 cho duy nhất sklearn KMeans/K=2.
+  [Config V2](../configs/experiments/m2_final_holdout_v2.json) khóa chín development
+  inputs; đầu ra mới là `M2/artifacts/m2-final-holdout-v2/`, model tại
+  `M2/models/holdout_v2/`, báo cáo Nhiệm vụ 11 hậu tố `_v2.md` sau khi chạy xong.
+  **V2 đã chạy xong 24/24 tháng**; đọc
+  [báo cáo đầy đủ](../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout_v2.md).
+  Lần chạy lại chỉ verify/nạp bộ complete, không fit lại hoặc tạo lần thử mới.
+  Bộ V1 bảy tháng năm 2026 là lịch sử; không dùng notebook 11 V1 cho dữ liệu mới.
 - PCA + K-Means dữ liệu mới: Nhiệm vụ 6–9 V2 đã hoàn tất trên 60 tháng
   development 2019–2023; xem [Current status](CURRENT_STATUS.md) và
   [notebook 06 V2](../M2/notebooks/06_pca_kmeans_v2_rerun.ipynb).

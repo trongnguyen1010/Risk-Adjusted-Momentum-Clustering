@@ -2318,7 +2318,7 @@ Final Holdout (24 snapshots: 2024-01-31 đến 2025-12-31)
 
 ## Rào chắn học thuật bất biến cho Final Holdout (Strict Holdout Invariants)
 
-- **Cổng kiểm soát đóng băng (Freeze Gate Rule):** Final Holdout chỉ được phép kích hoạt sau khi file `M2/artifacts/m2-evaluation/final_method_decision.json` đã tồn tại với trạng thái `status: "FROZEN_FOR_HOLDOUT"`.
+- **Cổng kiểm soát đóng băng (Freeze Gate Rule):** Final Holdout chỉ được phép kích hoạt sau khi file `M2/artifacts/m2-evaluation-v2/final_method_decision.json` đã tồn tại với trạng thái `status: "FROZEN_FOR_HOLDOUT"`.
 - **Chỉ chạy duy nhất 1 mô hình (Single Model Execution):** Tuyệt đối không chạy lại 3 phương án trên Holdout. Hai phương án đã bị loại ở Nhiệm vụ 10 giữ nguyên vai trò đối chứng ở Development và không tham gia vào Holdout.
 - **Không thử lại K:** Giữ nguyên Global K = 2 đã đóng băng. Tuyệt đối không quét lại K = 2..8 trên dữ liệu Holdout.
 - **Giữ nguyên Preprocessing:** Áp dụng đúng công thức Robust Scaling per-snapshot: `x_scaled = (x - Median) / IQR`. Không dùng scaler của Development áp cho Holdout, không đổi sang Z-score.
@@ -2327,12 +2327,17 @@ Final Holdout (24 snapshots: 2024-01-31 đến 2025-12-31)
 ## Đầu vào của Nhiệm vụ 11
 
 - File cấu hình thí nghiệm: `configs/experiments/m2_final_holdout_v2.json` (được tạo ở đầu Nhiệm vụ 11 dựa trên mô hình chiến thắng trích xuất từ `final_method_decision.json`, chuyển danh sách snapshot sang 24 snapshots Holdout);
-- File quyết định đóng băng mô hình: `M2/artifacts/m2-evaluation/final_method_decision.json` (bắt buộc trạng thái `status == "FROZEN_FOR_HOLDOUT"`);
-- Notebook thực thi: `M2/notebooks/11_final_holdout_execution.ipynb`;
+- File quyết định đóng băng mô hình: `M2/artifacts/m2-evaluation-v2/final_method_decision.json` (bắt buộc trạng thái `status == "FROZEN_FOR_HOLDOUT"`);
+- Notebook thực thi: `M2/notebooks/11_final_holdout_execution_v2.ipynb`;
 - Dữ liệu 24 snapshots Holdout liên tục từ `2024-01-31` đến `2025-12-31` (nạp từ `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`);
 - Vũ trụ cổ phiếu: Lọc theo từng snapshot `market_experiment_eligible(t) = market_feature_ready_v2(t)` và `n_eligible >= 100`;
 - Chuẩn hóa: Đúng 8 đặc trưng thị trường, Robust Scaling độc lập theo từng snapshot;
-- Thư mục xuất artifact đầu ra: `M2/artifacts/m2-final-holdout-v1/` và mô hình tại `M2/models/holdout/`.
+- Thư mục xuất artifact đầu ra: `M2/artifacts/m2-final-holdout-v2/` và mô hình tại `M2/models/holdout_v2/`.
+
+> **Entry point V2 hiện hành:** `M2/notebooks/11_final_holdout_execution_v2.ipynb`;
+> config `configs/experiments/m2_final_holdout_v2.json`; đọc C8
+> `artifacts/cafef_primary/cafef-c8-complete-only-v2/`. Gate chỉ kiểm tra development;
+> Bước 2 mới mở holdout. Bộ V1 bảy tháng năm 2026 giữ làm lịch sử.
 
 ## Phần 11.0 — Thiết lập file cấu hình Final Holdout (configs/experiments/m2_final_holdout_v2.json)
 
@@ -2343,7 +2348,7 @@ Khóa cấu hình thực nghiệm trên 24 snapshots ngoài mẫu (2024 - 2025) 
 ### Thao tác chuẩn bị file cấu hình (3 bước)
 
 1. **Trích xuất thông tin mô hình chiến thắng:**  
-   Nạp file `M2/artifacts/m2-evaluation/final_method_decision.json`, kiểm tra `status == "FROZEN_FOR_HOLDOUT"`, trích xuất tên thuật toán chiến thắng (`winning_algorithm`) và Global K = 2.
+   Nạp file `M2/artifacts/m2-evaluation-v2/final_method_decision.json`, kiểm tra `status == "FROZEN_FOR_HOLDOUT"`, trích xuất tên thuật toán chiến thắng (`winning_algorithm`) và Global K = 2.
 
 2. **Tạo file cấu hình Holdout:**  
    Tạo file `configs/experiments/m2_final_holdout_v2.json` kế thừa cấu hình của mô hình chiến thắng, thiết lập:
@@ -2399,7 +2404,7 @@ Mỗi snapshot Holdout được xem là một phiên giao dịch thực tế đ�
 
 ## Phần 11.4 — Thực thi duy nhất mô hình chiến thắng trên 24 Snapshots Holdout
 
-- Nạp cấu hình và thuật toán đã được đóng băng từ `M2/artifacts/m2-evaluation/final_method_decision.json`.
+- Nạp cấu hình và thuật toán đã được đóng băng từ `M2/artifacts/m2-evaluation-v2/final_method_decision.json`.
 - Thực hiện phân cụm trên không gian đặc trưng đã chuẩn hóa với đúng Global K = 2.
 - Gán nhãn cụm cho từng mã cổ phiếu đủ điều kiện tại mỗi snapshot.
 - Tính toán tọa độ tâm cụm thực tế và biến đổi ngược về thang đo 8 đặc trưng gốc để phục vụ phân tích hồ sơ cụm.
@@ -2412,7 +2417,7 @@ Tính toán các chỉ số chất lượng phân cụm hình học trên từng
 - Calinski-Harabasz Index
 - Cluster Balance (min_size / max_size) và quy mô từng cụm
 
-Tổng hợp thành bảng thống kê chất lượng Holdout `M2/artifacts/m2-final-holdout-v1/diagnostics.jsonl`.
+Tổng hợp thành bảng thống kê chất lượng Holdout `M2/artifacts/m2-final-holdout-v2/diagnostics.jsonl`.
 
 ## Phần 11.6 — Đánh giá độ ổn định thời gian và Quy tắc ngắt chuỗi tại Gap (Temporal Stability & Gap Reset)
 
@@ -2453,10 +2458,10 @@ So sánh hồ sơ 8 đặc trưng gốc của các cụm giữa Development và 
 
 ## Phần 11.9 — Quy trình thực thi 7 bước trong Notebook 11
 
-Quy trình thực thi trong notebook `M2/notebooks/11_final_holdout_execution.ipynb` gồm đúng 7 bước:
+Quy trình thực thi trong notebook `M2/notebooks/11_final_holdout_execution_v2.ipynb` gồm đúng 7 bước:
 
 - **Bước 1: Kiểm định Cổng đóng băng (Holdout Gate Verification)**  
-  Nạp file `M2/artifacts/m2-evaluation/final_method_decision.json`, kiểm tra điều kiện tiên quyết `status == "FROZEN_FOR_HOLDOUT"`. Nếu file không tồn tại hoặc trạng thái chưa đóng băng, lập tức dừng chương trình (fail-closed). Trích xuất tên mô hình chiến thắng và Global K = 2.
+  Nạp file `M2/artifacts/m2-evaluation-v2/final_method_decision.json`, kiểm tra điều kiện tiên quyết `status == "FROZEN_FOR_HOLDOUT"`. Nếu file không tồn tại hoặc trạng thái chưa đóng băng, lập tức dừng chương trình (fail-closed). Trích xuất tên mô hình chiến thắng và Global K = 2.
 - **Bước 2: Nạp dữ liệu 24 Snapshots Holdout từ Feature Store**  
   Nạp 8 đặc trưng thị trường của 24 snapshots Holdout (2024 - 2025) từ kho dữ liệu chuẩn hóa `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl` (phiên bản Feature Store `1.6.0`).
 - **Bước 3: Lọc Universe và Kiểm định Ngưỡng mã tối thiểu**  
@@ -2470,13 +2475,13 @@ Quy trình thực thi trong notebook `M2/notebooks/11_final_holdout_execution.ip
   - Tính ARI, NMI, Persistence, Migration Rate cho 23 cặp tháng liên tiếp của Holdout, lưu vào `temporal_stability.csv`.
   - Tính toán `Delta_Silhouette` và lập bảng khoảng cách suy thoái `holdout_generalization_gap.csv`.
 - **Bước 7: Trực quan hóa, Tạo Manifest kiểm toán và Soạn thảo Báo cáo**  
-  - Vẽ biểu đồ quỹ đạo chất lượng `M2/artifacts/m2-final-holdout-v1/holdout_vs_dev_trajectory.png`.
-  - Tạo file kiểm toán `M2/artifacts/m2-final-holdout-v1/manifest.json` ghi nhận mã băm sha256 của tất cả các artifacts.
-  - Soạn thảo báo cáo chuyên đề `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`.
+  - Vẽ biểu đồ quỹ đạo chất lượng `M2/artifacts/m2-final-holdout-v2/holdout_vs_dev_trajectory.png`.
+  - Tạo file kiểm toán `M2/artifacts/m2-final-holdout-v2/manifest.json` ghi nhận mã băm sha256 của tất cả các artifacts.
+  - Soạn thảo báo cáo chuyên đề `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout_v2.md`.
 
 ## Phần 11.10 — Trực quan hóa chuẩn hóa: Biểu đồ Quỹ đạo Development vs Holdout
 
-Notebook 11 bắt buộc phải xuất biểu đồ `M2/artifacts/m2-final-holdout-v1/holdout_vs_dev_trajectory.png`:
+Notebook 11 bắt buộc phải xuất biểu đồ `M2/artifacts/m2-final-holdout-v2/holdout_vs_dev_trajectory.png`:
 - Kích thước đồ thị: `figsize=(14, 6)`.
 - Trục tung: Điểm số Silhouette (từ 0.0 đến 1.0).
 - Trục hoành: Toàn bộ 84 mốc thời gian (60 mốc Development từ 2019-01-31 đến 2023-12-29, và 24 mốc Holdout từ 2024-01-31 đến 2025-12-31).
@@ -2486,19 +2491,19 @@ Notebook 11 bắt buộc phải xuất biểu đồ `M2/artifacts/m2-final-holdo
 ## Kết quả cần đạt & Đường dẫn bàn giao của Nhiệm vụ 11
 
 1. **Notebook thực thi hoàn chỉnh:**
-   - `M2/notebooks/11_final_holdout_execution.ipynb`
+   - `M2/notebooks/11_final_holdout_execution_v2.ipynb`
 2. **Thư mục lưu trữ mô hình và đối tượng Holdout:**
-   - `M2/models/holdout/`
-3. **Artifacts thực nghiệm chuẩn hóa (Thư mục `M2/artifacts/m2-final-holdout-v1/`):**
-   - `M2/artifacts/m2-final-holdout-v1/assignments.jsonl` (gán nhãn cụm cho từng mã qua 24 snapshots holdout)
-   - `M2/artifacts/m2-final-holdout-v1/profiles.jsonl` (hồ sơ tâm cụm trên 8 đặc trưng gốc)
-   - `M2/artifacts/m2-final-holdout-v1/diagnostics.jsonl` (chỉ số chất lượng Silhouette, DB, CH, Balance theo từng snapshot)
-   - `M2/artifacts/m2-final-holdout-v1/temporal_stability.csv` (chỉ số ARI, NMI, Persistence, Migration giữa 23 cặp tháng holdout)
-   - `M2/artifacts/m2-final-holdout-v1/holdout_generalization_gap.csv` (bảng đối chiếu suy thoái chất lượng giữa Dev và Holdout)
-   - `M2/artifacts/m2-final-holdout-v1/holdout_vs_dev_trajectory.png` (biểu đồ quỹ đạo phân cụm xuyên suốt 84 snapshots)
-   - `M2/artifacts/m2-final-holdout-v1/manifest.json` (bằng chứng kiểm toán và mã băm sha256)
+   - `M2/models/holdout_v2/`
+3. **Artifacts thực nghiệm chuẩn hóa (Thư mục `M2/artifacts/m2-final-holdout-v2/`):**
+   - `M2/artifacts/m2-final-holdout-v2/assignments.jsonl` (gán nhãn cụm cho từng mã qua 24 snapshots holdout)
+   - `M2/artifacts/m2-final-holdout-v2/profiles.jsonl` (hồ sơ tâm cụm trên 8 đặc trưng gốc)
+   - `M2/artifacts/m2-final-holdout-v2/diagnostics.jsonl` (chỉ số chất lượng Silhouette, DB, CH, Balance theo từng snapshot)
+   - `M2/artifacts/m2-final-holdout-v2/temporal_stability.csv` (chỉ số ARI, NMI, Persistence, Migration giữa 23 cặp tháng holdout)
+   - `M2/artifacts/m2-final-holdout-v2/holdout_generalization_gap.csv` (bảng đối chiếu suy thoái chất lượng giữa Dev và Holdout)
+   - `M2/artifacts/m2-final-holdout-v2/holdout_vs_dev_trajectory.png` (biểu đồ quỹ đạo phân cụm xuyên suốt 84 snapshots)
+   - `M2/artifacts/m2-final-holdout-v2/manifest.json` (bằng chứng kiểm toán và mã băm sha256)
 4. **Báo cáo chuyên đề Markdown:**
-   - `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`
+   - `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout_v2.md`
 
 # NHIỆM VỤ 12 — M2 VERIFY: KIỂM TOÁN TÍNH TOÀN VẸN VÀ RÀO CHẮN HỌC THUẬT
 
