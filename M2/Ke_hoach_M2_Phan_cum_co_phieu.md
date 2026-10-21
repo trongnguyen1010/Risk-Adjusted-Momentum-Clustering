@@ -494,11 +494,13 @@ Dùng K-Means trên development với K=2..8 để chọn ra một Global K duy 
 ## Đầu vào của Nhiệm vụ 3
 
 - File cấu hình thí nghiệm: `configs/experiments/m2_market_only_v2.json`;
+- Notebook thực thi: `M2/notebooks/03_choose_global_k.ipynb` (kết hợp `scripts/run_m2_global_k.py`, `src/delta_t1/clustering/kmeans.py`, `src/delta_t1/features/preprocessing.py` và `src/delta_t1/evaluation/cluster_metrics.py`);
 - Dữ liệu 60 development snapshots liên tục từ `2019-01-31` đến `2023-12-29` (nạp từ `data/canonical/market/`);
-- Bộ điều phối và mô hình: `src/delta_t1/experiments/runner.py`, `src/delta_t1/clustering/kmeans.py`, `src/delta_t1/features/preprocessing.py`;
+- Vũ trụ cổ phiếu chuẩn: Lọc theo từng snapshot `market_feature_ready_v2 = true` và `n_eligible >= 100`;
 - Bộ 8 đặc trưng thị trường với chuẩn hóa Robust Scaling per-snapshot (`x_scaled = (x - Median) / IQR`);
 - Không gian siêu tham số khảo sát: K = 2, 3, 4, 5, 6, 7, 8;
-- Quy tắc lựa chọn: Ưu tiên Median Silhouette cao nhất, Median Davies-Bouldin tie-breaker.
+- Quy tắc lựa chọn: Ưu tiên Median Silhouette cao nhất, Median Davies-Bouldin tie-breaker;
+- Thư mục xuất artifact đầu ra: `M2/artifacts/m2-task3-development-v1/` và mô hình tại `M2/models/kmeans/`.
 
 ## Phần 3.1 — Lấy snapshot đầu tiên
 
@@ -642,23 +644,21 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 
 ## Kết quả cần đạt của Nhiệm vụ 3
 
-- metric theo snapshot × K;
-
-- aggregate theo K;
-
-- Global K;
-
-- decision artifact;
-
-- K-Means artifact của Global K nếu đầy đủ.
+- Bảng chi tiết toàn bộ các lần chạy K-Means qua 60 development snapshots × 7 mức K (tổng cộng 420 lượt chạy) với 5 chỉ số chất lượng: Silhouette, Davies-Bouldin, Calinski-Harabasz, Inertia, Cluster Balance: `M2/artifacts/m2-task3-development-v1/per_snapshot_k_metrics.csv`;
+- Bảng tổng hợp trung vị các chỉ số chất lượng theo từng mức K từ 2 đến 8 qua toàn bộ giai đoạn development: `M2/artifacts/m2-task3-development-v1/aggregate_by_k.csv`;
+- Biên bản quyết định chính thức phê duyệt và khóa Global K = 2 với đầy đủ metadata và checksum sha256: `M2/artifacts/m2-task3-development-v1/global_k_decision.json`;
+- Đồ thị trực quan hóa đường cong trung vị Silhouette và phương pháp khuỷu tay Elbow qua mức độ giảm quán tính Inertia: `M2/artifacts/m2-task3-development-v1/silhouette_curve.png`, `M2/artifacts/m2-task3-development-v1/elbow_inertia_curve.png` và `M2/artifacts/m2-task3-development-v1/silhouette_and_elbow_curves.png`;
+- Mô hình K-Means và thông số tâm cụm centroids của cấu hình Global K = 2 được giữ lại theo Phần 3.11 để tái sử dụng làm baseline cho Nhiệm vụ 4: `M2/models/kmeans/`;
+- Báo cáo phân tích lựa chọn số cụm tối ưu: `M2/reports/Bao_cao_M2_Nhiem_vu_3_Chon_Global_K.md`;
+- Dữ liệu và tham số Global K = 2 sẵn sàng cho Nhiệm vụ 4 (K-Means Baseline), Nhiệm vụ 5 (Ward), Nhiệm vụ 6 (PCA + K-Means).
 
 ## Vị trí trong repo & Đường dẫn output
 
-- **Code model / Thực thi**: `M2/notebooks/03_choose_global_k.ipynb` (phối hợp `scripts/run_m2_global_k.py`, `src/delta_t1/clustering/kmeans.py` và `src/delta_t1/evaluation/cluster_metrics.py`)
+- **Code model / Thực thi**: `M2/notebooks/03_choose_global_k.ipynb` (phối hợp `scripts/run_m2_global_k.py`, `src/delta_t1/clustering/kmeans.py`, `src/delta_t1/features/preprocessing.py` và `src/delta_t1/evaluation/cluster_metrics.py`)
 - **Mô hình / Trọng số (Models & Centroids)**: `M2/models/kmeans/` (lưu trữ model K-Means fitted, centroids của cấu hình Global K = 2 được giữ lại theo Phần 3.11 để tái sử dụng làm baseline cho Nhiệm vụ 4)
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_3_Chon_Global_K.md`
-- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task3-development-v1/` (hoặc `artifacts/experiments/m2-task3-development-v1/` gồm `per_snapshot_k_metrics.csv`, `aggregate_by_k.csv`, `global_k_decision.json`)
-- **Biểu đồ trực quan hóa**: `M2/artifacts/m2-task3-development-v1/elbow_inertia_curve.png` và `silhouette_curve.png` (đồ thị phương pháp khuỷu tay Elbow và đường cong trung vị Silhouette theo từng mức K)
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task3-development-v1/` (chứa `per_snapshot_k_metrics.csv`, `aggregate_by_k.csv`, `global_k_decision.json`; lưu trong M2 để push lên GitHub)
+- **Biểu đồ trực quan hóa**: `M2/artifacts/m2-task3-development-v1/elbow_inertia_curve.png`, `silhouette_curve.png`, `silhouette_and_elbow_curves.png` (đồ thị phương pháp khuỷu tay Elbow và đường cong trung vị Silhouette theo từng mức K)
 - **Tài liệu phương pháp luận liên quan**: `DELTA_UNIFIED_PROJECT_PLAN.md §6.7` (M2-EXEC-A), `METHODOLOGY.md`
 
 # NHIỆM VỤ 4 — CHẠY PHƯƠNG ÁN A: K-MEANS BASELINE
