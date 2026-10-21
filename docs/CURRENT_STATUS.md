@@ -1,5 +1,23 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Cập nhật 2026-10-22 — Báo cáo PCA V2 đầy đủ và đồng bộ Git
+
+Theo yêu cầu owner, bốn báo cáo chính Nhiệm vụ 6–9 PCA + K-Means tên hậu tố
+`_v2.md` trong `M2/reports/` đã được thay bằng bản đầy đủ có bố cục A/B/C,
+bảng chi tiết và biểu đồ. Không giữ bản trùng `_v2_day_du.md` trong active tree;
+các bản trước vẫn có trong Git history. Đường dẫn tại [START HERE](README.md).
+
+Checksum báo cáo trong manifest Task 6–9 cùng tham chiếu metadata phụ thuộc
+được cập nhật. Model, scaler/PCA, CSV/JSONL, biểu đồ, source snapshot và toàn bộ
+kết quả/quyết định Task 10 giữ nguyên. Notebook đánh giá 7–9 kiểm tra checksum
+báo cáo đầy đủ trước khi tái sử dụng, không ghi đè bằng phần tóm tắt tự động.
+
+Đã lấy hai commit `2d8ac27` và `3caf7c9` từ Git: KMeans 4/7/8/9 đã làm lại và
+Task 10 V2 đã chọn **KMeans_Baseline, K=2**, trạng thái `FROZEN_FOR_HOLDOUT`;
+PCA và Ward là comparator. Các báo cáo mới phản ánh trạng thái này, không
+thực thi lại Task 10 hoặc mở holdout V2. Các ghi chú cũ bên dưới giữ bối cảnh
+tại thời điểm được viết.
+
 ## Cập nhật 2026-10-21 — nhánh K-Means M2 trên C8 v2
 
 Nhiệm vụ 4, 7, 8 và 9 của **K-Means** đã chạy lại trên 60 development snapshot 2019–2023 từ `cafef-c8-complete-only-v2`; Global K=2 giữ theo quyết định Nhiệm vụ 3. Nhiệm vụ 4 fit lại bằng scikit-learn, có 29.907 assignments, 120 profiles, 60 model/scaler. Output active đúng tên kế hoạch ở `M2/artifacts/m2-task4-kmeans-baseline-v1/` và `M2/models/kmeans/`.
