@@ -52,7 +52,7 @@ def write_csv(path, fields, rows):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path,
-                        default=ROOT / "configs/experiments/m2_market_only_v1.json")
+                        default=ROOT / "configs/experiments/m2_market_only_v2.json")
     parser.add_argument("--data-run", type=Path,
                         default=ROOT / "artifacts/cafef_primary/cafef-c8-complete-only-v1")
     parser.add_argument("--output", type=Path, required=True,
@@ -74,7 +74,18 @@ def main():
         raise ValueError("portfolio evaluation must remain disabled")
     days = config["development_snapshots"][:1] if args.smoke else config["development_snapshots"]
     ks = [2] if args.smoke else config["clustering"]["k_range"]
-    source, prepared = prepare_m2_market_only_snapshots(args.data_run, config, days)
+    feature_path = args.data_run / "canonical/feature_snapshots.jsonl"
+    with feature_path.open(encoding="utf-8") as stream:
+        c8_available = {json.loads(line)["as_of_date"] for line in stream if line.strip()}
+    in_c8 = [d for d in days if d in c8_available]
+    if in_c8:
+        source, prepared_in_c8 = prepare_m2_market_only_snapshots(args.data_run, config, in_c8)
+    else:
+        source, prepared_in_c8 = {"artifact_id": "cafef-c8-complete-only-v1", "outputs": {}}, []
+    prep_map = {p["snapshot_date"]: p for p in prepared_in_c8}
+    prepared = [prep_map.get(day, dict(snapshot_date=day, status="skipped",
+                                        reason="snapshot_not_present_in_c8_source",
+                                        eligible_count=0, rows=[])) for day in days]
     if len(prepared) != len(days):
         raise ValueError("development snapshot count mismatch")
 
@@ -152,7 +163,7 @@ def main():
         git_commit=commit,
         config_sha256=sha256(args.config),
         source_manifest_sha256=sha256(args.data_run / "manifest.json"),
-        feature_snapshot_sha256=source["outputs"]["canonical/feature_snapshots.jsonl"],
+        feature_snapshot_sha256=source.get("outputs", {}).get("canonical/feature_snapshots.jsonl", ""),
         script_sha256=sha256(__file__),
         per_snapshot_sha256=sha256(args.output / "per_snapshot_k_metrics.csv"),
         aggregate_sha256=sha256(args.output / "aggregate_by_k.csv"),

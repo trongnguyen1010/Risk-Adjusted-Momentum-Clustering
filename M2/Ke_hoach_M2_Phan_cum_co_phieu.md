@@ -655,7 +655,7 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 ## Vị trí trong repo & Đường dẫn output
 
 - **Code model / Thực thi**: `M2/notebooks/03_choose_global_k.ipynb` (phối hợp `scripts/run_m2_global_k.py`, `src/delta_t1/clustering/kmeans.py`, `src/delta_t1/features/preprocessing.py` và `src/delta_t1/evaluation/cluster_metrics.py`)
-- **Mô hình / Trọng số (Models & Centroids)**: `M2/models/kmeans/` (lưu trữ model K-Means fitted, centroids của cấu hình Global K = 2 được giữ lại theo Phần 3.11 để tái sử dụng làm baseline cho Nhiệm vụ 4)
+- **Mô hình / Trọng số (Models & Centroids)**: `M2/models/kmeans_task03/` (lưu trữ model K-Means fitted, centroids của cấu hình Global K = 2 được giữ lại theo Phần 3.11 để tái sử dụng làm baseline cho Nhiệm vụ 4)
 - **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_3_Chon_Global_K.md`
 - **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task3-development-v1/` (chứa `per_snapshot_k_metrics.csv`, `aggregate_by_k.csv`, `global_k_decision.json`; lưu trong M2 để push lên GitHub)
 - **Biểu đồ trực quan hóa**: `M2/artifacts/m2-task3-development-v1/elbow_inertia_curve.png`, `silhouette_curve.png`, `silhouette_and_elbow_curves.png` (đồ thị phương pháp khuỷu tay Elbow và đường cong trung vị Silhouette theo từng mức K)
