@@ -1,4 +1,9 @@
-"""Read-only M2 audit. Run from repo root. New evidence directory required."""
+"""Historical M2 V1 audit (15 development snapshots), not a PCA V2 audit.
+
+Run from the matching historical Git worktree with the original V1 evidence.
+A new evidence directory is required; V2 results cannot revalidate the frozen
+Task 10 decision, final holdout or Task 12 evidence from that historical run.
+"""
 import argparse
 import csv
 from datetime import datetime, timezone
@@ -40,6 +45,24 @@ def main():
     root = Path.cwd().resolve()
     if not (root / 'configs/experiments/m2_market_only_v1.json').is_file():
         parser.error('Run from repository root, where configs, M2 and src exist.')
+    # PCA V1 was retired from the active tree. Never silently substitute V2 data
+    # into this historical audit or create a partial output before this gate.
+    historical_pca_inputs = [
+        'M2/artifacts/m2-task6-pca-kmeans-v1/manifest.json',
+        'M2/artifacts/m2-task6-pca-kmeans-v1/diagnostics.csv',
+        'M2/artifacts/m2-evaluation-pca-kmeans/temporal_stability.csv',
+    ]
+    missing_historical = [name for name in historical_pca_inputs if not (root / name).is_file()]
+    if missing_historical:
+        parser.error(
+            'BLOCKED: this verifier audits the historical 15-snapshot M2 V1 run. '
+            'The retired PCA V1 evidence is absent: ' + ', '.join(missing_historical) + '. '
+            'Use a separate historical Git worktree from before the PCA V2 migration '
+            'with the complete original Task 6-12 archive and its matching verifier. '
+            'Do not substitute current PCA V2 artifacts: they do not revalidate the '
+            'historical frozen Task 10 decision, Task 11 holdout or Task 12 audit. '
+            'No output directory has been created.'
+        )
     out = (root / args.output).resolve()
     if not out.is_relative_to(root) or out.exists():
         parser.error('Output must be a NEW directory inside repository.')
