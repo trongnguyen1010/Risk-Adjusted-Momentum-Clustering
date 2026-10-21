@@ -1,3 +1,22 @@
+# Chưa phát hành — Kết quả và báo cáo Nhiệm vụ 11 V2 (2026-10-22)
+
+- Holdout đã hoàn tất: 24 snapshot 2024–2025, 28.110 assignments, 24 model,
+  23 cặp tháng; chỉ sklearn KMeans/K=2, không skip hoặc chạy comparator.
+- Mở rộng báo cáo Nhiệm vụ 11 V2 theo mẫu A/B/C: quality/generalization gap,
+  temporal/universe, hồ sơ mean/median, biểu đồ 84 mốc và giới hạn diễn giải.
+- Giữ bản xuất tự động gốc trong artifact; làm mới checksum báo cáo và ghi
+  nhận revision. Model/numerical outputs/input/code giữ nguyên, không refit.
+
+# Chưa phát hành — Chuẩn bị Nhiệm vụ 11 V2 (2026-10-22)
+
+- Thêm notebook/config/runner V2 cho 24 snapshot holdout 2024–2025, giữ duy nhất
+  sklearn KMeans/K=2 đã freeze, Robust Scaling riêng tháng, ngưỡng eligibility 100.
+- Gate pin development inputs và kiểm chứng 60 selected models trước đọc holdout;
+  khôi phục đúng byte LF theo hash cũ và Git attributes để tránh lỗi checkout Windows.
+- Xuất V2 riêng, bảy bước, gap/profile diagnostics, biểu đồ 84 mốc, source snapshot;
+  rerun verify-only, từ chối run dở/tamper/code/input thay đổi. Giữ runner V1 lịch sử.
+- Chỉ preflight và test dữ liệu giả trong lần chuẩn bị; chưa chạy holdout thật.
+
 # Chưa phát hành — Báo cáo PCA V2 đầy đủ và đồng bộ Git (2026-10-22)
 
 - Thay bốn báo cáo chính PCA + K-Means Nhiệm vụ 6–9 bằng bản đầy đủ theo mẫu

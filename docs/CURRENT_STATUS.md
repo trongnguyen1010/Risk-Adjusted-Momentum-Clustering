@@ -1,5 +1,41 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Cập nhật 2026-10-22 — Nhiệm vụ 11 V2 hoàn tất và có báo cáo đầy đủ
+
+Holdout thật đã chạy xong: KMeans Baseline/sklearn/K=2 trên 24/24 tháng
+2024–2025, không skip; 28.110 assignments, 48 profiles, 24 model và 23 cặp
+tháng nội bộ. Manifest `m2-final-holdout-v2` ghi `complete`; freeze timestamp
+đứng trước lúc mở holdout. Không chạy Ward/PCA hoặc retune bằng kết quả ngoài mẫu.
+
+Median Silhouette 0,945927 so với development 0,931935 (delta +0,013992);
+ARI median 0,849616, Persistence 99,358974%, Migration 0,641026%. Vẫn giữ
+cảnh báo 24/24 tháng Balance <0,05, cụm nhỏ 22–41 mã; không suy hiệu quả đầu tư.
+
+[Báo cáo Nhiệm vụ 11 V2](../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout_v2.md)
+đã được viết đầy đủ theo bố cục A/B/C của mẫu cũ, kèm bảng, biểu đồ 84 mốc và
+biện luận từ số liệu thực tế. Bản tự động gốc được giữ tại `report_auto.md`
+trong artifact; chỉ cập nhật report/checksum và metadata ghi nhận sửa báo cáo.
+Numerical artifacts, model, input, source code và quyết định Task 10 không đổi.
+Rerun xác minh/nạp lại bộ complete, không refit; Task 12/M3 chưa thực hiện ở đây.
+
+## Cập nhật 2026-10-22 — Nhiệm vụ 11 V2 đã chuẩn bị, chưa mở holdout thật
+
+Đã chuẩn bị `11_final_holdout_execution_v2.ipynb`, config
+`m2_final_holdout_v2.json` và runner `experiments/final_holdout_v2.py` theo kế hoạch:
+60 development/24 holdout 2024–2025, universe tối thiểu 100 mã theo tháng,
+chỉ KMeans Baseline/sklearn/K=2 từ quyết định Task 10 V2, giữ seed=42,
+n_init=10, max_iter=300, Robust Scaling độc lập; không chạy comparator/quét K.
+
+Gate đã kiểm chứng 60 model và development inputs; chưa đọc feature holdout.
+Đã khôi phục đúng LF của selected-model exports để khớp byte hash đã freeze,
+thêm Git attributes bảo toàn định dạng và pin development inputs theo Git bytes.
+JSON/CSV values và quyết định Task 10 không đổi. Bộ legacy V1 và source runner
+legacy giữ nguyên. Đầu ra V2, model `holdout_v2` và báo cáo V2 chưa được tạo.
+
+Notebook trình bày đúng bảy bước. Bước 2 do người dùng thực hiện mới mở holdout;
+run complete được verify-only khi chạy lại. Run dở/failed hoặc checksum đổi
+phải dừng và giữ evidence. Test dùng fixture giả riêng, không fit dữ liệu thật.
+
 ## Cập nhật 2026-10-22 — Báo cáo PCA V2 đầy đủ và đồng bộ Git
 
 Theo yêu cầu owner, bốn báo cáo chính Nhiệm vụ 6–9 PCA + K-Means tên hậu tố
