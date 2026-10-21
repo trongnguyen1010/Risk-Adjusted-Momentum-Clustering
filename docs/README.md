@@ -16,7 +16,13 @@ M2 Nhiệm vụ 1 đã freeze protocol và Nhiệm vụ 2 đã hoàn tất runne
 - PCA + K-Means dữ liệu mới: Nhiệm vụ 6–9 V2 đã hoàn tất trên 60 tháng
   development 2019–2023; xem [Current status](CURRENT_STATUS.md) và
   [notebook 06 V2](../M2/notebooks/06_pca_kmeans_v2_rerun.ipynb).
-  Bộ PCA cũ đã rời active tree; Task 10–13 lịch sử chưa được tái xác nhận cho V2.
+  Báo cáo chính đã thay bằng bản đầy đủ theo bố cục A/B/C:
+  [NV6](../M2/reports/Bao_cao_M2_Nhiem_vu_6_PCA_KMeans_v2.md),
+  [NV7](../M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans_v2.md),
+  [NV8](../M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_PCA_KMeans_v2.md),
+  [NV9](../M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_PCA_KMeans_v2.md).
+  Task 10 V2 đã chọn KMeans Baseline/K=2, PCA là comparator; Task 11–13 lịch sử
+  chưa được tái xác nhận cho V2. Xem [quyết định Task 10](../M2/artifacts/m2-evaluation-v2/final_method_decision.json).
 - Final Holdout đã thực thi: [Notebook 11](../M2/notebooks/11_final_holdout_execution.ipynb),
   [báo cáo](../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md). Rerun chỉ verify/nạp
   evidence của single winning model; xem Current status trước khi thực hiện Task 12.

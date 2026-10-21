@@ -179,3 +179,11 @@ Global K hay dùng portfolio performance chọn mô hình.
 Git phải giữ byte chính xác của artifact V2 và báo cáo được manifest tham chiếu;
 không tự chuyển CRLF/LF làm hỏng checksum. Các phương án KMeans/Ward và dữ liệu
 C8 nguồn nằm ngoài phạm vi thay thế PCA này.
+
+### Cập nhật 2026-10-22 — Thay báo cáo chính theo yêu cầu owner
+
+Bản đầy đủ Nhiệm vụ 6–9 thay nội dung tại đường dẫn báo cáo chính `_v2.md`;
+không duy trì bản trùng `_v2_day_du.md`. Checksum báo cáo và metadata nguồn
+phụ thuộc được làm mới; numerical artifacts/model và quyết định Task 10 không đổi.
+Bản xuất trước nằm trong Git history. Notebook đánh giá 7–9 giữ bản đầy đủ khi
+hash khớp manifest đã lưu; báo cáo thay đổi ngoài manifest vẫn bị từ chối.

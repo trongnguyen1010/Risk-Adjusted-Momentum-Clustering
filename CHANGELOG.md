@@ -1,3 +1,12 @@
+# Chưa phát hành — Báo cáo PCA V2 đầy đủ và đồng bộ Git (2026-10-22)
+
+- Thay bốn báo cáo chính PCA + K-Means Nhiệm vụ 6–9 bằng bản đầy đủ theo mẫu
+  A/B/C, giữ đường dẫn `_v2.md`; cập nhật trạng thái Task 10 V2 đã freeze.
+- Làm mới checksum báo cáo và tham chiếu manifest phụ thuộc; giữ nguyên model,
+  numerical artifacts, biểu đồ và frozen Task 10 outputs. Bản trước giữ ở Git history.
+- Notebook đánh giá 7–9 tái sử dụng bản đầy đủ sau kiểm chứng checksum để tránh
+  ghi đè bằng bản tóm tắt. Đồng bộ các commit KMeans/Task 10 mới từ nhánh GitHub.
+
 # Chưa phát hành — M2 Task 10 V2: sanity warning và final method selection (2026-10-21)
 
 - Làm rõ chính sách sanity Task 10: cụm dưới 5 mã là cảnh báo bắt buộc; chỉ loại phương án khi cảnh báo riêng biệt hoặc có bằng chứng phân mảnh không thể diễn giải. Khi cả ba phương án cùng có cảnh báo, ghi `WARNING` và tiếp tục so sánh evidence-first.
