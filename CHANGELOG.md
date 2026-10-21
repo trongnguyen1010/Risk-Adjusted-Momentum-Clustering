@@ -1,3 +1,8 @@
+# Chưa phát hành — M2 Task 10 V2: sanity warning và final method selection (2026-10-21)
+
+- Làm rõ chính sách sanity Task 10: cụm dưới 5 mã là cảnh báo bắt buộc; chỉ loại phương án khi cảnh báo riêng biệt hoặc có bằng chứng phân mảnh không thể diễn giải. Khi cả ba phương án cùng có cảnh báo, ghi `WARNING` và tiếp tục so sánh evidence-first.
+- Chạy lại Task 10 trên 60 snapshot V2; PCA + KMeans dẫn Silhouette nhưng KMeans Baseline được freeze theo Occam do chênh lệch dưới 0,03. Decision trace giữ số snapshot/cụm nhỏ và các phương án đối chứng.
+
 # Chưa phát hành — K-Means Nhiệm vụ 4, 7, 8 và 9 trên C8 v2 (2026-10-21)
 
 - Fit lại 60 development snapshot bằng scikit-learn K-Means với Global K=2 đã khóa; giữ nguyên Nhiệm vụ 1–3 và các nhánh Ward/PCA.
