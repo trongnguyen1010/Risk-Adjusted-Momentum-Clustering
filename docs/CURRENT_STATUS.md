@@ -1,5 +1,16 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Cập nhật 2026-10-21 — nhánh K-Means M2 trên C8 v2
+
+Nhiệm vụ 4, 7, 8 và 9 của **K-Means** đã chạy lại trên 60 development snapshot 2019–2023 từ `cafef-c8-complete-only-v2`; Global K=2 giữ theo quyết định Nhiệm vụ 3. Nhiệm vụ 4 fit lại bằng scikit-learn, có 29.907 assignments, 120 profiles, 60 model/scaler. Output active đúng tên kế hoạch ở `M2/artifacts/m2-task4-kmeans-baseline-v1/` và `M2/models/kmeans/`.
+
+Nhiệm vụ 7 xuất `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv` từ 60 diagnostics; median Silhouette 0,931935, Davies-Bouldin 0,396416, balance 0,023814. Nhiệm vụ 9 đọc 59 cặp tháng, xuất 236 transitions và 944 feature drift rows; median ARI 0,768741, NMI 0,624996, persistence 98,9313%, migration 1,0687%. Bốn báo cáo đúng tên trong `M2/reports/`; đã đối chiếu offline schema, checksum, metrics và biểu đồ. Các chỉ số này chỉ phản ánh cluster quality và temporal stability, không phải portfolio performance.
+
+Nhiệm vụ 8 K-Means hiển thị 3 bảng (4×10, 9×4, 60×5) trong notebook và xuất radar, heatmap, báo cáo từ 60 snapshot mới; đã đối chiếu offline bảng với nguồn và scaler. Artifact K-Means dùng tiếp gồm `cluster_profiles.csv` 120 dòng, `cluster_profile_members.csv` 29.907 dòng và `profile_scaler_reference.csv` 960 dòng ở `M2/artifacts/m2-evaluation-kmeans/`, được đồng bộ từ Task 4. Manifest Task 4 có hash nguồn C8; 18 file giải nén khớp ZIP trong Downloads. ZIP không gồm hai output lớn mà C8 manifest liệt kê (`canonical/normalized_expansion.jsonl`, `canonical/prices_daily.jsonl`); K-Means dùng feature snapshots có hash hợp lệ. Không sửa Nhiệm vụ 1–3 hoặc nhánh Ward/PCA. So sánh ba model/holdout không thuộc lần chạy này.
+
+Gate: targeted clustering/runner/protocol 29 tests PASS, synthetic smoke PASS, compile PASS và offline checks K-Means Task 4/7/8/9 PASS. Full repository suite chạy 234 tests, còn 5 errors ở holdout/ingestion evidence ngoài nhánh K-Means; không sửa các nhánh đó trong lần chạy này.
+
+
 ## Cập nhật 2026-10-21 — PCA V2 thay bộ cũ trong active Git tree
 
 Nhiệm vụ 6–9 PCA + K-Means với dữ liệu mới đã hoàn tất: 60 tháng development

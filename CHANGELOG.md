@@ -1,3 +1,11 @@
+# Chưa phát hành — K-Means Nhiệm vụ 4, 7, 8 và 9 trên C8 v2 (2026-10-21)
+
+- Fit lại 60 development snapshot bằng scikit-learn K-Means với Global K=2 đã khóa; giữ nguyên Nhiệm vụ 1–3 và các nhánh Ward/PCA.
+- Đặt output đúng kế hoạch: `M2/artifacts/m2-task4-kmeans-baseline-v1/`, 60 model/scaler ở `M2/models/kmeans/`, notebook và báo cáo Nhiệm vụ 4 đúng tên.
+- Cập nhật K-Means Nhiệm vụ 7: `quality_summary.csv` 5 dòng và 5 biểu đồ từ 60 snapshot; Nhiệm vụ 9: 59 cặp tháng, 236 transitions, 944 drift rows, 2 biểu đồ và báo cáo đúng tên.
+- Nhiệm vụ 8 K-Means hiển thị ba bảng 60 tháng trong notebook, xuất radar, heatmap và báo cáo đúng tên. Đồng bộ hồ sơ cụm, thành viên và scaler reference K-Means 60 tháng cho các bước sau; manifest Task 4 ghi hash nguồn C8. Đưa code thực thi vào notebook và dọn CSV/script/slide phụ ngoài bộ bàn giao. Đã đối chiếu offline schema, checksum, metrics, báo cáo và biểu đồ. Không chạy Nhiệm vụ 10 trở đi trong lần cập nhật này.
+- Chuẩn hóa newline LF của artifact/model K-Means để checksum giữ nguyên sau Git checkout; khai báo `scikit-learn` và `ipywidgets` trong research dependencies cho notebook 4/8.
+
 # Chưa phát hành — PCA + K-Means dữ liệu mới V2 (2026-10-21)
 
 - Đưa lên Git bộ PCA + K-Means Nhiệm vụ 6–9 đã chạy trên 60 tháng development

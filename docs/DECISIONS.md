@@ -9,6 +9,7 @@ Cập nhật 26/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-003 | Raw/canonical/model artifact bất biến; missing giữ null/unavailable. |
 | ADR-004 | Monthly snapshot K-Means + temporal tracking không phải Dynamic Clustering. |
 | ADR-005 | Static K-Means deterministic là baseline; algorithm được chọn qua common registry. |
+| ADR-053 | M2 Nhiệm vụ 4 trên C8 v2 fit lại K-Means bằng scikit-learn với K=2 đã khóa, seed=42, n_init=10, max_iter=300, Robust Scaling riêng từng snapshot. Lựa chọn backend explicit tại notebook; mặc định K-Means stdlib của registry không đổi. Output active dùng đúng `M2/artifacts/m2-task4-kmeans-baseline-v1/` và `M2/models/kmeans/` theo kế hoạch, làm nguồn cho Nhiệm vụ 7–9 K-Means. Không chọn backend bằng metric kết quả. |
 | ADR-006 | Real clustering cần ba calendar years usable observed history; short history là `REFERENCE_ONLY`. |
 | ADR-007 | Sharpe/ROI bị cấm trong clustering input/quality/selection; Sharpe chỉ thuộc portfolio evaluation. |
 | ADR-008 | CafeF/VietFin/Vnstock là source candidates; không source nào complete trước khi semantics và rights được verify. |
