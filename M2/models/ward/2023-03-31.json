@@ -1,0 +1,3818 @@
+{
+  "run_id": "m2-task5-ward-v1",
+  "snapshot_date": "2023-03-31",
+  "algorithm": "ward",
+  "global_k": 2,
+  "feature_order": [
+    "mom_21",
+    "mom_63",
+    "mom_126",
+    "mom_252",
+    "vol_63",
+    "mdd_126",
+    "beta_126",
+    "liquidity_21"
+  ],
+  "eligible_count": 608,
+  "model": {
+    "scaler": {
+      "mom_21": {
+        "lower": -0.5170457530073016,
+        "upper": 0.7289156626506024,
+        "center": 0.0,
+        "scale": 0.08071920138987196,
+        "method": "robust_per_snapshot",
+        "rank_reference": null
+      },
+      "mom_63": {
+        "lower": -0.9066666666666666,
+        "upper": 1.903225806451613,
+        "center": 0.020232164977522338,
+        "scale": 0.16861197906035424,
+        "method": "robust_per_snapshot",
+        "rank_reference": null
+      },
+      "mom_126": {
+        "lower": -0.9066666666666666,
+        "upper": 2.6023260419725602,
+        "center": -0.08371550086826818,
+        "scale": 0.27577473061817126,
+        "method": "robust_per_snapshot",
+        "rank_reference": null
+      },
+      "mom_252": {
+        "lower": -0.88,
+        "upper": 3.000061470371281,
+        "center": -0.23984821350694113,
+        "scale": 0.46219787828574743,
+        "method": "robust_per_snapshot",
+        "rank_reference": null
+      },
+      "vol_63": {
+        "lower": 0.0,
+        "upper": 1.869449869334506,
+        "center": 0.44929727023805544,
+        "scale": 0.41737885971074645,
+        "method": "robust_per_snapshot",
+        "rank_reference": null
+      },
+      "mdd_126": {
+        "lower": -0.9175704989154013,
+        "upper": 0.0,
+        "center": -0.30971025693440835,
+        "scale": 0.2579740047657538,
+        "method": "robust_per_snapshot",
+        "rank_reference": null
+      },
+      "beta_126": {
+        "lower": -0.9145940468603632,
+        "upper": 2.8308714339353593,
+        "center": 0.26492600957372714,
+        "scale": 0.6845446964552623,
+        "method": "robust_per_snapshot",
+        "rank_reference": null
+      },
+      "liquidity_21": {
+        "lower": 0.0,
+        "upper": 456436891028.5714,
+        "center": 33130773.80952381,
+        "scale": 578259605.9523809,
+        "method": "robust_per_snapshot",
+        "rank_reference": null
+      }
+    },
+    "centroids": [
+      [
+        -0.001904044441336581,
+        0.16421286117139627,
+        -0.0066254344793062,
+        0.04903754837093662,
+        0.14510846343280856,
+        -0.014395655767406191,
+        0.19761919575768844,
+        3.39836702497241
+      ],
+      [
+        0.6176883893348558,
+        0.7032177555162213,
+        0.14231681175684677,
+        -0.08653484828428802,
+        -0.1862322346581573,
+        -0.04936893827950625,
+        1.625883449049707,
+        284.2855713663595
+      ]
+    ],
+    "config": {
+      "algorithm": "ward",
+      "methods": [
+        "kmeans",
+        "ward",
+        "pca_kmeans"
+      ],
+      "baseline": "kmeans",
+      "features": [
+        "mom_21",
+        "mom_63",
+        "mom_126",
+        "mom_252",
+        "vol_63",
+        "mdd_126",
+        "beta_126",
+        "liquidity_21"
+      ],
+      "input_feature_version": "1.6.0",
+      "registry_metadata_version": "1.5.0",
+      "winsor_quantile": 0,
+      "clipping": false,
+      "scaling": "robust_per_snapshot",
+      "scaling_formula": "(x - median) / IQR",
+      "scaler_fit_scope": "independent_snapshot",
+      "k": 2,
+      "k_range": [
+        2
+      ],
+      "global_k_selection": {
+        "scope": "development_only",
+        "primary": "median_silhouette_max",
+        "tie_break": "median_davies_bouldin_min",
+        "supporting_checks": [
+          "calinski_harabasz",
+          "cluster_balance"
+        ],
+        "forbidden_metrics": [
+          "return",
+          "sharpe",
+          "roi"
+        ],
+        "unresolved_exact_tie_action": "manual_review_without_holdout_or_portfolio_metrics"
+      },
+      "pca": {
+        "role": "independent_comparator_only",
+        "applies_to": [
+          "pca_kmeans"
+        ],
+        "baseline_preprocessing": false,
+        "component_rule_status": "must_be_frozen_before_pca_comparator_execution"
+      },
+      "eligibility_field": "market_feature_ready_v2",
+      "momentum_feature": "mom_63",
+      "risk_feature": "vol_63",
+      "seed": 42,
+      "n_init": 10,
+      "max_iter": 300
+    },
+    "fit_as_of": "2023-03-31T17:00:00+07:00",
+    "linkage": [
+      {
+        "left": 320,
+        "right": 430,
+        "distance": 0.0,
+        "size": 2
+      },
+      {
+        "left": 455,
+        "right": 608,
+        "distance": 0.0,
+        "size": 3
+      },
+      {
+        "left": 501,
+        "right": 504,
+        "distance": 0.0,
+        "size": 2
+      },
+      {
+        "left": 505,
+        "right": 610,
+        "distance": 0.0,
+        "size": 3
+      },
+      {
+        "left": 609,
+        "right": 611,
+        "distance": 0.0,
+        "size": 6
+      },
+      {
+        "left": 555,
+        "right": 612,
+        "distance": 1.6507970951890592e-34,
+        "size": 7
+      },
+      {
+        "left": 333,
+        "right": 613,
+        "distance": 8.73176604830118e-09,
+        "size": 8
+      },
+      {
+        "left": 499,
+        "right": 520,
+        "distance": 2.3707654540467296e-06,
+        "size": 2
+      },
+      {
+        "left": 390,
+        "right": 494,
+        "distance": 9.045394046819797e-06,
+        "size": 2
+      },
+      {
+        "left": 60,
+        "right": 429,
+        "distance": 1.5861301591395032e-05,
+        "size": 2
+      },
+      {
+        "left": 445,
+        "right": 615,
+        "distance": 7.918015324565817e-05,
+        "size": 3
+      },
+      {
+        "left": 369,
+        "right": 377,
+        "distance": 7.978189802203414e-05,
+        "size": 2
+      },
+      {
+        "left": 519,
+        "right": 564,
+        "distance": 0.00023018765937354117,
+        "size": 2
+      },
+      {
+        "left": 616,
+        "right": 618,
+        "distance": 0.0003237689607610606,
+        "size": 5
+      },
+      {
+        "left": 428,
+        "right": 556,
+        "distance": 0.0004185136896353924,
+        "size": 2
+      },
+      {
+        "left": 72,
+        "right": 617,
+        "distance": 0.0004939871501267421,
+        "size": 3
+      },
+      {
+        "left": 614,
+        "right": 621,
+        "distance": 0.0006319921187826745,
+        "size": 13
+      },
+      {
+        "left": 516,
+        "right": 624,
+        "distance": 0.0006871710831878855,
+        "size": 14
+      },
+      {
+        "left": 413,
+        "right": 620,
+        "distance": 0.0007766971002803833,
+        "size": 3
+      },
+      {
+        "left": 303,
+        "right": 311,
+        "distance": 0.0008078023899097491,
+        "size": 2
+      },
+      {
+        "left": 427,
+        "right": 619,
+        "distance": 0.0011785337997073657,
+        "size": 3
+      },
+      {
+        "left": 397,
+        "right": 622,
+        "distance": 0.0018904456524691487,
+        "size": 3
+      },
+      {
+        "left": 584,
+        "right": 627,
+        "distance": 0.004562662744962798,
+        "size": 3
+      },
+      {
+        "left": 623,
+        "right": 629,
+        "distance": 0.019694633354941975,
+        "size": 6
+      },
+      {
+        "left": 14,
+        "right": 438,
+        "distance": 0.022867597837354155,
+        "size": 2
+      },
+      {
+        "left": 625,
+        "right": 626,
+        "distance": 0.02443946893354371,
+        "size": 17
+      },
+      {
+        "left": 13,
+        "right": 307,
+        "distance": 0.028673652856936085,
+        "size": 2
+      },
+      {
+        "left": 105,
+        "right": 628,
+        "distance": 0.0402975510272694,
+        "size": 4
+      },
+      {
+        "left": 630,
+        "right": 632,
+        "distance": 0.048269579521276675,
+        "size": 5
+      },
+      {
+        "left": 32,
+        "right": 184,
+        "distance": 0.05635145789230447,
+        "size": 2
+      },
+      {
+        "left": 254,
+        "right": 534,
+        "distance": 0.058166349055768826,
+        "size": 2
+      },
+      {
+        "left": 74,
+        "right": 636,
+        "distance": 0.0738436370976688,
+        "size": 6
+      },
+      {
+        "left": 29,
+        "right": 85,
+        "distance": 0.07773657480212633,
+        "size": 2
+      },
+      {
+        "left": 97,
+        "right": 506,
+        "distance": 0.08219280082682283,
+        "size": 2
+      },
+      {
+        "left": 431,
+        "right": 631,
+        "distance": 0.08384261162440751,
+        "size": 7
+      },
+      {
+        "left": 221,
+        "right": 554,
+        "distance": 0.08764989960672809,
+        "size": 2
+      },
+      {
+        "left": 159,
+        "right": 249,
+        "distance": 0.0892421245509471,
+        "size": 2
+      },
+      {
+        "left": 143,
+        "right": 231,
+        "distance": 0.08968854145310683,
+        "size": 2
+      },
+      {
+        "left": 22,
+        "right": 473,
+        "distance": 0.08994559490023724,
+        "size": 2
+      },
+      {
+        "left": 422,
+        "right": 498,
+        "distance": 0.0941715472301567,
+        "size": 2
+      },
+      {
+        "left": 46,
+        "right": 386,
+        "distance": 0.10213163109553067,
+        "size": 2
+      },
+      {
+        "left": 126,
+        "right": 213,
+        "distance": 0.10420702625811246,
+        "size": 2
+      },
+      {
+        "left": 91,
+        "right": 127,
+        "distance": 0.10610332760175417,
+        "size": 2
+      },
+      {
+        "left": 40,
+        "right": 292,
+        "distance": 0.11011254479674215,
+        "size": 2
+      },
+      {
+        "left": 26,
+        "right": 178,
+        "distance": 0.11461544953503383,
+        "size": 2
+      },
+      {
+        "left": 204,
+        "right": 461,
+        "distance": 0.1148414477563879,
+        "size": 2
+      },
+      {
+        "left": 585,
+        "right": 602,
+        "distance": 0.11510902218378649,
+        "size": 2
+      },
+      {
+        "left": 141,
+        "right": 200,
+        "distance": 0.12237709531396561,
+        "size": 2
+      },
+      {
+        "left": 57,
+        "right": 264,
+        "distance": 0.1238865274119972,
+        "size": 2
+      },
+      {
+        "left": 134,
+        "right": 263,
+        "distance": 0.12551627194026768,
+        "size": 2
+      },
+      {
+        "left": 258,
+        "right": 644,
+        "distance": 0.12776639690415903,
+        "size": 3
+      },
+      {
+        "left": 240,
+        "right": 511,
+        "distance": 0.13628094283273007,
+        "size": 2
+      },
+      {
+        "left": 384,
+        "right": 649,
+        "distance": 0.14485814014241,
+        "size": 3
+      },
+      {
+        "left": 115,
+        "right": 417,
+        "distance": 0.1468887508042821,
+        "size": 2
+      },
+      {
+        "left": 214,
+        "right": 565,
+        "distance": 0.14877263640923102,
+        "size": 2
+      },
+      {
+        "left": 338,
+        "right": 634,
+        "distance": 0.15201816301156595,
+        "size": 3
+      },
+      {
+        "left": 78,
+        "right": 110,
+        "distance": 0.15233618348294778,
+        "size": 2
+      },
+      {
+        "left": 378,
+        "right": 647,
+        "distance": 0.15236235814955812,
+        "size": 3
+      },
+      {
+        "left": 43,
+        "right": 596,
+        "distance": 0.15308782040736738,
+        "size": 2
+      },
+      {
+        "left": 280,
+        "right": 286,
+        "distance": 0.15441663199580605,
+        "size": 2
+      },
+      {
+        "left": 123,
+        "right": 152,
+        "distance": 0.1553664362874486,
+        "size": 2
+      },
+      {
+        "left": 3,
+        "right": 434,
+        "distance": 0.15546423826623332,
+        "size": 2
+      },
+      {
+        "left": 114,
+        "right": 372,
+        "distance": 0.15758531406832316,
+        "size": 2
+      },
+      {
+        "left": 321,
+        "right": 536,
+        "distance": 0.1585597338284957,
+        "size": 2
+      },
+      {
+        "left": 570,
+        "right": 656,
+        "distance": 0.15884372693428364,
+        "size": 3
+      },
+      {
+        "left": 207,
+        "right": 273,
+        "distance": 0.15930743308203366,
+        "size": 2
+      },
+      {
+        "left": 232,
+        "right": 600,
+        "distance": 0.16055404502567755,
+        "size": 2
+      },
+      {
+        "left": 497,
+        "right": 569,
+        "distance": 0.1609645088691855,
+        "size": 2
+      },
+      {
+        "left": 61,
+        "right": 288,
+        "distance": 0.16263481945226457,
+        "size": 2
+      },
+      {
+        "left": 54,
+        "right": 278,
+        "distance": 0.16293009798956876,
+        "size": 2
+      },
+      {
+        "left": 182,
+        "right": 393,
+        "distance": 0.16314232747011173,
+        "size": 2
+      },
+      {
+        "left": 563,
+        "right": 639,
+        "distance": 0.16613024983077582,
+        "size": 7
+      },
+      {
+        "left": 388,
+        "right": 560,
+        "distance": 0.16621313146925248,
+        "size": 2
+      },
+      {
+        "left": 163,
+        "right": 212,
+        "distance": 0.17227312721421548,
+        "size": 2
+      },
+      {
+        "left": 124,
+        "right": 568,
+        "distance": 0.17411203106881454,
+        "size": 2
+      },
+      {
+        "left": 250,
+        "right": 517,
+        "distance": 0.17453042754075565,
+        "size": 2
+      },
+      {
+        "left": 11,
+        "right": 47,
+        "distance": 0.17705415173522351,
+        "size": 2
+      },
+      {
+        "left": 353,
+        "right": 578,
+        "distance": 0.17721952323983875,
+        "size": 2
+      },
+      {
+        "left": 145,
+        "right": 226,
+        "distance": 0.1805817805851221,
+        "size": 2
+      },
+      {
+        "left": 69,
+        "right": 382,
+        "distance": 0.18293413968911448,
+        "size": 2
+      },
+      {
+        "left": 193,
+        "right": 437,
+        "distance": 0.1863474735585958,
+        "size": 2
+      },
+      {
+        "left": 637,
+        "right": 669,
+        "distance": 0.1874095456134383,
+        "size": 4
+      },
+      {
+        "left": 0,
+        "right": 1,
+        "distance": 0.18883939395563304,
+        "size": 2
+      },
+      {
+        "left": 285,
+        "right": 648,
+        "distance": 0.18968579356119533,
+        "size": 3
+      },
+      {
+        "left": 362,
+        "right": 415,
+        "distance": 0.19198507493116718,
+        "size": 2
+      },
+      {
+        "left": 68,
+        "right": 316,
+        "distance": 0.19361240333292523,
+        "size": 2
+      },
+      {
+        "left": 197,
+        "right": 296,
+        "distance": 0.1940385046110984,
+        "size": 2
+      },
+      {
+        "left": 142,
+        "right": 194,
+        "distance": 0.19424131413096923,
+        "size": 2
+      },
+      {
+        "left": 132,
+        "right": 236,
+        "distance": 0.19723541745464687,
+        "size": 2
+      },
+      {
+        "left": 489,
+        "right": 663,
+        "distance": 0.20230484707531723,
+        "size": 4
+      },
+      {
+        "left": 128,
+        "right": 244,
+        "distance": 0.20496685037971085,
+        "size": 2
+      },
+      {
+        "left": 25,
+        "right": 675,
+        "distance": 0.20532147475024032,
+        "size": 3
+      },
+      {
+        "left": 252,
+        "right": 400,
+        "distance": 0.20635911541643523,
+        "size": 2
+      },
+      {
+        "left": 447,
+        "right": 552,
+        "distance": 0.2080808190004454,
+        "size": 2
+      },
+      {
+        "left": 223,
+        "right": 450,
+        "distance": 0.2082119402668741,
+        "size": 2
+      },
+      {
+        "left": 36,
+        "right": 100,
+        "distance": 0.2083760553835886,
+        "size": 2
+      },
+      {
+        "left": 454,
+        "right": 653,
+        "distance": 0.2090807560077732,
+        "size": 3
+      },
+      {
+        "left": 70,
+        "right": 646,
+        "distance": 0.21117430449058838,
+        "size": 3
+      },
+      {
+        "left": 44,
+        "right": 587,
+        "distance": 0.21190205514263016,
+        "size": 2
+      },
+      {
+        "left": 93,
+        "right": 685,
+        "distance": 0.22194144615614697,
+        "size": 3
+      },
+      {
+        "left": 650,
+        "right": 657,
+        "distance": 0.2225330446638335,
+        "size": 4
+      },
+      {
+        "left": 155,
+        "right": 668,
+        "distance": 0.22380613589696802,
+        "size": 3
+      },
+      {
+        "left": 81,
+        "right": 451,
+        "distance": 0.22406987703700795,
+        "size": 2
+      },
+      {
+        "left": 187,
+        "right": 230,
+        "distance": 0.22461114312665914,
+        "size": 2
+      },
+      {
+        "left": 251,
+        "right": 643,
+        "distance": 0.2314446305552763,
+        "size": 3
+      },
+      {
+        "left": 50,
+        "right": 363,
+        "distance": 0.23333059406973494,
+        "size": 2
+      },
+      {
+        "left": 420,
+        "right": 605,
+        "distance": 0.23560163658353894,
+        "size": 2
+      },
+      {
+        "left": 403,
+        "right": 446,
+        "distance": 0.24550041892692584,
+        "size": 2
+      },
+      {
+        "left": 17,
+        "right": 45,
+        "distance": 0.24712311204476492,
+        "size": 2
+      },
+      {
+        "left": 638,
+        "right": 678,
+        "distance": 0.24834065097359262,
+        "size": 4
+      },
+      {
+        "left": 203,
+        "right": 673,
+        "distance": 0.24874841487449653,
+        "size": 3
+      },
+      {
+        "left": 229,
+        "right": 603,
+        "distance": 0.2508924434135032,
+        "size": 2
+      },
+      {
+        "left": 51,
+        "right": 149,
+        "distance": 0.2512558260740652,
+        "size": 2
+      },
+      {
+        "left": 257,
+        "right": 344,
+        "distance": 0.25140824035973314,
+        "size": 2
+      },
+      {
+        "left": 42,
+        "right": 659,
+        "distance": 0.2532145994790372,
+        "size": 3
+      },
+      {
+        "left": 202,
+        "right": 319,
+        "distance": 0.25633009744092305,
+        "size": 2
+      },
+      {
+        "left": 590,
+        "right": 697,
+        "distance": 0.2594408943544765,
+        "size": 5
+      },
+      {
+        "left": 39,
+        "right": 423,
+        "distance": 0.262175809017736,
+        "size": 2
+      },
+      {
+        "left": 533,
+        "right": 548,
+        "distance": 0.2647656698240673,
+        "size": 2
+      },
+      {
+        "left": 442,
+        "right": 518,
+        "distance": 0.265113105952477,
+        "size": 2
+      },
+      {
+        "left": 18,
+        "right": 135,
+        "distance": 0.26686856887905464,
+        "size": 2
+      },
+      {
+        "left": 210,
+        "right": 233,
+        "distance": 0.2687929813888668,
+        "size": 2
+      },
+      {
+        "left": 109,
+        "right": 558,
+        "distance": 0.26906530268794054,
+        "size": 2
+      },
+      {
+        "left": 350,
+        "right": 391,
+        "distance": 0.2800225971855418,
+        "size": 2
+      },
+      {
+        "left": 71,
+        "right": 183,
+        "distance": 0.28308914983778827,
+        "size": 2
+      },
+      {
+        "left": 63,
+        "right": 707,
+        "distance": 0.28799663604057607,
+        "size": 4
+      },
+      {
+        "left": 399,
+        "right": 539,
+        "distance": 0.29228856697512,
+        "size": 2
+      },
+      {
+        "left": 549,
+        "right": 592,
+        "distance": 0.2947052299412262,
+        "size": 2
+      },
+      {
+        "left": 75,
+        "right": 439,
+        "distance": 0.2955626160105033,
+        "size": 2
+      },
+      {
+        "left": 452,
+        "right": 463,
+        "distance": 0.29868419006398267,
+        "size": 2
+      },
+      {
+        "left": 304,
+        "right": 696,
+        "distance": 0.301101526305986,
+        "size": 3
+      },
+      {
+        "left": 59,
+        "right": 537,
+        "distance": 0.3058344907903227,
+        "size": 2
+      },
+      {
+        "left": 255,
+        "right": 692,
+        "distance": 0.30871437307535154,
+        "size": 3
+      },
+      {
+        "left": 130,
+        "right": 545,
+        "distance": 0.31079634884540924,
+        "size": 2
+      },
+      {
+        "left": 458,
+        "right": 530,
+        "distance": 0.31196853356899235,
+        "size": 2
+      },
+      {
+        "left": 464,
+        "right": 475,
+        "distance": 0.3176613327599299,
+        "size": 2
+      },
+      {
+        "left": 277,
+        "right": 302,
+        "distance": 0.320026432859734,
+        "size": 2
+      },
+      {
+        "left": 376,
+        "right": 424,
+        "distance": 0.32318539382579736,
+        "size": 2
+      },
+      {
+        "left": 456,
+        "right": 701,
+        "distance": 0.3250689720567208,
+        "size": 3
+      },
+      {
+        "left": 317,
+        "right": 686,
+        "distance": 0.32787930565984424,
+        "size": 3
+      },
+      {
+        "left": 306,
+        "right": 471,
+        "distance": 0.33281912469345326,
+        "size": 2
+      },
+      {
+        "left": 192,
+        "right": 241,
+        "distance": 0.33425040387499005,
+        "size": 2
+      },
+      {
+        "left": 86,
+        "right": 575,
+        "distance": 0.3351855162369779,
+        "size": 2
+      },
+      {
+        "left": 421,
+        "right": 694,
+        "distance": 0.33628476241512667,
+        "size": 3
+      },
+      {
+        "left": 299,
+        "right": 513,
+        "distance": 0.3373123764619386,
+        "size": 2
+      },
+      {
+        "left": 242,
+        "right": 655,
+        "distance": 0.339126424149791,
+        "size": 3
+      },
+      {
+        "left": 480,
+        "right": 573,
+        "distance": 0.3397182850222849,
+        "size": 2
+      },
+      {
+        "left": 360,
+        "right": 559,
+        "distance": 0.34133516430329125,
+        "size": 2
+      },
+      {
+        "left": 355,
+        "right": 406,
+        "distance": 0.34139800920037666,
+        "size": 2
+      },
+      {
+        "left": 150,
+        "right": 683,
+        "distance": 0.34266523451118697,
+        "size": 3
+      },
+      {
+        "left": 117,
+        "right": 588,
+        "distance": 0.3468691425836134,
+        "size": 2
+      },
+      {
+        "left": 206,
+        "right": 262,
+        "distance": 0.3497947292065279,
+        "size": 2
+      },
+      {
+        "left": 103,
+        "right": 108,
+        "distance": 0.35228036776660043,
+        "size": 2
+      },
+      {
+        "left": 7,
+        "right": 664,
+        "distance": 0.3523693100106956,
+        "size": 3
+      },
+      {
+        "left": 82,
+        "right": 700,
+        "distance": 0.3548279251012968,
+        "size": 3
+      },
+      {
+        "left": 543,
+        "right": 599,
+        "distance": 0.356117378319242,
+        "size": 2
+      },
+      {
+        "left": 56,
+        "right": 594,
+        "distance": 0.3585019554490446,
+        "size": 2
+      },
+      {
+        "left": 256,
+        "right": 667,
+        "distance": 0.36304023462337554,
+        "size": 3
+      },
+      {
+        "left": 633,
+        "right": 642,
+        "distance": 0.36426985699427217,
+        "size": 24
+      },
+      {
+        "left": 385,
+        "right": 478,
+        "distance": 0.36465862220783857,
+        "size": 2
+      },
+      {
+        "left": 704,
+        "right": 749,
+        "distance": 0.3680120414860963,
+        "size": 5
+      },
+      {
+        "left": 351,
+        "right": 580,
+        "distance": 0.3692093860866478,
+        "size": 2
+      },
+      {
+        "left": 98,
+        "right": 162,
+        "distance": 0.37270663042643287,
+        "size": 2
+      },
+      {
+        "left": 268,
+        "right": 651,
+        "distance": 0.3781116659610485,
+        "size": 3
+      },
+      {
+        "left": 67,
+        "right": 687,
+        "distance": 0.3846586104072552,
+        "size": 3
+      },
+      {
+        "left": 148,
+        "right": 670,
+        "distance": 0.3849880854351694,
+        "size": 3
+      },
+      {
+        "left": 281,
+        "right": 477,
+        "distance": 0.38666954501666245,
+        "size": 2
+      },
+      {
+        "left": 266,
+        "right": 540,
+        "distance": 0.3886137308030354,
+        "size": 2
+      },
+      {
+        "left": 198,
+        "right": 729,
+        "distance": 0.38948591609288685,
+        "size": 3
+      },
+      {
+        "left": 41,
+        "right": 407,
+        "distance": 0.3938780556903243,
+        "size": 2
+      },
+      {
+        "left": 235,
+        "right": 684,
+        "distance": 0.39686624079463684,
+        "size": 3
+      },
+      {
+        "left": 348,
+        "right": 724,
+        "distance": 0.3979682400702981,
+        "size": 6
+      },
+      {
+        "left": 10,
+        "right": 271,
+        "distance": 0.4000007866414553,
+        "size": 2
+      },
+      {
+        "left": 658,
+        "right": 717,
+        "distance": 0.4035469608475738,
+        "size": 7
+      },
+      {
+        "left": 35,
+        "right": 606,
+        "distance": 0.404327725320289,
+        "size": 2
+      },
+      {
+        "left": 52,
+        "right": 457,
+        "distance": 0.4063358760244208,
+        "size": 2
+      },
+      {
+        "left": 58,
+        "right": 118,
+        "distance": 0.41052906082618884,
+        "size": 2
+      },
+      {
+        "left": 324,
+        "right": 690,
+        "distance": 0.4114193187333903,
+        "size": 3
+      },
+      {
+        "left": 2,
+        "right": 595,
+        "distance": 0.41420927698912935,
+        "size": 2
+      },
+      {
+        "left": 297,
+        "right": 313,
+        "distance": 0.4150422727581254,
+        "size": 2
+      },
+      {
+        "left": 395,
+        "right": 734,
+        "distance": 0.4154919376292703,
+        "size": 3
+      },
+      {
+        "left": 404,
+        "right": 728,
+        "distance": 0.41788875665482395,
+        "size": 3
+      },
+      {
+        "left": 331,
+        "right": 576,
+        "distance": 0.42510397764977875,
+        "size": 2
+      },
+      {
+        "left": 676,
+        "right": 693,
+        "distance": 0.43204207619906543,
+        "size": 4
+      },
+      {
+        "left": 120,
+        "right": 196,
+        "distance": 0.4321013240828154,
+        "size": 2
+      },
+      {
+        "left": 48,
+        "right": 89,
+        "distance": 0.43527253339608335,
+        "size": 2
+      },
+      {
+        "left": 396,
+        "right": 467,
+        "distance": 0.439311716351494,
+        "size": 2
+      },
+      {
+        "left": 435,
+        "right": 711,
+        "distance": 0.44493343639728417,
+        "size": 3
+      },
+      {
+        "left": 8,
+        "right": 723,
+        "distance": 0.4498606445967371,
+        "size": 3
+      },
+      {
+        "left": 375,
+        "right": 528,
+        "distance": 0.4498729392530238,
+        "size": 2
+      },
+      {
+        "left": 191,
+        "right": 542,
+        "distance": 0.45047856157291766,
+        "size": 2
+      },
+      {
+        "left": 364,
+        "right": 469,
+        "distance": 0.46416733972071467,
+        "size": 2
+      },
+      {
+        "left": 211,
+        "right": 645,
+        "distance": 0.4707448153045126,
+        "size": 3
+      },
+      {
+        "left": 465,
+        "right": 679,
+        "distance": 0.4749767095797783,
+        "size": 8
+      },
+      {
+        "left": 702,
+        "right": 722,
+        "distance": 0.48088924206298395,
+        "size": 5
+      },
+      {
+        "left": 414,
+        "right": 640,
+        "distance": 0.4823275560894662,
+        "size": 3
+      },
+      {
+        "left": 379,
+        "right": 546,
+        "distance": 0.4826029076388187,
+        "size": 2
+      },
+      {
+        "left": 641,
+        "right": 732,
+        "distance": 0.4843157709187475,
+        "size": 4
+      },
+      {
+        "left": 666,
+        "right": 718,
+        "distance": 0.490199380176883,
+        "size": 5
+      },
+      {
+        "left": 20,
+        "right": 767,
+        "distance": 0.49667927251043703,
+        "size": 3
+      },
+      {
+        "left": 342,
+        "right": 715,
+        "distance": 0.5008311392579815,
+        "size": 3
+      },
+      {
+        "left": 219,
+        "right": 698,
+        "distance": 0.5060186231454333,
+        "size": 3
+      },
+      {
+        "left": 472,
+        "right": 527,
+        "distance": 0.5157617541811451,
+        "size": 2
+      },
+      {
+        "left": 503,
+        "right": 597,
+        "distance": 0.5159564714499019,
+        "size": 2
+      },
+      {
+        "left": 347,
+        "right": 662,
+        "distance": 0.5190056561171466,
+        "size": 3
+      },
+      {
+        "left": 175,
+        "right": 356,
+        "distance": 0.5204783201692095,
+        "size": 2
+      },
+      {
+        "left": 272,
+        "right": 279,
+        "distance": 0.5320910968428636,
+        "size": 2
+      },
+      {
+        "left": 695,
+        "right": 709,
+        "distance": 0.5326330499373905,
+        "size": 5
+      },
+      {
+        "left": 468,
+        "right": 524,
+        "distance": 0.5363800397176823,
+        "size": 2
+      },
+      {
+        "left": 691,
+        "right": 755,
+        "distance": 0.5391323685127161,
+        "size": 5
+      },
+      {
+        "left": 418,
+        "right": 566,
+        "distance": 0.5404863944588053,
+        "size": 2
+      },
+      {
+        "left": 672,
+        "right": 708,
+        "distance": 0.5408768827758301,
+        "size": 7
+      },
+      {
+        "left": 486,
+        "right": 740,
+        "distance": 0.5421140175506779,
+        "size": 4
+      },
+      {
+        "left": 727,
+        "right": 782,
+        "distance": 0.5422414980952712,
+        "size": 4
+      },
+      {
+        "left": 346,
+        "right": 502,
+        "distance": 0.5427277743225738,
+        "size": 2
+      },
+      {
+        "left": 144,
+        "right": 157,
+        "distance": 0.554483592615696,
+        "size": 2
+      },
+      {
+        "left": 495,
+        "right": 703,
+        "distance": 0.5564453968753345,
+        "size": 3
+      },
+      {
+        "left": 9,
+        "right": 661,
+        "distance": 0.5573780213864432,
+        "size": 3
+      },
+      {
+        "left": 315,
+        "right": 392,
+        "distance": 0.5622448075804557,
+        "size": 2
+      },
+      {
+        "left": 371,
+        "right": 788,
+        "distance": 0.563213231332296,
+        "size": 4
+      },
+      {
+        "left": 310,
+        "right": 474,
+        "distance": 0.5652647470512165,
+        "size": 2
+      },
+      {
+        "left": 665,
+        "right": 739,
+        "distance": 0.5663880631726175,
+        "size": 5
+      },
+      {
+        "left": 466,
+        "right": 487,
+        "distance": 0.5732113180934042,
+        "size": 2
+      },
+      {
+        "left": 448,
+        "right": 769,
+        "distance": 0.5756005866379297,
+        "size": 3
+      },
+      {
+        "left": 682,
+        "right": 774,
+        "distance": 0.5834515977820667,
+        "size": 4
+      },
+      {
+        "left": 394,
+        "right": 541,
+        "distance": 0.5873655849511311,
+        "size": 2
+      },
+      {
+        "left": 131,
+        "right": 253,
+        "distance": 0.5898492582629223,
+        "size": 2
+      },
+      {
+        "left": 411,
+        "right": 550,
+        "distance": 0.5952586933453127,
+        "size": 2
+      },
+      {
+        "left": 340,
+        "right": 538,
+        "distance": 0.5981083351133357,
+        "size": 2
+      },
+      {
+        "left": 714,
+        "right": 773,
+        "distance": 0.6014522893181894,
+        "size": 5
+      },
+      {
+        "left": 23,
+        "right": 713,
+        "distance": 0.6090324341409163,
+        "size": 3
+      },
+      {
+        "left": 28,
+        "right": 398,
+        "distance": 0.6090510787380442,
+        "size": 2
+      },
+      {
+        "left": 345,
+        "right": 380,
+        "distance": 0.6097873492643847,
+        "size": 2
+      },
+      {
+        "left": 64,
+        "right": 339,
+        "distance": 0.6171770391246123,
+        "size": 2
+      },
+      {
+        "left": 34,
+        "right": 83,
+        "distance": 0.629370330725627,
+        "size": 2
+      },
+      {
+        "left": 80,
+        "right": 741,
+        "distance": 0.631131532300807,
+        "size": 3
+      },
+      {
+        "left": 289,
+        "right": 754,
+        "distance": 0.6318296619047803,
+        "size": 3
+      },
+      {
+        "left": 119,
+        "right": 508,
+        "distance": 0.638455094486754,
+        "size": 2
+      },
+      {
+        "left": 165,
+        "right": 205,
+        "distance": 0.6438956260497014,
+        "size": 2
+      },
+      {
+        "left": 92,
+        "right": 373,
+        "distance": 0.6526393538744818,
+        "size": 2
+      },
+      {
+        "left": 366,
+        "right": 798,
+        "distance": 0.6530316030913403,
+        "size": 3
+      },
+      {
+        "left": 737,
+        "right": 742,
+        "distance": 0.6530505140060847,
+        "size": 4
+      },
+      {
+        "left": 88,
+        "right": 101,
+        "distance": 0.6553029041279317,
+        "size": 2
+      },
+      {
+        "left": 73,
+        "right": 716,
+        "distance": 0.6570713577785496,
+        "size": 3
+      },
+      {
+        "left": 402,
+        "right": 581,
+        "distance": 0.6592019867038527,
+        "size": 2
+      },
+      {
+        "left": 49,
+        "right": 139,
+        "distance": 0.6601717213186116,
+        "size": 2
+      },
+      {
+        "left": 217,
+        "right": 758,
+        "distance": 0.6747468229528684,
+        "size": 3
+      },
+      {
+        "left": 5,
+        "right": 37,
+        "distance": 0.6751091455958492,
+        "size": 2
+      },
+      {
+        "left": 786,
+        "right": 805,
+        "distance": 0.676092715900453,
+        "size": 6
+      },
+      {
+        "left": 234,
+        "right": 261,
+        "distance": 0.6817714429272306,
+        "size": 2
+      },
+      {
+        "left": 771,
+        "right": 781,
+        "distance": 0.6882082309422509,
+        "size": 10
+      },
+      {
+        "left": 287,
+        "right": 598,
+        "distance": 0.6899030243402668,
+        "size": 2
+      },
+      {
+        "left": 188,
+        "right": 719,
+        "distance": 0.695240127593252,
+        "size": 3
+      },
+      {
+        "left": 330,
+        "right": 731,
+        "distance": 0.6982714226820737,
+        "size": 3
+      },
+      {
+        "left": 179,
+        "right": 784,
+        "distance": 0.7149757680903882,
+        "size": 3
+      },
+      {
+        "left": 291,
+        "right": 806,
+        "distance": 0.7162867073332252,
+        "size": 6
+      },
+      {
+        "left": 582,
+        "right": 607,
+        "distance": 0.7230386383799745,
+        "size": 2
+      },
+      {
+        "left": 246,
+        "right": 762,
+        "distance": 0.7245820401726056,
+        "size": 4
+      },
+      {
+        "left": 318,
+        "right": 441,
+        "distance": 0.7252952744763824,
+        "size": 2
+      },
+      {
+        "left": 514,
+        "right": 571,
+        "distance": 0.7272215216888791,
+        "size": 2
+      },
+      {
+        "left": 671,
+        "right": 779,
+        "distance": 0.7333820819904261,
+        "size": 8
+      },
+      {
+        "left": 507,
+        "right": 777,
+        "distance": 0.7334113218466617,
+        "size": 3
+      },
+      {
+        "left": 770,
+        "right": 820,
+        "distance": 0.73487924224933,
+        "size": 6
+      },
+      {
+        "left": 443,
+        "right": 449,
+        "distance": 0.7399560675927644,
+        "size": 2
+      },
+      {
+        "left": 488,
+        "right": 509,
+        "distance": 0.7414307347548944,
+        "size": 2
+      },
+      {
+        "left": 111,
+        "right": 436,
+        "distance": 0.7428734422399418,
+        "size": 2
+      },
+      {
+        "left": 343,
+        "right": 416,
+        "distance": 0.7522374871771026,
+        "size": 2
+      },
+      {
+        "left": 171,
+        "right": 738,
+        "distance": 0.7545620377567839,
+        "size": 4
+      },
+      {
+        "left": 677,
+        "right": 763,
+        "distance": 0.7628128782185649,
+        "size": 4
+      },
+      {
+        "left": 485,
+        "right": 747,
+        "distance": 0.7661335442638537,
+        "size": 4
+      },
+      {
+        "left": 137,
+        "right": 201,
+        "distance": 0.767001849571758,
+        "size": 2
+      },
+      {
+        "left": 295,
+        "right": 586,
+        "distance": 0.7705564279980549,
+        "size": 2
+      },
+      {
+        "left": 652,
+        "right": 817,
+        "distance": 0.777294500225237,
+        "size": 7
+      },
+      {
+        "left": 228,
+        "right": 840,
+        "distance": 0.7829059281394526,
+        "size": 3
+      },
+      {
+        "left": 387,
+        "right": 743,
+        "distance": 0.7907033061984872,
+        "size": 3
+      },
+      {
+        "left": 515,
+        "right": 759,
+        "distance": 0.7948240006305498,
+        "size": 3
+      },
+      {
+        "left": 531,
+        "right": 793,
+        "distance": 0.803380416946138,
+        "size": 3
+      },
+      {
+        "left": 674,
+        "right": 778,
+        "distance": 0.8137971006600028,
+        "size": 5
+      },
+      {
+        "left": 553,
+        "right": 753,
+        "distance": 0.8291569540222241,
+        "size": 4
+      },
+      {
+        "left": 405,
+        "right": 837,
+        "distance": 0.8308693789643903,
+        "size": 6
+      },
+      {
+        "left": 462,
+        "right": 828,
+        "distance": 0.8337346509802062,
+        "size": 3
+      },
+      {
+        "left": 775,
+        "right": 833,
+        "distance": 0.8422812925143194,
+        "size": 4
+      },
+      {
+        "left": 76,
+        "right": 294,
+        "distance": 0.8422870787711082,
+        "size": 2
+      },
+      {
+        "left": 66,
+        "right": 557,
+        "distance": 0.8438866067029329,
+        "size": 2
+      },
+      {
+        "left": 298,
+        "right": 312,
+        "distance": 0.8469380311712662,
+        "size": 2
+      },
+      {
+        "left": 544,
+        "right": 794,
+        "distance": 0.8480402519914647,
+        "size": 3
+      },
+      {
+        "left": 335,
+        "right": 881,
+        "distance": 0.8568614472812213,
+        "size": 4
+      },
+      {
+        "left": 224,
+        "right": 275,
+        "distance": 0.8638912305142058,
+        "size": 2
+      },
+      {
+        "left": 789,
+        "right": 804,
+        "distance": 0.8670414085188834,
+        "size": 5
+      },
+      {
+        "left": 706,
+        "right": 824,
+        "distance": 0.8676939333351468,
+        "size": 5
+      },
+      {
+        "left": 15,
+        "right": 16,
+        "distance": 0.8683524375738318,
+        "size": 2
+      },
+      {
+        "left": 483,
+        "right": 577,
+        "distance": 0.8908106202002382,
+        "size": 2
+      },
+      {
+        "left": 654,
+        "right": 680,
+        "distance": 0.8918551191416536,
+        "size": 4
+      },
+      {
+        "left": 460,
+        "right": 510,
+        "distance": 0.8929099008521958,
+        "size": 2
+      },
+      {
+        "left": 138,
+        "right": 823,
+        "distance": 0.8996706557660642,
+        "size": 3
+      },
+      {
+        "left": 328,
+        "right": 772,
+        "distance": 0.9355341996737434,
+        "size": 4
+      },
+      {
+        "left": 99,
+        "right": 783,
+        "distance": 0.9514209199221861,
+        "size": 3
+      },
+      {
+        "left": 766,
+        "right": 801,
+        "distance": 0.956715722082085,
+        "size": 32
+      },
+      {
+        "left": 136,
+        "right": 140,
+        "distance": 0.9594314015593517,
+        "size": 2
+      },
+      {
+        "left": 688,
+        "right": 736,
+        "distance": 0.9661147443654029,
+        "size": 4
+      },
+      {
+        "left": 757,
+        "right": 776,
+        "distance": 0.9678323206683374,
+        "size": 6
+      },
+      {
+        "left": 440,
+        "right": 500,
+        "distance": 0.9783978094272648,
+        "size": 2
+      },
+      {
+        "left": 4,
+        "right": 176,
+        "distance": 0.985689188058729,
+        "size": 2
+      },
+      {
+        "left": 752,
+        "right": 861,
+        "distance": 0.9858339856338348,
+        "size": 5
+      },
+      {
+        "left": 746,
+        "right": 826,
+        "distance": 0.9890913320001868,
+        "size": 5
+      },
+      {
+        "left": 357,
+        "right": 751,
+        "distance": 0.9980424232042662,
+        "size": 4
+      },
+      {
+        "left": 529,
+        "right": 866,
+        "distance": 1.0083748485391795,
+        "size": 3
+      },
+      {
+        "left": 853,
+        "right": 859,
+        "distance": 1.0123680382891813,
+        "size": 4
+      },
+      {
+        "left": 151,
+        "right": 168,
+        "distance": 1.013630312603455,
+        "size": 2
+      },
+      {
+        "left": 326,
+        "right": 787,
+        "distance": 1.0252372926436264,
+        "size": 3
+      },
+      {
+        "left": 322,
+        "right": 433,
+        "distance": 1.0258411460213748,
+        "size": 2
+      },
+      {
+        "left": 381,
+        "right": 532,
+        "distance": 1.0278326043920927,
+        "size": 2
+      },
+      {
+        "left": 521,
+        "right": 730,
+        "distance": 1.027919111701647,
+        "size": 3
+      },
+      {
+        "left": 104,
+        "right": 808,
+        "distance": 1.0326420244290415,
+        "size": 4
+      },
+      {
+        "left": 733,
+        "right": 851,
+        "distance": 1.0374507570585538,
+        "size": 7
+      },
+      {
+        "left": 761,
+        "right": 880,
+        "distance": 1.0388538905372002,
+        "size": 10
+      },
+      {
+        "left": 336,
+        "right": 426,
+        "distance": 1.0402722623354823,
+        "size": 2
+      },
+      {
+        "left": 31,
+        "right": 838,
+        "distance": 1.0419140346709646,
+        "size": 4
+      },
+      {
+        "left": 383,
+        "right": 453,
+        "distance": 1.042844080089651,
+        "size": 2
+      },
+      {
+        "left": 765,
+        "right": 802,
+        "distance": 1.052304248425945,
+        "size": 8
+      },
+      {
+        "left": 712,
+        "right": 768,
+        "distance": 1.0664651193102899,
+        "size": 8
+      },
+      {
+        "left": 689,
+        "right": 870,
+        "distance": 1.0683657545298806,
+        "size": 10
+      },
+      {
+        "left": 24,
+        "right": 744,
+        "distance": 1.0806336798713645,
+        "size": 3
+      },
+      {
+        "left": 819,
+        "right": 877,
+        "distance": 1.1022285922341608,
+        "size": 11
+      },
+      {
+        "left": 293,
+        "right": 476,
+        "distance": 1.1067296356854825,
+        "size": 2
+      },
+      {
+        "left": 699,
+        "right": 887,
+        "distance": 1.1119311540549541,
+        "size": 9
+      },
+      {
+        "left": 847,
+        "right": 855,
+        "distance": 1.1150246833435422,
+        "size": 4
+      },
+      {
+        "left": 309,
+        "right": 601,
+        "distance": 1.1249882265209625,
+        "size": 2
+      },
+      {
+        "left": 181,
+        "right": 444,
+        "distance": 1.1337572278795724,
+        "size": 2
+      },
+      {
+        "left": 681,
+        "right": 813,
+        "distance": 1.1399469937624473,
+        "size": 4
+      },
+      {
+        "left": 95,
+        "right": 842,
+        "distance": 1.1435365661714543,
+        "size": 3
+      },
+      {
+        "left": 77,
+        "right": 726,
+        "distance": 1.1466300214544245,
+        "size": 3
+      },
+      {
+        "left": 239,
+        "right": 329,
+        "distance": 1.1623971345265565,
+        "size": 2
+      },
+      {
+        "left": 53,
+        "right": 841,
+        "distance": 1.17256298793016,
+        "size": 3
+      },
+      {
+        "left": 490,
+        "right": 748,
+        "distance": 1.1736839545963376,
+        "size": 3
+      },
+      {
+        "left": 370,
+        "right": 481,
+        "distance": 1.190222440847587,
+        "size": 2
+      },
+      {
+        "left": 797,
+        "right": 888,
+        "distance": 1.1914311110406064,
+        "size": 5
+      },
+      {
+        "left": 829,
+        "right": 928,
+        "distance": 1.1990188957839283,
+        "size": 13
+      },
+      {
+        "left": 161,
+        "right": 164,
+        "distance": 1.206414807796537,
+        "size": 2
+      },
+      {
+        "left": 844,
+        "right": 876,
+        "distance": 1.2086716543202756,
+        "size": 7
+      },
+      {
+        "left": 750,
+        "right": 780,
+        "distance": 1.2206571483715962,
+        "size": 4
+      },
+      {
+        "left": 300,
+        "right": 899,
+        "distance": 1.2238488123380276,
+        "size": 3
+      },
+      {
+        "left": 227,
+        "right": 720,
+        "distance": 1.2269205489008248,
+        "size": 3
+      },
+      {
+        "left": 795,
+        "right": 803,
+        "distance": 1.2472211978786876,
+        "size": 6
+      },
+      {
+        "left": 367,
+        "right": 710,
+        "distance": 1.2546155352019719,
+        "size": 3
+      },
+      {
+        "left": 260,
+        "right": 479,
+        "distance": 1.2600170153718506,
+        "size": 2
+      },
+      {
+        "left": 562,
+        "right": 857,
+        "distance": 1.26272142580655,
+        "size": 3
+      },
+      {
+        "left": 38,
+        "right": 365,
+        "distance": 1.2887404853289617,
+        "size": 2
+      },
+      {
+        "left": 62,
+        "right": 482,
+        "distance": 1.292826368044313,
+        "size": 2
+      },
+      {
+        "left": 79,
+        "right": 408,
+        "distance": 1.3012058575122654,
+        "size": 2
+      },
+      {
+        "left": 523,
+        "right": 760,
+        "distance": 1.3020390574778005,
+        "size": 3
+      },
+      {
+        "left": 359,
+        "right": 919,
+        "distance": 1.3129141047799107,
+        "size": 3
+      },
+      {
+        "left": 305,
+        "right": 943,
+        "distance": 1.3243832604070356,
+        "size": 3
+      },
+      {
+        "left": 827,
+        "right": 831,
+        "distance": 1.3260543344847833,
+        "size": 7
+      },
+      {
+        "left": 873,
+        "right": 891,
+        "distance": 1.3360262928595936,
+        "size": 4
+      },
+      {
+        "left": 812,
+        "right": 836,
+        "distance": 1.3609447766800602,
+        "size": 5
+      },
+      {
+        "left": 491,
+        "right": 810,
+        "distance": 1.395662563876042,
+        "size": 3
+      },
+      {
+        "left": 493,
+        "right": 871,
+        "distance": 1.397111355890607,
+        "size": 3
+      },
+      {
+        "left": 121,
+        "right": 125,
+        "distance": 1.414050554201631,
+        "size": 2
+      },
+      {
+        "left": 325,
+        "right": 389,
+        "distance": 1.4435186886561355,
+        "size": 2
+      },
+      {
+        "left": 799,
+        "right": 822,
+        "distance": 1.4513701015903189,
+        "size": 4
+      },
+      {
+        "left": 337,
+        "right": 589,
+        "distance": 1.4792436713663,
+        "size": 2
+      },
+      {
+        "left": 705,
+        "right": 883,
+        "distance": 1.4816472968328673,
+        "size": 6
+      },
+      {
+        "left": 158,
+        "right": 953,
+        "distance": 1.4849780617741737,
+        "size": 3
+      },
+      {
+        "left": 869,
+        "right": 884,
+        "distance": 1.4897305586758465,
+        "size": 6
+      },
+      {
+        "left": 308,
+        "right": 567,
+        "distance": 1.5025427081996285,
+        "size": 2
+      },
+      {
+        "left": 791,
+        "right": 825,
+        "distance": 1.5080855846262595,
+        "size": 7
+      },
+      {
+        "left": 863,
+        "right": 927,
+        "distance": 1.5159743325721098,
+        "size": 14
+      },
+      {
+        "left": 809,
+        "right": 908,
+        "distance": 1.5261569823330847,
+        "size": 9
+      },
+      {
+        "left": 107,
+        "right": 878,
+        "distance": 1.5585144644963924,
+        "size": 3
+      },
+      {
+        "left": 721,
+        "right": 725,
+        "distance": 1.5653543213859729,
+        "size": 4
+      },
+      {
+        "left": 756,
+        "right": 807,
+        "distance": 1.6066876015261558,
+        "size": 5
+      },
+      {
+        "left": 858,
+        "right": 904,
+        "distance": 1.6164551475528284,
+        "size": 13
+      },
+      {
+        "left": 785,
+        "right": 920,
+        "distance": 1.6238084293332409,
+        "size": 6
+      },
+      {
+        "left": 248,
+        "right": 834,
+        "distance": 1.6464563420805147,
+        "size": 3
+      },
+      {
+        "left": 189,
+        "right": 274,
+        "distance": 1.661197096860783,
+        "size": 2
+      },
+      {
+        "left": 432,
+        "right": 764,
+        "distance": 1.6667736849862171,
+        "size": 3
+      },
+      {
+        "left": 852,
+        "right": 913,
+        "distance": 1.6694467795186982,
+        "size": 6
+      },
+      {
+        "left": 796,
+        "right": 931,
+        "distance": 1.669679422739772,
+        "size": 14
+      },
+      {
+        "left": 220,
+        "right": 846,
+        "distance": 1.677577359591701,
+        "size": 3
+      },
+      {
+        "left": 195,
+        "right": 199,
+        "distance": 1.6923058057695508,
+        "size": 2
+      },
+      {
+        "left": 816,
+        "right": 959,
+        "distance": 1.6979768529379402,
+        "size": 5
+      },
+      {
+        "left": 172,
+        "right": 243,
+        "distance": 1.7142984966085049,
+        "size": 2
+      },
+      {
+        "left": 660,
+        "right": 843,
+        "distance": 1.7411097877786523,
+        "size": 6
+      },
+      {
+        "left": 860,
+        "right": 978,
+        "distance": 1.7541207919237058,
+        "size": 7
+      },
+      {
+        "left": 815,
+        "right": 885,
+        "distance": 1.759708011632319,
+        "size": 10
+      },
+      {
+        "left": 886,
+        "right": 907,
+        "distance": 1.7742413668515704,
+        "size": 8
+      },
+      {
+        "left": 354,
+        "right": 965,
+        "distance": 1.826913486431943,
+        "size": 4
+      },
+      {
+        "left": 832,
+        "right": 865,
+        "distance": 1.8329150860986054,
+        "size": 8
+      },
+      {
+        "left": 459,
+        "right": 962,
+        "distance": 1.8488649621721955,
+        "size": 5
+      },
+      {
+        "left": 830,
+        "right": 835,
+        "distance": 1.8534951013829128,
+        "size": 4
+      },
+      {
+        "left": 170,
+        "right": 284,
+        "distance": 1.9256018095559706,
+        "size": 2
+      },
+      {
+        "left": 735,
+        "right": 924,
+        "distance": 1.9335672651457585,
+        "size": 4
+      },
+      {
+        "left": 6,
+        "right": 850,
+        "distance": 1.9398762882674812,
+        "size": 3
+      },
+      {
+        "left": 800,
+        "right": 951,
+        "distance": 1.9702959844548353,
+        "size": 9
+      },
+      {
+        "left": 496,
+        "right": 932,
+        "distance": 1.9796965273549167,
+        "size": 3
+      },
+      {
+        "left": 896,
+        "right": 948,
+        "distance": 1.9832963088757523,
+        "size": 9
+      },
+      {
+        "left": 874,
+        "right": 912,
+        "distance": 1.9853053694897569,
+        "size": 7
+      },
+      {
+        "left": 856,
+        "right": 875,
+        "distance": 2.0149487860534228,
+        "size": 10
+      },
+      {
+        "left": 368,
+        "right": 889,
+        "distance": 2.0315704640374963,
+        "size": 5
+      },
+      {
+        "left": 65,
+        "right": 153,
+        "distance": 2.048920196952864,
+        "size": 2
+      },
+      {
+        "left": 173,
+        "right": 225,
+        "distance": 2.053326733361259,
+        "size": 2
+      },
+      {
+        "left": 845,
+        "right": 918,
+        "distance": 2.061282375269101,
+        "size": 4
+      },
+      {
+        "left": 862,
+        "right": 991,
+        "distance": 2.0637557228878323,
+        "size": 9
+      },
+      {
+        "left": 579,
+        "right": 811,
+        "distance": 2.066459705399471,
+        "size": 3
+      },
+      {
+        "left": 30,
+        "right": 635,
+        "distance": 2.089689132966359,
+        "size": 5
+      },
+      {
+        "left": 222,
+        "right": 814,
+        "distance": 2.1032330883575137,
+        "size": 3
+      },
+      {
+        "left": 133,
+        "right": 169,
+        "distance": 2.177469846423873,
+        "size": 2
+      },
+      {
+        "left": 419,
+        "right": 839,
+        "distance": 2.1962417549728848,
+        "size": 3
+      },
+      {
+        "left": 156,
+        "right": 215,
+        "distance": 2.2024015667561785,
+        "size": 2
+      },
+      {
+        "left": 903,
+        "right": 980,
+        "distance": 2.213317746220018,
+        "size": 17
+      },
+      {
+        "left": 937,
+        "right": 977,
+        "distance": 2.217880070005927,
+        "size": 7
+      },
+      {
+        "left": 21,
+        "right": 902,
+        "distance": 2.2706907993724137,
+        "size": 4
+      },
+      {
+        "left": 341,
+        "right": 1003,
+        "distance": 2.2743763426348433,
+        "size": 4
+      },
+      {
+        "left": 849,
+        "right": 872,
+        "distance": 2.2774405916859637,
+        "size": 6
+      },
+      {
+        "left": 572,
+        "right": 892,
+        "distance": 2.2945326877082914,
+        "size": 3
+      },
+      {
+        "left": 867,
+        "right": 998,
+        "distance": 2.306975219903173,
+        "size": 6
+      },
+      {
+        "left": 410,
+        "right": 1000,
+        "distance": 2.3547784112241037,
+        "size": 5
+      },
+      {
+        "left": 522,
+        "right": 535,
+        "distance": 2.3596631694159287,
+        "size": 2
+      },
+      {
+        "left": 401,
+        "right": 966,
+        "distance": 2.3859473299767036,
+        "size": 3
+      },
+      {
+        "left": 334,
+        "right": 909,
+        "distance": 2.4241580844918267,
+        "size": 3
+      },
+      {
+        "left": 879,
+        "right": 969,
+        "distance": 2.4546795261924705,
+        "size": 4
+      },
+      {
+        "left": 484,
+        "right": 940,
+        "distance": 2.4575648887520862,
+        "size": 3
+      },
+      {
+        "left": 915,
+        "right": 958,
+        "distance": 2.4997753237352254,
+        "size": 7
+      },
+      {
+        "left": 868,
+        "right": 895,
+        "distance": 2.5647191633141735,
+        "size": 10
+      },
+      {
+        "left": 922,
+        "right": 947,
+        "distance": 2.6013371188924292,
+        "size": 14
+      },
+      {
+        "left": 926,
+        "right": 985,
+        "distance": 2.6039515687722643,
+        "size": 8
+      },
+      {
+        "left": 952,
+        "right": 963,
+        "distance": 2.616417361461399,
+        "size": 8
+      },
+      {
+        "left": 897,
+        "right": 974,
+        "distance": 2.6557295053216903,
+        "size": 12
+      },
+      {
+        "left": 929,
+        "right": 975,
+        "distance": 2.6741775887767942,
+        "size": 24
+      },
+      {
+        "left": 349,
+        "right": 893,
+        "distance": 2.6833240661284266,
+        "size": 4
+      },
+      {
+        "left": 968,
+        "right": 1022,
+        "distance": 2.727037536190968,
+        "size": 10
+      },
+      {
+        "left": 945,
+        "right": 1006,
+        "distance": 2.84923450540058,
+        "size": 23
+      },
+      {
+        "left": 894,
+        "right": 914,
+        "distance": 2.8595941864385552,
+        "size": 7
+      },
+      {
+        "left": 180,
+        "right": 358,
+        "distance": 2.9483350051812014,
+        "size": 2
+      },
+      {
+        "left": 925,
+        "right": 1005,
+        "distance": 2.9679838288099005,
+        "size": 11
+      },
+      {
+        "left": 882,
+        "right": 941,
+        "distance": 3.1758882466859184,
+        "size": 6
+      },
+      {
+        "left": 848,
+        "right": 901,
+        "distance": 3.1925525410654507,
+        "size": 5
+      },
+      {
+        "left": 186,
+        "right": 283,
+        "distance": 3.197636138693768,
+        "size": 2
+      },
+      {
+        "left": 112,
+        "right": 939,
+        "distance": 3.274828813701673,
+        "size": 4
+      },
+      {
+        "left": 84,
+        "right": 174,
+        "distance": 3.335876413105071,
+        "size": 2
+      },
+      {
+        "left": 259,
+        "right": 604,
+        "distance": 3.3676345277274637,
+        "size": 2
+      },
+      {
+        "left": 854,
+        "right": 982,
+        "distance": 3.3938439975181947,
+        "size": 6
+      },
+      {
+        "left": 898,
+        "right": 944,
+        "distance": 3.4028152086727834,
+        "size": 7
+      },
+      {
+        "left": 900,
+        "right": 1013,
+        "distance": 3.421463045208594,
+        "size": 9
+      },
+      {
+        "left": 19,
+        "right": 185,
+        "distance": 3.426910115111258,
+        "size": 2
+      },
+      {
+        "left": 790,
+        "right": 957,
+        "distance": 3.4339378096189965,
+        "size": 4
+      },
+      {
+        "left": 792,
+        "right": 890,
+        "distance": 3.462806445718606,
+        "size": 4
+      },
+      {
+        "left": 821,
+        "right": 960,
+        "distance": 3.474487353722568,
+        "size": 7
+      },
+      {
+        "left": 409,
+        "right": 967,
+        "distance": 3.5233155572694974,
+        "size": 3
+      },
+      {
+        "left": 917,
+        "right": 1012,
+        "distance": 3.665684352897393,
+        "size": 6
+      },
+      {
+        "left": 994,
+        "right": 1032,
+        "distance": 3.7020149955358486,
+        "size": 18
+      },
+      {
+        "left": 995,
+        "right": 1044,
+        "distance": 3.71827412780343,
+        "size": 10
+      },
+      {
+        "left": 361,
+        "right": 911,
+        "distance": 3.744233110536976,
+        "size": 6
+      },
+      {
+        "left": 864,
+        "right": 950,
+        "distance": 3.8430002531673115,
+        "size": 5
+      },
+      {
+        "left": 964,
+        "right": 1024,
+        "distance": 3.8519064272145465,
+        "size": 9
+      },
+      {
+        "left": 470,
+        "right": 906,
+        "distance": 3.9530799795761666,
+        "size": 3
+      },
+      {
+        "left": 936,
+        "right": 1023,
+        "distance": 3.9550513625982346,
+        "size": 5
+      },
+      {
+        "left": 973,
+        "right": 1016,
+        "distance": 3.9826487523837804,
+        "size": 5
+      },
+      {
+        "left": 970,
+        "right": 992,
+        "distance": 4.000261880972357,
+        "size": 13
+      },
+      {
+        "left": 146,
+        "right": 167,
+        "distance": 4.08724151928891,
+        "size": 2
+      },
+      {
+        "left": 979,
+        "right": 1040,
+        "distance": 4.125914311920394,
+        "size": 28
+      },
+      {
+        "left": 12,
+        "right": 1001,
+        "distance": 4.180105914328587,
+        "size": 4
+      },
+      {
+        "left": 412,
+        "right": 999,
+        "distance": 4.201427045687653,
+        "size": 3
+      },
+      {
+        "left": 245,
+        "right": 916,
+        "distance": 4.229081101042743,
+        "size": 3
+      },
+      {
+        "left": 352,
+        "right": 1021,
+        "distance": 4.2395129405543654,
+        "size": 5
+      },
+      {
+        "left": 745,
+        "right": 956,
+        "distance": 4.349783850478883,
+        "size": 4
+      },
+      {
+        "left": 961,
+        "right": 1039,
+        "distance": 4.47886369741577,
+        "size": 17
+      },
+      {
+        "left": 938,
+        "right": 972,
+        "distance": 4.514871868644828,
+        "size": 9
+      },
+      {
+        "left": 986,
+        "right": 1036,
+        "distance": 4.560660949464659,
+        "size": 26
+      },
+      {
+        "left": 818,
+        "right": 1038,
+        "distance": 4.648015410724335,
+        "size": 6
+      },
+      {
+        "left": 910,
+        "right": 971,
+        "distance": 4.660400787123916,
+        "size": 5
+      },
+      {
+        "left": 323,
+        "right": 942,
+        "distance": 4.834723636347186,
+        "size": 4
+      },
+      {
+        "left": 526,
+        "right": 574,
+        "distance": 4.9141713367569775,
+        "size": 2
+      },
+      {
+        "left": 946,
+        "right": 1071,
+        "distance": 4.9647650024321734,
+        "size": 5
+      },
+      {
+        "left": 921,
+        "right": 981,
+        "distance": 4.995948471994377,
+        "size": 10
+      },
+      {
+        "left": 327,
+        "right": 425,
+        "distance": 5.177555994813454,
+        "size": 2
+      },
+      {
+        "left": 923,
+        "right": 1018,
+        "distance": 5.1975422173019235,
+        "size": 27
+      },
+      {
+        "left": 976,
+        "right": 993,
+        "distance": 5.227523303353224,
+        "size": 19
+      },
+      {
+        "left": 1007,
+        "right": 1035,
+        "distance": 5.3079330945197505,
+        "size": 13
+      },
+      {
+        "left": 984,
+        "right": 1045,
+        "distance": 5.425229413356427,
+        "size": 8
+      },
+      {
+        "left": 1020,
+        "right": 1072,
+        "distance": 5.435392827430478,
+        "size": 7
+      },
+      {
+        "left": 949,
+        "right": 1004,
+        "distance": 5.444617752699479,
+        "size": 12
+      },
+      {
+        "left": 122,
+        "right": 1065,
+        "distance": 5.598020925674267,
+        "size": 6
+      },
+      {
+        "left": 934,
+        "right": 1031,
+        "distance": 5.691426578229988,
+        "size": 11
+      },
+      {
+        "left": 989,
+        "right": 1061,
+        "distance": 5.7657719761667545,
+        "size": 11
+      },
+      {
+        "left": 247,
+        "right": 1027,
+        "distance": 5.783064422041928,
+        "size": 4
+      },
+      {
+        "left": 190,
+        "right": 987,
+        "distance": 5.855026974941376,
+        "size": 4
+      },
+      {
+        "left": 1028,
+        "right": 1056,
+        "distance": 5.925847438116608,
+        "size": 10
+      },
+      {
+        "left": 996,
+        "right": 1033,
+        "distance": 6.036440360781846,
+        "size": 22
+      },
+      {
+        "left": 96,
+        "right": 1078,
+        "distance": 6.066458949118607,
+        "size": 7
+      },
+      {
+        "left": 314,
+        "right": 954,
+        "distance": 6.306299933416688,
+        "size": 4
+      },
+      {
+        "left": 166,
+        "right": 218,
+        "distance": 6.427357065369645,
+        "size": 2
+      },
+      {
+        "left": 209,
+        "right": 1070,
+        "distance": 6.710237502429398,
+        "size": 5
+      },
+      {
+        "left": 1052,
+        "right": 1059,
+        "distance": 6.745474974831037,
+        "size": 27
+      },
+      {
+        "left": 1029,
+        "right": 1060,
+        "distance": 6.8434087868255125,
+        "size": 14
+      },
+      {
+        "left": 160,
+        "right": 930,
+        "distance": 6.9198211918504064,
+        "size": 4
+      },
+      {
+        "left": 1011,
+        "right": 1054,
+        "distance": 6.931161763379943,
+        "size": 13
+      },
+      {
+        "left": 129,
+        "right": 1014,
+        "distance": 7.120768573459474,
+        "size": 4
+      },
+      {
+        "left": 997,
+        "right": 1041,
+        "distance": 7.158405238772837,
+        "size": 12
+      },
+      {
+        "left": 933,
+        "right": 1067,
+        "distance": 7.2949342613351815,
+        "size": 22
+      },
+      {
+        "left": 1074,
+        "right": 1080,
+        "distance": 7.31798072044115,
+        "size": 8
+      },
+      {
+        "left": 87,
+        "right": 216,
+        "distance": 7.486162740088361,
+        "size": 2
+      },
+      {
+        "left": 935,
+        "right": 1051,
+        "distance": 7.561242399286097,
+        "size": 9
+      },
+      {
+        "left": 1025,
+        "right": 1083,
+        "distance": 7.659243280644059,
+        "size": 15
+      },
+      {
+        "left": 1049,
+        "right": 1089,
+        "distance": 7.700389147007617,
+        "size": 9
+      },
+      {
+        "left": 1002,
+        "right": 1086,
+        "distance": 8.080243866619647,
+        "size": 28
+      },
+      {
+        "left": 265,
+        "right": 1015,
+        "distance": 8.109306920897751,
+        "size": 3
+      },
+      {
+        "left": 1047,
+        "right": 1057,
+        "distance": 8.297002551359826,
+        "size": 7
+      },
+      {
+        "left": 1055,
+        "right": 1099,
+        "distance": 8.344397005659724,
+        "size": 8
+      },
+      {
+        "left": 1053,
+        "right": 1082,
+        "distance": 8.588500113745484,
+        "size": 7
+      },
+      {
+        "left": 1037,
+        "right": 1077,
+        "distance": 9.077423236427776,
+        "size": 50
+      },
+      {
+        "left": 525,
+        "right": 1088,
+        "distance": 9.130255918326178,
+        "size": 9
+      },
+      {
+        "left": 94,
+        "right": 1008,
+        "distance": 9.16685483687965,
+        "size": 3
+      },
+      {
+        "left": 113,
+        "right": 1042,
+        "distance": 9.360702906527685,
+        "size": 3
+      },
+      {
+        "left": 33,
+        "right": 1104,
+        "distance": 9.361433985494797,
+        "size": 5
+      },
+      {
+        "left": 955,
+        "right": 1026,
+        "distance": 9.408702013430382,
+        "size": 4
+      },
+      {
+        "left": 102,
+        "right": 1066,
+        "distance": 10.372236047091887,
+        "size": 6
+      },
+      {
+        "left": 1075,
+        "right": 1112,
+        "distance": 10.52667661538071,
+        "size": 32
+      },
+      {
+        "left": 905,
+        "right": 1102,
+        "distance": 11.120036076423625,
+        "size": 59
+      },
+      {
+        "left": 1087,
+        "right": 1111,
+        "distance": 11.456455546808689,
+        "size": 22
+      },
+      {
+        "left": 1010,
+        "right": 1103,
+        "distance": 11.49554813084301,
+        "size": 18
+      },
+      {
+        "left": 547,
+        "right": 1073,
+        "distance": 12.286433340533943,
+        "size": 6
+      },
+      {
+        "left": 1097,
+        "right": 1105,
+        "distance": 12.67727132781196,
+        "size": 35
+      },
+      {
+        "left": 290,
+        "right": 301,
+        "distance": 12.790452651595071,
+        "size": 2
+      },
+      {
+        "left": 1058,
+        "right": 1120,
+        "distance": 13.356812333569835,
+        "size": 15
+      },
+      {
+        "left": 1050,
+        "right": 1117,
+        "distance": 13.526466706703275,
+        "size": 14
+      },
+      {
+        "left": 1034,
+        "right": 1076,
+        "distance": 13.58898272171107,
+        "size": 17
+      },
+      {
+        "left": 512,
+        "right": 583,
+        "distance": 13.717710463396743,
+        "size": 2
+      },
+      {
+        "left": 551,
+        "right": 1113,
+        "distance": 13.892506107358859,
+        "size": 10
+      },
+      {
+        "left": 1063,
+        "right": 1093,
+        "distance": 13.96492804673714,
+        "size": 20
+      },
+      {
+        "left": 1030,
+        "right": 1084,
+        "distance": 14.436665082485765,
+        "size": 5
+      },
+      {
+        "left": 1019,
+        "right": 1114,
+        "distance": 14.746459918033114,
+        "size": 35
+      },
+      {
+        "left": 106,
+        "right": 593,
+        "distance": 15.081398423888421,
+        "size": 2
+      },
+      {
+        "left": 1090,
+        "right": 1096,
+        "distance": 15.194786304878075,
+        "size": 22
+      },
+      {
+        "left": 1081,
+        "right": 1109,
+        "distance": 15.507972658330496,
+        "size": 10
+      },
+      {
+        "left": 990,
+        "right": 1009,
+        "distance": 15.916131678470792,
+        "size": 4
+      },
+      {
+        "left": 116,
+        "right": 154,
+        "distance": 16.39655889422186,
+        "size": 2
+      },
+      {
+        "left": 1085,
+        "right": 1119,
+        "distance": 16.639369738978722,
+        "size": 77
+      },
+      {
+        "left": 1094,
+        "right": 1121,
+        "distance": 16.732015462886018,
+        "size": 7
+      },
+      {
+        "left": 208,
+        "right": 1017,
+        "distance": 16.915445718311354,
+        "size": 3
+      },
+      {
+        "left": 1062,
+        "right": 1079,
+        "distance": 17.710335227781442,
+        "size": 10
+      },
+      {
+        "left": 1107,
+        "right": 1129,
+        "distance": 18.534483540129298,
+        "size": 30
+      },
+      {
+        "left": 1068,
+        "right": 1122,
+        "distance": 19.584781125045964,
+        "size": 5
+      },
+      {
+        "left": 1108,
+        "right": 1138,
+        "distance": 20.01095444275934,
+        "size": 42
+      },
+      {
+        "left": 1069,
+        "right": 1123,
+        "distance": 21.551622036563096,
+        "size": 33
+      },
+      {
+        "left": 1091,
+        "right": 1125,
+        "distance": 22.28790923211472,
+        "size": 12
+      },
+      {
+        "left": 90,
+        "right": 332,
+        "distance": 22.600649728771426,
+        "size": 2
+      },
+      {
+        "left": 1043,
+        "right": 1126,
+        "distance": 23.04847218746293,
+        "size": 43
+      },
+      {
+        "left": 1133,
+        "right": 1139,
+        "distance": 23.433865020772185,
+        "size": 20
+      },
+      {
+        "left": 55,
+        "right": 1132,
+        "distance": 24.90903368945563,
+        "size": 3
+      },
+      {
+        "left": 1092,
+        "right": 1131,
+        "distance": 27.219166982541424,
+        "size": 46
+      },
+      {
+        "left": 27,
+        "right": 282,
+        "distance": 28.492284242058847,
+        "size": 2
+      },
+      {
+        "left": 492,
+        "right": 1101,
+        "distance": 31.277473312015097,
+        "size": 6
+      },
+      {
+        "left": 1116,
+        "right": 1141,
+        "distance": 31.296738854825932,
+        "size": 9
+      },
+      {
+        "left": 1140,
+        "right": 1153,
+        "distance": 31.890205758516466,
+        "size": 68
+      },
+      {
+        "left": 374,
+        "right": 1124,
+        "distance": 34.40311331798514,
+        "size": 5
+      },
+      {
+        "left": 1118,
+        "right": 1137,
+        "distance": 34.99180528421167,
+        "size": 17
+      },
+      {
+        "left": 591,
+        "right": 1162,
+        "distance": 35.43117920548079,
+        "size": 10
+      },
+      {
+        "left": 269,
+        "right": 1100,
+        "distance": 35.66544205942793,
+        "size": 3
+      },
+      {
+        "left": 1064,
+        "right": 1161,
+        "distance": 36.523142597915836,
+        "size": 9
+      },
+      {
+        "left": 1128,
+        "right": 1142,
+        "distance": 37.25249612851221,
+        "size": 44
+      },
+      {
+        "left": 561,
+        "right": 1127,
+        "distance": 38.3214977873539,
+        "size": 60
+      },
+      {
+        "left": 238,
+        "right": 1158,
+        "distance": 38.40044224674251,
+        "size": 4
+      },
+      {
+        "left": 1146,
+        "right": 1163,
+        "distance": 39.07399501758747,
+        "size": 145
+      },
+      {
+        "left": 1135,
+        "right": 1152,
+        "distance": 41.23070072806934,
+        "size": 59
+      },
+      {
+        "left": 1143,
+        "right": 1156,
+        "distance": 42.31525358086139,
+        "size": 53
+      },
+      {
+        "left": 1136,
+        "right": 1155,
+        "distance": 47.46268173774475,
+        "size": 4
+      },
+      {
+        "left": 1098,
+        "right": 1130,
+        "distance": 47.890662712909204,
+        "size": 13
+      },
+      {
+        "left": 1106,
+        "right": 1148,
+        "distance": 50.74187016040652,
+        "size": 7
+      },
+      {
+        "left": 1150,
+        "right": 1154,
+        "distance": 52.81301525135584,
+        "size": 42
+      },
+      {
+        "left": 1134,
+        "right": 1165,
+        "distance": 52.90654011636909,
+        "size": 31
+      },
+      {
+        "left": 1170,
+        "right": 1172,
+        "distance": 67.37492573303116,
+        "size": 205
+      },
+      {
+        "left": 1173,
+        "right": 1174,
+        "distance": 72.93566711595435,
+        "size": 112
+      },
+      {
+        "left": 1046,
+        "right": 1144,
+        "distance": 73.22503431316552,
+        "size": 6
+      },
+      {
+        "left": 983,
+        "right": 1110,
+        "distance": 73.7458254687944,
+        "size": 4
+      },
+      {
+        "left": 1169,
+        "right": 1176,
+        "distance": 85.38380120309596,
+        "size": 57
+      },
+      {
+        "left": 1157,
+        "right": 1164,
+        "distance": 87.12406706600873,
+        "size": 25
+      },
+      {
+        "left": 1147,
+        "right": 1168,
+        "distance": 95.99402489124499,
+        "size": 16
+      },
+      {
+        "left": 147,
+        "right": 1048,
+        "distance": 99.45228464739968,
+        "size": 3
+      },
+      {
+        "left": 1095,
+        "right": 1151,
+        "distance": 119.49362774925693,
+        "size": 9
+      },
+      {
+        "left": 1149,
+        "right": 1171,
+        "distance": 122.40212480006106,
+        "size": 14
+      },
+      {
+        "left": 1178,
+        "right": 1185,
+        "distance": 127.60451993597928,
+        "size": 67
+      },
+      {
+        "left": 1159,
+        "right": 1181,
+        "distance": 148.5263033383129,
+        "size": 158
+      },
+      {
+        "left": 1166,
+        "right": 1190,
+        "distance": 192.48787498091505,
+        "size": 77
+      },
+      {
+        "left": 270,
+        "right": 1160,
+        "distance": 201.3790875017222,
+        "size": 3
+      },
+      {
+        "left": 177,
+        "right": 276,
+        "distance": 209.92564973341473,
+        "size": 2
+      },
+      {
+        "left": 1179,
+        "right": 1189,
+        "distance": 214.91097768726985,
+        "size": 45
+      },
+      {
+        "left": 1175,
+        "right": 1192,
+        "distance": 304.97380788079084,
+        "size": 81
+      },
+      {
+        "left": 1184,
+        "right": 1191,
+        "distance": 324.5428004286598,
+        "size": 215
+      },
+      {
+        "left": 1115,
+        "right": 1167,
+        "distance": 415.479654114377,
+        "size": 6
+      },
+      {
+        "left": 1180,
+        "right": 1197,
+        "distance": 538.9991341842181,
+        "size": 420
+      },
+      {
+        "left": 1182,
+        "right": 1188,
+        "distance": 831.5596742434933,
+        "size": 15
+      },
+      {
+        "left": 1196,
+        "right": 1199,
+        "distance": 858.9105747511517,
+        "size": 501
+      },
+      {
+        "left": 988,
+        "right": 1145,
+        "distance": 1198.579229737706,
+        "size": 4
+      },
+      {
+        "left": 1195,
+        "right": 1201,
+        "distance": 1445.4955015336802,
+        "size": 546
+      },
+      {
+        "left": 1183,
+        "right": 1193,
+        "distance": 1941.8728913227592,
+        "size": 7
+      },
+      {
+        "left": 1177,
+        "right": 1187,
+        "distance": 2794.784060636999,
+        "size": 10
+      },
+      {
+        "left": 1186,
+        "right": 1200,
+        "distance": 3424.748179273786,
+        "size": 31
+      },
+      {
+        "left": 267,
+        "right": 1202,
+        "distance": 4955.458208862408,
+        "size": 5
+      },
+      {
+        "left": 1198,
+        "right": 1204,
+        "distance": 10668.990788056011,
+        "size": 13
+      },
+      {
+        "left": 237,
+        "right": 1194,
+        "distance": 11074.404716893094,
+        "size": 3
+      },
+      {
+        "left": 1205,
+        "right": 1206,
+        "distance": 17874.963745623954,
+        "size": 41
+      },
+      {
+        "left": 1207,
+        "right": 1208,
+        "distance": 53330.934653927885,
+        "size": 18
+      },
+      {
+        "left": 1203,
+        "right": 1210,
+        "distance": 57763.26734663692,
+        "size": 587
+      },
+      {
+        "left": 1209,
+        "right": 1211,
+        "distance": 714711.0095257203,
+        "size": 21
+      }
+    ]
+  },
+  "diagnostics": {
+    "k": 2,
+    "silhouette": 0.9422222274804544,
+    "calinski_harabasz": 1090.9406763021339,
+    "davies_bouldin": 0.5175397131471954,
+    "inertia": 888597.3064910604,
+    "cluster_sizes": {
+      "0": 587,
+      "1": 21
+    },
+    "cluster_balance": 0.03577512776831346,
+    "converged": true
+  }
+}
