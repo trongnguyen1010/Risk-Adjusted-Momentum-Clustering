@@ -10,13 +10,14 @@ def fit_ward(vectors: list[list[float]], k: int) -> dict:
         raise ValueError("insufficient distinct observations or invalid Ward parameters")
     clusters = {index: (index,) for index in range(len(vectors))}
     next_id = len(vectors)
+    linkage = []
 
     def centroid(members: tuple[int, ...]) -> list[float]:
         return [mean(vectors[index][column] for index in members) for column in range(len(vectors[0]))]
 
     centers = {index: vectors[index] for index in range(len(vectors))}
     sizes = {index: 1 for index in range(len(vectors))}
-    
+
     distances = {i: {} for i in range(len(vectors))}
     for i in range(len(vectors)):
         for j in range(i + 1, len(vectors)):
@@ -27,28 +28,34 @@ def fit_ward(vectors: list[list[float]], k: int) -> dict:
         for i in distances:
             for j, dist in distances[i].items():
                 candidates.append((dist, clusters[i], clusters[j], i, j))
-        _, _, _, left, right = min(candidates)
-        
+        distance, _, _, left, right = min(candidates)
+
         clusters[next_id] = tuple(sorted(clusters.pop(left) + clusters.pop(right)))
         new_size = sizes[left] + sizes[right]
+        linkage.append({
+            "left": left,
+            "right": right,
+            "distance": distance,
+            "size": new_size,
+        })
         sizes[next_id] = new_size
-        
+
         new_center = []
         for c in range(len(vectors[0])):
             new_center.append((centers[left][c] * sizes[left] + centers[right][c] * sizes[right]) / new_size)
         centers[next_id] = new_center
-        
+
         del centers[left]
         del centers[right]
         del sizes[left]
         del sizes[right]
         del distances[left]
         del distances[right]
-        
+
         for i in distances:
             if left in distances[i]: del distances[i][left]
             if right in distances[i]: del distances[i][right]
-            
+
         distances[next_id] = {}
         for i in centers:
             if i != next_id:
@@ -57,7 +64,7 @@ def fit_ward(vectors: list[list[float]], k: int) -> dict:
                     distances[i][next_id] = inc
                 else:
                     distances[next_id][i] = inc
-                    
+
         next_id += 1
     ordered = sorted(clusters.values(), key=lambda members: (members[0], members))
     labels = [-1] * len(vectors)
@@ -68,7 +75,7 @@ def fit_ward(vectors: list[list[float]], k: int) -> dict:
             labels[index] = label
     inertia = sum(squared_distance(row, centers[label]) for row, label in zip(vectors, labels))
     return dict(labels=labels, centroids=centers, inertia=inertia,
-                iterations=len(vectors) - k, converged=True)
+                iterations=len(vectors) - k, converged=True, linkage=linkage)
 
 
 def validate_config(config: dict) -> None:
@@ -79,4 +86,15 @@ def validate_config(config: dict) -> None:
 
 def fit_snapshot(rows: list[dict], config: dict) -> dict:
     validate_config(config)
-    return build_snapshot(rows, config, lambda vectors, k, _: fit_ward(vectors, k))
+    selected_linkage = None
+
+    def fit_vectors(vectors: list[list[float]], k: int, _: dict) -> dict:
+        nonlocal selected_linkage
+        fit = fit_ward(vectors, k)
+        if k == config["k"]:
+            selected_linkage = fit["linkage"]
+        return fit
+
+    snapshot = build_snapshot(rows, config, fit_vectors)
+    snapshot["model"]["linkage"] = selected_linkage
+    return snapshot
