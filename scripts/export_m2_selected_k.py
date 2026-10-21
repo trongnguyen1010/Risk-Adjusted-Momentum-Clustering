@@ -38,8 +38,8 @@ def write_csv(path, fields, rows):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", type=Path, default=ROOT / "configs/experiments/m2_market_only_v1.json")
-    parser.add_argument("--data-run", type=Path, default=ROOT / "artifacts/cafef_primary/cafef-c8-complete-only-v1")
+    parser.add_argument("--config", type=Path, default=ROOT / "configs/experiments/m2_market_only_v2.json")
+    parser.add_argument("--data-run", type=Path, default=ROOT / "artifacts/cafef_primary/cafef-c8-complete-only-v2")
     parser.add_argument("--selection-run", type=Path, default=ROOT / "artifacts/experiments/m2-task3-development-v1")
     parser.add_argument("--output", type=Path, required=True, help="New, nonexisting directory")
     args = parser.parse_args()
