@@ -38,8 +38,10 @@ def load_verified_market_only_features(
     data_run = Path(data_run).resolve()
     manifest_path = contained_file(data_run, "manifest.json")
     source = read_json(manifest_path)
-    if (source.get("execution_version") != C8_MARKET_ONLY_EXECUTION_VERSION
-            or source.get("artifact_id") != "cafef-c8-complete-only-v1"):
+    allowed_versions = {C8_MARKET_ONLY_EXECUTION_VERSION, "c8-complete-only-v2", "cafef_c8_complete_only_v2"}
+    allowed_artifacts = {"cafef-c8-complete-only-v1", "cafef-c8-complete-only-v2"}
+    if (source.get("execution_version") not in allowed_versions
+            or source.get("artifact_id") not in allowed_artifacts):
         raise ValueError("verified C8 complete-only artifact required for M2 market-only")
     expected = source.get("outputs", {}).get(C8_MARKET_ONLY_FEATURES)
     if not isinstance(expected, str):
