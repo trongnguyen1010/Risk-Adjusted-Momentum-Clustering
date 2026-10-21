@@ -18,7 +18,7 @@ print("[Tiến trình] Đang khởi động pipeline...")
 # Chạy luồng thực thi chạy ngầm
 process = subprocess.Popen([
     "python", "scripts/run_research.py",
-    "artifacts/cafef_primary/cafef-c8-complete-only-v1",
+    "artifacts/cafef_primary/cafef-c8-complete-only-v2",
     "--config", "configs/experiments/m2_ward_market_only_v1.json"
 ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 

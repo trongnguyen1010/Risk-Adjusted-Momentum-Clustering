@@ -135,7 +135,9 @@ Không lấy cố định 1.410 mã của snapshot 12/2025 áp ngược toàn b�
 
 # HƯỚNG DẪN NHỜ AI GIẢI NÉN VÀ THIẾT LẬP DỮ LIỆU NỀN TẢNG (DELTA_02_ACTIVE_M2_M3.zip)
 
-Giai đoạn M2 kế thừa toàn bộ dữ liệu nền tảng thị trường 10 năm sạch từ M1 V2 (1.522 mã cổ phiếu) và bộ 16 artifacts khóa giao thức M2-PREP V2. Gói dữ liệu siêu gọn nhẹ dành riêng cho phân cụm M2 là `DELTA_02_ACTIVE_M2_M3.zip` (dung lượng ~1 MB, chỉ chứa các artifacts và cấu hình chuẩn phục vụ M2, loại bỏ file giá ngày cồng kềnh).
+Giai đoạn M2 kế thừa toàn bộ dữ liệu nền tảng thị trường 10 năm sạch từ M1 V2 (1.522 mã cổ phiếu). Để phục vụ thực thi toàn bộ các nhiệm vụ phân cụm của M2, các thành viên chỉ cần duy nhất kho dữ liệu đặc trưng chuẩn hóa trong gói **`DELTA_02_ACTIVE_M2_M3.zip`** (chứa gói `artifacts/cafef_primary/cafef-c8-complete-only-v2/`, loại bỏ các file giá ngày thô cồng kềnh để dung lượng nén siêu nhẹ chỉ khoảng ~30 MB).
+
+> **Lưu ý về mã nguồn và file cấu hình:** Toàn bộ code mô hình, notebook (`M2/notebooks/`) và file cấu hình master (`configs/experiments/m2_market_only_v2.json`) đã được đồng bộ trực tiếp qua hệ thống Git của dự án (thành viên chỉ cần `git pull` là có sẵn). File zip này chỉ làm duy nhất một nhiệm vụ: **cung cấp kho dữ liệu đặc trưng thị trường 10 năm `cafef-c8-complete-only-v2`**.
 
 Để đơn giản hóa và giúp bất kỳ thành viên nào trong nhóm (trên Windows, macOS hoặc Linux) đều có thể thiết lập nhanh mà không cần gõ lệnh thủ công hay phụ thuộc vào đường dẫn máy cá nhân, bạn chỉ cần nhờ **Trợ lý AI (AI Coding Assistant)** tự động định vị, giải nén và đưa vào đúng thư mục repository.
 
@@ -143,41 +145,40 @@ Giai đoạn M2 kế thừa toàn bộ dữ liệu nền tảng thị trường 
 - File zip thường được tải về từ kênh chia sẻ của nhóm và nằm trong thư mục tải về của máy (ví dụ: trong thư mục `Downloads`, hoặc thư mục `Team DELTA/data/DELTA_02_ACTIVE_M2_M3.zip`).
 
 ### 2. Cấu trúc dữ liệu bên trong file zip
-File zip chứa sẵn cấu trúc chuẩn:
+File zip chứa sẵn cấu trúc thư mục chuẩn:
 ```text
 DELTA_02_ACTIVE_M2_M3.zip
-├── artifacts/
-│   ├── reports/
-│   │   └── m1-market-foundation-v2/    # Báo cáo nền tảng thị trường M1 V2 (1.522 mã, 8 đặc trưng)
-│   └── experiments/
-│       └── m2-prep-v2/                 # Toàn bộ 16 tệp artifacts khóa giao thức M2-PREP V2
-└── configs/
-    └── experiments/                    # Thư mục chứa các file cấu hình thí nghiệm M2 (họ V2 chuẩn hóa)
+└── artifacts/
+    └── cafef_primary/
+        └── cafef-c8-complete-only-v2/    # Kho dữ liệu nền tảng thị trường 10 năm chuẩn hóa cho M2
+            ├── canonical/
+            │   ├── feature_snapshots.jsonl # 8 đặc trưng thị trường của 1.522 mã qua 10 năm (2016 - 2025)
+            │   ├── benchmark_daily.jsonl   # Chỉ số thị trường VN-Index
+            │   ├── securities.jsonl        # Danh mục thông tin chứng khoán
+            │   └── trading_calendar.jsonl  # Lịch ngày giao dịch thị trường
+            ├── manifest.json               # Checksum xác thực toàn vẹn SHA-256
+            └── ... (các file csv kiểm toán chất lượng dữ liệu đi kèm)
 ```
 
-> **Quy ước đồng bộ tên file cấu hình thí nghiệm M2 (Tạo tuần tự theo Cách 2):**
-> 1. `configs/experiments/m2_market_only_v2.json`: Master config, tạo ở **Nhiệm vụ 1**. Dùng chung cho Nhiệm vụ 1, 2, 3 (chọn Global K) và Nhiệm vụ 4 (K-Means Baseline).
-> 2. `configs/experiments/m2_ward_market_only_v2.json`: Nhân bản từ master config ở đầu **Nhiệm vụ 5** (đổi `algorithm: "ward"`).
-> 3. `configs/experiments/m2_pca_market_only_v2.json`: Nhân bản từ master config ở đầu **Nhiệm vụ 6** (đổi `algorithm: "pca_kmeans"`, thêm tham số PCA variance ratio >= 90%).
-> 4. `configs/experiments/m2_final_holdout_v2.json`: Tạo ở đầu **Nhiệm vụ 11** dựa trên mô hình chiến thắng từ `final_method_decision.json`, chuyển sang 24 snapshots Holdout (2024 - 2025).
-
-Khi được giải nén trực tiếp vào **thư mục gốc của repository**, các file sẽ tự động khớp chính xác vào các thư mục `artifacts/` và `configs/` hiện tại mà không làm sai lệch cấu trúc dự án.
+Khi được giải nén trực tiếp vào **thư mục gốc của repository**, gói dữ liệu sẽ tự động khớp chính xác vào đường dẫn `artifacts/cafef_primary/cafef-c8-complete-only-v2/` mà các file code và notebook M2 đang trỏ tới.
 
 ### 3. Câu lệnh mẫu (Prompt) nhờ AI thực hiện tự động
 Bạn chỉ cần gửi một trong các câu lệnh sau vào khung chat của Trợ lý AI (AI sẽ tự động nhận diện hệ điều hành và đường dẫn repository tương ứng trên máy của bạn):
 
 #### Prompt mẫu 1 (Ngắn gọn, tự động tìm kiếm):
-> *"Hãy tìm file `DELTA_02_ACTIVE_M2_M3.zip` trên máy của tôi (trong thư mục Downloads hoặc thư mục dữ liệu nhóm), sau đó giải nén trực tiếp vào thư mục gốc của repository này và kiểm tra dữ liệu trong `artifacts/` và `configs/` giúp tôi."*
+> *"Hãy tìm file `DELTA_02_ACTIVE_M2_M3.zip` trên máy của tôi (trong thư mục Downloads hoặc thư mục dữ liệu nhóm), sau đó giải nén trực tiếp vào thư mục gốc của repository này và xác nhận kho dữ liệu `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl` đã sẵn sàng."*
 
 #### Prompt mẫu 2 (Nếu bạn đã tải file zip về một vị trí cụ thể):
-> *"Tôi đã tải file `DELTA_02_ACTIVE_M2_M3.zip` về máy. Hãy giải nén file này vào đúng thư mục gốc của repository để cập nhật các tệp dữ liệu vào `artifacts/` và `configs/`, sau đó xác nhận thư mục `artifacts/experiments/m2-prep-v2/` và tệp `artifacts/reports/m1-market-foundation-v2/monthly_market_readiness.csv` đã sẵn sàng."*
+> *"Tôi đã tải file `DELTA_02_ACTIVE_M2_M3.zip` về máy. Hãy giải nén file này vào đúng thư mục gốc của repository để thiết lập thư mục `artifacts/cafef_primary/cafef-c8-complete-only-v2/`, sau đó kiểm tra file `canonical/feature_snapshots.jsonl` và `manifest.json` giúp tôi."*
 
 ### 4. Quy trình AI sẽ tự động xử lý ngầm
 Khi nhận được yêu cầu trên, Trợ lý AI sẽ:
 1. Tự động dò tìm vị trí file `DELTA_02_ACTIVE_M2_M3.zip` tương thích với hệ điều hành và tài khoản người dùng hiện hành.
-2. Tự động giải nén nội dung trực tiếp vào thư mục gốc repo (giữ nguyên cấu trúc `artifacts/` và `configs/`).
-3. Tự động kiểm tra tính toàn vẹn của các file dữ liệu then chốt (`snapshot_eligibility.csv`, `manifest.json`, `m2_market_only_v2.json`).
-4. Báo cáo hoàn tất để thành viên có thể bắt đầu nghiên cứu ngay mà không phải cấu hình thủ công.
+2. Tự động giải nén nội dung trực tiếp vào thư mục gốc repo (tạo ra `artifacts/cafef_primary/cafef-c8-complete-only-v2/`).
+3. Tự động kiểm tra tính toàn vẹn của các file dữ liệu then chốt:
+   - `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`
+   - `artifacts/cafef_primary/cafef-c8-complete-only-v2/manifest.json`
+4. Báo cáo hoàn tất để thành viên có thể bắt đầu mở notebook thực thi ngay mà không phải cấu hình thủ công.
 
 
 # NHIỆM VỤ 1 — KHÓA TOÀN BỘ QUY TẮC THỰC NGHIỆM
@@ -378,7 +379,7 @@ Nhiệm vụ 3 trở đi = chạy dữ liệu thật
 ## Đầu vào của Nhiệm vụ 2
 
 - File cấu hình thí nghiệm đã tạo: `configs/experiments/m2_market_only_v2.json`;
-- Dữ liệu nền tảng thị trường 10 năm sạch từ Milestone M1 V2: `artifacts/reports/m1-market-foundation-v2/monthly_market_readiness.csv` và kho dữ liệu `data/canonical/market/`;
+- Dữ liệu nền tảng thị trường 10 năm sạch từ Milestone M1 V2: `artifacts/reports/m1-market-foundation-v2/monthly_market_readiness.csv` và kho dữ liệu `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`;
 - Bộ điều phối: `src/delta_t1/experiments/runner.py`, `src/delta_t1/clustering/base.py`, `src/delta_t1/experiments/protocol.py`;
 - Tiêu chí lọc universe: `market_feature_ready_v2 = true` kèm ngưỡng sàn `n_eligible >= 100`;
 - Bộ 8 đặc trưng thị trường chuẩn hóa: `mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126`, `liquidity_21`.
@@ -495,7 +496,7 @@ Dùng K-Means trên development với K=2..8 để chọn ra một Global K duy 
 
 - File cấu hình thí nghiệm: `configs/experiments/m2_market_only_v2.json`;
 - Notebook thực thi: `M2/notebooks/03_choose_global_k.ipynb` (kết hợp `scripts/run_m2_global_k.py`, `src/delta_t1/clustering/kmeans.py`, `src/delta_t1/features/preprocessing.py` và `src/delta_t1/evaluation/cluster_metrics.py`);
-- Dữ liệu 60 development snapshots liên tục từ `2019-01-31` đến `2023-12-29` (nạp từ `data/canonical/market/`);
+- Dữ liệu 60 development snapshots liên tục từ `2019-01-31` đến `2023-12-29` (nạp từ `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`);
 - Vũ trụ cổ phiếu chuẩn: Lọc theo từng snapshot `market_feature_ready_v2 = true` và `n_eligible >= 100`;
 - Bộ 8 đặc trưng thị trường với chuẩn hóa Robust Scaling per-snapshot (`x_scaled = (x - Median) / IQR`);
 - Không gian siêu tham số khảo sát: K = 2, 3, 4, 5, 6, 7, 8;
@@ -682,7 +683,7 @@ Kết quả của Nhiệm vụ 4 phải đủ để sử dụng tiếp cho:
 - File cấu hình thí nghiệm: `configs/experiments/m2_market_only_v2.json`;
 - Notebook thực thi: `M2/notebooks/04_kmeans_baseline.ipynb` (kết hợp `src/delta_t1/experiments/runner.py`, `src/delta_t1/clustering/kmeans.py`);
 - Quyết định số cụm tối ưu: Global K = 2 đã đóng băng từ Nhiệm vụ 3;
-- Dữ liệu 60 development snapshots liên tục từ `2019-01-31` đến `2023-12-29` (nạp từ `data/canonical/market/`);
+- Dữ liệu 60 development snapshots liên tục từ `2019-01-31` đến `2023-12-29` (nạp từ `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`);
 - Vũ trụ cổ phiếu chuẩn: Lọc theo từng snapshot `market_feature_ready_v2 = true` và `n_eligible >= 100`;
 - Chuẩn hóa: Đúng 8 đặc trưng thị trường, Robust Scaling độc lập theo từng snapshot;
 - Thư mục xuất artifact đầu ra: `M2/artifacts/m2-task4-kmeans-baseline-v1/` và mô hình tại `M2/models/kmeans/`.
@@ -972,7 +973,7 @@ Như vậy mới có thể đánh giá sự khác biệt do thuật toán.
 - File cấu hình thí nghiệm: `configs/experiments/m2_ward_market_only_v2.json` (được nhân bản từ `m2_market_only_v2.json` ở đầu Nhiệm vụ 5 với cấu hình `algorithm = "ward"`);
 - Notebook thực thi: `M2/notebooks/05_ward_hierarchical.ipynb` (kết hợp `src/delta_t1/experiments/runner.py`, `src/delta_t1/clustering/hierarchical.py`);
 - Quyết định số cụm tối ưu: Global K = 2 đã đóng băng từ Nhiệm vụ 3;
-- Dữ liệu 60 development snapshots liên tục từ `2019-01-31` đến `2023-12-29` (nạp từ `data/canonical/market/`);
+- Dữ liệu 60 development snapshots liên tục từ `2019-01-31` đến `2023-12-29` (nạp từ `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`);
 - Vũ trụ cổ phiếu: Nhất quán 100% với Nhiệm vụ 4 (`market_feature_ready_v2 = true`, `n_eligible >= 100`);
 - Chuẩn hóa: Đúng 8 đặc trưng thị trường, Robust Scaling độc lập theo từng snapshot;
 - Thư mục xuất artifact đầu ra: `M2/artifacts/m2-task5-ward-v1/` và mô hình tại `M2/models/ward/`.
@@ -1268,7 +1269,7 @@ PCA chỉ thuộc phương án C, không áp dụng chung cho K-Means baseline h
 - File cấu hình thí nghiệm: `configs/experiments/m2_pca_market_only_v2.json` (được nhân bản từ `m2_market_only_v2.json` ở đầu Nhiệm vụ 6 với cấu hình `algorithm = "pca_kmeans"` và tham số giảm chiều PCA giữ lại phương sai tích lũy >= 90%);
 - Notebook thực thi: `M2/notebooks/06_pca_kmeans.ipynb` (kết hợp `src/delta_t1/experiments/runner.py`, `src/delta_t1/features/preprocessing.py`, `src/delta_t1/clustering/kmeans.py`);
 - Quyết định số cụm tối ưu: Global K = 2 đã đóng băng từ Nhiệm vụ 3;
-- Dữ liệu 60 development snapshots liên tục từ `2019-01-31` đến `2023-12-29` (nạp từ `data/canonical/market/`);
+- Dữ liệu 60 development snapshots liên tục từ `2019-01-31` đến `2023-12-29` (nạp từ `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`);
 - Vũ trụ cổ phiếu: Đồng nhất tuyệt đối với Nhiệm vụ 4 và 5 (`market_feature_ready_v2 = true`, `n_eligible >= 100`);
 - Chuẩn hóa & Giảm chiều: Robust Scaling per-snapshot, fit PCA chọn số thành phần chính nhỏ nhất đạt phương sai tích lũy >= 90%;
 - Thư mục xuất artifact đầu ra: `M2/artifacts/m2-task6-pca-kmeans-v1/` và mô hình tại `M2/models/pca_kmeans/`.
@@ -2328,7 +2329,7 @@ Final Holdout (24 snapshots: 2024-01-31 đến 2025-12-31)
 - File cấu hình thí nghiệm: `configs/experiments/m2_final_holdout_v2.json` (được tạo ở đầu Nhiệm vụ 11 dựa trên mô hình chiến thắng trích xuất từ `final_method_decision.json`, chuyển danh sách snapshot sang 24 snapshots Holdout);
 - File quyết định đóng băng mô hình: `M2/artifacts/m2-evaluation/final_method_decision.json` (bắt buộc trạng thái `status == "FROZEN_FOR_HOLDOUT"`);
 - Notebook thực thi: `M2/notebooks/11_final_holdout_execution.ipynb`;
-- Dữ liệu 24 snapshots Holdout liên tục từ `2024-01-31` đến `2025-12-31` (nạp từ `data/canonical/market/`);
+- Dữ liệu 24 snapshots Holdout liên tục từ `2024-01-31` đến `2025-12-31` (nạp từ `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`);
 - Vũ trụ cổ phiếu: Lọc theo từng snapshot `market_experiment_eligible(t) = market_feature_ready_v2(t)` và `n_eligible >= 100`;
 - Chuẩn hóa: Đúng 8 đặc trưng thị trường, Robust Scaling độc lập theo từng snapshot;
 - Thư mục xuất artifact đầu ra: `M2/artifacts/m2-final-holdout-v1/` và mô hình tại `M2/models/holdout/`.
@@ -2457,7 +2458,7 @@ Quy trình thực thi trong notebook `M2/notebooks/11_final_holdout_execution.ip
 - **Bước 1: Kiểm định Cổng đóng băng (Holdout Gate Verification)**  
   Nạp file `M2/artifacts/m2-evaluation/final_method_decision.json`, kiểm tra điều kiện tiên quyết `status == "FROZEN_FOR_HOLDOUT"`. Nếu file không tồn tại hoặc trạng thái chưa đóng băng, lập tức dừng chương trình (fail-closed). Trích xuất tên mô hình chiến thắng và Global K = 2.
 - **Bước 2: Nạp dữ liệu 24 Snapshots Holdout từ Feature Store**  
-  Nạp 8 đặc trưng thị trường của 24 snapshots Holdout (2024 - 2025) từ kho dữ liệu chuẩn hóa `data/canonical/market/` (phiên bản Feature Store `1.6.0`).
+  Nạp 8 đặc trưng thị trường của 24 snapshots Holdout (2024 - 2025) từ kho dữ liệu chuẩn hóa `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl` (phiên bản Feature Store `1.6.0`).
 - **Bước 3: Lọc Universe và Kiểm định Ngưỡng mã tối thiểu**  
   Lọc universe theo snapshot (`market_experiment_eligible`), kiểm tra điều kiện `n_eligible >= 100` cho từng tháng trong 24 tháng.
 - **Bước 4: Chuẩn hóa Robust Scaling độc lập từng Snapshot**  
@@ -2524,7 +2525,7 @@ Quá trình kiểm toán trong Nhiệm vụ 12 phải tự động kiểm tra v�
 
 ## Phần 12.1 — Kiểm tra tính toàn vẹn của cấu hình và nguồn dữ liệu (Config & Input Lineage)
 - Nạp file cấu hình chuẩn hóa `configs/experiments/m2_market_only_v2.json` và manifest của Feature Store `1.6.0`.
-- Tính toán mã băm SHA-256 của các tệp dữ liệu đặc trưng đầu vào trong `data/canonical/market/`.
+- Tính toán mã băm SHA-256 của các tệp dữ liệu đặc trưng đầu vào trong `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`.
 - Xác thực tính bất biến: Đảm bảo không có bất kỳ tập tin gốc nào từ Milestone M1 (C8) bị thay đổi nội dung hoặc thay đổi cấu trúc bảng.
 
 ## Phần 12.2 — Kiểm toán quá trình lựa chọn Global K (Global K Audit)

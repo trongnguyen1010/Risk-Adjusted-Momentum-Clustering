@@ -54,7 +54,7 @@ def main():
     parser.add_argument("--config", type=Path,
                         default=ROOT / "configs/experiments/m2_market_only_v2.json")
     parser.add_argument("--data-run", type=Path,
-                        default=ROOT / "artifacts/cafef_primary/cafef-c8-complete-only-v1")
+                        default=ROOT / "artifacts/cafef_primary/cafef-c8-complete-only-v2")
     parser.add_argument("--output", type=Path, required=True,
                         help="New, nonexisting output directory")
     parser.add_argument("--seed", type=int, required=True)
@@ -81,7 +81,7 @@ def main():
     if in_c8:
         source, prepared_in_c8 = prepare_m2_market_only_snapshots(args.data_run, config, in_c8)
     else:
-        source, prepared_in_c8 = {"artifact_id": "cafef-c8-complete-only-v1", "outputs": {}}, []
+        source, prepared_in_c8 = {"artifact_id": "cafef-c8-complete-only-v2", "outputs": {}}, []
     prep_map = {p["snapshot_date"]: p for p in prepared_in_c8}
     prepared = [prep_map.get(day, dict(snapshot_date=day, status="skipped",
                                         reason="snapshot_not_present_in_c8_source",
