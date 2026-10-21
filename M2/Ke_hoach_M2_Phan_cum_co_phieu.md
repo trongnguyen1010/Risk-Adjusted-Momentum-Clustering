@@ -996,7 +996,7 @@ Input:
 
 Đảm bảo phương án Ward chạy hoàn toàn độc lập mà không can thiệp hay làm thay đổi file cấu hình master của K-Means baseline.
 
-### Cách thực hiện (2 bước đơn giản)
+### Thao tác chuẩn bị file cấu hình (2 bước)
 
 1. **Nhân bản từ Master Config:**  
    Sao chép toàn bộ nội dung từ `configs/experiments/m2_market_only_v2.json` thành `configs/experiments/m2_ward_market_only_v2.json`.
@@ -1292,7 +1292,7 @@ Input:
 
 Đảm bảo phương án PCA + K-Means có cấu hình giảm chiều rõ ràng và độc lập với 2 phương án trước.
 
-### Cách thực hiện (2 bước đơn giản)
+### Thao tác chuẩn bị file cấu hình (2 bước)
 
 1. **Nhân bản từ Master Config:**  
    Sao chép `configs/experiments/m2_market_only_v2.json` thành `configs/experiments/m2_pca_market_only_v2.json`.
@@ -2340,7 +2340,7 @@ Final Holdout (24 snapshots: 2024-01-31 đến 2025-12-31)
 
 Khóa cấu hình thực nghiệm trên 24 snapshots ngoài mẫu (2024 - 2025) cho duy nhất mô hình chiến thắng đã chọn ở Nhiệm vụ 10.
 
-### Cách thực hiện (3 bước)
+### Thao tác chuẩn bị file cấu hình (3 bước)
 
 1. **Trích xuất thông tin mô hình chiến thắng:**  
    Nạp file `M2/artifacts/m2-evaluation/final_method_decision.json`, kiểm tra `status == "FROZEN_FOR_HOLDOUT"`, trích xuất tên thuật toán chiến thắng (`winning_algorithm`) và Global K = 2.
