@@ -2185,7 +2185,7 @@ So sánh độ bền vững của cấu trúc phân cụm qua 59 cặp tháng li
 
 ## Phần 10.3 — So sánh khả năng diễn giải kinh tế và Sanity Check
 
-- **Sanity Check mức độ cân bằng:** Loại trừ phương án sinh ra cụm suy biến (cụm rác có kích thước nhỏ hơn 5 mã hoặc phân mảnh bất thường).
+- **Sanity Check mức độ cân bằng:** Cụm có kích thước nhỏ hơn 5 mã hoặc phân mảnh bất thường là cảnh báo suy biến bắt buộc phải ghi nhận. Nếu cảnh báo chỉ xuất hiện ở một phương án hoặc có bằng chứng phân mảnh không thể diễn giải, phương án đó bị loại khỏi lựa chọn. Nếu cùng hiện tượng xuất hiện ở tất cả phương án đang so sánh, Task 10 ghi `WARNING`, công bố số snapshot, kích thước cụm nhỏ nhất và các ngày bị ảnh hưởng, rồi tiếp tục so sánh theo các tầng còn lại; không tự coi cụm nhỏ là “cụm rác”.
 - **Khả năng diễn giải kinh tế (Economic Interpretability):** Đánh giá hồ sơ tâm cụm của phương án nào phân hóa rõ nét nhất trên 8 đặc trưng động lượng và thanh khoản gốc (Momentum, Volatility, Liquidity, Drawdown, Beta).
 - **Đánh đổi của PCA (PCA Trade-off):** Đối với nhánh PCA + K-Means, kiểm tra xem việc giảm chiều có thực sự mang lại cấu trúc cụm vượt trội hay chỉ làm phức tạp hóa pipeline và gây khó khăn khi diễn giải ngược về 8 đặc trưng gốc.
 
@@ -2202,7 +2202,7 @@ Thứ tự ưu tiên quyết định tuân thủ nghiêm ngặt hệ thống 5 t
 | :---: | :--- | :--- | :--- | :--- |
 | **Tầng 1** | **Chất lượng phân cụm** | Median Silhouette Score | Đánh giá độ chặt chẽ nội cụm và khoảng cách phân tách hình học | **Tiêu chí quyết định tiên quyết** |
 | **Tầng 2** | **Xác nhận chất lượng** | Median Davies-Bouldin | Giải quyết trường hợp điểm Silhouette tương đương (Tie-breaker) | **Tiêu chí xác nhận thứ hai** |
-| **Tầng 3** | **Kiểm tra suy biến** | Min Cluster Size, Cluster Balance | Loại trừ mô hình có cụm suy biến, cô lập quá mức (< 5 mã) | **Sanity check bắt buộc** |
+| **Tầng 3** | **Kiểm tra suy biến** | Min Cluster Size, Cluster Balance | Phát hiện, báo cáo và đánh giá rủi ro cụm cô lập quá mức (< 5 mã); chỉ loại khi cảnh báo là riêng biệt hoặc phân mảnh không thể diễn giải | **Sanity check bắt buộc / WARNING khi xuất hiện ở mọi phương án** |
 | **Tầng 4** | **Độ ổn định chuỗi thời gian** | Median ARI, Median Migration Rate | Đánh giá độ bền cấu trúc và chi phí tái cơ cấu danh mục ở M3 | **Tiêu chí kiểm tra độ bền** |
 | **Tầng 5** | **Dao cạo Occam (Occam's Razor)** | Độ phức tạp pipeline, tính tái lập | Ưu tiên mô hình đơn giản hơn nếu chất lượng toán học tương đương | **Nguyên lý phán quyết cuối cùng** |
 
