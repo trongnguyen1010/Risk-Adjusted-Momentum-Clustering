@@ -108,7 +108,7 @@ def start_experiment(root: Path, data_run: Path, source: dict, config: dict) -> 
     run_id = config.get("run_id") or new_artifact_id("experiment")
     output_dir = config.get("output_dir") or config.get("output_directory")
     if not output_dir and (
-        config.get("protocol_scope") == "m2_market_only_v1"
+        config.get("protocol_scope") in ("m2_market_only_v1", "m2_market_only_v2")
         or str(config.get("stage", "")).startswith("M2_")
     ):
         algo = config.get("clustering", {}).get("algorithm") or config.get("clustering", {}).get("baseline")
