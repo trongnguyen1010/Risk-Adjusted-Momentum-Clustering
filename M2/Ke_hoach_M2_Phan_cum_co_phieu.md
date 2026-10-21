@@ -652,15 +652,14 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 
 - K-Means artifact của Global K nếu đầy đủ.
 
-## Vị trí trong repo
+## Vị trí trong repo & Đường dẫn output
 
-- DELTA_UNIFIED_PROJECT_PLAN.md §6.7
-
-- DELTA_UNIFIED_PROJECT_PLAN.md → M2-EXEC-A
-
-- metric_matrix.csv
-
-- METHODOLOGY.md
+- **Code model / Thực thi**: `M2/notebooks/03_choose_global_k.ipynb` (phối hợp `scripts/run_m2_global_k.py`, `src/delta_t1/clustering/kmeans.py` và `src/delta_t1/evaluation/cluster_metrics.py`)
+- **Mô hình / Trọng số (Models & Centroids)**: `M2/models/kmeans/` (lưu trữ model K-Means fitted, centroids của cấu hình Global K = 2 được giữ lại theo Phần 3.11 để tái sử dụng làm baseline cho Nhiệm vụ 4)
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_3_Chon_Global_K.md`
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task3-development-v1/` (hoặc `artifacts/experiments/m2-task3-development-v1/` gồm `per_snapshot_k_metrics.csv`, `aggregate_by_k.csv`, `global_k_decision.json`)
+- **Biểu đồ trực quan hóa**: `M2/artifacts/m2-task3-development-v1/elbow_inertia_curve.png` và `silhouette_curve.png` (đồ thị phương pháp khuỷu tay Elbow và đường cong trung vị Silhouette theo từng mức K)
+- **Tài liệu phương pháp luận liên quan**: `DELTA_UNIFIED_PROJECT_PLAN.md §6.7` (M2-EXEC-A), `METHODOLOGY.md`
 
 # NHIỆM VỤ 4 — CHẠY PHƯƠNG ÁN A: K-MEANS BASELINE
 
