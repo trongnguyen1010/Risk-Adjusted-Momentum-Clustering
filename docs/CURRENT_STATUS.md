@@ -1,17 +1,42 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Hiện tại 2026-10-22 — Tên chuẩn PCA + K-Means và xóa toàn bộ nhiệm vụ 11
+
+Theo yêu cầu mới nhất, giữ bộ PCA + K-Means 6–9 đã khôi phục từ Git và đổi tên
+không có hậu tố phiên bản: notebook `06_pca_kmeans.ipynb`, các notebook 07–09
+`*_pca_kmeans.ipynb`, config `m2_pca_market_only.json`, artifacts
+`m2-task6-pca-kmeans/`, freeze `m2-task6-pca-freeze/`, đánh giá
+`m2-evaluation-pca-kmeans/`, bốn báo cáo `*PCA_KMeans.md`. Models vẫn ở
+`M2/models/pca_kmeans/`. Kế hoạch và notebook 10 dùng các đường dẫn này.
+
+Đã cập nhật metadata đường dẫn và checksum theo thứ tự phụ thuộc; sửa ba hash
+báo cáo 7–9 không khớp manifest đã phát hiện ở lần kiểm tra trước. Manifest nhiệm
+vụ 6 ghi `storage_migration` và hash manifest trước đổi tên. Các file khoa học và source snapshot PCA giữ nguyên bytes; toàn bộ payload số của 120 bản model PCA
+(60 bản trong artifacts và 60 bản mirror) giữ nguyên. Không fit lại hoặc dùng
+holdout. Bộ PCA vẫn complete, 60 tháng, 45.646 assignments, K=2, PCA 2 chiều.
+
+Yêu cầu xóa nhiệm vụ 11 đến sau yêu cầu đổi tên/thay thế: đã xóa toàn bộ bản cũ,
+bản mới và các file trung gian vừa chuyển tên của Task 11, bao gồm notebook,
+config, implementation/helpers, kiểm thử riêng, artifacts/model/report. Không
+backup. Task 12/13 giữ lại như lịch sử; script dừng trước mutation do thiếu
+đầu vào Task 11. Nguồn C8 mới và kết quả riêng K-Means/Ward/Task 10 giữ nguyên.
+
+Các mục bên dưới là ghi chú tại thời điểm trước, không thay đổi yêu cầu hiện tại.
+Phạm vi đồng bộ GitHub: đổi tên PCA 6–9, sửa checksum báo cáo và xóa Task 11 theo yêu cầu owner.
+
+
 ## Cập nhật 2026-10-22 — Nhiệm vụ 11 V2 hoàn tất và có báo cáo đầy đủ
 
 Holdout thật đã chạy xong: KMeans Baseline/sklearn/K=2 trên 24/24 tháng
 2024–2025, không skip; 28.110 assignments, 48 profiles, 24 model và 23 cặp
-tháng nội bộ. Manifest `m2-final-holdout-v2` ghi `complete`; freeze timestamp
+tháng nội bộ. Manifest `m2-final-holdout` ghi `complete`; freeze timestamp
 đứng trước lúc mở holdout. Không chạy Ward/PCA hoặc retune bằng kết quả ngoài mẫu.
 
 Median Silhouette 0,945927 so với development 0,931935 (delta +0,013992);
 ARI median 0,849616, Persistence 99,358974%, Migration 0,641026%. Vẫn giữ
 cảnh báo 24/24 tháng Balance <0,05, cụm nhỏ 22–41 mã; không suy hiệu quả đầu tư.
 
-[Báo cáo Nhiệm vụ 11 V2](../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout_v2.md)
+Báo cáo Nhiệm vụ 11 V2 (`../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`, đã xóa nhiệm vụ 11)
 đã được viết đầy đủ theo bố cục A/B/C của mẫu cũ, kèm bảng, biểu đồ 84 mốc và
 biện luận từ số liệu thực tế. Bản tự động gốc được giữ tại `report_auto.md`
 trong artifact; chỉ cập nhật report/checksum và metadata ghi nhận sửa báo cáo.
@@ -20,8 +45,8 @@ Rerun xác minh/nạp lại bộ complete, không refit; Task 12/M3 chưa thực
 
 ## Cập nhật 2026-10-22 — Nhiệm vụ 11 V2 đã chuẩn bị, chưa mở holdout thật
 
-Đã chuẩn bị `11_final_holdout_execution_v2.ipynb`, config
-`m2_final_holdout_v2.json` và runner `experiments/final_holdout_v2.py` theo kế hoạch:
+Đã chuẩn bị `11_final_holdout_execution.ipynb`, config
+`m2_final_holdout.json` và runner `experiments/final_holdout.py` theo kế hoạch:
 60 development/24 holdout 2024–2025, universe tối thiểu 100 mã theo tháng,
 chỉ KMeans Baseline/sklearn/K=2 từ quyết định Task 10 V2, giữ seed=42,
 n_init=10, max_iter=300, Robust Scaling độc lập; không chạy comparator/quét K.
@@ -30,7 +55,7 @@ Gate đã kiểm chứng 60 model và development inputs; chưa đọc feature h
 Đã khôi phục đúng LF của selected-model exports để khớp byte hash đã freeze,
 thêm Git attributes bảo toàn định dạng và pin development inputs theo Git bytes.
 JSON/CSV values và quyết định Task 10 không đổi. Bộ legacy V1 và source runner
-legacy giữ nguyên. Đầu ra V2, model `holdout_v2` và báo cáo V2 chưa được tạo.
+legacy giữ nguyên. Đầu ra V2, model `holdout` và báo cáo V2 chưa được tạo.
 
 Notebook trình bày đúng bảy bước. Bước 2 do người dùng thực hiện mới mở holdout;
 run complete được verify-only khi chạy lại. Run dở/failed hoặc checksum đổi
@@ -71,14 +96,14 @@ Nhiệm vụ 6–9 PCA + K-Means với dữ liệu mới đã hoàn tất: 60 th
 2019-01-31–2023-12-29, 29.907 assignments, Global K=2 và PCA 2 chiều. Các mục
 ngày trước bên dưới là lịch sử, không phải kết quả tái xác nhận cho bộ V2.
 
-- Notebook active: `06_pca_kmeans_v2_rerun.ipynb`,
-  `07_cluster_quality_evaluation_pca_kmeans_v2.ipynb`,
-  `08_cluster_profiling_pca_kmeans_v2.ipynb`,
-  `09_temporal_stability_pca_kmeans_v2.ipynb` trong `M2/notebooks/`.
-- Artifact: `M2/artifacts/m2-task6-pca-freeze-v2/`,
-  `M2/artifacts/m2-task6-pca-kmeans-v2/`,
-  `M2/artifacts/m2-evaluation-pca-kmeans-v2/`; 60 model mới trong
-  `M2/models/pca_kmeans/`, config `configs/experiments/m2_pca_market_only_v2.json`.
+- Notebook active: `06_pca_kmeans.ipynb`,
+  `07_cluster_quality_evaluation_pca_kmeans.ipynb`,
+  `08_cluster_profiling_pca_kmeans.ipynb`,
+  `09_temporal_stability_pca_kmeans.ipynb` trong `M2/notebooks/`.
+- Artifact: `M2/artifacts/m2-task6-pca-freeze/`,
+  `M2/artifacts/m2-task6-pca-kmeans/`,
+  `M2/artifacts/m2-evaluation-pca-kmeans/`; 60 model mới trong
+  `M2/models/pca_kmeans/`, config `configs/experiments/m2_pca_market_only.json`.
 - Theo yêu cầu owner, xóa bộ PCA cũ 15 tháng khỏi active tree: bốn notebook
   không có hậu tố V2, config `m2_task6_pca.json`, artifact
   `m2-task6-pca-kmeans-v1` và `m2-evaluation-pca-kmeans`. Git history là archive.
@@ -101,14 +126,14 @@ development 2019-01-31–2023-12-29, Global K=2, PCA 2 chiều. Nhiệm vụ 7 c
 diagnostics và metadata kiểm tra nguồn; không fit model, không mở holdout.
 
 - Notebook đã chạy đủ hai bảng và năm biểu đồ:
-  [07_cluster_quality_evaluation_pca_kmeans_v2.ipynb](../M2/notebooks/07_cluster_quality_evaluation_pca_kmeans_v2.ipynb).
-- Bộ mới nằm trong M2/artifacts/m2-evaluation-pca-kmeans-v2/; chỉ có một CSV
+  [07_cluster_quality_evaluation_pca_kmeans.ipynb](../M2/notebooks/07_cluster_quality_evaluation_pca_kmeans.ipynb).
+- Bộ mới nằm trong M2/artifacts/m2-evaluation-pca-kmeans/; chỉ có một CSV
   quality_summary.csv đúng 5 dòng × 7 cột, mọi n_total/n_available bằng 60,
   kèm năm PNG và manifest checksum. Bộ đánh giá cũ 15 tháng đã được đưa về Git history.
 - Median Silhouette 0,939741; DB 0,383600; CH 1177,053847; Inertia 81023,955397;
   Balance 0,023814. Có 50/60 tháng Balance < 0,05, toàn bộ 60 tháng đạt rubric
   phân cụm bất đối xứng; ba singleton tại 2021-10-29, 2022-01-28, 2022-02-28.
-- [Báo cáo Nhiệm vụ 7 V2](../M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans_v2.md)
+- [Báo cáo Nhiệm vụ 7 V2](../M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans.md)
   trình bày phán quyết A/B/C và giới hạn suy luận. Silhouette cao không chứng minh
   hai chế độ cân bằng, nguyên nhân dòng tiền hoặc hiệu quả đầu tư.
 
@@ -119,7 +144,7 @@ Chưa thực hiện Nhiệm vụ 8–10 V2 trong phiên đánh giá này.
 
 ### Nhiệm vụ 8 PCA + K-Means V2 đã được người dùng chạy
 
-Đã chuẩn bị [08_cluster_profiling_pca_kmeans_v2.ipynb](../M2/notebooks/08_cluster_profiling_pca_kmeans_v2.ipynb)
+Đã chuẩn bị [08_cluster_profiling_pca_kmeans.ipynb](../M2/notebooks/08_cluster_profiling_pca_kmeans.ipynb)
 để người dùng tự chạy trên 120 hồ sơ/60 tháng của Nhiệm vụ 6 V2. Đã kiểm tra
 ba bảng đúng kích thước 4×10, 9×4, 60×5; dùng scaler đã lưu của đúng tháng,
 Radar/Heatmap và dropdown 60 tháng. Chỉ giới hạn hiển thị Z ở ±3, giữ Z thật
@@ -128,13 +153,13 @@ trong bảng/Heatmap và bằng chứng; không fit lại hoặc đọc holdout.
 Người dùng đã chạy notebook: task8_manifest.json ghi complete, đủ 60 tháng/120
 hồ sơ, Primary Driver là liquidity_21, chênh lệch Mean Robust Z C0−C1 = 240,887454.
 Hai PNG, bằng chứng và báo cáo Nhiệm vụ 8 tên hậu tố v2 đã được kiểm tra checksum.
-Kết quả ở M2/artifacts/m2-evaluation-pca-kmeans-v2/; manifest và CSV Nhiệm vụ 7
+Kết quả ở M2/artifacts/m2-evaluation-pca-kmeans/; manifest và CSV Nhiệm vụ 7
 được bảo toàn. Các kết luận vẫn giữ nhãn trung tính, không suy chi phí thực thi từ
 thanh khoản trung bình hoặc coi cụm thanh khoản thấp hơn là dưới market median.
 
 ### Nhiệm vụ 9 PCA + K-Means V2 đã hoàn tất
 
-Đã chuẩn bị [09_temporal_stability_pca_kmeans_v2.ipynb](../M2/notebooks/09_temporal_stability_pca_kmeans_v2.ipynb)
+Đã chuẩn bị [09_temporal_stability_pca_kmeans.ipynb](../M2/notebooks/09_temporal_stability_pca_kmeans.ipynb)
 đã được người dùng chạy. Bước đầu chuẩn hóa artifact Task 6 đã có sang ba CSV phẳng
 đúng 59×10, 236×6, 944×7; ARI/NMI giữ nguyên, transition dùng nhãn aligned xuyên
 chuỗi, drift có hai đầu tâm cụm gốc thật và được đối chiếu mapping đã lưu.
@@ -142,7 +167,7 @@ Phần đánh giá đọc ba CSV để tạo bốn bảng và hai biểu đồ; 
 
 Đã kiểm tra toàn luồng và rerun trong thư mục tạm, cùng checksum và bảng số liệu;
 đã có CSV/ảnh/báo cáo Task 9 chính thức với manifest `complete`. Đích là
-M2/artifacts/m2-evaluation-pca-kmeans-v2/ và báo cáo Nhiệm vụ 9 hậu tố v2.
+M2/artifacts/m2-evaluation-pca-kmeans/ và báo cáo Nhiệm vụ 9 hậu tố v2.
 Notebook 7 chỉ kiểm tra CSV thuộc Task 7, cho phép ba CSV Task 9 dùng chung thư mục;
 không thay số liệu hoặc manifest của Task 7/8.
 

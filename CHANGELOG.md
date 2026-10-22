@@ -1,3 +1,14 @@
+# Chưa phát hành — Tên chuẩn PCA và xóa Task 11 (2026-10-22)
+
+- Đổi tên toàn bộ notebook/config/artifacts/báo cáo PCA nhiệm vụ 6–9 không thêm
+  hậu tố phiên bản; cập nhật kế hoạch, notebook 10 và các bài kiểm chứng artifacts.
+- Đồng bộ checksum đường dẫn/config/freeze/model metadata; sửa checksum báo cáo
+  7–9, ghi provenance đổi tên, giữ nguyên số liệu và không huấn luyện lại.
+- Theo yêu cầu mới nhất, xóa hết Task 11 thay vì thay thế bản cũ: notebook,
+  config, runner/helpers, tests riêng, models, artifacts và báo cáo các phiên bản.
+- Audit 12 và generator 13 dừng trước khi ghi output nếu thiếu Task 11; giữ
+  dữ liệu C8 và kết quả riêng của các phương án khác.
+
 # Chưa phát hành — Kết quả và báo cáo Nhiệm vụ 11 V2 (2026-10-22)
 
 - Holdout đã hoàn tất: 24 snapshot 2024–2025, 28.110 assignments, 24 model,

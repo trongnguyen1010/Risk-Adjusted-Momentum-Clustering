@@ -198,3 +198,20 @@ reset chuỗi tại ranh giới Dev/Holdout, skip hoặc tháng không liên ti�
 Đầu ra V2 riêng; rerun chỉ verify complete, không xóa evidence/retune sau khi mở.
 Sửa LF chỉ khôi phục đúng byte có hash đã freeze, không thay giá trị hoặc chọn lại
 phương án. Bước chuẩn bị không đọc feature holdout hay sinh kết quả thật.
+
+## ADR — Tên chuẩn PCA 6–9 và xóa toàn bộ Task 11 (2026-10-22)
+
+Owner yêu cầu dùng bộ PCA 6–9 trên Git, đổi tên không có hậu tố phiên bản. Di
+chuyển storage và đổi metadata tham chiếu; giữ số liệu, freeze PCA, Global K và
+model numeric payload. Source snapshots nguyên gốc vẫn được giữ để xác định code
+đã thực thi. Manifest task 6 ghi hash trước di chuyển; checksum phụ thuộc và ba
+báo cáo 7–9 được đồng bộ đúng nội dung hiện có, không tính lại metrics hay model.
+Các assertion kiểm chứng PCA được giữ; số dòng kỳ vọng cập nhật 45.646 theo bộ
+dữ liệu mới đã đối chiếu thay cho 29.907 của dữ liệu trước.
+
+Sau đó owner yêu cầu xóa toàn bộ nhiệm vụ 11, thay cho yêu cầu thay thế/đổi tên
+ban đầu. Vì vậy không giữ bản cũ, bản mới hay helper/workflow riêng của Task 11;
+không backup. Giữ nguyên protocol và ranh giới holdout của nghiên cứu, không mở
+holdout và không thay Task 10. Audit 12/generator 13 phải dừng trước khi ghi file
+khi thiếu dependency đã xóa. Đây là quyết định dọn file của owner, không phải
+thay đổi chính sách chọn mô hình hoặc loại bỏ kết quả vì chất lượng bất lợi.

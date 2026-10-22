@@ -8,8 +8,8 @@ from pathlib import Path
 import unittest
 
 ROOT = Path(__file__).resolve().parents[3]
-TASK = ROOT / "M2/artifacts/m2-task6-pca-kmeans-v2"
-EVAL = ROOT / "M2/artifacts/m2-evaluation-pca-kmeans-v2"
+TASK = ROOT / "M2/artifacts/m2-task6-pca-kmeans"
+EVAL = ROOT / "M2/artifacts/m2-evaluation-pca-kmeans"
 
 
 def rows(path):
@@ -36,14 +36,14 @@ class PCANotebookArtifactTests(unittest.TestCase):
 
     def test_export_checksums_and_frozen_development_scope(self):
         self.assertEqual("complete", self.manifest["status"])
-        self.assertEqual("m2-task6-pca-kmeans-v2", self.manifest["artifact_id"])
+        self.assertEqual("m2-task6-pca-kmeans", self.manifest["artifact_id"])
         self.assertEqual(self.manifest["config"], json.loads(
-            (ROOT / "configs/experiments/m2_pca_market_only_v2.json").read_text(encoding="utf-8")))
+            (ROOT / "configs/experiments/m2_pca_market_only.json").read_text(encoding="utf-8")))
         self.assertTrue(self.manifest["task6_exports_complete"])
         self.assertFalse(self.manifest["portfolio_evaluation_enabled"])
         self.assertFalse(self.manifest["config"]["portfolio_evaluation"]["enabled"])
         self.assertEqual("CAFEF_C8_COMPLETE_ONLY_V2", self.manifest["data_version"])
-        self.assertEqual((60, 29907), (self.manifest["n_snapshots"], self.manifest["n_assignments"]))
+        self.assertEqual((60, 45646), (self.manifest["n_snapshots"], self.manifest["n_assignments"]))
         self.assertEqual(60, len(set(self.dates)))
         self.assertEqual(("2019-01-31", "2023-12-29"), (self.dates[0], self.dates[-1]))
         holdout = self.manifest["config"]["holdout_snapshots"]
@@ -71,9 +71,9 @@ class PCANotebookArtifactTests(unittest.TestCase):
     def test_task7_to_task9_exports_preserve_source_and_checksums(self):
         source_hash = hashlib.sha256((TASK / "manifest.json").read_bytes()).hexdigest()
         for filename, artifact_id in (
-                ("manifest.json", "m2-task7-pca-kmeans-quality-v2"),
-                ("task8_manifest.json", "m2-task8-pca-kmeans-profiling-v2"),
-                ("task9_manifest.json", "m2-task9-pca-kmeans-temporal-v2")):
+                ("manifest.json", "m2-task7-pca-kmeans-quality"),
+                ("task8_manifest.json", "m2-task8-pca-kmeans-profiling"),
+                ("task9_manifest.json", "m2-task9-pca-kmeans-temporal")):
             with self.subTest(manifest=filename):
                 manifest = json.loads((EVAL / filename).read_text(encoding="utf-8"))
                 self.assertEqual(artifact_id, manifest["artifact_id"])
@@ -141,10 +141,10 @@ class PCANotebookArtifactTests(unittest.TestCase):
         assignments = {(r["snapshot_date"], r["security_id"]): r for r in self.assignments}
         inputs = {(r["snapshot_date"], r["security_id"]): r for r in rows(TASK / "input_features.csv")}
         json_scores = [json.loads(line) for line in (TASK / "pca_scores.jsonl").read_text(encoding="utf-8").splitlines()]
-        self.assertEqual(29907, len(scores))
-        self.assertEqual(29907, len(self.assignments))
+        self.assertEqual(45646, len(scores))
+        self.assertEqual(45646, len(self.assignments))
         score_keys = {(r["snapshot_date"], r["security_id"]) for r in scores}
-        self.assertEqual(29907, len(score_keys))
+        self.assertEqual(45646, len(score_keys))
         self.assertEqual(set(assignments), score_keys)
         self.assertEqual(set(inputs), score_keys)
         self.assertEqual(len(scores), len(json_scores))
