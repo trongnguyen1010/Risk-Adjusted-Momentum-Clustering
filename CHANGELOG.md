@@ -1,3 +1,25 @@
+# Chưa phát hành — Kết quả mới và báo cáo đầy đủ Nhiệm vụ 11 (2026-10-22)
+
+- Ghi nhận lần chạy thật complete: 24 tháng 2024–2025, 30.155 assignments,
+  24 model, 23 cặp thời gian; KMeans Baseline/sklearn/K=2 trên nguồn C8 ab1a34a8….
+- Viết lại báo cáo đúng tên chuẩn theo mẫu A/B/C cũ, cập nhật toàn bộ bảng và
+  diễn giải bằng kết quả mới: Silhouette median 0,949324, delta +0,008487,
+  ARI median 0,843260; giữ cảnh báo Balance/thanh khoản và giới hạn đầu tư.
+- Lưu bản xuất tự động gốc trong artifact, cập nhật report checksum/revision;
+  không refit hoặc sửa model, numerical artifacts, input, code và thời điểm chạy.
+- Cập nhật CURRENT STATUS/START HERE; Nhiệm vụ 12 và M3 thực hiện riêng.
+
+# Chưa phát hành — Chuẩn bị nhiệm vụ 11 trên dữ liệu mới (2026-10-22)
+
+- Tạo notebook/config/runner Task 11 tên chuẩn, chỉ KMeans Baseline/sklearn/K=2,
+  24 tháng 2024–2025; không nạp model hoặc kết quả holdout đã xóa trước đó.
+- Khóa chín development inputs hiện hành và kiểm chứng 60 model trước khi mở
+  holdout; giữ nguyên tham số, boundary, universe và pipeline đã freeze.
+- Synthetic tests kiểm tra gate, future availability, skip/gap reset, one-use
+  rerun và tamper detection. Chưa fit hoặc xuất kết quả holdout thật.
+- Cập nhật kế hoạch/START HERE và giữ generator Task 13 lịch sử chặn rõ ràng
+  để không trộn gói 22 snapshot cũ với workflow 60+24 hiện tại.
+
 # Chưa phát hành — Tên chuẩn PCA và xóa Task 11 (2026-10-22)
 
 - Đổi tên toàn bộ notebook/config/artifacts/báo cáo PCA nhiệm vụ 6–9 không thêm
