@@ -11,32 +11,18 @@ Repository đang ở trạng thái **C8 executed and verified; R1 consolidated; 
 
 M2 Nhiệm vụ 1 đã freeze protocol và Nhiệm vụ 2 đã hoàn tất runner preparation/testing. Stage chính xác tiếp theo là **M2 Nhiệm vụ 3 — GLOBAL K TRÊN DEVELOPMENT**; chưa chạy trong stage hiện tại. Eligibility vẫn theo từng snapshot; 905 chỉ là latest-snapshot count và không phải strict research universe.
 
+**Cập nhật 2026-10-22:** Dữ liệu C8 đã được thay bằng gói mới; các kết quả
+M2 trước đây là lịch sử. PCA V2 và Nhiệm vụ 11 đã được gỡ;
+Task 10/12/13 giữ lại chưa được tái xác nhận trên dữ liệu hiện tại.
+
 ## Theo mục đích
 
-- Chạy Nhiệm vụ 11 trên dữ liệu mới: mở
-  [Notebook 11 V2](../M2/notebooks/11_final_holdout_execution_v2.ipynb), chọn kernel
-  Python đã dùng ở M2 và chạy các cell theo thứ tự. Bước 1 chỉ kiểm tra gate;
-  Bước 2 mới mở 24 tháng holdout 2024–2025 cho duy nhất sklearn KMeans/K=2.
-  [Config V2](../configs/experiments/m2_final_holdout_v2.json) khóa chín development
-  inputs; đầu ra mới là `M2/artifacts/m2-final-holdout-v2/`, model tại
-  `M2/models/holdout_v2/`, báo cáo Nhiệm vụ 11 hậu tố `_v2.md` sau khi chạy xong.
-  **V2 đã chạy xong 24/24 tháng**; đọc
-  [báo cáo đầy đủ](../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout_v2.md).
-  Lần chạy lại chỉ verify/nạp bộ complete, không fit lại hoặc tạo lần thử mới.
-  Bộ V1 bảy tháng năm 2026 là lịch sử; không dùng notebook 11 V1 cho dữ liệu mới.
-- PCA + K-Means dữ liệu mới: Nhiệm vụ 6–9 V2 đã hoàn tất trên 60 tháng
-  development 2019–2023; xem [Current status](CURRENT_STATUS.md) và
-  [notebook 06 V2](../M2/notebooks/06_pca_kmeans_v2_rerun.ipynb).
-  Báo cáo chính đã thay bằng bản đầy đủ theo bố cục A/B/C:
-  [NV6](../M2/reports/Bao_cao_M2_Nhiem_vu_6_PCA_KMeans_v2.md),
-  [NV7](../M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans_v2.md),
-  [NV8](../M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_PCA_KMeans_v2.md),
-  [NV9](../M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_PCA_KMeans_v2.md).
-  Task 10 V2 đã chọn KMeans Baseline/K=2, PCA là comparator; Task 11–13 lịch sử
-  chưa được tái xác nhận cho V2. Xem [quyết định Task 10](../M2/artifacts/m2-evaluation-v2/final_method_decision.json).
-- Final Holdout đã thực thi: [Notebook 11](../M2/notebooks/11_final_holdout_execution.ipynb),
-  [báo cáo](../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md). Rerun chỉ verify/nạp
-  evidence của single winning model; xem Current status trước khi thực hiện Task 12.
+- **PCA + K-Means V2 và Nhiệm vụ 11 đã được gỡ theo yêu cầu người dùng.**
+  Không còn notebook 06–09 PCA V2, config/model/artifacts/báo cáo của nhánh này.
+  Nhiệm vụ 11 V1/V2 cũng đã xóa notebook, runner, config, model và đầu ra.
+  Bộ dữ liệu C8 mới, backend phân cụm dùng chung và kết quả K-Means/Ward giữ nguyên.
+  Không có workflow PCA V2/Task 11 để chạy trong checkout hiện tại; xem
+  [Current status](CURRENT_STATUS.md) để biết phạm vi và các phần phụ thuộc.
 - Thu thập CafeF có kiểm soát: [Data collection](crawl/README.md) và [CafeF semantics](crawl/sources/CAFEF.md).
 - Quyết định methodology: [Decisions](DECISIONS.md), [Research questions](research/RESEARCH_QUESTIONS.md), [Literature matrix](research/LITERATURE_MATRIX.md), [Dynamic clustering review](research/DYNAMIC_CLUSTERING_REVIEW.md).
 - Evaluation/product: [Evaluation and backtest](EVALUATION_AND_BACKTEST.md), [Product](PRODUCT.md).
