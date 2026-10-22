@@ -1,3 +1,24 @@
+# Chưa phát hành — Gỡ PCA V2 và Nhiệm vụ 11 theo yêu cầu owner (2026-10-22)
+
+- Xóa luôn notebook PCA V2 nhiệm vụ 6–9 và kiểm thử chuyên kiểm chứng bộ artifacts
+  đã gỡ; backend thuật toán/protocol và các kiểm thử dùng chung giữ nguyên.
+- Gỡ nhiệm vụ 11 V1/V2: notebook, runner, cấu hình, artifacts, model holdout,
+  báo cáo và kiểm thử riêng; dọn bytecode và Git attributes liên quan.
+- Audit 12 và generator bàn giao 13 dừng trước khi tạo output nếu thiếu Task 11.
+- Giữ nguồn C8 mới và kết quả riêng của K-Means/Ward/Task 10; các kết quả tổng hợp
+  còn lại mang tính lịch sử, không xác nhận lại trên dữ liệu mới. Không backup.
+
+# Chưa phát hành — Dọn đầu ra PCA + K-Means cũ (2026-10-22)
+
+- Theo yêu cầu người dùng, xóa config sinh từ run, PCA freeze, artifacts/model
+  nhiệm vụ 6, kết quả đánh giá nhiệm vụ 7–9 và bốn báo cáo PCA V2; không backup.
+- Giữ backend, tests và code của bốn notebook; xóa output, execution count và
+  biện luận theo số liệu cũ trong notebook. Không huấn luyện hoặc đổi methodology.
+- Dữ liệu mới có universe khác bằng chứng nhiệm vụ 3 ở 46/60 tháng; cần cập nhật
+  evidence và xác nhận Global K trước khi chạy 06. Giữ nguyên guard kiểm tra.
+- Cập nhật START HERE/trạng thái; các kết quả phương án khác và Task 10–13 giữ
+  nguyên như lịch sử, chưa xác nhận trên nguồn mới.
+
 # Chưa phát hành — Kết quả và báo cáo Nhiệm vụ 11 V2 (2026-10-22)
 
 - Holdout đã hoàn tất: 24 snapshot 2024–2025, 28.110 assignments, 24 model,

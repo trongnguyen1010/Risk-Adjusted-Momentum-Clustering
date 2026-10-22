@@ -198,3 +198,33 @@ reset chuỗi tại ranh giới Dev/Holdout, skip hoặc tháng không liên ti�
 Đầu ra V2 riêng; rerun chỉ verify complete, không xóa evidence/retune sau khi mở.
 Sửa LF chỉ khôi phục đúng byte có hash đã freeze, không thay giá trị hoặc chọn lại
 phương án. Bước chuẩn bị không đọc feature holdout hay sinh kết quả thật.
+
+## ADR — Dọn đầu ra PCA + K-Means theo yêu cầu owner (2026-10-22)
+
+Owner yêu cầu xóa toàn bộ đầu ra PCA + K-Means cũ để chạy lại với bộ dữ liệu
+vừa cung cấp, không giữ backup. Phạm vi gồm config sinh bởi notebook 06,
+freeze PCA, artifacts/model PCA và đánh giá/báo cáo nhiệm vụ 6–9. Giữ code
+backend, tests, bốn notebook với outputs/biện luận cũ đã xóa, master protocol,
+nguồn C8 mới và kết quả riêng của các phương án khác. Đây là yêu cầu dọn dữ
+liệu rõ ràng của owner, không phải loại bỏ evidence do chất lượng kết quả.
+
+Không sửa bảng evidence nhiệm vụ 3, quyết định K, tham số hoặc guard để ép chạy.
+Nguồn mới có 46/60 tháng khác số mã eligible so với evidence nhiệm vụ 3 hiện có;
+cần cập nhật bằng chứng và xác nhận Global K trước khi huấn luyện PCA lại.
+Task 10–13 và các bộ được giữ chỉ có ý nghĩa lịch sử với nguồn trước; không
+thay manifest/checksum của chúng để che các đầu vào PCA đã bị xóa.
+
+## ADR — Gỡ toàn bộ workflow PCA V2 và Nhiệm vụ 11 (2026-10-22)
+
+Owner yêu cầu xóa luôn phần PCA + K-Means V2 và nhiệm vụ 11, mở rộng phạm vi
+dọn trước đó từ outputs sang notebook/workflow riêng. Vì vậy gỡ bốn notebook
+PCA V2 và bài kiểm chứng artifacts, cùng toàn bộ implementation/notebook/config/
+outputs và kiểm thử riêng của Task 11 V1/V2. Đây là gỡ tính năng theo yêu cầu,
+không xóa assertion của thuật toán/protocol dùng chung để làm test pass.
+
+Giữ backend PCA/K-Means dùng chung, master protocol và ranh giới holdout;
+không đổi methodology, nguồn mới hoặc kết quả riêng K-Means/Ward/Task 10.
+Các bằng chứng tổng hợp Task 10/12/13 giữ nguyên như lịch sử, thiếu dependencies
+đã gỡ nên không còn cơ sở xác nhận hoàn tất trong checkout hiện tại. Audit 12 và
+generator 13 phải dừng rõ ràng trước mutation nếu Task 11 không tồn tại.
+Không backup, không thay checksum lịch sử và không rewrite/push Git history.
