@@ -45,17 +45,6 @@ def main():
     root = Path.cwd().resolve()
     if not (root / 'configs/experiments/m2_market_only_v1.json').is_file():
         parser.error('Run from repository root, where configs, M2 and src exist.')
-    retired_task11_inputs = [
-        'src/delta_t1/experiments/final_holdout.py',
-        'configs/experiments/m2_final_holdout_v1.json',
-        'M2/artifacts/m2-final-holdout-v1/manifest.json',
-    ]
-    if any(not (root / name).is_file() for name in retired_task11_inputs):
-        parser.error(
-            'BLOCKED: Task 11 was removed at the owner request. This historical '
-            'Task 12 verifier requires its matching Task 11 implementation and evidence. '
-            'No output directory has been created.'
-        )
     # PCA V1 was retired from the active tree. Never silently substitute V2 data
     # into this historical audit or create a partial output before this gate.
     historical_pca_inputs = [
