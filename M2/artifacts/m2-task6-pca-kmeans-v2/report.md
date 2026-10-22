@@ -7,7 +7,7 @@ data_mode = real
 Portfolio evaluation đã tắt: đây là M2 clustering/diagnostic run, không sinh backtest hoặc performance metric.
 Không đánh giá trên tập kiểm định độc lập (holdout), không chọn mô hình dựa trên lợi nhuận.
 
-Số thời điểm phân cụm: 60; số thời điểm bỏ qua: 0; số bản ghi gán cụm: 29907.
+Số thời điểm phân cụm: 60; số thời điểm bỏ qua: 0; số bản ghi gán cụm: 45646.
 
 ## Các tệp kết quả
 

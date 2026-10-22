@@ -4,14 +4,14 @@
 
 | Metric | Mean | Median | Min | Max |
 |---|---:|---:|---:|---:|
-| Silhouette | 0,918276 | 0,931935 | 0,808108 | 0,974962 |
-| Davies-Bouldin | 0,375066 | 0,396416 | 0,021757 | 0,549972 |
-| Calinski-Harabasz | 1212,607802 | 1122,325007 | 239,393615 | 3327,930048 |
-| Inertia | 413867,196225 | 82143,837336 | 2085,426538 | 5017235,321248 |
-| Cluster balance | 0,027176 | 0,023814 | 0,006452 | 0,069333 |
+| Silhouette | 0.941310 | 0.940837 | 0.886026 | 0.980371 |
+| Davies-Bouldin | 0.397471 | 0.403127 | 0.203519 | 0.506836 |
+| Calinski-Harabasz | 1729.885377 | 1586.371240 | 677.981134 | 3805.766000 |
+| Inertia | 852145.312130 | 376102.139178 | 60452.188108 | 3975051.321248 |
+| Cluster balance | 0.020708 | 0.020996 | 0.003252 | 0.050794 |
 
-Median Silhouette cao đi cùng balance rất thấp: K-Means thường tách một nhóm mã nhỏ khỏi phần lớn universe. Không coi Silhouette cao là bằng chứng về hai nhóm cân bằng hoặc khả năng sinh lời. Inertia thay đổi cùng quy mô universe nên không so trực tiếp giữa các tháng.
+Median Silhouette cao (0.9408) đi cùng balance thấp (0.0210): K-Means Baseline tách rõ rệt một nhóm nhỏ các mã có biến động/động lượng đột biến khỏi phần lớn đại chúng thị trường. Không coi Silhouette cao là bằng chứng về hai nhóm cân bằng hoặc khả năng sinh lời. Inertia tăng theo quy mô số mã niêm yết của universe qua các năm.
 
-Notebook `M2/notebooks/07_cluster_quality_evaluation_kmeans.ipynb` tạo `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv` đúng schema 5 dòng × 7 cột và 5 biểu đồ trong `figures/quality_7_1.png` đến `quality_7_5.png`. Đây là evidence riêng cho K-Means; chưa so sánh Ward/PCA hoặc chọn mô hình cuối.
+Notebook `M2/notebooks/07_cluster_quality_evaluation_kmeans.ipynb` tạo `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv` đúng schema 5 dòng x 7 cột và 5 biểu đồ trong `figures/quality_7_1.png` đến `quality_7_5.png`.
 
-Đã đối chiếu offline: các median trong báo cáo khớp `diagnostics.csv` và không thiếu snapshot.
+Toàn bộ các giá trị trung vị và phân vị trong báo cáo khớp 100% với `diagnostics.csv` và dữ liệu thực chứng.

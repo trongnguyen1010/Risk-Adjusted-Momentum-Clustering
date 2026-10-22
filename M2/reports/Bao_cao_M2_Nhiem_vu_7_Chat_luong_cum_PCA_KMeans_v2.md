@@ -31,16 +31,15 @@ tỷ trọng cụm nhỏ trên tổng số mã.
 
 | metric | n_total | n_available | mean | median | minimum | maximum |
 | --- | --- | --- | --- | --- | --- | --- |
-| silhouette | 60 | 60 | 0.929575 | 0.939741 | 0.851754 | 0.977565 |
-| davies_bouldin | 60 | 60 | 0.365570 | 0.383600 | 0.019136 | 0.528348 |
-| calinski_harabasz | 60 | 60 | 1253.617386 | 1177.053847 | 279.009572 | 3344.686355 |
-| inertia | 60 | 60 | 411599.887633 | 81023.955397 | 1721.696524 | 5012763.856157 |
-| cluster_balance | 60 | 60 | 0.027240 | 0.023814 | 0.006452 | 0.069333 |
+| silhouette | 60 | 60 | 0.946822 | 0.946855 | 0.903889 | 0.981342 |
+| davies_bouldin | 60 | 60 | 0.392388 | 0.397056 | 0.203106 | 0.502464 |
+| calinski_harabasz | 60 | 60 | 1750.124284 | 1631.466715 | 679.358341 | 3823.662000 |
+| inertia | 60 | 60 | 848455.026434 | 372878.404927 | 56117.361311 | 3969503.000000 |
+| cluster_balance | 60 | 60 | 0.020535 | 0.020684 | 0.003252 | 0.050794 |
 
-Mọi chỉ số có đủ 60/60 giá trị. Median Silhouette **0.939741** vượt ngưỡng mô tả
-0.70 của kế hoạch; cả 60/60 tháng đều vượt ngưỡng này. Thấp nhất 0.851754 tại
-2020-06-30 và cao nhất 0.977565 tại 2021-06-30. DB median 0.383600 cùng CH median
-1177.053847 củng cố nhận định rằng hai nhóm tách biệt rõ về hình học trong không
+Mọi chỉ số có đủ 60/60 giá trị. Median Silhouette **0.946855** vượt ngưỡng mô tả
+0.70 của kế hoạch; cả 60/60 tháng đều vượt ngưỡng này. DB median 0.397056 cùng CH median
+1631.466715 củng cố nhận định rằng hai nhóm tách biệt rõ về hình học trong không
 gian PCA đã chọn. Các ngưỡng này là rubric mô tả, không phải kiểm định thống kê.
 
 ### 3. Bảng 2 — Chi tiết chất lượng 60 tháng
