@@ -2304,7 +2304,7 @@ Báo cáo `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md
 
 # NHIỆM VỤ 11 — MỞ VÀ CHẠY FINAL HOLDOUT (OUT-OF-SAMPLE VALIDATION)
 
-> Trạng thái hiện tại: nhiệm vụ 11 đã được xóa toàn bộ theo yêu cầu người dùng. Phần dưới giữ làm tài liệu kế hoạch tham khảo; không còn file thực thi hoặc kết quả nhiệm vụ 11 trong checkout hiện tại.
+> Trạng thái hiện tại (22/10/2026): nhiệm vụ 11 đã hoàn tất trên dữ liệu mới, đủ 24/24 snapshot, 30.155 assignments và 23 cặp thời gian; báo cáo đầy đủ tại `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`. Chạy lại notebook chỉ kiểm chứng checksum và nạp bộ complete, không refit.
 
 ## Mục đích của Nhiệm vụ 11
 
@@ -2336,10 +2336,10 @@ Final Holdout (24 snapshots: 2024-01-31 đến 2025-12-31)
 - Chuẩn hóa: Đúng 8 đặc trưng thị trường, Robust Scaling độc lập theo từng snapshot;
 - Thư mục xuất artifact đầu ra: `M2/artifacts/m2-final-holdout/` và mô hình tại `M2/models/holdout/`.
 
-> **Entry point V2 hiện hành:** `M2/notebooks/11_final_holdout_execution.ipynb`;
+> **Entry point hiện hành:** `M2/notebooks/11_final_holdout_execution.ipynb`;
 > config `configs/experiments/m2_final_holdout.json`; đọc C8
 > `artifacts/cafef_primary/cafef-c8-complete-only-v2/`. Gate chỉ kiểm tra development;
-> Bước 2 mới mở holdout. Bộ V1 bảy tháng năm 2026 giữ làm lịch sử.
+> Trong lần thực thi đầu, Bước 2 mới mở holdout; bộ complete chỉ verify khi chạy lại. Không sử dụng kết quả hoặc runner của bộ bảy tháng năm 2026.
 
 ## Phần 11.0 — Thiết lập file cấu hình Final Holdout (configs/experiments/m2_final_holdout.json)
 

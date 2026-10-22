@@ -1,5 +1,54 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Hiện tại 2026-10-22 — Nhiệm vụ 11 hoàn tất trên dữ liệu mới, báo cáo đầy đủ
+
+Người dùng đã chạy xong notebook `11_final_holdout_execution.ipynb`. Bộ
+`M2/artifacts/m2-final-holdout/` ghi complete: 24/24 tháng 2024–2025, không
+skip, 30.155 assignments, 48 profiles, 24 model và 23 cặp thời gian nội bộ.
+Chỉ KMeans Baseline/sklearn/K=2; quyết định đóng băng lúc 12:57:06, mở holdout
+15:49:06 và hoàn tất 15:50:31 ngày 22/10/2026 (UTC+7).
+
+Nguồn C8 feature SHA-256
+`ab1a34a83857e78e304dbeea85f05fd3e1fd1f7d93ed89bbcee4731646da740e`
+khớp lineage Task 10. Median Silhouette holdout 0,949324 so với development
+0,940837 (delta +0,008487); ARI median 0,843260, Persistence 99,370574%,
+Migration 0,629426%. Giữ cảnh báo 24/24 tháng Balance <0,05, cụm nhỏ 22–41 mã;
+khoảng cách tâm cụm chủ yếu theo thanh khoản, không suy hiệu quả đầu tư.
+
+[Báo cáo Nhiệm vụ 11](../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md)
+được mở rộng theo mẫu A/B/C với bảng 24 tháng, so sánh Dev/Holdout, biểu đồ
+84 mốc, temporal/universe, hồ sơ mean/median và giới hạn diễn giải. Bản xuất
+tự động gốc giữ tại `report_auto.md` trong artifact để đối chiếu provenance.
+Chỉ cập nhật report/checksum và metadata revision; model, numerical outputs,
+input, code và timestamps thực nghiệm giữ nguyên. Rerun bộ complete chỉ verify
+và nạp artifacts, không refit. Nhiệm vụ 12/M3 chưa thực hiện trong lần này;
+audit/generator 12–13 lịch sử cần context riêng. Các mục dưới đây là lịch sử.
+
+## Lịch sử 2026-10-22 — Chuẩn bị nhiệm vụ 11 trên dữ liệu mới, chưa chạy holdout
+
+Người dùng yêu cầu hướng dẫn chạy nhiệm vụ 11 sau khi đồng bộ Git và giải nén
+lại dữ liệu mới. Tạo notebook `11_final_holdout_execution.ipynb`, config
+`m2_final_holdout.json`, module `final_holdout.py` và các kiểm thử bằng fixture.
+Không khôi phục số liệu/model/outputs holdout cũ, không tạo tên có hậu tố.
+
+Quyết định Task 10 hiện hành: FROZEN_FOR_HOLDOUT, KMeans Baseline/sklearn/K=2,
+timestamp `2026-10-22T05:57:06+00:00`, nguồn C8 feature SHA-256
+`ab1a34a83857e78e304dbeea85f05fd3e1fd1f7d93ed89bbcee4731646da740e`.
+Config mới chỉ được tạo khi chưa có đầu ra; pin đúng chín development inputs
+hiện tại, không tái gán hash cho bất kỳ evidence holdout cũ nào. Chín hash khớp
+Git bytes. Preflight kiểm chứng 60 model và 70 input refs mà không đọc feature
+holdout. Giữ nguyên 60 tháng development / 24 tháng holdout, threshold 100,
+seed 42/n_init 10/max_iter 300, Robust Scaling per snapshot, không retune.
+
+Người dùng chạy Bước 2 trong notebook để thực thi holdout thật. Các bước 3–7
+hiển thị và kiểm chứng outputs; không fit thêm. Bộ complete chỉ được verify
+khi chạy lại; run dở hoặc checksum đổi bị chặn. Kết quả sẽ nằm ở
+`M2/artifacts/m2-final-holdout/`, models `M2/models/holdout/`, báo cáo
+`M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`. Hiện chưa có các đầu ra đó.
+Audit 12 và generator bàn giao 13 lịch sử vẫn phải dùng context riêng, không
+tự động tiếp tục sau nhiệm vụ 11. Các mục trước bên dưới là lịch sử.
+
+
 ## Hiện tại 2026-10-22 — Tên chuẩn PCA + K-Means và xóa toàn bộ nhiệm vụ 11
 
 Theo yêu cầu mới nhất, giữ bộ PCA + K-Means 6–9 đã khôi phục từ Git và đổi tên

@@ -215,3 +215,17 @@ không backup. Giữ nguyên protocol và ranh giới holdout của nghiên cứ
 holdout và không thay Task 10. Audit 12/generator 13 phải dừng trước khi ghi file
 khi thiếu dependency đã xóa. Đây là quyết định dọn file của owner, không phải
 thay đổi chính sách chọn mô hình hoặc loại bỏ kết quả vì chất lượng bất lợi.
+
+## ADR — Chuẩn bị Task 11 hiện hành theo yêu cầu owner (2026-10-22)
+
+Owner yêu cầu hướng dẫn chạy nhiệm vụ 11, cho phép tạo lại workflow tên chuẩn
+sau bước xóa các bản trước. Dùng quyết định Task 10 hiện hành và config mới
+pin đúng inputs development đang có; không sửa hash hoặc đánh dấu lại kết quả
+holdout cũ thành run mới. Output target chưa tồn tại. Giữ nguyên 24 tháng holdout,
+threshold 100, KMeans/sklearn/K=2, seed42/n_init10/max_iter300, independent Robust
+Scaling, một chiều/no-retune và không nối transition qua ranh giới Dev/Holdout.
+
+Chỉ chuẩn bị notebook và kiểm chứng development gate, thử bằng fixture giả;
+người dùng chủ động chạy cell Bước 2 để mở holdout và lưu mọi kết quả thực tế.
+Không tự chạy Task 12/M3. Các scripts audit/handoff lịch sử không được dùng
+để xác nhận bộ 60+24 hiện tại mà chưa chuẩn bị workflow tương ứng.

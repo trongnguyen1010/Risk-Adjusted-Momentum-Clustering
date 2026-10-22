@@ -28,10 +28,20 @@ M2 Nhiệm vụ 1 đã freeze protocol và Nhiệm vụ 2 đã hoàn tất runne
   [NV9](../M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_PCA_KMeans.md).
   Kết quả tại `M2/artifacts/m2-task6-pca-kmeans/` và
   `M2/artifacts/m2-evaluation-pca-kmeans/`, models tại `M2/models/pca_kmeans/`.
-- **Nhiệm vụ 11 đã được xóa toàn bộ theo yêu cầu mới nhất.** Không còn notebook,
-  config, runner, tests riêng, models hay artifacts của các bản cũ/mới. Audit 12
-  và generator bàn giao 13 dừng rõ ràng trước khi ghi output do thiếu Task 11.
-  Xem [Current status](CURRENT_STATUS.md) để biết phạm vi và giới hạn.
+- **Nhiệm vụ 11 đã hoàn tất trên nguồn C8 mới:** mở
+  [11_final_holdout_execution.ipynb](../M2/notebooks/11_final_holdout_execution.ipynb),
+  dùng kernel Python >=3.11 đã chạy M2. Kết quả complete: 24/24 tháng holdout
+  2024–2025, không skip, 30.155 assignments, 24 model và 23 cặp thời gian;
+  duy nhất KMeans Baseline/sklearn/K=2. Median Silhouette 0,949324,
+  delta so với development +0,008487; vẫn giữ cảnh báo lệch kích thước cụm.
+  Config [m2_final_holdout.json](../configs/experiments/m2_final_holdout.json) khóa
+  chín đầu vào development hiện tại, 60 model; seed=42, n_init=10, max_iter=300,
+  Robust Scaling độc lập từng tháng, threshold 100, không quét K hoặc comparator.
+  Kết quả tại `M2/artifacts/m2-final-holdout/`, models `M2/models/holdout/`;
+  [báo cáo đầy đủ](../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md)
+  giữ bố cục A/B/C của mẫu cũ và dùng số liệu mới.
+  Lần chạy lại chỉ verify/nạp bộ complete; run dở/failed hoặc input đổi phải dừng.
+  Task 12/13 lịch sử chưa áp dụng cho workflow hiện tại, thực hiện riêng.
 - Thu thập CafeF có kiểm soát: [Data collection](crawl/README.md) và [CafeF semantics](crawl/sources/CAFEF.md).
 - Quyết định methodology: [Decisions](DECISIONS.md), [Research questions](research/RESEARCH_QUESTIONS.md), [Literature matrix](research/LITERATURE_MATRIX.md), [Dynamic clustering review](research/DYNAMIC_CLUSTERING_REVIEW.md).
 - Evaluation/product: [Evaluation and backtest](EVALUATION_AND_BACKTEST.md), [Product](PRODUCT.md).
