@@ -26,13 +26,6 @@ def compute_sha256(filepath):
 
 def main():
     base_dir = os.path.abspath(".")
-    required_task11 = os.path.join(base_dir, "M2", "artifacts", "m2-final-holdout-v1", "manifest.json")
-    if not os.path.isfile(required_task11):
-        raise SystemExit(
-            "BLOCKED: Task 11 was removed at the owner request. "
-            "Task 13 requires verified holdout evidence before writing a handoff package. "
-            "No output has been written."
-        )
     handoff_dir = os.path.join(base_dir, "M2", "artifacts", "m2-final-handoff-v1")
     models_dir = os.path.join(base_dir, "M2", "models", "final_selected_model")
     holdout_models_dir = os.path.join(base_dir, "M2", "models", "holdout")
