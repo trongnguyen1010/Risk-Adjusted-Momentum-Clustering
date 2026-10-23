@@ -1,5 +1,275 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Cập nhật 2026-10-23 — Commit/push dashboard theo yêu cầu owner
+
+Owner yêu cầu commit/push phần dashboard và handoff cần thiết trên branch
+`m2-clustering-experiment`. Phạm vi 14 files: app/theme/test, dependency,
+Git attributes, README/docs/changelog và 4 files handoff hiện hành. Không
+đưa C8 gửi riêng, `.venv`, các legacy deletions/archive, notebook/report M2
+hoặc thư mục models chưa tracked ngoài phạm vi dashboard vào commit.
+
+Pre-commit validation: 22/22 dashboard tests PASS; full gate chạy 272 tests,
+271 PASS và 1 ERROR do thiếu immutable Financial PIT evidence
+`artifacts/financial_pit/fin-pit-1a-20261004T015420Z-continuation-preflight-v2/next_network_proposal.json`.
+Đây là blocker cũ đã ghi nhận, không sửa test hoặc tạo evidence thay thế.
+Compileall, `node --check web/app.js`, staged diff check PASS. Staged CSV bytes
+khớp working copy và cả 3 hashes trong staged manifest; C8/venv không staged.
+Self-review: dashboard scope PASS, toàn repository gate PARTIAL vì thiếu
+Financial PIT evidence. Remote trước commit `6aadc1d0`, local `6a78a626`,
+ahead 2 / behind 0; push thông thường, không force hoặc sửa lịch sử.
+
+## Cập nhật 2026-10-23 — Bàn giao dashboard qua Git, dữ liệu gửi riêng
+
+Owner xác nhận gửi riêng ba file C8 (`manifest.json`,
+`canonical/feature_snapshots.jsonl`, `canonical/securities.jsonl`) dưới
+`artifacts/cafef_primary/cafef-c8-complete-only-v2/`. Các file tiếp tục bị
+ignore; không upload hoặc thay nội dung. Hướng dẫn cài đặt/chạy/verify offline
+được đặt ngay START HERE tại [docs README](README.md); root README có link.
+
+Thêm `.gitattributes -text` cho handoff hiện hành để bảo toàn checksum trên
+Windows/Linux; pin pandas 2.3.3 cùng Streamlit 1.66.1 trong extra dashboard.
+Người chia sẻ vẫn cần add/commit các file code/theme/config/docs và bộ handoff
+hiện hành trước khi push. Phiên này không stage/commit/push hoặc sửa legacy
+deletions ngoài phạm vi.
+
+Validation/self-review: **PASS** — 22/22 dashboard tests; compileall; config
+TOML parse; scoped diff check. Git clean filter với `core.autocrlf` lần lượt
+true/false/input đều giữ đúng blob bytes của labels/profiles, hashes nguồn
+khớp manifest. Không đổi runtime/model/data. Chưa thử clone/install mới trên
+máy người nhận; hướng dẫn yêu cầu bộ C8 đúng lineage, không dùng bộ cũ 2026.
+
+## Cập nhật 2026-10-23 — Cố định trục thanh khoản/beta, bỏ Stock Detail
+
+Theo yêu cầu owner, mọi snapshot dùng X=`liquidity_21`, Y=`beta_126`. X symlog
+với constant cố định 1.000.000.000 VND, Y tuyến tính; không chọn trục bằng
+correlation hoặc thay theo từng snapshot. X lấy raw VND từ ticker JSONL, chỉ
+nhãn trục quy đổi tỷ VND/phiên; tooltip giữ VND gốc. Giá trị zero giữ nguyên,
+không epsilon/zero-fill/clipping. Missing đúng một trong hai tọa độ được báo
+rõ, không dùng feature momentum cũ để quyết định row có được vẽ hay không.
+
+Lựa chọn mô tả từ 168 monthly cluster profiles/84 snapshot: Cluster 0 có
+liquidity và beta cao hơn Cluster 1 ở 84/84 tháng (60/60 development, 24/24
+holdout). Median profile liquidity 307,46 tỷ so với 5,18 tỷ VND/phiên; beta
+1,244 so với 0,383. Đây là mô tả profile, không phải feature importance hoặc
+khẳng định mọi ticker của hai nhóm tách hoàn toàn trong 2D.
+
+Đã bỏ phần chọn Chế độ xem và toàn bộ renderer Chi tiết cổ phiếu. Người dùng
+xem ticker features trong bảng thành viên có tìm kiếm/phân trang; helper query
+offline được giữ để bảo toàn source-consistency assertions. Các tests UI cũ
+được migrate sang member table, bao gồm đủ 8 features và trạng thái MISSING.
+Ô tìm kiếm có viền 1px cùng focus ring xanh. Lệnh chạy app giữ nguyên.
+
+Validation: **22/22 targeted dashboard tests PASS**, bao gồm UI tại development
+và holdout, cặp trục cố định, giữ zero thật, đủ 8 ticker features và các trạng
+thái missing. `compileall` và `node --check web/app.js` PASS. Browser QA xác
+nhận trục liquidity/beta, viền ô tìm kiếm và không còn Chế độ xem/Chi tiết cổ
+phiếu. Source artifacts không thay đổi; không rerun full suite cho thay đổi UI
+này (blocker evidence Financial PIT cũ đã ghi ở phần validation trước).
+
+Self-review M3-B: **PASS** — chỉ đổi presentation/read-only queries; không có
+fit/predict, network hoặc ghi artifact trong dashboard. SHA-256 labels và
+profiles khớp trạng thái trước sửa. Git trước/sau: local `6a78a626`, remote
+branch `m2-clustering-experiment` `6aadc1d0`, ahead 2 / behind 0; giữ nguyên
+11 modified, 15 deleted và 6 untracked entries đã có. Không commit/push và
+không xử lý các legacy deletions ngoài phạm vi.
+
+## Cập nhật 2026-10-23 — Thiết kế lại giao diện M3-B theo ảnh owner
+
+Giữ entry point `m3_dashboard.py`, bố cục bộ lọc trái / nội dung Market phải,
+nền sáng và các panel bo góc. Bốn thẻ tổng quan lấy trực tiếp size/profile của
+snapshot đang chọn. Biểu đồ scatter dùng `mom_252` và `mom_63` từ từng ticker,
+màu theo assignments M2; giữ toàn bộ outliers, không tạo PCA/projection/model mới.
+Các đám điểm không được ép giống tọa độ minh họa trong ảnh owner.
+
+Tên hiển thị thay cho Cụm + số: **Dẫn đầu thanh khoản** là nhóm có liquidity_21
+profile cao hơn; **Đại trà** là nhóm còn lại khi có nhiều thành viên hơn. Thiếu
+hoặc bằng liquidity thì dùng Nhóm A/B; nếu nhóm còn lại không lớn hơn thì dùng
+Thanh khoản thấp hơn. Quy tắc chỉ mô tả snapshot, không đổi label/membership,
+không phải M3-A ranking hoặc khuyến nghị. Raw labels vẫn có trong provenance.
+Audit cả 84 snapshot hiện hành xác nhận nhóm có liquidity cao hơn nhỏ hơn về size.
+
+Bảng members có ticker, tên công ty, đủ 8 ticker features, tìm theo ticker/tên,
+phân trang và chọn 10/25/50/100 rows. Company names đọc bằng unique security_id
+từ `canonical/securities.jsonl`: 1.522 rows, checksum khớp C8 manifest; chỉ là tên
+tham chiếu, không nâng historical identity/PIT. Null giữ MISSING. Số thực trong
+bảng được định dạng để dễ đọc; Stock Detail giữ precision nguồn.
+
+`.streamlit/config.toml` đặt light theme cho native controls/canvas; cần restart
+Streamlit nếu đang chạy trước khi thêm theme. Không thêm dependency hoặc frontend
+riêng. Lệnh chạy giữ nguyên: `.\.venv\Scripts\python.exe -m streamlit run .\m3_dashboard.py`.
+Kiểm tra UI mới: đổi ngày, chọn từng tên nhóm, tìm FPT, đổi page size, chuyển trang
+và so sánh feature/member count với nguồn. Bộ targeted mở rộng có 21 tests PASS;
+giữ/migrate toàn bộ assertions cũ khi thay layout/column names, thêm kiểm tra tên
+theo profile, raw scatter values, tìm kiếm và phân trang. Full-suite blocker
+Financial ở ghi chú stage trước không thuộc thay đổi UI này.
+
+Browser visual QA PASS ở desktop theo ảnh mẫu với light theme: snapshot
+2025-12-31 có 1.410 mã, Dẫn đầu thanh khoản 26 và Đại trà 1.384. Thử chuyển nhóm,
+next page (11–20 / 1.384, trang 2/139), tìm AAA (1/1) và reset search đều đúng.
+Ảnh giao diện thật lưu local tại `tmp/m3_dashboard_redesign.jpg`; không phải mockup.
+
+## Cập nhật 2026-10-23 — M3-B Market-only Streamlit
+
+Entry point duy nhất: [`m3_dashboard.py`](../m3_dashboard.py), visualization
+read-only trên `m2-final-handoff-v1`, manifest version 2.0.0. Tên thư mục không
+đồng nghĩa bộ legacy 22 snapshot. Dashboard không sửa artifacts, gọi model,
+tính lại features/clustering hoặc nâng historical identity/research readiness.
+Bộ dữ liệu đến tháng 08/2026 là legacy và không được đọc trong M3-B hiện hành.
+
+### Data contract
+
+- Labels: 75.801 rows, gồm 45.646 development + 30.155 holdout.
+- Profiles: 168 monthly + 6 summary rows. `MEDIAN_DEVELOPMENT_60M`,
+  `MEDIAN_HOLDOUT_24M`, `MEDIAN_OVERALL_84M` được giữ trong source, không phải
+  decision dates và không dùng thay monthly profile.
+- Feature source: 179.880 rows / 120 snapshot, 2016-01-29–2025-12-31.
+- Selector: đúng 84 manifest dates; 60 development 2019-01-31–2023-12-29 và
+  24 holdout 2024-01-31–2025-12-31. Không tạo cluster cho 2016–2018 hoặc nội suy
+  ngày/gap. Không áp systemic gap của bộ legacy lên bộ hiện hành.
+- Join one-to-one: labels `(snapshot_date, security_id)` bằng features
+  `(as_of_date, security_id)`. Không duplicate key, ticker ambiguity/mismatch.
+  Cả 75.801 assignments có feature row và đủ 8 numeric finite values.
+- Có 104.079 feature-only rows trên toàn file, gồm 50.115 ở các ngày M2. Source
+  rộng hơn membership; không thêm các row này vào cluster universe. Audit trước
+  implementation xác nhận không bỏ sót market-ready row tại 84 ngày M2.
+- Labels khớp aligned assignments gốc, profiles khớp số liệu/member counts nguồn;
+  ba handoff CSV cùng 84 model hashes/mirrors đã được kiểm tra. Feature hash
+  `ab1a34a83857e78e304dbeea85f05fd3e1fd1f7d93ed89bbcee4731646da740e` khớp
+  C8/development/holdout hiện hành. Sai khác hash của bộ cũ đã được giải quyết.
+
+Schema labels:
+`snapshot_date, security_id, ticker, cluster_label, membership_period`.
+
+Schema profiles:
+`snapshot_date, cluster_label, size, size_ratio, membership_period, mom_21,
+mom_63, mom_126, mom_252, vol_63, mdd_126, beta_126, liquidity_21`.
+
+<details>
+<summary>Exact schema 34 fields của feature JSONL</summary>
+
+```text
+adjustment_basis, as_of_date, available_at, beta_126, canonical_run_id,
+data_mode, data_version, downside_vol_63, eligibility, feature_complete,
+feature_version, historical_identity_ready, history_calendar_days,
+history_observations, history_start_date, liquidity_21, listing_age_days,
+lookback_observations, market_feature_ready, mdd_126, missing_count,
+mom_126, mom_21, mom_252, mom_63, na_reason, ram_63, research_ready,
+security_id, ticker, universe_segment, vendor_run_id, vol_126, vol_63
+```
+
+Dashboard chỉ chọn ngày, identity và 8 Market features; không triển khai logic
+availability hoặc Financial từ các field khác đã có trong source JSONL.
+
+</details>
+
+### Chạy trên Windows
+
+1. Mở PowerShell:
+
+   ```powershell
+   cd "C:\Users\HP\Downloads\Phân cụm động lượng TTCK"
+   ```
+
+2. Dùng Python >=3.11. Tạo virtualenv nếu chưa có, cài extra `dashboard` của
+   project (Streamlit pin 1.66.1). Phiên implementation đã cài extra vào `.venv`:
+
+   ```powershell
+   if (!(Test-Path ".venv\Scripts\python.exe")) { python -m venv .venv }
+   .\.venv\Scripts\python.exe -m pip install -e ".[dashboard]"
+   .\.venv\Scripts\python.exe -m streamlit --version
+   ```
+
+3. Khởi chạy:
+
+   ```powershell
+   .\.venv\Scripts\python.exe -m streamlit run .\m3_dashboard.py
+   ```
+
+4. Mở [http://localhost:8501](http://localhost:8501). Lần đầu cần đọc/xác minh
+   source 234 MB. Đổi selectors dùng cache in-memory. **Đọc lại dữ liệu** xóa
+   cache dashboard và reset date/ticker. Cache tự invalidate theo size/mtime/ctime
+   source hoặc code; loader offline không cache. Đọc khi source đang đổi sẽ bị chặn.
+5. Dừng bằng **Ctrl+C** ở PowerShell.
+
+Nếu lỗi môi trường, kiểm tra `Get-Location`, `Test-Path .\m3_dashboard.py`,
+`.\.venv\Scripts\python.exe --version` và Streamlit version trước khi sửa code.
+Không thay methodology để xử lý environment error.
+
+### Checklist kiểm tra thủ công
+
+- **Overview:** chọn `2019-01-31`. Dẫn đầu thanh khoản (source label 0): 12 members,
+  size_ratio `0.0182926829268292`; Đại trà (source label 1): 644 members,
+  size_ratio `0.9817073170731708`.
+  Mở hai member lists. Bảng 8 features phải có nhãn **CLUSTER PROFILE**.
+- **Holdout:** đổi sang `2025-12-31`. Dẫn đầu thanh khoản: 26 members; Đại trà: 1.384;
+  tổng 1.410. Selector chỉ có 84 ngày M2, không có năm 2026.
+- **Stock Detail/date change:** chọn FPT, `2025-12-31`: security_id
+  `KBS:HOSE:FPT`, Dẫn đầu thanh khoản (source label 0), giai đoạn `holdout`, đủ 8 features.
+  Đổi sang `2019-01-31`: FPT thuộc Đại trà (source label 1), features đổi theo snapshot.
+- **Missing/error:** không sửa source thật để thử lỗi. Tests bên dưới dùng
+  fixture tạm cho unknown ticker/date, missing cluster/feature row, null,
+  malformed session state và tamper. UI hiện trạng thái rõ, không crash/zero-fill.
+- **Provenance/reset:** mở Data source / snapshot / version để xem nguồn,
+  version, audit counts; thử nút Đọc lại dữ liệu.
+- **Source comparison:** từ repository root chạy:
+
+  ```powershell
+  Import-Csv ".\M2\artifacts\m2-final-handoff-v1\m2_cluster_labels_for_m3.csv" |
+      Where-Object { $_.ticker -eq "FPT" -and $_.snapshot_date -eq "2025-12-31" }
+
+  Get-Content ".\artifacts\cafef_primary\cafef-c8-complete-only-v2\canonical\feature_snapshots.jsonl" |
+      Select-Object -Skip 50519 -First 1 |
+      ConvertFrom-Json |
+      Select-Object as_of_date, security_id, ticker, mom_21, mom_63, mom_126, mom_252, vol_63, mdd_126, beta_126, liquidity_21
+  ```
+
+  Labels row ở dòng 74801 (tính cả header), feature row ở dòng 50520 của source
+  hiện hành. Kiểm tra ngày/identity của row vừa mở trước khi so sánh:
+
+  | Feature | FPT, 2025-12-31 |
+  |---|---:|
+  | mom_21 | -0.008281367081487079 |
+  | mom_63 | 0.03637059556397837 |
+  | mom_126 | -0.09133035242078935 |
+  | mom_252 | -0.25055833135062255 |
+  | vol_63 | 0.31045166899069365 |
+  | mdd_126 | -0.2239070145700931 |
+  | beta_126 | 0.5259396975653587 |
+  | liquidity_21 | 564969927952.381 |
+
+### Kiểm thử M3-B và giới hạn
+
+18 targeted tests PASS, gồm AppTest với dữ liệu thật/fixture: import/load,
+schema/hash/lineage, uniqueness/many-to-many, official selector, Overview
+development/holdout, ticker feature equality, missing/malformed states, cache
+invalidation và reset. Server Streamlit startup PASS ở port thử 8517:
+`HTTP 200 /_stcore/health = ok`; đã dừng sau kiểm tra. Không có browser visual QA;
+dùng checklist trên để demo trên trình duyệt thật.
+
+Full repository gate chạy 268 tests: 262 PASS, 6 errors ở Financial continuation.
+Năm errors do thiếu thư mục tạm `.tmp`; sau tạo thư mục môi trường và rerun nhóm
+11 tests, 10 PASS và còn một error do thiếu immutable evidence
+`artifacts/financial_pit/fin-pit-1a-20261004T015420Z-continuation-preflight-v2/next_network_proposal.json`.
+Vì vậy full gate chưa PASS; không sửa/xóa assertion hoặc dựng evidence thay thế.
+Lỗi này nằm ngoài đường đọc M3-B. Log full run: `tmp/m3_full_suite.log` (local,
+ignored). Compile, TOML/JSON parse và Markdown links mới PASS. Diff check trên
+files của task PASS; global diff còn CRLF/trailing whitespace trong handoff và
+báo cáo đã được owner cập nhật trước task, giữ nguyên byte/hash của các file đó.
+
+```powershell
+.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_m3_dashboard.py" -v
+.\.venv\Scripts\python.exe -m compileall -q src tests scripts run.py m3_dashboard.py
+```
+
+Sandbox của phiên này chặn Windows asyncio/socketpair loopback; AppTest/server
+PASS ngoài sandbox. Đây là environment limitation, không đổi code/methodology.
+Handoff chưa pin trực tiếp feature path/hash; dashboard verify qua manifests
+C8/development/holdout. Model là reference only, dashboard không load model files.
+Transition Screen và kiến trúc backend/frontend riêng không thuộc stage này.
+
+**FINANCIAL NOT IMPLEMENTED YET.** Dừng ở M3-B Market-only; next step là owner
+chạy manual checklist, không tự mở Financial/M3-A/backtest.
+
 ## Hiện tại 2026-10-22 — Nhiệm vụ 11 hoàn tất trên dữ liệu mới, báo cáo đầy đủ
 
 Người dùng đã chạy xong notebook `11_final_holdout_execution.ipynb`. Bộ

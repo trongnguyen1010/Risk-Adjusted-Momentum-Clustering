@@ -1,3 +1,40 @@
+# Chưa phát hành — Chia sẻ dashboard qua Git, dữ liệu gửi riêng (2026-10-23)
+
+- Thêm hướng dẫn cài extra dashboard, đặt ba file C8 đúng đường dẫn và verify offline.
+- Giữ nguyên bytes bộ handoff bằng `.gitattributes -text` để bảo toàn checksum.
+- Pin pandas 2.3.3 trong extra dashboard cho API Styler đang dùng; không đổi model/data.
+
+# Chưa phát hành — Trục cố định liquidity/beta và overview-only (2026-10-23)
+
+- X=liquidity_21 symlog, Y=beta_126 linear cố định toàn dashboard; giữ raw values,
+  zero/outliers, nhãn X theo tỷ VND và tooltip VND gốc.
+- Thêm viền/focus ring cho ô tìm kiếm; bỏ Stock Detail và bộ chọn chế độ xem.
+- Migrate assertions về ticker/source/missing sang member table; giữ query
+  offline và mở rộng kiểm tra trục cố định/zero/missing của hai tọa độ mới.
+
+# Chưa phát hành — Thiết kế lại Market dashboard theo ảnh owner (2026-10-23)
+
+- Bộ lọc trái, thẻ tổng quan, scatter mom_252/mom_63, profile và members panels;
+  toàn bộ số liệu lấy đúng snapshot, giữ raw outliers và hai nhóm M2 hiện hành.
+- Tên nhóm theo liquidity profile: Dẫn đầu thanh khoản / Đại trà, có fallback
+  trung tính; không sửa scientific labels hoặc thêm ranking.
+- Members có company names từ C8 securities checksummed, đủ 8 ticker features,
+  search và pagination 10/25/50/100 rows; giữ Stock Detail/provenance/missing states.
+- Thêm native light theme, không thêm dependency; migrate assertions cũ và mở
+  rộng targeted tests lên 21.
+
+# Chưa phát hành — M3-B Market-only Streamlit (2026-10-23)
+
+- Thêm entry point duy nhất `m3_dashboard.py`: Overview, members và Stock Detail;
+  selector chỉ gồm 84 snapshot từ handoff hiện hành, không dùng bộ legacy 2026.
+- Kiểm chứng handoff hashes, C8/development/holdout lineage, schema, exact unique
+  join và profile size/ratio. Missing giữ trạng thái rõ ràng, không zero-fill.
+- Ticker features lấy trực tiếp JSONL; cluster profiles lấy CSV riêng. Không gọi
+  model hoặc tính lại features/clustering, không Financial/ranking/backtest.
+- Thêm extra `dashboard` pin Streamlit 1.66.1 và 18 targeted tests, bao gồm UI
+  AppTest/dữ liệu thật/cache/missing states; hướng dẫn Windows ở CURRENT_STATUS.
+- Giữ nguyên toàn bộ official artifacts và local changes có trước stage này.
+
 # Chưa phát hành — Kết quả mới và báo cáo đầy đủ Nhiệm vụ 11 (2026-10-22)
 
 - Ghi nhận lần chạy thật complete: 24 tháng 2024–2025, 30.155 assignments,

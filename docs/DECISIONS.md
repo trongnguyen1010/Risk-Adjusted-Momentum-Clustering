@@ -1,5 +1,63 @@
 # Các quyết định còn hiệu lực
 
+## ADR — Phân phối dashboard qua Git, C8 gửi riêng (2026-10-23)
+
+Owner gửi dữ liệu riêng; Git giữ code/theme/dependency và lightweight M2
+handoff/manifests. Giữ ignore root `artifacts/`; ba file C8 hiện hành được đặt
+đúng paths trong SOURCES và kiểm tra hash/lineage như trước. Không tái tạo hoặc
+chuyển đổi dữ liệu khi phân phối. `.gitattributes -text` áp dụng toàn bộ handoff
+để bảo toàn immutable bytes khi checkout. Extra dashboard pin pandas 2.3.3
+đang được dùng, tránh nhận bản pandas cũ không có `Styler.map`. Không đổi
+methodology, source manifest, scientific labels hoặc app behavior.
+
+## ADR — Trục cố định liquidity/beta và giao diện overview-only (2026-10-23)
+
+Owner phê duyệt X=liquidity_21, Y=beta_126 theo đặc trưng kinh tế ổn định qua
+84 monthly profiles; không dùng correlation thấp nhất để chọn trục. Chỉ đổi
+encoding visualization: raw ticker features và assignments giữ nguyên. X symlog
+constant 1 tỷ VND cố định, Y linear; nhãn X theo tỷ VND, tooltip VND. Zero và
+outliers giữ nguyên; không fit scaler/projection hoặc sửa source artifacts.
+
+Theo yêu cầu mới, bỏ Stock Detail UI và view selector; member table là nơi đọc
+ticker features. Giữ helper offline và migrate assertions numeric/missing sang
+bảng members, không giảm coverage để làm thay đổi giao diện pass.
+
+## ADR — Display names và giao diện Market theo ảnh owner (2026-10-23)
+
+Chỉ đổi presentation M3-B, không đổi methodology/labels. Dùng raw ticker
+mom_252/mom_63 cho scatter, không fit projection hoặc xóa outliers để giống ảnh.
+Tên Dẫn đầu thanh khoản dựa vào liquidity_21 profile cao hơn tại snapshot; Đại
+trà chỉ dùng cho nhóm còn lại có size lớn hơn. Thiếu/tie liquidity dùng tên trung
+tính; nguồn label giữ nguyên trong provenance. Không suy alpha/return hoặc ranking.
+
+Tên công ty là metadata tham chiếu từ C8 securities.jsonl, checksum verified và
+join unique security_id; không phải historical identity/PIT claim. Native light
+theme cấu hình trong .streamlit/config.toml; vẫn một file Python implementation.
+Search/pagination chỉ lọc view của nhóm hiện hành, không chọn portfolio/universe.
+
+## ADR — M3-B Market-only Streamlit (2026-10-23)
+
+Owner yêu cầu visualization layer chỉ đọc bộ handoff hiện hành 84 snapshot
+2019–2025 trên source C8 2016–2025. Manifest handoff version 2.0.0 vẫn nằm ở
+`m2-final-handoff-v1`; không dùng bộ legacy năm 2026. Entry point duy nhất là
+`m3_dashboard.py` tại repository root theo yêu cầu explicit của owner.
+
+Selector dùng chính xác `coverage.rebalance_dates`. Labels join ticker features
+bằng `(snapshot_date = as_of_date, security_id)` sau khi chứng minh uniqueness và
+ticker consistency. Cluster profiles là source riêng, không dùng thay features
+từng cổ phiếu. Sáu `MEDIAN_*` rows chỉ là summary, không phải snapshot.
+
+Runtime fail-closed với checksum/schema/date/duplicate/ticker mismatch; missing
+feature row/value được giữ thành trạng thái rõ ràng, không zero-fill hoặc chọn
+row đầu. CSV hashes lấy từ handoff; feature hash/C8 manifest phải khớp lineage
+development và holdout hiện hành. Không sửa manifests nguồn để thêm provenance.
+Cache in-memory invalidate theo fingerprints; có nút clear, loader tests uncached.
+
+Dashboard không load model, gọi fit/predict, recompute features, thay Global K,
+ranking, portfolio hoặc backtest. Financial UI/loading không thuộc stage này.
+Dependency extra `dashboard` pin Streamlit 1.66.1, không dựng API/frontend riêng.
+Audit dữ liệu này không thay thế M2 methodology audit hoặc nâng `research_ready`.
+
 Cập nhật 26/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation. Khi quyết định mới thu hẹp quyết định cũ, ID mới có ưu tiên cho active stage; historical rationale vẫn được giữ nguyên.
 
 | ID | Quyết định |
