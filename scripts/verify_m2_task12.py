@@ -45,6 +45,12 @@ def main():
     root = Path.cwd().resolve()
     if not (root / 'configs/experiments/m2_market_only_v1.json').is_file():
         parser.error('Run from repository root, where configs, M2 and src exist.')
+    if not (root / 'src/delta_t1/experiments/final_holdout.py').is_file():
+        parser.error(
+            'BLOCKED: Task 11 was removed at the owner request. This historical '
+            'Task 12 verifier requires matching holdout code and evidence. '
+            'No output directory has been created.'
+        )
     # PCA V1 was retired from the active tree. Never silently substitute V2 data
     # into this historical audit or create a partial output before this gate.
     historical_pca_inputs = [
