@@ -23,6 +23,9 @@ Dữ liệu nền tảng C8 canonical market dataset và M2-PREP configurations 
 
 ## Quick start
 
+Để chạy **Market Clustering Dashboard** sau khi pull code và nhận bộ dữ liệu
+gửi riêng, xem [hướng dẫn dashboard](docs/README.md#chạy-dashboard-sau-khi-pull-git-và-nhận-dữ-liệu-riêng).
+
 ```powershell
 .venv\Scripts\python.exe -m unittest discover -s tests -v
 .venv\Scripts\python.exe -m compileall -q src tests scripts run.py

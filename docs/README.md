@@ -1,5 +1,59 @@
 # Documentation — START HERE
 
+**M3-B Market-only (2026-10-23):** dashboard Streamlit tại
+[`m3_dashboard.py`](../m3_dashboard.py), đọc bộ handoff hiện hành 84 snapshot
+2019–2025 trên dữ liệu nền 2016–2025. Hướng dẫn Windows, checklist và ví dụ đối
+chiếu source ở đầu [Current status](CURRENT_STATUS.md). Giao diện chỉ còn Overview
+và bảng thành viên tìm kiếm/phân trang, trục cố định liquidity_21/beta_126;
+không Financial, ranking hoặc backtest. Các mốc cũ bên dưới giữ bối cảnh
+lịch sử, không phải next stage của phiên M3-B này.
+
+## Chạy dashboard sau khi pull Git và nhận dữ liệu riêng
+
+Yêu cầu Python >=3.11 (môi trường đã kiểm tra: Python 3.12). Người chia sẻ cần
+commit `m3_dashboard.py`, `.streamlit/config.toml`, `pyproject.toml`,
+`.gitattributes`, tests/docs và bộ `M2/artifacts/m2-final-handoff-v1/` hiện hành.
+Hai manifest development/holdout dưới `M2/artifacts/` đã nằm trong Git. Không
+commit `.venv/` hoặc bỏ ignore của toàn bộ `artifacts/`.
+
+Người nhận đặt **đúng ba file của bộ C8 hiện hành** do owner gửi riêng vào:
+
+```text
+<repository>/artifacts/cafef_primary/cafef-c8-complete-only-v2/
+├── manifest.json
+└── canonical/
+    ├── feature_snapshots.jsonl
+    └── securities.jsonl
+```
+
+Giữ nguyên bytes, không mở rồi lưu lại CSV/JSONL bằng Excel/editor. Không dùng
+bộ C8 cũ đến 28/08/2026 hoặc chỉ đổi tên thư mục để thay thế. Dashboard kiểm
+tra checksum và lineage với handoff/development/holdout hiện hành; dữ liệu thiếu
+hoặc sai phiên bản sẽ bị chặn. Không cần chạy lại crawl, features hoặc model.
+
+Từ thư mục gốc repository, chạy PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -e ".[dashboard]"
+.\.venv\Scripts\python.exe -m streamlit run .\m3_dashboard.py
+```
+
+Mở `http://localhost:8501`. Những lần sau chỉ chạy lệnh cuối; Ctrl+C để dừng.
+Extra `dashboard` pin Streamlit 1.66.1 và pandas 2.3.3, tương ứng API/table
+Styler đang dùng. Không cần cài extra `research` để xem dashboard.
+
+Kiểm tra offline bộ dữ liệu trước khi mở giao diện:
+
+```powershell
+.\.venv\Scripts\python.exe -c "from m3_dashboard import load_market_data; d = load_market_data(); print(d['audit'])"
+```
+
+Kỳ vọng audit `status=PASS`, 84 snapshot/75.801 assignments và không thiếu
+feature rows/values. Git handoff dùng `-text` để tránh tự chuyển đổi xuống dòng
+làm sai checksum khi clone trên Windows/Linux. Hướng dẫn này chưa thay thế một
+lần thử clone/install trên máy người nhận.
+
 Repository đang ở trạng thái **C8 executed and verified; R1 consolidated; M1-REPORT complete**. M1 market foundation đủ cho market-only experiment preparation, còn strict research gate vẫn `NOT READY`. Bắt đầu bằng:
 
 1. [Current status](CURRENT_STATUS.md) — số liệu, gate, lineage và stage tiếp theo.
