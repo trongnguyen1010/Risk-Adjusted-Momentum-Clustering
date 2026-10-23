@@ -2227,7 +2227,7 @@ Quy trình thực thi trong notebook `M2/notebooks/10_model_comparison.ipynb` g�
   Tính toán các giá trị thống kê: Median, Mean, Min, Max, Độ lệch chuẩn cho từng chỉ số (Silhouette, Davies-Bouldin, Calinski-Harabasz, Balance, ARI, NMI, Persistence, Migration Rate) của từng mô hình.
 
 - **Bước 3: Lập bảng so sánh đối đầu toàn diện (Comparative Matrix Construction)**
-  Tổng hợp thành file bảng dữ liệu chuẩn hóa `M2/artifacts/m2-evaluation/methodology_comparison.csv` gồm đúng 12 cột:
+  Tổng hợp thành file bảng dữ liệu chuẩn hóa `M2/artifacts/m2-evaluation-v2/methodology_comparison.csv` gồm đúng 12 cột:
   - `method`: Tên phương án (`KMeans_Baseline`, `Ward_Hierarchical`, `PCA_KMeans`)
   - `global_k`: Giá trị K toàn cục (`2`)
   - `median_silhouette`: Trung vị Silhouette
@@ -2245,9 +2245,9 @@ Quy trình thực thi trong notebook `M2/notebooks/10_model_comparison.ipynb` g�
   Áp dụng bộ tiêu chí 5 tầng tại Phần 10.4 để xác định duy nhất 1 mô hình chiến thắng (Winner Method). Đối chiếu chi tiết với Dao cạo Occam để biện luận thuyết phục về việc lựa chọn mô hình chiến thắng và loại bỏ 2 phương án đối chứng.
 
 - **Bước 5: Đóng băng quyết định, lưu trữ trọng số và xuất tài liệu bàn giao (Decision Freeze & Artifact Export)**
-  - Xuất file artifact quyết định chuẩn hóa `M2/artifacts/m2-evaluation/final_method_decision.json`.
+  - Xuất file artifact quyết định chuẩn hóa `M2/artifacts/m2-evaluation-v2/final_method_decision.json`.
   - Sao chép các tệp mô hình đã huấn luyện của phương án chiến thắng vào thư mục mô hình chính thức `M2/models/final_selected_model/`.
-  - Xuất biểu đồ so sánh chuẩn hóa `M2/artifacts/m2-evaluation/model_comparison_radar_or_bar.png` (Biểu đồ cột nhóm so sánh đa tiêu chí giữa 3 mô hình).
+  - Xuất biểu đồ so sánh chuẩn hóa `M2/artifacts/m2-evaluation-v2/model_comparison_radar_or_bar.png` (Biểu đồ cột nhóm so sánh đa tiêu chí giữa 3 mô hình).
   - Duy trì báo cáo chuyên đề `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md` độc lập với notebook; notebook không tự xuất hoặc ghi đè file này.
 
 ## Phần 10.6 — Cấu trúc chuẩn hóa của file `final_method_decision.json`
@@ -2273,7 +2273,7 @@ File artifact quyết định bắt buộc phải tuân thủ đúng cấu trúc
     "Mo_hinh_doi_chung_2": "Lý do loại bỏ dựa trên số liệu thực chứng"
   },
   "frozen_artifacts_manifest": {
-    "comparison_table": "M2/artifacts/m2-evaluation/methodology_comparison.csv",
+    "comparison_table": "M2/artifacts/m2-evaluation-v2/methodology_comparison.csv",
     "selected_model_directory": "M2/models/final_selected_model/"
   },
   "status": "FROZEN_FOR_HOLDOUT"
@@ -2294,9 +2294,9 @@ Báo cáo `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md
 2. **Thư mục lưu trữ mô hình chiến thắng:**
    - `M2/models/final_selected_model/`
 3. **Artifacts thực nghiệm chuẩn hóa:**
-   - `M2/artifacts/m2-evaluation/methodology_comparison.csv`
-   - `M2/artifacts/m2-evaluation/final_method_decision.json`
-   - `M2/artifacts/m2-evaluation/model_comparison_radar_or_bar.png`
+   - `M2/artifacts/m2-evaluation-v2/methodology_comparison.csv`
+   - `M2/artifacts/m2-evaluation-v2/final_method_decision.json`
+   - `M2/artifacts/m2-evaluation-v2/model_comparison_radar_or_bar.png`
 4. **Báo cáo chuyên đề Markdown độc lập:**
    - `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md`
 
