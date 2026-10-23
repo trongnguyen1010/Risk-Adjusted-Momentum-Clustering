@@ -1,5 +1,250 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-23 — Storage55: gom lịch sử, giữ hot dependencies vàboundarypins
+
+Owner cho phéparchive các lượt cũ đểlàm gọnmainfolders. Chuyển nguyên cây trên
+cùngvolume, giữ nội dung vàtên gốc; không rewrite frozenmetadata. Keep roots lấy
+từcurrentanchors/featureprovenance cùngboundarypins/epochs/mapping cần dùng.
+Catalogue/availabilitymap vàrestore exactprefix bắt buộc; khi replayhistory cần
+hydrateclosure, khôngresetbudgets/sourceboundary vìpathđãarchive. Một directoryID
+thayđổi chỉ đượcaccept khi manifest đãpin trước move chứngminh hash toàn bộfiles.
+M2chỉ dùnghandoff/delivery mới nhất; khônglấy mọi archivedversionlàm input.
+Khôngclaimdiskspacegain,canonical/PIT/researchpromotionhoặcmodelcompletion.
+
+## 2026-10-23 — Cleanup54: hot handoff và cold derived caches
+
+Owner yêu cầu clean sâu data/artifacts trước M2. Chỉ dùng dataset bàn giao mới
+nhất cho baseline; không phải giữ mọi bản candidates chuẩn hóa ở workingtree.
+Archive exactbytes bốn candidates subtrees batch500/800/1100/1400; verify
+memberSHA256/CRC, source inventory, plan/archive/controlhash trước native
+PowerShellLiteralPathprune đúng cây candidates. Raw/receipts/network journals,
+contracts vàsealedresults giữ trực tiếp; không reset budget/source boundary.
+713directinputpins của result50không nằm trong bốn cache; hot handoff giữ nguyên.
+Historical acquisition/QA replay có thể cần restore đúng path/hash từZIP;
+availabilityindex ghiCOLD_ARCHIVED_EXACT_RESTORE. Không thay sourcepriority,
+formula, numericacceptance, PIT hoặcmodel. Batch800historicalPARTIAL giữ nguyên.
+Backup exactbytes README/START HERE trước rút gọn; archive không thay bằng báo
+cáo tóm tắt. Đây làphysicalretention cóscope, chưa phảipublicpackaging.
+
+## 2026-10-23 — Cleanup53 giữ bằng chứng và tạo handoff dễ tìm
+
+Theo yêu cầu owner, gỡ file không còn dùng trước khi phân cụm. Report tóm tắt
+không thay raw/source/receipt/manifest/counter evidence. Chỉ archive report/helper
+không có retained runtime/frozen-pin reference vàoZIPexactbytes, verifyCRC/SHA256,
+rồi nativePowerShellLiteralPath prune đúngmanifest sau kiểm workspacepath/hash.
+Cache Python/test có thể tái tạo được gỡ; không xóa tracked source, không rename
+pinned modules/configs hoặc sửa frozen hashes. Có plan/ready/prune-result và
+restore exactpaths từZIP; khôngoverwrite filekháchash. Handoff CSV tên rõ làcopy
+được kiểmhash từdelivery50, không canonical successor hoặcPITpromotion. Dataset
+giữ1.172full10/13.529rows; phân cụm chưa chạy. Đây làcleanupworkingtree cógiới hạn,
+chưa phải public packaging hoặc xóa toàn bộ cache historical. Xem reporttổng53.
+
+## 2026-10-23 — Remaining DStock scope và bàn giao reference
+
+Yêu cầu trực tiếp mới cho phép hoàn thiện remaining API cases trong window08:38:50–09:38:50UTC; giữ nguyên absolute caps, campaign anchor/deadline, counter lineage và source boundaries. Không gọi lại797completed cases;15checks (12accounting+3cash) trước acceptance,không đổi formula/precision/model membership. Baseline49 immutable. Kết quả1.172full10/13.529rows,761heldcases chưa đồng nghĩa PDFcount.11metadata empty không waive schema. KhôngPDF/OCR,khôngPIT/M3promotion. Catalogue probe chưa thực thi do automatic approval review usage limit, không phải source denial;0request vàkhôngbypass. Xem[report50](../artifacts/reports/financial-dstock-remaining-v1/report.md).
+
+## 2026-10-23 — DStock complete-vector reference và cash totals gate
+
+Owner trực tiếp cho phép tự tiếp tục các phase trong1giờ hoặc đến>1.000. Chỉ thêm exploratory reference rows từ mộtprovider vectorđầyđủ,giữoldrows/provenance;không sourceprioritycanonical,khôngfieldmix/signinference. Mappingpin33itemcodes+exactlabels+modeltypes+membership,Decimal/no-fill;QAprecision12checks khôngđổi. Providercreated/modified vàcurrentmodelmetadata khônglàPIT/historicalscopeproof. KnownCTD/HSGfiscalexceptionsvẫnhold.
+
+Saucore-pass1.017full10, bổsungba complete CFtotals/stockchecks (CFO+CFI+CFF=netcash;cashrollforward;cash-to-BS) dùngnguyênabsolute≤1VNDvàrelative≤1e-9.16casesheld/5smallresidual;successorcuốichỉ1.002full10/12.568rows. Đây làgatechặt thêm,khôngwaiveđểđạtcounts.9componentCFOcodes chưaexhaustive đượcgiữdiagnosticwarning,khôngsuythànhphầnthiếu=0hoặcthaysốCFO đãcócontrolPDF.
+
+BudgetscopeDStockmớicófiniteamendment≤900logical/1.800attempts/250MB theoowner,khôngresetcounters/campaignanchor/deadlinegiữav2/v3vàkhôngtăngPDFcap. Sourceboundarieshardstop;0PDF/OCR. Raw/config/code/resultsđãexecutegiữimmutable;failedv1vàv2pilotgiữevidence,v3sửaresumetargetpartitiontrướcscale. FinalcashQAoffline,networkkhôngcònchạy. StrictPIT/research/productionfinancial/M3gatesvẫnfalse. Khôngthayholdout/model/protocolM2;chỉxuấtcohortsreference.
+
+Evidence: [report49](../artifacts/reports/financial-dstock-gap-recovery-v1/report.md), [finaldataset](../artifacts/reports/financial-dstock-gap-recovery-v1/cash-result-ref.json), configsfinancial_dstock_recovery_v3/financial_dstock_cash_review_v1 và42targetedtests.
+
+
+
+## 2026-10-23 — DStock shadow source pilot, chưa thay acceptance policy
+
+Owner yêu cầu kiểm tra DStock trước khi tiếp tục PDF/OCR. Dùng endpoint từ publicfrontend, lưu raw/receipts/hash và inheritedbudgets/boundaries. Sourcecandidates tách biệt acceptedreference; mapping dựa itemCode/model/labels/membership, không dựa rowposition. Providercreated/modified không là publication; UIzero có thể hiện dấu gạch, không parse thành missing=0. Pilot không phê duyệt sourcepriority, signtransformation hoặc historicalscope/PIT; sourcecontract phải review/version trướcimport. HSG2reviewedcachevectors giữ fiscalend30/09 và originalreferencegate. Evidence trong masterExecution48 và DStockreport.
+
+## 2026-10-23 — Issuer HTML reference và fiscal-period hold
+
+ExactprimaryissuerHTMLrows cóđủ8corefields/VND/year/source-reviewvàunchangedaccounting/financeQA được tínhreferencevectorriêng, khôngrepairAPI hoặcpromotePIT. PLX2023added;webtoolsourceextractSHAkhácoriginalresponseSHAunknown,datecaptionanomaliesngoàicorefieldsrecorded. CTD2023explicit6monthtransition khôngthayannual12month. Source/audit/replayversionsvàmasterreportExecution42 lưuđầyđủ;0PDF/OCR,external3webtoolcallsseparatelyledgered,noresetbudgets/boundaries. Không dùnglookup125khôngthấyannualdatađểkếtluậnkhôngcôngbố.
+
+## 2026-10-22 — Live master report và reviewed document vectors cho near-full10
+
+Owner yêu cầu report tổng cập nhật liên tục: `artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md` là điểm đọc chính, phải update mỗi execution financial; old reports/artifacts immutable, master là live documentation không frozen input. Không cleanup/delete chỉ vì tổng hợp report. README/index/plan trỏ cùng file.
+
+Review412gaps: phục hồiBRC/GAS/VNM bằngsingle-document reviewed core vectors, khôngAPIrepair. GAS thêm1CFO2025fact visual từcachedpage12;8inputs/cùngPDF/year/scope/VND/uniquevalues/featurevalidity làreferencegate, khôngcanonical/PIT acceptance.459→462full10;39tests/compile/synthetic/source/valuechecksPASS. Production/6families/PIT/M3 vẫnPARTIAL; no newnetwork/PDF/OCR hoặcscope/vintagepriority.
+
+## 2026-10-22 — Explicit direct-method CFO alias trong exploratory reference
+
+Owner yêu cầu tiếp tục phục hồi và đo>1.000mã, khôngdownloadPDF. Exactcode+label `HDKD_9` total với7signedcomponents, annual/provider/receipt/source chain vàsumchecks được bổsung ởrunner/versionriêng. Đây làparseralias correction trongscope exploratory đãduyệt, khônginferredunit/transformation/canonicalPITacceptance. Giữallqualitygates, nooverridefieldconflicts, old11.178rowsunchanged.657rows mới/459full10, vẫn0network/PDF/OCR. XemExecution40.
+
+Không biến sốlượngthànhQAcriterion:1.365candidates≥3consecutiveannual periods và459full10 đượcreportriêng; cohorts khôngfreeze finalresearchsample hoặcđổi100%observationrule. Backlog2.455cases khôngđồngnghĩaPDFcount, confirmednewPDFneednull trướcsource/vintage/identityreview. Full10>1.000/finalmetrics/PIT/M3 vẫnPARTIAL; promotion/phươngpháp mớicầnreviewriêng.
+
+## 2026-10-22 — Versioned exploratory precision QA; không promote facts/PIT
+
+Owner yêu cầu thực thi remedies sau counterfactual và reportPDF trước download. Cho riêng core-ratio reference, áp đồng thời residual≤1rawunit và≤1e-9×max(abs(terms)); giữ exact-zero riêng và mọi missing/displacement/provider/sector/denominator gate. Không sửa numericfacts, không tự tuyên bố unit hay source-vintage đúng. Version/output mới, baseline bất biến. Actual427full10/11.178rows, không505absolute-only sensitivity. Policy này là kỹ thuật exploratoryQA, không canonical/financialPIT/research acceptance; promotion vẫn cần proposal/reviewriêng. Xem Execution39.
+
+Documentbacklog3.112annual gaps không đồngnghĩa3.112PDFdownloads; cache211files/202hashes,7filenamecandidatecases. Chỉ reportcandidate document slots, countconfirmedPDFrequired null trướctriage. Không vận chuyểnPDF/OCR/network, không resetbudget. Core-ratio coverage và six-family completeness tiếp tụcreport riêng.
+
+## 2026-10-22 — Owner-approved core-ratio baseline, final M2/M3 gates giữ nguyên
+
+Owner duyệt core-ratio financial baseline độc lập. Đã fit static K-Means2016–2025 trên6.976 rows/1.311 registry candidates (51 có đủ10 kỳ reference); FY2025 zscore982/1/1, rank sensitivity395/361/228 cùng984 mã, chưa chọn final model. Reference6families87 rows/11 mã/5 full6 cohorts giữ riêng. Financial/PIT/M3 cuối vẫn PARTIAL; market handoff chờ teammate, không PDF/OCR mới.
+
+Owner explicitly selected exploratory core ratios while finishing original6families in parallel. Separate reference registry, same-year static fits, no publication/identity inference, no market changes or portfolio selection.24 controls/30 targeted/compile/synthetic/output verification PASS. Xem Execution36–37.
+
+## 2026-10-22 — Same-observation verification, không extrapolate format
+
+Đã xác minh557 fact/vintage observations/11 mã:334 khớp,63 khác giá trị hoặc vintage,160 chưa có direct alias. 9 Z reference tái lập khớp giá trị cũ; bổ sung2 kỳ Z reference BRC2024/VNM2024. Có18 đối chiếu CF interest khớp PDF trong khi KQKD gắn nhãn sai khác; chưa sửa mapping chung. Không PDF/OCR mới; full10y/PIT/M3 vẫn PARTIAL.
+
+Giữ API/report identity unresolved; exact CF-interest match chỉ theo reviewed anchor, không global alias/repair hoặc canonical/PIT promotion. 20 tests/compile/synthetic/source hashes/old-value parity PASS. Xem Execution35.
+
+## 2026-10-22 — Expanded API mapping, diagnostics không là acceptance
+
+Đang review trực tiếp raw annual 2012–2025 của 1.522 mã, mở rộng mapping và matrix 118.716 tasks. Giữ riêng API arithmetic diagnostics với reference đã kiểm chứng; không tải PDF/OCR hoặc tự mở acceptance/PIT/M3. Kết quả reference stage33 vẫn 11 mã có giá trị, 5 mã đủ6 tại một cohort, 0 mã đủ bộ2016–2025.
+
+Exact code/label, provider partitions, 11 accounting checks, fail-closed checkpoint/source hashes. Conditional EMZ và F signals chỉ là arithmetic diagnostics; không giả EBIT/share/debt proof. 38 targeted/compile/synthetic/PowerShell parse PASS. Execution34 ghi handoff và no-PDF boundary.
+
+## 2026-10-22 — Compute-first, bổ sung PDF sau review
+
+Đã hoàn tất acquisition và QA diagnostic cho 1.522 mã; compute-first offline tái tính 85 dòng reference từ input reviewed. Có 11 mã có ít nhất một family, 5 mã đủ 6 family cùng năm/scope/vintage (ACV, BRC, FPT, GMD, MWG); chưa mã nào đủ bộ 10 năm 2016–2025. Không tải PDF/OCR mới hoặc tự nâng API candidate thành dữ liệu đã xác minh. VNM F vẫn thiếu input; PIT/M3 chưa mở.
+
+Báo blockers trước khi lập kế hoạch PDF; alias absence không chứng minh raw thiếu field. Tách same-cohort reference, annual/period/TTM và PIT readiness. Giữ immutable v1, metadata fix v2 không đổi85 giá trị. 43 targeted/compileall/synthetic và manifest/numeric parity PASS.
+
+## 2026-10-22 — Read-only workflow monitor
+
+Dashboard vận hành dùng lại HTTP edge trong product, chỉ bind127.0.0.1:8765 ở mode monitor, không cần bundle hoặc thêm service dependency. UI đọc progress JSON/log/finalsummary; không launch/stop crawler hoặc recompute metrics. Acquisition100% và QA100% tách khỏi metric/PIT completion. Partial JSON giữ last-good kèm cảnh báo, stale heartbeat chỉ là chưa có cập nhật, không tự kết luận worker chết. Download chỉ whitelist report đã tạo và artifacts trong inventoryroot. Không sửa frozen collectors/QA inputs.
+
+## 2026-10-22 — Disjoint inventory và per-symbol QA
+
+Acquisition1.522/1.522 đã hoàn tất và finalauditPASS. Đang hợp nhất10cohort disjoint và chạy QA offline từng mã, có checkpoint, coverage196slots/mã, report gaps/fieldpresence/displacements/conflicts và selective document queue. Không PDF/OCR/network hoặc numeric/PIT acceptance mới; baseline29/30 giữ nguyên.
+
+Pin10terminalcohorts/raw/receipt/shard;196coverage slots/mã;diagnostics chưaacceptfacts,Unknown/Bank/Securitiesheld.19targeted/compile/syntheticPASS. [Execution32](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#32-inventory1522-va-qa-offline-22102026).
+
+## 2026-10-22 — Deferred HTTP500 proof và nối722 mã
+
+Tổng800 đã terminal task accounting;4DTRCDKTHTTP500 giữ deferred quarantine. Owner duyệt audit rồi nối722 mã còn lại qua recoveryv2,300+300+122. Controller đang chờ audit800, không claim API đang chạy;0,4s/oneworker/checkpoint/deadline cũ. Numerical/PIT/M3 PARTIAL.
+
+Proof yêu cầu terminalHTTP500/2attempts/exactreceipt+request+hash; mọiaccessboundary/lỗi khác vẫnHOLD, khôngretry hoặcacceptfacts. Audit producerpin trước mở disjointwaves.22targeted/compile/synthetic/realDTRproofPASS. [Execution31](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#31-audit800-va-resume722-22102026).
+
+## 2026-10-21 — Owner duyệt nối tự động toàn bộ registry
+
+Owner đã duyệt tự nối toàn bộ current registry1.522 candidates: sau tổng800, tiếp300+300+122. Overnight controller đang chờ total800;0,4s/one network worker/checkpoint, audit mỗi parent và finalwave. Giữ originaldeadline22/10/2026 12:55UTC/source latches; không bảo đảm xong trong đêm. Numerical/PIT/M3 vẫn PARTIAL.
+
+722remaining=300+300+122;421legacyUNKNOWN giữ provisional. Chờ current800 rồi audit/gate trước từngwave vàfinalaudit; giữ máy thức trong phiên, khôngshutdown hoặcđổi powerplan.34targeted/compile/synthetic và schedulecoverage testPASS. [Execution30](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#30-overnight-toan-bo-registry-21102026).
+
+## 2026-10-21 — Acquisition gate và GTX HTTP500 quarantine
+
+Tổng500 đã terminal task accounting; batch300 mới đang chờ audit raw/candidate của batch trước. Controller tự nối đúng1batch khi integrity/engineering/offline replay PASS; hướng tới tổng800, delay0,4s, một network worker. Bốn lỗi GTX HTTP500 giữ quarantine; field/kỳ thiếu deferred review. Numerical/PIT vẫn PARTIAL, baseline29/30.
+
+Gate kiểm exact raw replay và4GTXCDKTHTTP500/2attempts; không retry/reset hoặc nhận financial/PIT. Fresh API-only wave giữ140REPORTtasks/mã, bỏ catalogue placeholders tại host đã latch.29targeted/compile/synthetic PASS. [Execution29](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#29-audit500-va-batch300-tiep-theo-21102026).
+
+## 2026-10-21 — Owner duyệt financial wave300/0,4s
+
+Tổng200 đã hoàn tất task accounting; lượt hiện tại mở rộng thành300 mã (100 đang dở +200 mới), hướng tới tổng500. Owner duyệt delay0,4s, một network worker. Giữ checkpoint/counters/deadline và source hard-stop; chưa đủ numerical/PIT, baseline29/30. Xem mục28 để theo dõi tiến trình; không cộng trùng checkpoint total300 cũ.
+
+Giữ single network worker, original deadline và toàn bộ source latches. Tối ưu local cache/journal/snapshot;23targetedtests/compile/synthetic PASS. [Execution28](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#28-batch300-và-delay04s-21102026).
+
+## 2026-10-20 — Exact audit discrepancies và scope của stage gate
+
+Seeded fieldaudit đã đối chiếu6/6kỳ. Năm chênh lệch1VND vẫn là exact conflicts,
+không tự đổi thànhmatch bằng tolerance hoặc ghi đèsource. Quarantine giữ đầy đủ
+symbol/year/quarter/mode/provider_type/field vàPDFprovenance. Sourceanomaly phải
+được giữ cả khi cácfield so sánh khớp; quarterreport không chứng minh CFOstandalone.
+Completion của audit đọc từreviewresult, không từblueprint sampler khởi tạo.
+Gate mở acquisition batch tiếp phải tính theo engineering evidence riêng, tách khỏi
+metric/PIT completeness; không dùng hardcodedfalse hoặc thiếupublicinput đểthay
+kết luận gate. Mọi research/identity/variant acceptance giữ nguyên.
+Xem [execution15](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#15-execution-tiếp--đối-chiếu-đủ-sáu-kỳ-audit-20102026).
+
+## 2026-10-20 — Historical company scope và seeded independent audit
+
+Scope củaBRC2025 không chứng minhscope2015. Fact/recompute cohorts dùngexact scope;
+COMPANY_REPORTED chỉ cho disclosed-basicEPS khi exactnote đủnumerator/weightedshares,
+không tự mở F/M/Z/PE/PB variants. Không thayformula hoặc suy fundreserve/dilution.
+
+API arithmeticpass làđiều kiện chọn mẫu, không sourceacceptance. Seeded3issuer×annual/
+quarter độc lập PDFavailability, ghi fallbackera/thiếudocument. Fieldaudit pinPDF/render,
+unitcontract, exactperiod vàrawQA; không nhậnH/HK làmconsolidated, không vượtPIT gate.
+Giữchênh1VND/sourceinternalanomaly đểreview; không sourcepriority hoặcaverage.
+Audit results riêng reference bundle, không nhân sốfieldmatch thànhnewacceptedfacts.
+Xem [execution14](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#14-execution-tiếp--brc-company-scope-và-independent-audit-20102026).
+
+## 2026-10-20 — Provider units, exact-period EPS/date references và global OCR
+
+Raw monetary unit được chứng minh bằng cached UI code chia1e6/1e9 theo nhãn triệu/tỷ,
+không bằng magnitude. Chỉ exactcode/label và nonstatic monetary template được annotate;
+EPS/ratio branch giữ riêng. Đây là candidate unit reference, không source accuracy,
+scope/vintage/PIT acceptance hoặc row-shift repair.
+
+OCR coordinator lưu mọi registration/reservation trên campaign root: config mới không
+quên old charges, duplicate content-page không trở thành task mới. Giữ original72h/90d
+anchors và40/1.000/12.000caps; không sửa frozen child worker hoặc reset counters.
+
+Period EPS dùng explicit3/6/9/12-month note vàweighted basicshares; không quarterlysum,
+annualization, inferred reserve hoặcdilution. Date view tái dùngpolicy owner03/10,
+exactPDFpublication vàobserved calendar. Comparative release có lateravailability;
+latesteligible perfield phải đồng nhất document vintage, tie-conflict trảnull.
+240monthly rows chỉ information reference, không EPS_TTM hoặcM3 feature dataset;
+strict PIT/identity/research gates vẫnfalse. MWGQ3 catalogue trướcPDFcreation không
+được thay ngày tạo/ký làmpublication. Active bundlev7/PowerShell là entrypoint hiện tại.
+
+
+## 2026-10-19 — Reviewed history task grid và explicit reference bridge
+
+Bundle mới giữ full5×13×6annual grid; missing/ambiguous thànhnull có dependency,
+không select theo row order hoặc promote API/OCR. BaselineFY2025 copy exact immutable
+metrics (UTF-8 BOM-aware), không thay29/30. Quarterly/H1 tách khỏi annual calculators.
+GMD2015 cohort cho phép đúng2fields originalFY2014 (TA2013/owned depreciation2014)
+qua pinned manual review và exact opening/comparative bridge; sourcevintage/PIT vẫn
+riêng, không generalize mix tất cả original/restatedfields. EPS dùng disclosed numerator,
+weighted basicshares; parentprofit1VNDconflict vẫn quarantined. Debt F là long-term
+origin principal all maturities, future leaseinterest không thành principal; source
+schedule/raw báo riêng. Đây là existing reference variants, không methodology gatewaiver.
+Active configv4/PowerShell kế thừa mọi counters/reservations, closedresearch/batch20.
+
+
+## 2026-10-19 — CPU OCR chọn trang và reviewed reference continuation
+
+Owner yêu cầu tiếp tục đến goal. Dùng Tesseract CPU qua Windows wheel theo upstream
+tesserocr guidance, local .tools và official vie/eng models pin hashes; không dùng
+WindowsOCR bị chặn hoặc cloud upload. OCR/reservations chỉ tạo candidates, visual
+review mới tạo reference facts. Giữ default formulas và đóng research gates.
+Documents successor giữ565cumulative requests/attempts và created_at parent; lỗi
+v1config trước I/O được recover bằng v2, không xóa receipts hoặc thử lại FPT404.
+Cache lookup cần kiểm legacy inventories trước mọi download mới; FPT/VNM Q2/2024
+được tái dùng. Comparative2014 trong GMD2015 không trở thành original2014 vintage.
+FPT embedded explicit publication được áp policyDATE_ONLY đã owner duyệt trước đây,
+không suy giờ, không dùng digital signature làm publication và không tự mở PIT/feature.
+Quarter income, closing balances và H1cashflow giữ interval riêng, không annualize
+để dùng annual Z baseline. Goal active/PARTIAL; batch20 vẫn đóng.
+
+## 2026-10-19 — Offline QA sau F2 acquisition, không thay acceptance
+
+Acquisition pilot5 history đã hết task pending. Thêm QA layer riêng thay vì sửa
+frozen parser/code pins. Unmapped zero chỉ loại khỏi semantic accounting cảnh báo
+khi đúng raw group code/number và không phải child row; raw giữ nguyên. Mapping
+code+normalized exact label chỉ diagnostic, không lấy provider code làm VAS mặc định.
+Annual–Q4 được so raw giữa các provider-type partitions nhưng giữ flags riêng,
+không tuyên bố equivalent scope/vintage hoặc trộn input để tính metric. Hai distinct
+nonzero neighbor matches chỉ flag displacement; không tự sửa row. Totals cân và
+raw match với reviewed PDF không suy units/acceptance/PIT. H1 không thay Q2 standalone.
+
+Queue ưu tiên reviewed cache, rồi missing periods và anomaly PDFs chọn lọc trong
+campaign caps/boundaries cũ. Stage này không network/PDF/OCR, không thay formula,
+29/30baseline, registry hoặc research gates. Data delivery PARTIAL; batch20 đóng.
+[Execution/QA handoff](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#9-qa-offline-và-handoff-bổ-sung-chọn-lọc).
+
+## 2026-10-19 — History financial F0/F1/F2 successor, acquisition-only
+
+Owner yêu cầu bắt đầu crawl/xử lý theo financial history plan. Tạo config/runner
+fixedpilot5 riêng, không mở full universe hoặc sửa frozen pilot/trial runners.
+Pin registryv1, code/dependencies và boundary/cache inventory. Canonical issuer IDs
+chưa resolved dùng provisional provider partitions, không gộp blank issuer IDs
+và không cấp historical identity claim. Conservative imported host latches giữ
+cafef.vn/SSI; chỉ dedicated apiweb.cafef.vn được new network trong stage này.
+Catalogue bị chặn giữ deferred, không đổi client/host hoặc retryEPSroute.
+
+F1replay giữ29/30. Annual/QUY/LUYKE candidates, units/scope/vintage chưa accepted;
+group paging/repeat/nonprogress/raw integrity được kiểm.92unmapped-code findings
+trongwave25 giữqueue. Source/PDF/financial PIT acceptance, formulas và research/
+cluster/backtest gates không đổi. Worker local chỉ tiếpF2 trong contract/caps,
+không tự promote20. [Execution/commands](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#8-execution-hiện-hành--pilot5-f0f1f2).
+
 ## 2026-10-19 — Hai plan lịch sử và registry team dùng chung
 
 Owner chốt market2016–2025 +warm-up2013–2015, mục tiêu≥1.500 cổ phiếu riêng biệt
@@ -779,3 +1024,145 @@ không tự nhận OCR hoặc dùng phân loại lại trong năm làm closing s
 BCTC mẹ chỉ xác minh kỳ hạn khoản vay của mẹ. Supporting note mới chưa đủ input,
 giữ29/30 và VNM Finterval4–5. New-document campaign đúng1URL chưa request;
 oldCafeF/TCBS/SSI counters/access latches bất biến. Replay không đổi29metrics cũ.
+
+
+## 2026-10-20 — F2 engineering gate và bounded template successor
+
+Thực thi tiếp được owner yêu cầu cho toàn goal; F2engineering17checks chỉ mở bước
+candidate extension có giới hạn. Taskaccounting/failure/parser/audit/quarantine,
+resume/hash/budget/disk/deadline phải có evidence; knownmissinginputs không tự là
+engineeringFAIL nhưng giảm deliverycoverage. Không dùng gate này nới numeric/PIT/M3.
+
+Mẫu20 gồm fixedpilot5+15currentprofilepartitions, selection theo registry_id trong
+exchange/typeproposalstrata cósourceevidence, không portfolio outcomes. Provider
+classification hiện tại không tạo historicalidentity/sector/applicabilityclaim.
+15profiles và180page1APIprobes thuộc childledger kế thừa anchor/counters/latches;
+không reset72h/90d, không mở lại blockedhosts, không truyền universe mới cho frozenrunner.
+
+BankNV response cóblanktemplatecodes lặp: giữ strictparserfailures, adapterversion
+riêng preserve rawcells, chỉ linkunique/nonblankcode+label, quarantineblank/duplicated/
+unmappedcodes. Không alignment bằng rowordinal, không structuralzero hoặc rowrepair
+bằng magnitude. Labelcandidate không phải accepted accountingfield và codeđúng không
+chứng minh providerđiềnđúngvalue. Noacceptance/formula/scope/PIT policy change.
+Fullhistory20acquisition cần successor/gate riêng; không promote templateprobe result
+thành historicalfinancial hoặc research readiness. IR không được liên hệ.
+
+
+## 2026-10-20 — F3 history candidates và gate theo adapterversion
+
+F3 mở acquisition lịch sử cho15mã bổ sung sau gate9checks bằng raw180probes,
+currentmetadata và adapterreplay cóquarantine. Giữ4strictparserfailures cũ;
+không reinterpret thành strictparserPASS hoặc nới ngưỡng1%. Gate chỉ cho
+candidateacquisition bằng version adapter mới, không numeric/identity/PIT promotion.
+
+Collector riêng giữ3.300plannedtasks, reuse180probe cache, candidate shards ghi
+immutable theo taskid, snapshots pin indexes để tránh nhân bản lớn. Phân trang
+độc lập, predecessor/nonprogress guards, fatalrawhashmismatch và noautoretry khi
+interruptedrequest thiếu receipt. Parent anchor/counters/requests/source latches
+phải giữ nguyên. Extra2026cells không thuộc target2013–2025.
+
+Fullsuite thực chạy564tests có3failures/3errors; focusedHTTP vàM1runtime rechecks
+PASS, còn knownM2-PREP livingdocs-vs-frozenhash mismatch. Không thayassertion,
+regeneratefrozenM2 hoặc tuyên bốfullgatePASS; acquisition không promote canonical,
+reference/PIT hay research/backtest. FinalF3/audit/coveragegates còn phải đánh giá
+sau khi collector terminal vàQA/documentwork hoàn tất.
+
+
+## 2026-10-20 — F3 QA cố định inventory và anomaly-directed documents
+
+QA đọc sealedbatchmanifest hoặc immutable receiptpreviewinventory; preview không
+đọc thêm tương lai từ livefolder và không dùng missingcount0 làm coveragePASS.
+Pin taskidentity/rawhash/candidateshard/profileassignment và producer code; scope
+của replayinvariance không được diễn giải thành strictfinancialPIT readiness.
+
+Structuralzero chỉ theo exactrootgroupnumber với raw0 vàcode không làchild;
+blankcodes hoặc nonzeroorphan vẫn giữ. Regularaliases không áp cho bank/securities.
+Rawarithmetic/annual-Q4 và shiftchecks là diagnostic: unit/scope/vintage/fiscalperiod
+cònunverified; không sửa index, average hoặc acceptfield từrawmatch. Schemaorphan
+nonzero phải vào selectivequeue. Anomalyqueue không thay independentfalse-negativeaudit
+hoặc finalmissinginputreport. Không đổi existingacceptance/PIT/formulapolicy.
+
+
+## 2026-10-20 — ACV reference cohorts theo report vintage
+
+Referencecohort chọn primaryPDF cùng whitelist auxiliaryfield/year/PDF đã review;
+không chọn latest hoặc gộp EPS numerator/WAS giữa các reportvintages. BasicEPS
+reported nhưng chưa normalize reserve giữ field/basis riêng, không alias sang
+reserve-adjusted numerator. Missing reserve không thành0. F dùng closingstocks,
+không reclassificationflow. Sourceanomaly1VND ở các ngữ nghĩa khác nhau được giữ.
+
+PE vàPB có dependencies độc lập; PB dùng reported outstanding commonshares và
+parent equity, không EPSweightedshares. Giá đọc exactrow từ sealedC8raw_close;
+không sửa marketcanonical hoặc lấyadj_close. Valuations chỉ referenceannualsnapshot
+sau explicitDateOnlypublication, không current/TTM/event-adjusted. Unknown ngày của
+auxiliaryPDF không được thay bằng ngày primary; mọi strictPIT/researchgates vẫn đóng.
+
+F3acquisition terminal chỉ chứng minh taskaccounting/candidates. SealedQA341missing
+slots và193selectivequeueperiods cầncache/catalogue/periodclassification/audit trước
+PDFs; không tải193documents hoặc dùng missingcount thay sourceunavailability.
+IndependentAPI-pass audit và F3delivery/costgates vẫn phải hoàn tất trước scale50.
+
+
+## 2026-10-20 — F3 independent sampling và signed PDF evidence
+
+Mẫu kiểmtraAPI-pass phảiđược cốđịnh trước khi tìmPDF, giữticker/period/seed vàpending
+nếu chưa tìmđượcsource. LoạiACV đãreview trước selection bằngpinnedreviewevidence.
+Currentexchange/sector dùng đểstratifycandidateaudit, không thànhhistoricalidentity
+hoặc phépápRegularF/M/Z chobank/securities. Catalogueview đầu chưađủ đểclaimmissing.
+
+Exactfieldaudit giữsignedsourceamount. DBCFY2022PDFtrìnhbàyCOGSnegative, APIpositive
+cùngmagnitude: giữrawconflict +sourcepresentationnote, khôngtựabs hoặc kếtluậnrowshift.
+Acceptedcanonicalcompute cầnnormalizationevidence riêng; không thaycôngthức hoặc nới
+acceptance chỉđể auditPASS. Publication lấyexplicitissuerdisclosure, khôngngày ký/migrationdate.
+OCRsuccess/candidateunitproof không tựacceptfact hoặc mởPIT/M3.
+
+
+## 2026-10-20 — Named zero và source partition quarantine
+
+Tênfield hợp lệ +APIzero không đảm bảo là observationđúng. SHSFY2025LCTT có7namedPDFnonzero/APIzero;
+khôngchỉ quarantineorphan. Criticalreviewgiữexactsourcekey vàsourcepartitionhold, khôngshiftrows,
+fillPDFvalue vàoAPI hoặccoi rawnumericmatch làunit/scope/PITacceptance. Gates sau phảiconsumeholds.
+GASPDFfacts được reviewtheonamedrows vàcomputeexistingannualvariant riêng, khôngrepairAPIcandidate.
+
+DùngcachedPDF trướcnetwork;2SHSsizecapattempts đãlỡphát sinh vẫn giữcounters. Khôngnângcap hoặc
+retry/rangefile đểchefailedtransfer. KhácPDFhash +publication22/23March2026 không đượcgánngàynguồnmới
+vàocache. SourceHTTP302/legacyHTTP khôngđượcfollow/upgrade trongfrozenHTTPSNoRedirectcollector.
+
+
+## 2026-10-20 — Owner phê duyệt tách acquisition khỏi manual financial review
+
+Bối cảnh: batch20 đã terminal API nhưng kiểm PDF/OCR chi tiết kéo dài. Owner yêu cầu thu thập trước, field nghi vấn ghi report để review sau. Cho phép successor candidate-only thêm30, kế thừa engineering/parser/quarantine evidence cũ; không cần chốt hết F3 document audit/metric/PIT trước candidate acquisition50. Không cho phép autoaccept, bỏ holds, đổi công thức, backfill restatement ngược lịch sử, canonical identity claim, reset budget hoặc bypass source boundaries. Các numerical/research/M3 gates vẫn đóng. Xem mục22 financial history plan; known full-repository frozen docs mismatch không được waive.
+
+
+## 2026-10-20 — Candidate batch100 sau QA50
+
+Owner yêu cầu thực hiện bước kế tiếp theo acquisition-first. Gate engineering riêng chấp thuậnadditional50candidates sau terminal/replay/QA/report/cost/deadline; không đợimanualPDFreview và không thay fullF3numeric/PIT acceptance. QAclassify exactKQKDtemplatefamily từpinnedcurrentprofiles/templatecatalogue chỉ đểdiagnostic;unknown,bank,securities khôngápRegularscoremapping. Registryimmutable, assignmentversioned/excludeprior50 và1..100boundedrunner; khôngclaimhistoricalcanonicalidentity. Xem mục24financialhistoryplan.
+
+
+## 2026-10-21 — Nối một batch candidate additional100
+
+Owner yêu cầu tăng số mã ngay theo acquisition-first. Chấp thuận pipeline local một lần: QA/verify batch100 → engineering gate → thêm100 để hướng tới tổng200, cap100mã/batch. Mọi kiểm chứng field/PDF/PIT vẫn độc lập và deferred; không bỏ source/engineering/budget gates. Hủy marker shutdown của batch cũ cho công việc mới; không bật shutdown cho batch mới. Không thay historical identity, công thức, acceptance hoặc research/M3 gate.
+
+
+## 2026-10-21 — Owner cho phép tăng tốc API từ2s xuống1s
+
+Yêu cầu trực tiếp: tăng tốc gọi API vì mục tiêu1.500mã. Chọn1request/giây và concurrency1; không chạy song song hay bypass access control. Điều chỉnh spacing có version riêng, không sửa config/code/artifacts đã freeze hoặc reset budgets. Handoff chỉ khi process đã suspended và durable journal chứng minh REQUEST_RESERVED attempts0, reserved_bytes0, không HTTP in flight. Reserved request0 được tiếp tục cùng key/epoch; completed/in-flight attempts không được auto retry. Existing numeric/PIT/research/M3 gates và deadline giữ nguyên.
+
+
+## 2026-10-21 — Acquisition300 dùng streaming integrity gate
+
+Owner yêu cầu tiếp tục sau batch200. Theo acquisition-first đã chấp thuận, gate trước acquisition gồm exact manifest/receipt/rawhash và replaycandidatebytes, task/parser/invalid/quarantine/coverage, source/counters/deadline/disk; không chờ semantic accounting/annual–Q4/institution/PDFreview. Các bước semantic được ghi deferred rõ ràng, không gọi QA/PIT hoàn tất hoặc nới acceptance. Giữ1request/giây1worker bằng fresh versionedrunner; oldfrozenconfig/source/partialcheckpoint không sửa và không cộng trùng vào tổngdata. Chỉ nối100mã, không tự mởbatch khác.
+
+## 2026-10-23 — ReusablePDFpilot10 với acceptance độc lập
+
+Owner đãduyệt tối đa100PDF trongqueueExecution44,hai batch≤50/pilot10 trước, sau đó yêu cầu flowổnđịnhchạylại. Dùng successorPDFworkflowv1 vàOCRcontrollerv2; counters/sourceboundaries/campaignanchor giữ nguyên, batchPDFmới72giờ không sửa batchAPIcũ. Raw/text/OCR làcandidates; chỉimport fullsingle-document corevectors sau explicitpage/year/unit/scope/visualreview bằng existingfinancial-near-full-review policy. KhôngđổiQA, financialPIT, sourcepriority, canonicalidentity hoặcM2/M3methodology. CurrentCNT2018 +1core-reference/full10 khôngchứngnhận10/10pilot hoặcproductionstable. Next50giữclosedchođếnkhi source/extraction/reviewgates cóevidence.
+
+
+## 2026-10-23 — Cache provenance không thay statement acceptance (Execution46)
+
+Offline successor resolve cache chỉ nhận exact path/SHA256/URL cùng source record, giữ provider hints/warnings riêng; không suy canonical identity, publication, unit, scope hoặc vintage từ filename/metadata. Cache overlaps chỉ tạo review queue, không tự tải hoặc accept. Coverage exports3/5/8/10kỳ là reference cohort inventories, không tự freeze model sample, hạ10kỳgoal hoặc promote PIT/M2/M3. Mốc hơn1.000 có dependency plan1.001, số PDF chưa xác định; approval batch100 hiện có giữ đúng scope. Không reset counters/source boundaries/deadlines và không sửa frozen45sources.
+
+
+## 2026-10-23 — Reference recovery bốn cached statements (Execution47)
+
+Giữ existing single-document reviewed core-vector policy; không đổi residual caps, API partitions, PIT, canonicalidentity hoặc research eligibility. Tổng400 cófundingsection430 được ghi rõ tạiVEA, không áp mapping mới lên universe. Auditqualifiedwarning giữ vàkhôngcấp production/research clearance. VHCsignedpresentation chuyển expense magnitude theoexisting subtractionformula, giữrawsigns/columnproof; deferredtaxincome lànegativeexpense. Chỉcurrentyear consolidated vectors; khôngtrộnseparate/restatedcomparatives. Draftpreimport alias correction giữV1 vàtạoV2 trướcimport, khôngsửaartifactcũ. OCRbatchcachefour47 kếthừacampaignregistrations/anchors,21pages mới khôngresetquota/deadlines;0PDFdownloads.

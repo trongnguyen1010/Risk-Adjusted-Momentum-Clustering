@@ -1,62 +1,44 @@
-# DELTA
+# DELTA — dữ liệu và phân cụm cổ phiếu Việt Nam
 
-DELTA là repository research + product cho thị trường cổ phiếu Việt Nam. Research Core xây market dataset point-in-time, feature snapshot và protocol clustering; Product Layer chỉ trình bày artifact đã version hóa, không tự fit lại model.
+**Cleanup55:** `data/financial` còn **59** thư mục (trước221), `artifacts/reports` còn **13** (trước57). Các lượt cũ đã gom vào [kho lịch sử](artifacts/archives/financial-history-20261023/README.md); chỉ dùng handoff hiện hành cho M2.
 
-## Flow financial hiện tại
+## Bắt đầu tại đây
 
-**Planning mở rộng 10 năm, chưa chạy crawl mới:**
-[market ≥1.500 cổ phiếu lịch sử](docs/crawl/MARKET_HISTORY10Y_1500_PLAN.md),
-[financial history/PIT cho M3](docs/crawl/FINANCIAL_HISTORY_PIT_PLAN.md) và
-[registry 1.522 candidates dùng chung cho team](configs/data/securities_collection_registry_v1.csv).
-Registry tách legacy acquisition, xử lý C8, coverage/PIT và phân công; số ticker
-discovery chưa phải số mã đủ điều kiện backtest. Flow pilot dưới đây vẫn là execution hiện hành.
+| Cần tìm | Mở |
+|---|---|
+| Dataset financial đang dùng | [Bộ bàn giao2016–2025](data/handoffs/financial-reference-2016-2025/README.md) |
+| Quá trình và kết quả financial | [Report tổng](artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md) |
+| Plan financial / market | [Financial](docs/crawl/FINANCIAL_HISTORY_PIT_PLAN.md) · [Market](docs/crawl/MARKET_HISTORY10Y_1500_PLAN.md) |
+| Danh sách mã chung cho team | [Registry](configs/data/securities_collection_registry_v1.csv) |
+| Lệnh chạy và kiểm tra | [Bảng lệnh](scripts/README.md) |
+| Kiến trúc, protocol và tài liệu | [START HERE](docs/README.md) |
 
-Pilot BRC/FPT/MWG/GMD/VNM đã tính lại và kiểm chứng 29/30 chỉ số tham chiếu.
-Đọc [START HERE](docs/README.md) và [PowerShell runbook](docs/crawl/FINANCIAL_CAFEF_PILOT5_USER_GUIDE.md).
-Đã gỡ 48 legacy financial entry scripts và 8 thư mục báo cáo cũ sau khi verify ZIP; hướng dẫn restore ở START HERE.
+Financial hiện có **1.172 mã đủ10 annual periods2016–2025**, gồm11.720 dòng trong
+cohort bàn giao. Dataset rộng hơn có13.529 reference rows. Sáu tỷ số cơ bản đã
+tính; EPS/P/E/P/B/F/M/Z toàn lịch sử, PIT và M3 vẫn PARTIAL. Phân cụm financial
+chưa chạy trong các lượt cleanup. Bước tiếp theo là baseline thăm dò trêncohort đủ.
 
-## Trạng thái hiện tại
+## Thư mục nào cần dùng
 
-CafeF `TradeHistoryNew` là nguồn market active. Stage C8 đã được execute và C8-VERIFY đã xác minh offline, không rerun feature build:
+- `data/handoffs/financial-reference-2016-2025/`: input financial để làm việc.
+- `src/`, `configs/`, `scripts/`, `tests/`: code, cấu hình và kiểm tra.
+- `data/financial/`: raw API/PDF, receipts, journals và provenance cần giữ.
+- `artifacts/reports/`: report tổng và evidence của từng lượt.
+- `artifacts/archives/`: bản ZIP giữ exactbytes của evidence/cache không cần mở trực tiếp.
+- `docs/`: plans, decisions, architecture và research protocol.
 
-- 952 securities trong candidate universe: 500 C5 baseline + 452 C7 complete expansion;
-- 905 securities đạt `market_feature_ready_v2=true` và tạo thành proposed `MARKET_ONLY_EXPERIMENTAL_UNIVERSE`;
-- 47 securities chưa market-ready; 148 expansion securities còn `DEFERRED_EXPANSION_ACQUISITION`;
-- 0 securities đạt `historical_identity_ready`; 0 đạt `research_ready` theo strict gate hiện tại;
-- 905 không phải final research universe, canonical production universe hoặc kết quả đầu tư.
+Không nối tất cả các phiên bản trong `data/financial` khi chạy M2. Dataset mới
+nhất kế thừa dữ liệu từ các lượt trước; tên phiên bản cũ không có nghĩa source
+evidence đã vô dụng. Bốn normalized caches cũ đã chuyển sang cold archive;
+[hướng dẫn restore](artifacts/archives/financial-cache-20261023/README.md).
 
-R1 đã hợp nhất repository sau C8: bỏ planning/history/runner superseded khỏi active tree, giữ code và evidence cần thiết để verify C8, duy trì acquisition có kiểm soát và chuẩn bị stage nghiên cứu tiếp theo. M1-REPORT đã hoàn tất tại `artifacts/reports/m1-market-foundation-v1/`; notebook inspection nằm tại `notebooks/eda/M1_CAFEF_MARKET_FOUNDATION.ipynb`. Các file đã xóa vẫn truy xuất được trong Git history.
+## Ranh giới nghiên cứu
 
-Trong M2-PREP, `market_experiment_eligible(t)` được định nghĩa theo từng snapshot là `market_feature_ready_v2(t)`. Owner review ngày `2026-09-26` đã chấp thuận các đề xuất Protocol v1 trong Unified Project Plan làm input cho M2-R1. Con số 905 chỉ là membership ở snapshot mới nhất `2026-08-28`, không phải bộ lọc terminal áp ngược về lịch sử và không đồng nghĩa `research_ready`.
+M1 market C8 có905 market-ready tại snapshot legacy; không phải historical
+research universe đã nghiệm thu. M2 market-only protocol và M3 backtest tuân theo
+[roadmap](docs/ROADMAP.md), [decisions](docs/DECISIONS.md) và [AGENTS](AGENTS.md).
+Không đổi research/PIT gates chỉ vì đủ số mã; không chọn model bằng return/Sharpe.
+Market do teammate xử lý riêng; chưa có đầy đủ handoff trên máy này.
 
-## Quick start
-
-```powershell
-.venv\Scripts\python.exe -m unittest discover -s tests -v
-.venv\Scripts\python.exe -m compileall -q src tests scripts run.py
-.venv\Scripts\python.exe scripts\build_m1_market_foundation_report.py --verify-existing
-```
-
-Không chạy C8 verifier-generator lại khi compact artifact đã tồn tại. Full tests và M1-REPORT verifier kiểm tra evidence/hash hiện hành; R1 exact-inventory verifier chỉ tái hiện được tại frozen R1 tree, không phải sau các commit M1/D1. Synthetic smoke chỉ là regression kỹ thuật, không phải research evidence.
-
-## Cấu trúc active
-
-```text
-src/delta_t1/   Research Core, ingestion, experiment và Product Layer
-configs/        Contract/config active cho C8, expansion, supplemental và synthetic smoke
-tests/          Unit, integration và regression tests còn hiệu lực
-scripts/        Runner/verification active
-web/            Dashboard tĩnh đọc Product API
-docs/           Contract, methodology, trạng thái và reproducibility
-artifacts/      Evidence được version hóa; heavy C8 artifact giữ local, immutable
-```
-
-Đọc tiếp tại [Documentation index](docs/README.md), [Current status](docs/CURRENT_STATUS.md), [Project map](docs/PROJECT_MAP.md), [Methodology](docs/METHODOLOGY.md), [Reproducibility](docs/REPRODUCIBILITY.md) và [Roadmap](docs/ROADMAP.md).
-
-## Stage tiếp theo
-
-Stage chính xác tiếp theo là **M2-R1 — PROTOCOL FREEZE v1**: chuyển các quyết định đã được owner review thành config, ADR, validation và tests. M2-R1 không chạy real clustering, không mở holdout, không sửa runner market-only và không được ngầm nâng 905 securities thành `research_ready`. Sau khi M2-R1 PASS mới chuyển sang M2-R2 để sửa runner/input adapter.
-
-## Disclaimer
-
-DELTA là project nghiên cứu và công cụ phân tích, không phải khuyến nghị đầu tư.
+Lịch sử chi tiết ở [CHANGELOG](CHANGELOG.md), [Project Map](docs/PROJECT_MAP.md)
+và report tổng. Hướng dẫn đóng góp: [CONTRIBUTING](CONTRIBUTING.md).

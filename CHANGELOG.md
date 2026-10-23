@@ -1,3 +1,239 @@
+# Chưa phát hành — Gom lịch sử financial vào archive (2026-10-23)
+
+Execution55 chuyển162data/44report roots vào financial-history-20261023; main data221→59/report57→13. Giữcurrentinput/provenance/boundarycontrol,797anchorsPASS; inventory/filemetadata vànetworkhashes khớp.205directoryIDs nguyênvẹn;1BRCreport kiểmđủpre-pinned manifest memberhashes thayidentityproof. Catalogue/availability/restore vàmasterreportupdated;khôngsửa dữliệu/hashfrozen,counter,formula/model.Đây làmove cùngvolume,khôngclaimgiảmdisk.0network/PDF/OCR/model.
+
+# Chưa phát hành — Clean sâu cache tài chính (2026-10-23)
+
+Execution54 lưu lạnh 102,504derivedcandidatefiles/11,058,805,949bytes của batch500/800/1100/1400 vào4ZIP (661,305,882bytes), kiểmmemberSHA256/inventory/archive/plan/controlhash trước nativePowerShellprune. Raw/receipts/network/results giữtrực tiếp;713directinputpins/11.720handoffrows nguyênvẹn. Restorefixture/pathguardsPASS; sourcecode/configpinned khôngđổi. RútgọnREADME/START HERE, thêmdata/artifactsREADME vàavailabilityindex. Fullhistoricalreplay cầnrestorecache;M2chỉđọchandoff.0network/PDF/OCR/modelrefit;PIT/M3vẫnPARTIAL.
+
+# Chưa phát hành — Cleanup project trước M2 (2026-10-23)
+
+Execution53 archiveverify/prune2,889files;9historicalreportfolders đượcđưa vàoZIPexactbytes, giữactivefrozenpins vàraw/canonical/counters. CachePython/test đượcgỡ; cóplan/hash/restore. Tạo namedhandofffinancial2016–2025 vàbảnglệnh scripts/README;updateMasterreport/index/activepointers vàarchive links. Coveragekhôngđổi1.172full10/13.529rows;no network/PDF/OCR/modelrefit. Không xóa sourceevidence chỉbằng reporttóm tắt, không renamepinnedcode/configs.
+
+# Chưa phát hành — Review95financial one-gap (2026-10-23)
+
+Execution52 review95mã thiếu1năm theo cached CafeF/DStock, pin761inputs và178rawfiles.59cases không có numeric CafeF partition;26complete core;4arithmetic-pass leads API2021/IPA2021/CAP2022/SBD2024 có multiple partitions nên chưa nhận.0newaccepted; vẫn13.529rows/1.172full10. CSVreview/partitionQA/summary/hashverification/report đãseal; master/plan/indexupdated.0request/PDF/OCR,khôngnớiQAhoặcsourcepriority; ưu tiên baselinefinancial-onlyM2trêncohortđãđủ tiếp, chưafitmodel. Originalfamilies/PIT/M3PARTIAL.
+
+# Chưa phát hành — Làm rõ flow hai nguồn financial (2026-10-23)
+
+Execution51 chỉ cập nhật plan và report tổng: CafeF baseline + DStock complete-vector bổ sung theo mã–năm, chưa ghép từng field hoặc reconcile toàn bộ overlap. Kiểm offline1.683DStock+11.835legacy API+11PDF/HTML=13.529rows;761heldcases/257Regular và93candidates ngoài schema. Ghi rõ550no-observations/103denominator/36missing/33membership/39QA-scope là primary groups; số kỳ không phải sốPDF. Coverage vẫn1.172full10;0request/PDF/OCR, không thay run đã seal hoặc acceptance policy. Ưu tiên review95one-gap vàcached sources trước đề xuấtPDF.
+
+# Chưa phát hành — DStock remaining API:1.172full10 (2026-10-23)
+
+Execution50 thu1.647freshcases/360candidates,961rows/+170full10;13.529rows/1.172full10,12.568baseline rows giữ nguyên. Cả2.444Regular gaps đã thử;761heldcases/257Regular và93sector/unknown táchschema.47targeted tests/independent checks PASS;0PDF/0OCR. Core348+metadata11requests;15checks trước nhậnrow,không nới QA hoặc reset budget. Metadata11empty;catalogue probe không chạy do automatic approval review usage limit,0request. Full10/status/one-gap/fieldreview/cohort exports/master/activepointers cập nhật;originalfamilies/PIT/M3PARTIAL.
+
+# Chưa phát hành — DStock đạt1.002full10 sau cash QA (2026-10-23)
+
+Execution49 triển khai nguồn API công khai DStock, checkpoint vàcomplete-vector reference recovery. Pilot10→20→50→100→600candidates/797cases:738pass/1.017full10sơbộ; bổsung3cashchecks vớiunchangedtwo-cap precisiongiữ16cases, bàn giao722newrows/12.568rows/**1.002full10** (+533),11.846oldrowsunchanged.194requests/194attempts/28.262.575bytes,0PDF/0OCR;networkdừng08:10:24UTCtrongownerwindow1giờ.42tests/compile/synthetic/4.332independentratios/23.826sourcevalues/replayPASS. Xuấtcohorts3/5/8/10y,danh sách1.002vàstatus1.522,fieldreview21cases(16held/5smallresidual). Masterreport/activepointers/plan/ADRupdated;PIT/M3/originalsixfamilieschưađạt. Khôngthayfrozenrunhoặcmodelcũ.
+
+# Chưa phát hành — HSG recovery và DStock source pilot (2026-10-23)
+
+Execution48: HSG FY2024/2025 cache review64fields/8OCRpages,12independentratios/2CFObridges,11.844oldrowsunchanged;11.846rows/469full10. VDT2019 onePDFwithinapprovedpilot heldscope. Shadow sign audit3potential/0accepted. Theo owner kiểm traDStock:2frontendassets+5APIresponses,6cases/4tickers,5cases11/11exact;VHC2024PDFcontrol8/8exact,TCM2013held. DStock0PDF/0OCR/0accepted; không sourcepriority/PIT promotion. 4unit/compile/synthetic/offlineauditsPASS. Masterreport vàactivepointers cập nhật;goalPARTIAL.
+
+# Chưa phát hành — Cached four reference recovery (2026-10-23)
+
+Execution47 phục hồi DCM2025/VEA2025/PAN2024/VHC2024 từ4cachedconsolidatedPDFs:131reviewedfields/21selectedOCRpages,47exactaccounting/4CFObridges,0network/download.11.840→11.844reference rows/464→468full10,oldrowsunchanged; giữVEAqualifiedauditwarning vàVHCrawsignpresentation.27targeted/compile/synthetic/source/24independentratiochecks/replayPASS;OCRcampaign155pages/0errors/replay0charge. Currentcohortexportsv2/masterreport/activepointers/planupdated;goal/PIT/M3vẫnPARTIAL,chưamở50.
+
+# Chưa phát hành — Cache recovery readiness (2026-10-23)
+
+Execution46 resolve acquisition metadata28→211/211 PDF files trong inventory cũ bằng exact path/hash/URL receipts, không suy statement identity. Xuất reference cohorts1.365/1.168/790/464 mã theo3/5/8/10kỳ liên tiếp, giữ11.840rows/464full10 và mọi gates. Queuecache11cases/10mã; dependency queue có điều kiện cho1.001full10:537candidates/667annualdependencies, không phải PDFcount/approval.0localrequests/downloads/OCR;14targeted/compile/synthetic/source/exportchecksPASS;masterreport/index/planupdated. Goal vẫnPARTIAL.
+
+# Chưa phát hành — ReusablePDFpilot10 (2026-10-23)
+
+Execution45 thêmPowerShellPDFworkflow códurablecounter/source/cache/text/selectedOCR/review/reference/status; pipelinepilot10:1CNT2018phục hồi,7sourcepending/2cataloguenoexactmatch.1newPDF/4OCRpages,11.840rows/464full10(+1), old11.839rowsgiữnguyên. OCRcontrollerV2fixprepare/runresultcollision vàreuseregisteredpages; actualresume0additionalrequests/OCR.41tests/compile/synthetic/source/independentratiochecksPASS;reporttổng/index/planupdated. Sourceadapters/manualreviewcòn hạnchế,pilotPARTIAL,next50/PIT/M3closed; approvalbatch100đượcgiữtrongscope.
+
+# Chưa phát hành — Bulk recovery queue (2026-10-23)
+
+Execution44 gom635 candidates/862 missing annual cases; chọn100 mã9/10 chỉ vướng một accounting check, xuất field-level review list và đề nghị≤100PDF chia2batch50/pilot10 chờownerduyệt. Counts giữ11.839rows/463full10,0recovered; không nớiQA hoặc tảiPDF.4tests/compile/hash/dependencychecksPASS; cậpnhậtmasterreport/activepointers/plan.
+
+# Chưa phát hành — Full quarterly receipt triage (2026-10-23)
+
+Execution43 audit124remaining annual-input gaps bằng toàn bộ pinnedQUYreceipts, version2 sửa truncatedpage5diagnostic màgiữnguyênoldartifacts. Numericheadercoverage khôngannual/PITacceptance;11.839rows/463full10 giữ nguyên. PrimaryPTB2018/PLC2025leads vàproposal≤2PDFchờowner,0PDFopen/download/OCR.16tests/compile/synthetic/hashandcoveragechecksPASS;reporttổng/activepointersupdated;goalPARTIAL.
+
+# Chưa phát hành — Annual source gap audit và issuer HTML reference (2026-10-22/23)
+
+Audit125annualinputgaps:58internal/38before/29after;legacy3columnsđềutrống,oldcatalogueviewchưamatch. BoundedprimaryHTMLlookup giúp phục hồiPLX2023,462→463full10/11.839rows;CTD2023sixmonthtransitiongiữhold. SnapshotwebextractkhônggọirawHTMLbytes;datecaptionwarningsgiữriêng,unchangedprecision/accountingchecks,0PDF/OCR. External3webtoolcallsloggedriêng/localreplay0network.24tests/compile/synthetic/source/valuechecksPASS;masterreport/index/planupdated;finalgoalPARTIAL.
+
+# Chưa phát hành — Master financial report và near-full10 review (2026-10-22)
+
+Tạo live `artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md`: tổng hợp toàn bộ discovery/pilots/history/audits/acquisition1522/reference/baseline/precision/CFO/near-full10, before-after vàremaining work; quyước cậpnhật mỗi execution, giữsealedevidence vàchưa cleanup. Đồng bộactivepointers/planheader.
+
+Review412one-yeargaps, thêm3single-document core-reference vectorsBRC/GAS/VNM (1newcachedvisualCFO fact),11.838rows/462full10. Giữnguyên11.835oldrows/APIquarantines;409one-yeargaps và2.452annualcases còn lại.39targeted/compile/synthetic/hash/valuechecksPASS;0network/PDF/OCR mới;finalgoalPARTIAL.
+
+# Chưa phát hành — Direct CFO cache recovery (2026-10-22)
+
+Kiểm723cases/181mã bằngexactdirect-method code+label/component/annual/provider/sourcechecks, phục hồi657core-ratio reference rows; dataset11.835/1.422candidates/459full10 (+32). Cohorts1.365≥3consecutive,1.168≥5consecutive,1.098≥8-of10 giữriêng, khôngreportthànhfull10/PIT. Audit480mãthiếuannualmappedperiods và156annual/Q4candidatecases; backlog2.455khôngphảisốPDFphảitải.33targeted/compile/synthetic/source-and-valueverificationPASS. Originaldata/model/6family/PITgatesgiữnguyên;0network/PDF/OCR. Execution40/report; finalgoalPARTIAL.
+
+# Chưa phát hành — Precision QA và document triage (2026-10-22)
+
+Implement offline versioned exploratory QA với absolute+relative residual caps, zero-policy replay và nguyênvẹn6.976baseline featurevalues. Actual11.178rows/1.416candidates/427full10 (+4.202rows/+376full10); giữsource/raw/fact/PIT/model cũ. Xuất QA/coverage/dataset,3.112annual documentreviewcases và queue548mã/736gaps; inventory211PDFfiles/202hashes,7filenamehintcases, chưa xác nhận sốPDFphải tải.0network/PDF/OCR.26targetedtests/compile/synthetic/hash-and-count verificationPASS. Report/Execution39; finalfinancialgoalPARTIAL.
+
+# Chưa phát hành — Coverage/precision diagnosis (2026-10-22)
+
+Offline key-parity xác nhận baseline51 bị giảm nhiều bởi exact-zero QA residual;4.137/4.147 financebridge differences2016–2021 chỉ1rawunit. What-if1unit cho505 balanced-panel candidates, chưa áp tolerance/acceptance hoặc đổi model. Report/source pins và Execution38; không network/PDF.
+
+# Chưa phát hành — Financial exploratory baseline (2026-10-22)
+
+Owner duyệt core-ratio financial baseline độc lập. Đã fit static K-Means2016–2025 trên6.976 rows/1.311 registry candidates (51 có đủ10 kỳ reference); FY2025 zscore982/1/1, rank sensitivity395/361/228 cùng984 mã, chưa chọn final model. Reference6families87 rows/11 mã/5 full6 cohorts giữ riêng. Financial/PIT/M3 cuối vẫn PARTIAL; market handoff chờ teammate, không PDF/OCR mới.
+
+Owner explicitly selected exploratory core ratios while finishing original6families in parallel. Separate reference registry, same-year static fits, no publication/identity inference, no market changes or portfolio selection.24 controls/30 targeted/compile/synthetic/output verification PASS. Xem Execution36–37.
+
+# Chưa phát hành — Cached fact verification (2026-10-22)
+
+Đã xác minh557 fact/vintage observations/11 mã:334 khớp,63 khác giá trị hoặc vintage,160 chưa có direct alias. 9 Z reference tái lập khớp giá trị cũ; bổ sung2 kỳ Z reference BRC2024/VNM2024. Có18 đối chiếu CF interest khớp PDF trong khi KQKD gắn nhãn sai khác; chưa sửa mapping chung. Không PDF/OCR mới; full10y/PIT/M3 vẫn PARTIAL.
+
+Giữ API/report identity unresolved; exact CF-interest match chỉ theo reviewed anchor, không global alias/repair hoặc canonical/PIT promotion. 20 tests/compile/synthetic/source hashes/old-value parity PASS. Xem Execution35.
+
+# Chưa phát hành — Expanded API input review1522 (2026-10-22)
+
+Đang review trực tiếp raw annual 2012–2025 của 1.522 mã, mở rộng mapping và matrix 118.716 tasks. Giữ riêng API arithmetic diagnostics với reference đã kiểm chứng; không tải PDF/OCR hoặc tự mở acceptance/PIT/M3. Kết quả reference stage33 vẫn 11 mã có giá trị, 5 mã đủ6 tại một cohort, 0 mã đủ bộ2016–2025.
+
+Exact code/label, provider partitions, 11 accounting checks, fail-closed checkpoint/source hashes. Conditional EMZ và F signals chỉ là arithmetic diagnostics; không giả EBIT/share/debt proof. 38 targeted/compile/synthetic/PowerShell parse PASS. Execution34 ghi handoff và no-PDF boundary.
+
+# Chưa phát hành — Compute-first1522 offline (2026-10-22)
+
+Đã hoàn tất acquisition và QA diagnostic cho 1.522 mã; compute-first offline tái tính 85 dòng reference từ input reviewed. Có 11 mã có ít nhất một family, 5 mã đủ 6 family cùng năm/scope/vintage (ACV, BRC, FPT, GMD, MWG); chưa mã nào đủ bộ 10 năm 2016–2025. Không tải PDF/OCR mới hoặc tự nâng API candidate thành dữ liệu đã xác minh. VNM F vẫn thiếu input; PIT/M3 chưa mở.
+
+Báo blockers trước khi lập kế hoạch PDF; alias absence không chứng minh raw thiếu field. Tách same-cohort reference, annual/period/TTM và PIT readiness. Giữ immutable v1, metadata fix v2 không đổi85 giá trị. 43 targeted/compileall/synthetic và manifest/numeric parity PASS.
+
+# Chưa phát hành — Dashboard giám sát workflow (2026-10-22)
+
+- Thêm `/monitor/` và API read-only vào HTTP edge hiện có; CLI `monitor`/PowerShell mởlocalhost8765, không cần product bundle.
+- Hiển thị tiến độacquisition/QA riêng, mã/checkpoint/log/cập nhật, lỗi/stale activity; tự refresh5giây, giữ last-good status khi writer chưa ghi xong. Không suy ETA/metric validity hoặc worker liveness từ progress.
+- Link tải report/coverage/symbols/missing/document queue chỉ mở khi artifact đã xuất hiện; path allowlist trong project, không điều khiển pipeline.
+- 9targetedtestsPASS (HTTPloopback chạy ngoài sandbox), compileall và nodecheckPASS; visualbrowser kiểm tra realprogressPASS. Frozen acquisition/QA code và artifacts không sửa.
+
+# Chưa phát hành — Inventory1522 và QA offline (2026-10-22)
+
+Acquisition1.522/1.522 đã hoàn tất và finalauditPASS. Đang hợp nhất10cohort disjoint và chạy QA offline từng mã, có checkpoint, coverage196slots/mã, report gaps/fieldpresence/displacements/conflicts và selective document queue. Không PDF/OCR/network hoặc numeric/PIT acceptance mới; baseline29/30 giữ nguyên.
+
+Pin10terminalcohorts/raw/receipt/shard;196coverage slots/mã;diagnostics chưaacceptfacts,Unknown/Bank/Securitiesheld.19targeted/compile/syntheticPASS. [Execution32](docs/crawl/FINANCIAL_HISTORY_PIT_PLAN.md#32-inventory1522-va-qa-offline-22102026).
+
+# Chưa phát hành — Audit800 và recovery722 (2026-10-22)
+
+Tổng800 đã terminal task accounting;4DTRCDKTHTTP500 giữ deferred quarantine. Owner duyệt audit rồi nối722 mã còn lại qua recoveryv2,300+300+122. Controller đang chờ audit800, không claim API đang chạy;0,4s/oneworker/checkpoint/deadline cũ. Numerical/PIT/M3 PARTIAL.
+
+Proof yêu cầu terminalHTTP500/2attempts/exactreceipt+request+hash; mọiaccessboundary/lỗi khác vẫnHOLD, khôngretry hoặcacceptfacts. Audit producerpin trước mở disjointwaves.22targeted/compile/synthetic/realDTRproofPASS. [Execution31](docs/crawl/FINANCIAL_HISTORY_PIT_PLAN.md#31-audit800-va-resume722-22102026).
+
+# Chưa phát hành — Overnight toàn bộ current registry (2026-10-21)
+
+Owner đã duyệt tự nối toàn bộ current registry1.522 candidates: sau tổng800, tiếp300+300+122. Overnight controller đang chờ total800;0,4s/one network worker/checkpoint, audit mỗi parent và finalwave. Giữ originaldeadline22/10/2026 12:55UTC/source latches; không bảo đảm xong trong đêm. Numerical/PIT/M3 vẫn PARTIAL.
+
+722remaining=300+300+122;421legacyUNKNOWN giữ provisional. Chờ current800 rồi audit/gate trước từngwave vàfinalaudit; giữ máy thức trong phiên, khôngshutdown hoặcđổi powerplan.34targeted/compile/synthetic và schedulecoverage testPASS. [Execution30](docs/crawl/FINANCIAL_HISTORY_PIT_PLAN.md#30-overnight-toan-bo-registry-21102026).
+
+# Chưa phát hành — Audit500 và batch300 tiếp theo (2026-10-21)
+
+Tổng500 đã terminal task accounting; batch300 mới đang chờ audit raw/candidate của batch trước. Controller tự nối đúng1batch khi integrity/engineering/offline replay PASS; hướng tới tổng800, delay0,4s, một network worker. Bốn lỗi GTX HTTP500 giữ quarantine; field/kỳ thiếu deferred review. Numerical/PIT vẫn PARTIAL, baseline29/30.
+
+Gate kiểm exact raw replay và4GTXCDKTHTTP500/2attempts; không retry/reset hoặc nhận financial/PIT. Fresh API-only wave giữ140REPORTtasks/mã, bỏ catalogue placeholders tại host đã latch.29targeted/compile/synthetic PASS. [Execution29](docs/crawl/FINANCIAL_HISTORY_PIT_PLAN.md#29-audit500-va-batch300-tiep-theo-21102026).
+
+# Chưa phát hành — Financial bulk300/0,4s (2026-10-21)
+
+Tổng200 đã hoàn tất task accounting; lượt hiện tại mở rộng thành300 mã (100 đang dở +200 mới), hướng tới tổng500. Owner duyệt delay0,4s, một network worker. Giữ checkpoint/counters/deadline và source hard-stop; chưa đủ numerical/PIT, baseline29/30. Xem mục28 để theo dõi tiến trình; không cộng trùng checkpoint total300 cũ.
+
+Giữ single network worker, original deadline và toàn bộ source latches. Tối ưu local cache/journal/snapshot;23targetedtests/compile/synthetic PASS. [Execution28](docs/crawl/FINANCIAL_HISTORY_PIT_PLAN.md#28-batch300-và-delay04s-21102026).
+
+# Chưa phát hành — F3 GAS reference và SHS quarantine (2026-10-20)
+
+- TảiGASoriginalFY2025, review32facts vàrecompute2annualZ″EMcurrent/comparative;8accountingchecksPASS, cònfamiliesmissingnull, strictPIT0.
+- Criticalreview14cases:4matches,2GASannualdifferences,7SHSnamedPDFnonzero/APIzero,1unresolvedorphan.2APIpartitionsquarantine,0repairs/acceptance;6meaningfultests.
+- ReusecachedSHSPDF10MB sau khi2newVI/ENfileschạm25MBcap; giữ50MBfailedtransfercounters. SHSpublicationdate/hash mismatch khôngfill; GASexplicitpub04/03/2026.
+- OCRv10cumulative130pages/0errors; network2.284requests/211.688.837bytes/18PDFattempts, originaldeadline/latches/caps giữ nguyên. VDSC302 khôngfollow;2independentauditPDF vàDCM/HSGpriority cònpending.
+- CorePowerShell nối12documentconfigs/criticalquarantine/GASreference.167targeted/compile/syntheticPASS; goal/F3/PIT vẫnPARTIAL, khôngscale50/M3 hoặcđóng VNM F.
+
+# Chưa phát hành — F3 catalogue và independent audit (2026-10-20)
+
+- Thu15StockbizHTML,parse267rows/237financialPDFlinkcandidates; observed2013–2017 chỉview đầu, không claim catalogue đủ hoặc thiếureport bằng absence.
+- Fixedseed6auditdocuments DBC/VCS/FOX theo3exchanges/eras, không resample theoPDFavailability. Tải4PDF gốc, OCR21selectedpages; cumulative120pages/0errors.
+- Review4/6documents,35/36exactfieldmatches; DBCFY2022costsign(PDFnegative/APIpositive) giữquarantine, khôngsilentabs/rowrepair. Unitsoverlay16.704monetaryrows,827EPSheld.
+- CorePowerShell nối catalogue/parser/newdocs/OCRv9/sampler/units/auditreviewv3;161targeted/compile/syntheticPASS. Localcounters2.276requests/147.695.077bytes/15PDFattempts, originalanchor/deadline/latches giữ nguyên.
+- Goal/PIT/F3deliveryPARTIAL;2auditPDF và4priority2025periods cònmở, chưa50/M3 hoặcđóng VNM F.
+
+# Chưa phát hành — Sealed history20 và ACV report vintages (2026-10-20)
+
+- Acquisition15mã bổ sung terminal:3.300tasks accounted,1.486newAPI/180cache,198.778candidateobservations,0parsererrors; inherited2.255requests/117.066.733bytes, không resetdeadline.
+- FullQA341missing slots/115periods,193documentqueueperiods/4priority1;3annualshifts vàSHSnonzeroorphan giữ nguyên, không autoaccept/rowrepair.
+- Reuse2ACVPDF,115reviewedfacts (52legacyrecheck+63additional);12vintagemetricvalues/10year-familykeys,6FY2025recompute exactmatch. EPS2024original/restated giữ riêng; auxiliarypublicationunknown không lấy ngày primary thay thế.
+- CorePowerShell nối finalbatchverify/QA/referencecohorts;151targeted/compile/synthetic/activeverifyPASS. Offline resume cùnghash,110journal/OCRfiles unchanged;320frozenpins/11contracts.
+- Baseline29/30 vàVNM Fnull, strictPIT0 giữ nguyên. Không mớiPDF/OCR hoặc mở50; knownM2frozendoc fullgateissue chưa waive.
+
+# Chưa phát hành — F3 offline QA preview và selective queue (2026-10-20)
+
+- QA riêng cho receiptpreview và sealedbatchsnapshot, pin assignment/raw/shards/sourcehashes; không network hoặc acceptfacts.
+- Preview563receipts/60.014cells:1.007provenstructuralzeros,330unresolvedcodes,1.029rawchecks equal/7different; DCM/GAS/HSG2025 possibleannualshifts vàSHS2025 nonzero-unmappedLCTT được giữ đểreview.
+- Queue8anomalyperiods, không thay finalmissingcoverage hoặc independentaudit. Không rowrepair/scaleinference hoặc dùngregularscoremapping cho bank/securities.
+-140targeted/compile/synthetic/PowerShellverifyPASS,1.126pins/665unchangedfixedfiles; collector vẫnlive,450newrequestcheckpoint, chưafinalcoverage/metrics hoặcfullgoalPASS.
+
+# Chưa phát hành — F3 history collector cho mẫu20 (2026-10-20)
+
+- Bounded candidate gate9checks PASS theo adapter mới, giữ4strictparserfailures và536quarantinedcells; không numeric/PIT promotion.
+- Collector mới3.300tasks cho15mã bổ sung:2.100API+1.200catalogueaccounting; reuse180page1cache, cataloguelatch giữ nguyên. Candidate shards/checkpoints, independentpaging và inheritedledger/deadline.
+- Worker đã chạy vàpoll live;121newAPIreceipts tại07:33:46UTC, chưa finalcoverage. Không sửa frozenpilot5/trial50 hoặc registry.
+-129targeted/compile/syntheticPASS; fullsuite564tests3failures/3errors, focusedHTTP5/M1reporting5PASS bằng đúngruntime/localtestpermissions. KnownM2frozenhashissue giữ nguyên, fullgate chưaPASS.
+
+# Chưa phát hành — Financial F2 gate và metadata/template mẫu20 (2026-10-20)
+
+- Engineering gate17checks PASS cho bước candidates; giữ1.100tasks accounting, seeded6audits, exactquarantine vàoriginaldeadlines.
+- Chọn15mã bổ sung theo registry/legacyidentity/strata; acquired15profiles khớp mã/sàn,3exchanges/7currentsectors/11industries.
+- Acquired180annual/quarterpage1APIprobes; cumulative769requests/102.828.239bytes,0newPDF/OCR. Giữ4strictparserbankNVfailures trong evidence.
+- Adapter riêng replay180/180,0errors;24.020candidatecells,536ambiguous/unmappedquarantine, không positionallabel hoặc numeric/PIT promotion.
+- 120targetedtests/compile/synthetic/activeprocess+verifyPASS;130resume evidencefiles unchanged,99frozenpins/10contracts. Strictoldparser4/180failures vượt1%, F3fullhistory gate chưa mở; baseline29/30 vàVNM Fnull không đổi.
+
+# Chưa phát hành — Đối chiếu đủ sáu kỳ audit financial (2026-10-20)
+
+- Tải đúng3PDF BRCFY2018/Q22021 vàFPTQ32015 theo linkcatalogue,23.401.578bytes; inherited574requests/98.083.449bytes/11PDFattempts, giữanchors/boundaries.
+- Đối chiếu6/6mẫu:49/54fieldmatch,5cells lệch1VND. Explicit candidatequarantine theo sourcepartition, không autooverride; giữcovertypo/scope vàquarterCFOYTD.
+- OCRthêm17pages, cumulative99/11runs/0errors. Active7documentconfigs/OCRv6/reviewv4; referencebundle vẫn270facts, strictPIT0,29/30FY2025baseline không thay.
+- 73targetedtests/compile/synthetic/activeverifyPASS;69frozenpins/8contracts và107resume evidencefiles unchanged,0newrequests/0newOCR.
+- Engineering gate20 cần evidence task/failure/parser/resume/budget và diverse metadata; auditcompletion không tự promote financial/research/M3.
+
+# Chưa phát hành — BRC company references và independent field audit (2026-10-20)
+
+- BRC2014/15 thêm46reviewedfacts/2basicEPS; explicit company scope không trộnconsolidated,5familieskhác vẫnchặn. Bundle8 có270facts/41annualvalues=29legacy+12new,6periodEPS; strictPIT0.
+- Seeded audit3issuers/6docs, đãreview3: FPT2023/GMD2024 khớp9/9, GMDQ42019 giữ2chênh1VND vàsource arithmetic anomaly/CFOYTD.3sampledocs pending; không mởbatch20.
+- HaiGMDissuerPDF mới, text-first khôngOCR; local571requests/74.681.871bytes/8PDFattempts. Externalpreview ghi riêng, remainingattempt1. OCRcampaign82pages/9runs/0errors; oldanchors/reservations giữ nguyên.
+- ActivePowerShell5documentconfigs/OCR4/bundle8/auditplan+review, giữimmutablebaseline/registry/sourceboundaries.71targeted/compile/synthetic/verifyPASS, offline88evidencefiles unchanged,51frozenpinsPASS. Fullgate chưaverified vàM2-PREP frozenhashissue chưawaive.
+
+# Chưa phát hành — Financial OCR campaign, units và date references (2026-10-20)
+
+- BRC2015 BCTN exact observed URL tải13.220.889bytes,100pages mixed;75pages text chỉ đảm bảo phần extract, financial scan nhúng chưaOCR. Active4document configs verifyPASS, inherited569requests/46.902.054bytes/6PDFattempts;42frozen pins giữ nguyên.
+- Coordinator nhập mọi old OCR reservation, chặn duplicate page/cap reset khi đổiconfig;63pages/7runs/0errors, global40/PDF–1.000/batch–12.000/campaign và72h/90d. Offline resume4journals/63reservations không đổi.
+- MWGQ3:70reviewedfacts/8accountingchecks,4EPS theo3/9months. Catalogue date trước exactPDFcreation bị chặn PIT. FPT H1 thêm6note facts/2EPS, share revision giữ2024vintage. Latest224facts,10annual+6period references ngoài29FY2025baseline.
+- Monthly period date view dùngexisting policy/calendar,240rows/36dateeligible references; không TTM/identity/research claim. Same-day conflict/mixed-input vintage fail-closed; tuổi báo cáo chỉ khieligible.
+- Unit overlay pin3cached display sources,7.520rawVND candidates/370specialEPS; không magnitude inference, source priority, rowrepair hoặccanonical acceptance.47targeted/compile/synthetic/activeverify PASS;33frozen pins/registry/baseline unchanged. Fullgate còn unverified M1 terminal result và knownM2-PREP fingerprint mismatch.
+
+# Chưa phát hành — MWG2015 issuer documents và text review (2026-10-19)
+
+- Dùng catalogue UI chính thức để lấy exactlinks, tải annual/Q3PDF13.182.640bytes; inherited568requests/33.681.165bytes/5PDFattempts. Annualtext-first75/84pages, Q3scan giữqueue, không OCR mới.
+-46MWGreviewedfacts/4accountingchecks, thêm4EPS/Zreferences. Latest148facts/390annualtasks/39values=29legacy+10newhistorical, không PIT/fullhistory claim. Printed signatureyear anomaly vàcomparative revisions giữ provenance; không rowabsent→0.
+- Active PowerShell3documents/6OCRruns/2review layers VERIFY PASS;22targeted/compile/syntheticPASS. Cache hash reads mỗi input một lần; reference-only không tựpromotePIT. Registry/frozen4contracts unchanged.
+
+# Chưa phát hành — Financial history reviewed bundle và notes (2026-10-19)
+
+- Thêm full annual task grid390rows,102reviewed reference facts và6new historical EPS/F/M/Z; giữ29legacy FY2025, VNM Fnull và closed gates. Explicit GMD2014→2015 reference bridge chỉ TA2013/owned depreciation2014; EPS revision giữvintage,1VND conflict fail-closed.
+- GMD2014 issuer PDF2.205.921bytes, inherited566requests/20.498.525bytes/3PDFattempts, không reset anchors/latches. Sáu selectedOCRruns55pages/0errors, cùngPDF cap cumulative27GMD2015; cacheFPT/VNMkhôngtải lại.
+- BOM-aware baseline loader, duplicate/conflict/missing/quartile-vintage regression tests;21targeted/compile/syntheticPASS, PowerShell verify mọi layerPASS. Giữ draftVNM transcription và correctedversion lineage. M1 testlive;fullgate chưaPASS.
+
+# Chưa phát hành — Selective financial PDF/OCR/reference processing (2026-10-19)
+
+- Thêm bounded documents successor kế thừa journal counters/deadline/source boundaries;1GMD FY2015PDF/12.979.440bytes thành công,1FPT H1URL404 terminal. V1local missing cache_epoch dừng trước I/O; preserve v1→v2 lineage, không reset budgets. Cache lookup mở rộng tìm FPT/VNM Q2/2024, ngăn tải lại.
+- Thiết lập Tesseract5.5.2 CPU vie+eng local trong .tools, pin wheel/models/runtime hashes; explicit-page workers timeout/reservations, text+TSV+confidence.16pages OCR/0errors, không WindowsOCR/cloud hoặc auto-acceptance. Có setup/process/verify PowerShell chạy lại được.
+- Review63referencefacts:40GMD FY2015/14 comparative và23FPT Q2/H1/closing;8accounting checks PASS. Tính2Z annual bằng calculator cũ; giữ29/30FY2025. Reconfirm12cache conflicts, quarantineAPI. Explicit FPT publication18/07/2024→usable19/07/2024 theo policy cũ; chưa complete PITmetrics, không H1→Q2 hoặc annualize quarterly.
+-73targetedtests/compile/synthetic PASS; acquisition/OCR/reference replay VERIFIED. Fullsuite468có6fail/error;5HTTPlocalhost rerunPASS, còn missingmatplotlib và M2-PREP frozen-document hash. Giữ assertions/artifacts/gates, goal tiếp tục active.
+
+# Chưa phát hành — Financial history F2 offline QA (2026-10-19)
+
+- Acquisition worker đã hoàn tất:563newrequests/563attempts,5.313.164bytes,27cachehits,71.073candidatecells,0pending. 980coverage slots gồm918main candidate-present/5auxiliary/57missing, không phải accepted financial history.
+- Thêm QA module/config/PowerShell riêng, pin sealed report/raw/reviewed inputs/code, deterministic immutable outputs và verify. Không sửa frozen acquisition runner/raw/registry. Chứng minh1.161group-header zeros;69.912nonstructural cells,0unexplained orphans;code+label mapping diagnostic, không missing→0 hoặc dịch hàng.
+- 1.646raw accounting checks có95differences;8.645annual–Q4comparisons có1.993differences, giữ provider flags/vintage/scope chưa verified. Detector bắt BRC/VNM FY2025 displacement;150reviewed-PDF input comparisons có138matches/12conflicts. Queue90issuer-periods ưu tiên cache;H1 không thay Q2,0accepted/PIT facts,29/30reference và closed gates giữ nguyên.
+- 59targetedtests, compile/synthetic smoke PASS. Cập nhật active pointers/commands/missing-period table; full gate và replay evidence trong QA validation. Chưa PDF/OCR mới hoặc promote20.
+
+# Chưa phát hành — Financial history acquisition pilot5 (2026-10-19)
+
+- Implement successor PowerShell/Python fixedpilot5 cho annual/quarterly2013–2025 +auxiliary2012, NAM/QUY/LUYKE per-group pagination; frozen registry/code/dependencies, immutable raw/receipts, coverage/missing/anomalies/report verification và persistent transport/resume caps. Không nới frozen old runners hoặc scale gates.
+- F0audit19legacy journals/35cache URLs, giữ cafef.vn/SSIhost latches; F1replay29/30PASS. Offline27cachehits tái xử lý5.724cells; wave25live thành công25attempts/141.491bytes, tổng7.256candidatecells,0parse errors/92unmapped codes;0newacceptedfacts/PDF/OCR. metrics export giữbaselineFY2025, không gọi historical compute/PIT.
+- Đã khởi chạy hidden local worker tiếp F2 cùng counters/deadline; process/assignment và logs trong history_pit_v1. Không auto-promote20 hoặc chạy thêm worker trùng.47targetedtests/compile/synthetic smoke và checkpointverifyPASS; fullsuite bounded120s TIMEOUT ở legacy continuation verifier, chưa fullgatePASS, giữ trace/assertions. Index/active pointers cập nhật; registryv1 đang pin giữ nguyên.
+
 # Chưa phát hành — Hai plan history và registry team (2026-10-19)
 
 - Materialize market plan 2016–2025 +warm-up2013–2015, mục tiêu ≥1.500 cổ phiếu lịch sử; financial plan annual/quarterly2013–2025 +closing2012 theo dependencies, reference/PIT deliveries riêng cho M3.
@@ -502,3 +738,28 @@ Ghi thay đổi có ảnh hưởng tới người dùng/developer và bằng ch�
 - Selected-page PDF/OCR nối trong cùng runner, exact hash templates và reference QA. Clean4 mã từ network không seed/cache:12 responses/4 PDF/343 pages/1 selected OCR,3 FPT EPS note cells match reference.
 - CafeF discovery ghi lại404 FPT/VNM, không sửa URL hoặc bypass; mẫu bàn giao dùng exact issuer/mirror sources đã kiểm tra. Final10 replay32 cache hits/0 network/text/OCR/checkpoints; exports byte-identical.
 - 14 tests mới và clean-room source-package tests PASS; full suite315/316, chỉ frozen M2-PREP DECISIONS checksum cũ. Compile/smoke PASS. Lượt crawl mới chưa tự cấp accepted facts/financial cluster/full-universe eligibility. [Report và log](artifacts/reports/financial-crawl-user-v1/report.md).
+
+
+## 2026-10-20 — Financial acquisition first
+
+Owner ưu tiên API collection theo batch và defer field review. Thêm successor acquisition-only30 (tổng50), shared registry assignment, kế thừa counters/deadline/source boundaries; không sửa frozen runners hoặc metrics. Thêm report/JSONL review backlog có field/period/source evidence; dừng PDF/OCR mới.14targeted/compile/synthetic PASS; numeric/PIT/M3 chưa promote.
+
+
+## 2026-10-20 — QA50 và acquisition tổng100
+
+Thêm offlineQA cóexacttemplatefamilyproof/UNKNOWNheld; đã chạy385.792candidatecells, reportfield-level13.802reviewitems deferred. Boundedgenericbatchrunner1..100 giữ source limits, parent counters/deadlines/cache/hash/locks và numeric/PIT gates đóng; assignmentadditional50 loại50previous.32targeted/compile/syntheticPASS; knownfullrepositorygate limitation giữ nguyên.
+
+
+## 2026-10-21 — Xếp batch financial additional100
+
+Batch100 đã terminal; additional50 có 4.350 requests/464.021 candidate observations/0 parser errors. Tạo assignment additional100 không trùng, dùng lại generic runner. Pipeline local chờ QA+verify, tạo report/gate, replay rồi mới mở network; không restart tự động khi lỗi và không tắt máy. Registry/counters/deadlines/source boundaries/financial gates giữ nguyên; 16 targeted tests và preflight assignment/script PASS.
+
+
+## 2026-10-21 — Rate successor 1 giây/request
+
+Owner yêu cầu tăng tốc. Thêm successor chuyển batch200 tại zero-attempt reservation, tái dùng raw/receipts/counters/cache epoch/deadline; spacing2→1s, concurrency vẫn1. Không sửa frozen runner cũ, không retry request đã attempt, giữ401/403/429/challenge hard-stop.23targeted cases/compile/synthetic PASS; checkpoint replay trước resume.
+
+
+## 2026-10-21 — Acquisition200 terminal, nối additional100
+
+Chốt additional100:9.266responses/1.007.884cells/0parsererrors. Thêm streaming exact raw→candidate replay và field/coverage quarantine report; semantic accounting/PDF/PIT review tiếp tục deferred. Fresh boundedrunner rate1 giữ code/config cũ; assignmentnew100 không trùng200. Local pipeline chờ gate rồi zero-requestverify/network, không restart hoặc tắt máy.24targeted/compile/synthetic/preflight PASS.

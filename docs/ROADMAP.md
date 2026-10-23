@@ -1,5 +1,11 @@
 # Roadmap DELTA
 
+**Cleanup53 trước M2 đã hoàn tất:**2.889filesđãgỡ, evidencecầnthiết giữarchive/hash;
+[handoff hiện hành](../data/handoffs/financial-reference-2016-2025/README.md).
+Chưa chạy/refitphâncụm; bước tiếp làbaselinefinancial-only trêncohort1.172mã.
+
+**Financial reference checkpoint50 (23/10/2026):**1.172candidates đủannual2016–2025/13.529rows;[report/bàn giao](../artifacts/reports/financial-dstock-remaining-v1/report.md). Remaining API cases đã thử;761heldkỳ. Chỉ core-ratio reference, không M2/M3researchPASS hoặc thayprotocol/model.
+
 ## M1 — Market Data Foundation
 
 M1 market foundation đã hoàn tất cho **market-only experiment preparation**; strict research gate vẫn `NOT READY`.

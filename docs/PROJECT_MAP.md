@@ -1,5 +1,18 @@
 # Project Map
 
+**Execution55 — lịch sử đã gom:** data221→59roots, reports57→13. [Archive vàrestore](../artifacts/archives/financial-history-20261023/README.md). Giữ dependency/control của dataset1.172mã; M2chỉ đọc handoff hiệnhành. Phân cụm chưa chạy.
+
+**Cleanup54 — cache cũ đã lưu lạnh:** 102,504candidatefiles từbốn batch được chuyểnZIPđãverify, raw/receipts/journals giữtrực tiếp. [Guide restore](../artifacts/archives/financial-cache-20261023/README.md). Chỉdùng [handoff mới nhất](../data/handoffs/financial-reference-2016-2025/README.md) choM2; dataset1.172full10khôngđổi, chưa phâncụm. Fullhistoricalreplay cóthểcầnrestorecache.
+
+**Bắt đầu với bộ financial hiện hành:** [Dataset1.172mã/2016–2025](../data/handoffs/financial-reference-2016-2025/README.md) · [Report tổng](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md) · [Lệnh đang dùng](../scripts/README.md).
+
+**Cleanup53 đã hoàn tất, phân cụm chưa chạy:** 2,889file đãgỡ khỏiworkingtree; report/helpers lịch sử giữZIP cóhash vàrestore, cachetái tạo đượcxóa. Không đổi raw/canonical, counter, dataset13.529rows/1.172full10 hoặc model. Chi tiếttạiExecution53 trongreporttổng. Các sectioncũ dướiđây làlineage, khôngđại diệnworker đangchạy.
+
+**Báo cáo tổng financial:** [Mở lịch sử và tiến độ hiện tại](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md). Cập nhật liên tục qua các giai đoạn; đọc trước các report theo run.
+
+**Ưu tiên hiện tại — Execution50 (23/10/2026): 1.172 mã đủ annual 2016–2025 / 13.529 core-ratio reference rows.** Đã thử hết 2.444 Regular gap cases qua49+50; tăng170full10 và961rows, giữ12.568baseline rows. Còn761held kỳ/257Regular candidates và93candidates ngoài Regular schema;95mã thiếu1kỳ. [Report tổng](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md), [report50/runbook](../artifacts/reports/financial-dstock-remaining-v1/report.md), [1.172mã](../artifacts/reports/financial-dstock-remaining-v1/full10-candidates.csv), [cohort/features](../artifacts/reports/financial-dstock-remaining-v1/delivery-result-ref.json), [field review](../artifacts/reports/financial-dstock-remaining-v1/field-review.csv). 47targeted tests/independent verification PASS;0PDF/0OCR. Worker đã dừng. EPS/P/E/P/B/F/M/Z toàn lịch sử và PIT/M3 vẫn PARTIAL. Xem `scripts/financial_dstock_remaining.ps1 -Mode Status`; dashboard acquisition cũ không phải counter DStock.
+
+
 ## Planning market/financial history — 19/10/2026
 
 - [Market plan](crawl/MARKET_HISTORY10Y_1500_PLAN.md): 2016–2025, warm-up2013–2015,
@@ -9,8 +22,20 @@
 - [Registry team](../configs/data/securities_collection_registry_v1.csv): 1.522 discovery
   candidates, legacy statuses/evidence và next actions, owner/batch riêng mỗi domain.
 
-Đây là tài liệu/inventory offline. Successor runners ghi trong plan là interface
-cần triển khai, chưa tồn tại; không thay execution pilot5 hoặc frozen M2/C8 contracts.
+Market vẫn PLANNED. Financial đã có [history successor](../scripts/financial_history_pit.ps1)
+và [config fixedpilot5](../configs/data/financial_history_pit_v1.json), F0/F1PASS,
+F2 acquisition đã kết thúc: 71.073 candidate cells, 57 missing coverage slots.
+Có [QA runner riêng](../scripts/financial_history_qa.ps1) và
+[sealed QA report — archive](../artifacts/archives/financial-history-20261023/data/financial/history_pit_qa_v1/1692b3eb579b426c1e2f/report.md):
+structural-heading classification, code/label diagnostics, arithmetic, annual–Q4,
+reviewed-PDF conflicts và selective document queue. Xem mục9 financial plan.
+[Selective documents/OCR/reference process](../scripts/financial_history_process.ps1) đã chạy:
+270new reviewed facts trong bundle5controls,130OCRpages/0errors toàn campaign,12annual+6period EPS references và FPTQ2 publication
+overlay theo policy cũ. F2 engineering PASS;15profiles/180template probes đã acquired cho mẫu20, [collector lịch sử15mã bổ sung](../scripts/financial_history_batch.ps1) đã terminal; finalQA341missing slots, ACVreferencecohorts được tính riêng; còn historical/PIT delivery; giữ baseline pilot29/30 và frozen M2/C8 contracts.
+
+Audit F3 mới4/6documents,35/36fieldmatch;1khác biệt dấu giá vốn DBC được giữ để chuẩn hóa có bằng chứng. [Checkpoint catalogue/audit](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#21-execution-tiếp--gas-pdf-reference-và-shs-critical-quarantine-20102026).
+
+GAS PDFreference32facts/2annualZ″EM; criticalreviewGAS/SHS giữ9rawdifferences và1unresolvedorphan, không acceptAPI hoặc mởPIT.
 
 ## Research Core
 

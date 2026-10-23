@@ -1,5 +1,51 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+**Execution55 — lịch sử đã gom:** data221→59roots, reports57→13. [Archive vàrestore](../artifacts/archives/financial-history-20261023/README.md). Giữ dependency/control của dataset1.172mã; M2chỉ đọc handoff hiệnhành. Phân cụm chưa chạy.
+
+**Cleanup54 — cache cũ đã lưu lạnh:** 102,504candidatefiles từbốn batch được chuyểnZIPđãverify, raw/receipts/journals giữtrực tiếp. [Guide restore](../artifacts/archives/financial-cache-20261023/README.md). Chỉdùng [handoff mới nhất](../data/handoffs/financial-reference-2016-2025/README.md) choM2; dataset1.172full10khôngđổi, chưa phâncụm. Fullhistoricalreplay cóthểcầnrestorecache.
+
+**Bắt đầu với bộ financial hiện hành:** [Dataset1.172mã/2016–2025](../data/handoffs/financial-reference-2016-2025/README.md) · [Report tổng](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md) · [Lệnh đang dùng](../scripts/README.md).
+
+**Cleanup53 đã hoàn tất, phân cụm chưa chạy:** 2,889file đãgỡ khỏiworkingtree; report/helpers lịch sử giữZIP cóhash vàrestore, cachetái tạo đượcxóa. Không đổi raw/canonical, counter, dataset13.529rows/1.172full10 hoặc model. Chi tiếttạiExecution53 trongreporttổng. Các sectioncũ dướiđây làlineage, khôngđại diệnworker đangchạy.
+
+**Báo cáo tổng financial:** [Mở lịch sử và tiến độ hiện tại](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md). Cập nhật liên tục qua các giai đoạn; đọc trước các report theo run.
+
+**Ưu tiên hiện tại — Execution50 (23/10/2026): 1.172 mã đủ annual 2016–2025 / 13.529 core-ratio reference rows.** Đã thử hết 2.444 Regular gap cases qua49+50; tăng170full10 và961rows, giữ12.568baseline rows. Còn761held kỳ/257Regular candidates và93candidates ngoài Regular schema;95mã thiếu1kỳ. [Report tổng](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md), [report50/runbook](../artifacts/reports/financial-dstock-remaining-v1/report.md), [1.172mã](../artifacts/reports/financial-dstock-remaining-v1/full10-candidates.csv), [cohort/features](../artifacts/reports/financial-dstock-remaining-v1/delivery-result-ref.json), [field review](../artifacts/reports/financial-dstock-remaining-v1/field-review.csv). 47targeted tests/independent verification PASS;0PDF/0OCR. Worker đã dừng. EPS/P/E/P/B/F/M/Z toàn lịch sử và PIT/M3 vẫn PARTIAL. Xem `scripts/financial_dstock_remaining.ps1 -Mode Status`; dashboard acquisition cũ không phải counter DStock.
+
+
+**20/10/2026 — Financial F3 critical review/reference PARTIAL; goal ACTIVE.**
+[Execution hiện tại](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#21-execution-tiếp--gas-pdf-reference-và-shs-critical-quarantine-20102026),
+[PowerShell](../scripts/financial_history_process.ps1),
+[critical review — archive](../artifacts/archives/financial-history-20261023/data/financial/history_critical_review_v1/4c87c15431782b8e491b/summary.json).
+GAS PDF32reviewedfacts,2Z″EM referencevalues cho2025/2024 từ FY2025vintage;8accountingchecksPASS.
+GASannualHKCDKT:2namedfields sai lệch, Q4 đúng theoPDF. SHSannualKLCTT:7namedPDFnonzero/APIzero,
+1unresolvednonzeroorphan;2APIpartitionsquarantine, khôngrepair/accept. SHSreusePDFcache10MB,
+publication website22/03/2026 không gán sangcachedPDFcover23/03/2026. GASexplicitpub04/03/2026.
+OCR130pages/0errors. Cumulative2.284requests/211.688.837bytes/18PDFattempts;2SHSfileschạpcap25MB
+vẫn được tính, khôngretry/reset. VDSC2HTTP302 khôngfollow; BMSCDBC2013linklegacyHTTP chưa dùng.
+IndependentF3audit vẫn4/6/35fieldmatches+1signconflict; DCM/HSG2025 và2auditPDF cònmở.
+Baseline29/30/VNM Fnull, strictPIT0, chưa50/M3.167targeted/compile/syntheticPASS;activeverify PASS;cachepreflight209PDFfiles/200uniquehashes.
+Fullrepo gate chưaPASS; knownM2-PREP frozenhash mismatch giữ nguyên, không waiveassertion.
+
+**19/10/2026 — Financial history pilot5: acquisition COMPLETE, QA/delivery PARTIAL.**
+[Flow/commands](crawl/FINANCIAL_HISTORY_PIT_PLAN.md#9-qa-offline-và-handoff-bổ-sung-chọn-lọc),
+[final acquisition](../data/financial/history_pit_v1/reports/4bf06a5671299d42c73f/report.md),
+[offline QA — archive](../artifacts/archives/financial-history-20261023/data/financial/history_pit_qa_v1/1692b3eb579b426c1e2f/report.md).
+Worker đã kết thúc: 563 new requests/attempts, 5.313.164 bytes, 27 cache hits,
+71.073 candidate cells, không pending. Coverage980: 918 main candidate-present,
+5 auxiliary, 57 missing (19 issuer-periods). Catalogue host latch giữ nguyên.
+QA riêng không sửa acquisition code/raw: 1.161 structural group-header zeros được
+chứng minh từ đúng template, 69.912 nonstructural cells; 7.890 code/label mappings
+chỉ diagnostic. 1.551 raw accounting equalities/95 differences; annual–Q4 có
+6.652 equalities/1.993 differences, giữ provider partitions và unknown vintage/scope.
+Detector bắt BRC/VNM FY2025 row shifts dù tổng cân, không sửa vị trí. Reviewed
+PDF raw-value comparisons:138match/12conflict; không suy unit hoặc acceptance.
+Queue90issuer-periods (6priority1/84priority2),13có cache PDF candidates. H1 không
+tự thay Q2. 0 new accepted/PIT facts; chưa historical compute/batch20. Baseline29/30,
+VNM F thiếu input. 59 targeted tests/compile/synthetic smoke PASS; acquisition và
+QA replay kiểm độc lập; [validation — archive](../artifacts/archives/financial-history-20261023/data/financial/history_pit_qa_v1/validation/verification.json).
+Registry/code pins và counters cũ giữ nguyên; không tiếp resume acquisition đã hết task.
+
 **19/10/2026 — Materialize hai plan và registry team: OFFLINE INVENTORY COMPLETE; acquisition PLANNED.**
 [Market ≥1.500 cổ phiếu lịch sử](crawl/MARKET_HISTORY10Y_1500_PLAN.md),
 [financial history/PIT](crawl/FINANCIAL_HISTORY_PIT_PLAN.md),
@@ -56,7 +102,7 @@ M2-PREPdocs hasherror, không thay assertion hoặc frozen artifact.
 
 **19/10/2026 — Provider/PDF validation:**
 [runbook](crawl/FINANCIAL_PROVIDER_VALIDATION_USER_GUIDE.md),
-[report](../artifacts/reports/financial-vietfin-pilot5-v1/report.md).
+[report — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-vietfin-pilot5-v1/report.md).
 Đã kiểm wheel VietFin0.2.0; controlled routes TCBS15/15HTTP404 và SSI1catalogHTTP403
 rồi stop, chưa chạySDK và0new provider fields đượcQA. Reuse235pinned reviewed facts,
 176comparisons=164MATCH/12conflicts; selected PDF references và recompute29/30
@@ -85,7 +131,7 @@ Goal30chưa đạt; financial/research/cluster gatesfalse và cohort50baseline32
 không đổi. Entry plan chưa execute bên dưới được giữ làm lịch sử.
 
 **18/10/2026 — Financial pilot5 plan v2 (chưa execute):** [plan](crawl/FINANCIAL_CAFEF_PILOT5_EXECUTION_PLAN_V2.md),
-[tổng hợp/handoff](../artifacts/reports/financial-cafef-pilot5-handoff-v2/report.md).
+[tổng hợp/handoff — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-cafef-pilot5-handoff-v2/report.md).
 Owner yêu cầu giao agent crawl lại vài mã tới actual metrics; chốt BRC/FPT/MWG/
 GMD/VNM, annualFY2025/supporting2024/assets2023. Target5×6=30primary recomputed+
 checked cells;3complete workflows chỉ checkpoint. Dedicated APIs/disclosure,
@@ -95,7 +141,7 @@ Caps5mã/16PDF/400newOCR/6hnetwork, cache reuse; nguyên source/policy/gates và
 old hard stops. Lượt này chỉ plan/verification,0newnetwork/OCR/metrics. Baseline
 32/300references/production0 giữ nguyên; active handoff đổi từplan12 sangv2.
 
-**18/10/2026 — BRC document deep audit:** [report](../artifacts/reports/financial-cafef-brc-deep-audit-v1/report.md),
+**18/10/2026 — BRC document deep audit:** [report — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-cafef-brc-deep-audit-v1/report.md),
 [source cập nhật](crawl/sources/CAFEF.md). Computer-use đủ5document groups192links;
 5disclosure pages92records exactURL/title/datejoins92/92. Tải6PDF/215pages, đọc
 selected statement/notes,51visual candidates; đã có EPS numerator/WA, owned-PPE
@@ -117,7 +163,7 @@ lượt correction. **Live API validation PARTIAL:** scripted13attempts/1.528.36
 baseline32/300referencecells và gatesfalse giữ nguyên. Bước sau: adapter/sample
 validation của routes mới, không mặc định mở rộng OCR hoặc scale50/100.
 
-**18/10/2026 — CafeF UI/API correction:** [report](../artifacts/reports/financial-cafef-disclosure-ui-correction-v1/report.md),
+**18/10/2026 — CafeF UI/API correction:** [report — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-cafef-disclosure-ui-correction-v1/report.md),
 [source addendum cho agent](crawl/sources/CAFEF_DISCLOSURE_AND_FINANCIAL_TABS.md).
 Sau phản hồi owner, kiểm trực tiếp FPT disclosure UI/API: `CreateDate`→ngày gửi,
 20records cóID/link/date; FY2025audited ID/link khớp FileBCTC cũ. QNP LCTT tab
@@ -128,7 +174,7 @@ không gọi chung là “không có PIT/LCTT”.5scripted requests/473.570bytes
 metrics mới; runtime/strict PIT/gates giữ nguyên. Agent đọc addendum trướcR1 của
 plan12 đã lập; original sealed plan/report giữ nguyên.
 
-**18/10/2026 — Financial replan / handoff:** [Tổng hợp](../artifacts/reports/financial-replan-20261018-v1/report.md)
+**18/10/2026 — Financial replan / handoff:** [Tổng hợp — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-replan-20261018-v1/report.md)
 và [plan thực thi R0–R5](crawl/FINANCIAL_CAFEF_REVALIDATION_PLAN.md) đã viết cho agent.
 Goal: audit lại CafeF trên12 mã đại diện, crawl thử, sửa parser/mapping có evidence,
 tính metrics thật và giao flow PowerShell tái chạy được. Profile thực dụng cho phép
@@ -142,7 +188,7 @@ không đồng nhất với metric/PIT readiness hoặc kết luận nguồn đ�
 sau từng checkpoint trong scope. Các entry dưới giữ nguyên lịch sử.
 
 Financial publication follow-up09/10/2026: **DISCOVERY VERIFIED / ACCEPTANCE PARTIAL**.
-[Report/worklog/self-review](../artifacts/reports/financial-publication-followup-v1/report.md).
+[Report/worklog/self-review — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-publication-followup-v1/report.md).
 GMD issuer posts ghi30/03/2026(FY2025),31/03/2025(FY2024), direct attachments exact SHA2/2.
 Hai dates là candidates; đề xuất evidence class mới cầnMANUAL_REVIEW_REQUIRED theoAGENTS,
 runtime explicit-publication-statement chưa đổi. MWG32postrecords/VHC408PDFanchors vẫn nguyên;
@@ -153,7 +199,7 @@ Old counters/deadline/facts giữ nguyên; deadline09/10/2026 11:26:53UTC đã h
 Các entry dưới là lịch sử.
 
 Financial continuation09/10/2026: **RECOVERY_REFERENCE_COMPLETE / BOUNDED_OFFLINE_HANDOFF_VERIFIED**.
-[Report/worklog/self-review](../artifacts/reports/financial-continuation50-v2/report.md).
+[Report/worklog/self-review — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-continuation50-v2/report.md).
 GMD2024 đã tải đúng một lần,55pages OCR97,688s; thêm TA2023 và owned-PPE depreciation2024.
 GMD FY2025 F5/9/M−2,330411, EPS/Z giữ nguyên. Cohort32/300referencecells(10,67%),
 10/50mã,EPS10/Z10/F6/M6/PE0/PB0; production0/gatesfalse. Successor runV2 trên
@@ -168,30 +214,30 @@ sau đó TTM/events/PE/PB/sector/history; chưa periodic unattended refresh/next
 Các entry dưới là lịch sử.
 
 Financial DGC/GMD09/10/2026: **REFERENCE REVIEW COMPLETE / ACCEPTANCE PARTIAL**.
-[Report/worklog/self-review](../artifacts/reports/financial-dgc-gmd-review-v1/report.md). DGC37facts cho EPS7.402/EMZ13,817568/F5/9/M−1,919528; GMD35facts cho EPS3.839/EMZ9,305095, Fnull với6/9signals và Mnull vì thiếu depreciation2024; GMD2024PDF terminal download failure giữ nguyên. FY2025 cohort30/300referencecells(10%):EPS10/Z10/F5/M5/PE0/PB0,10/50mã có reference, production0. DGC audit ngoại trừ và restatedTA2023 (CafeF còn số cũ; mechanical sensitivity F5→4) giữ explicit lineage;50providerMATCH/21NO_PROVIDER/1VINTAGE_DIFFERENCE, canonicalnull.188unique OCRpages mới;3sandboxfailed records và3successfulretry, reservations376mới/651total,757pagescache.125pins/independentDecimal/23tests/compile/fullworkflowverifyPASS,0network mới. PIT exact publication/human acceptance/TTM/sector/scale gates còn đóng. Branch `research/financial-data`, frozenV1 doctor branch mismatch chưa đổi policy. Next: bounded GMD2024 recovery và publication/human acceptance, không tự100/cluster. Các entry dưới là lịch sử.
+[Report/worklog/self-review — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-dgc-gmd-review-v1/report.md). DGC37facts cho EPS7.402/EMZ13,817568/F5/9/M−1,919528; GMD35facts cho EPS3.839/EMZ9,305095, Fnull với6/9signals và Mnull vì thiếu depreciation2024; GMD2024PDF terminal download failure giữ nguyên. FY2025 cohort30/300referencecells(10%):EPS10/Z10/F5/M5/PE0/PB0,10/50mã có reference, production0. DGC audit ngoại trừ và restatedTA2023 (CafeF còn số cũ; mechanical sensitivity F5→4) giữ explicit lineage;50providerMATCH/21NO_PROVIDER/1VINTAGE_DIFFERENCE, canonicalnull.188unique OCRpages mới;3sandboxfailed records và3successfulretry, reservations376mới/651total,757pagescache.125pins/independentDecimal/23tests/compile/fullworkflowverifyPASS,0network mới. PIT exact publication/human acceptance/TTM/sector/scale gates còn đóng. Branch `research/financial-data`, frozenV1 doctor branch mismatch chưa đổi policy. Next: bounded GMD2024 recovery và publication/human acceptance, không tự100/cluster. Các entry dưới là lịch sử.
 
 Documentation09/10/2026: **FINANCIAL INDICATOR HANDBOOK COMPLETE**.
 [Handbook](research/FINANCIAL_INDICATORS_AND_DATA_GUIDE.md), [report/self-review](../artifacts/reports/financial-indicators-handbook-v1/report.md). Đã gom6financial families, EPS/TTM/valuation variants,9Fsignals/8Mcomponents, data dictionary/nguồn/kỳ/notes/PIT/QA/code và11market features. Existing contract/source note/runbook đã có nền tảng nhưng chưa bảng tra cứu liền mạch. Ghi rõ M accruals dùngTAcuối năm trong code khác average-assets của paper; không đổi runtime/formula/inputs/gates. Documentation và synthetic arithmetic examples được kiểm offline; các entry dưới là tiến độ data trước đó.
 
 Publication discovery MWG/VHC08/10/2026: **DISCOVERY COMPLETE / ACCEPTANCE PARTIAL**.
-[Report/worklog/self-review](../artifacts/reports/financial-mwg-vhc-publication-review-v1/report.md). MWG official PostAPI liên kết BCTC FY2025 với23/03/2026 và FY2024 với24/03/2025; distinct PDF hashes, version association chưa accepted. FY2025 images/content/geometry46/46khớp, full fingerprint45/46 vì digital signature annotation; FY2024 official higher resolution chưa all-page equivalence. VHC2/2official PDFs khớp cache, chưa publication date. Giải trình30/03/2026 chỉ document date; landing-page date không được propagate. VHC notice No85 đề09/04/2025 nhưng explicit publication10/04/2025. Signed-at proxy chỉ là đề xuất reference riêng; runtime/DATE_ONLY/inputs/counters/gates không đổi. Latest references24/300, production0. Next: exact-version publication acceptance và VHC disclosure date; chưa date-overlay/crawl100.
+[Report/worklog/self-review — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-mwg-vhc-publication-review-v1/report.md). MWG official PostAPI liên kết BCTC FY2025 với23/03/2026 và FY2024 với24/03/2025; distinct PDF hashes, version association chưa accepted. FY2025 images/content/geometry46/46khớp, full fingerprint45/46 vì digital signature annotation; FY2024 official higher resolution chưa all-page equivalence. VHC2/2official PDFs khớp cache, chưa publication date. Giải trình30/03/2026 chỉ document date; landing-page date không được propagate. VHC notice No85 đề09/04/2025 nhưng explicit publication10/04/2025. Signed-at proxy chỉ là đề xuất reference riêng; runtime/DATE_ONLY/inputs/counters/gates không đổi. Latest references24/300, production0. Next: exact-version publication acceptance và VHC disclosure date; chưa date-overlay/crawl100.
 
 Financial MWG/VHC F/M review08/10/2026: **REFERENCE CALCULATION COMPLETE / FINANCIAL ACCEPTANCE PARTIAL**.
-[Report/worklog/self-review](../artifacts/reports/financial-mwg-vhc-fm-review-v1/report.md). Full OCR101trang FY2024 cache, bổ sung26facts/mã vào v2 riêng; MWG F4/9/M−1,417454, VHC F7/9/M−2,863853; EPS/Z không đổi. Mỗi mã có4/6groups reference; latest cohort24/300FY2025cells(8%):EPS8/Z8/F4/M4/PE0/PB0,8/50symbols có ít nhất một reference.290pins/inventories và independent18Fsignals/16Mratios/8valuesPASS;23testsPASS/compilePASS. Provider50MATCH/22NO_PROVIDER/2VHC2024 signed-expense flags, canonical null. Exact-PDF publication FY2025+support FY2024 vẫn thiếu; human acceptance pending, all gatesfalse/production0.0acquisition requests/download mới; manual primary-web discovery riêng có candidate links chưa accepted. Exact-hash extraction selector là local bounded workaround, chưa production CLI scheduling. Next: publication/human/sign-basis acceptance rồi review DGC/GMD notes từ cache; không tự wave acquisition/100. Plan năm giai đoạn/market-only giữ nguyên; các entry dưới là lịch sử stage trước.
+[Report/worklog/self-review — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-mwg-vhc-fm-review-v1/report.md). Full OCR101trang FY2024 cache, bổ sung26facts/mã vào v2 riêng; MWG F4/9/M−1,417454, VHC F7/9/M−2,863853; EPS/Z không đổi. Mỗi mã có4/6groups reference; latest cohort24/300FY2025cells(8%):EPS8/Z8/F4/M4/PE0/PB0,8/50symbols có ít nhất một reference.290pins/inventories và independent18Fsignals/16Mratios/8valuesPASS;23testsPASS/compilePASS. Provider50MATCH/22NO_PROVIDER/2VHC2024 signed-expense flags, canonical null. Exact-PDF publication FY2025+support FY2024 vẫn thiếu; human acceptance pending, all gatesfalse/production0.0acquisition requests/download mới; manual primary-web discovery riêng có candidate links chưa accepted. Exact-hash extraction selector là local bounded workaround, chưa production CLI scheduling. Next: publication/human/sign-basis acceptance rồi review DGC/GMD notes từ cache; không tự wave acquisition/100. Plan năm giai đoạn/market-only giữ nguyên; các entry dưới là lịch sử stage trước.
 
 Financial MWG/VHC template review08/10/2026: **OFFLINE REFERENCE REVIEW COMPLETE / FINANCIAL ACCEPTANCE PARTIAL**.
-[Report/worklog](../artifacts/reports/financial-mwg-vhc-template-review-v1/report.md). User FullOcr46MWG/64VHCpages và tạo blank templates; agent đối chiếu18ảnh, điền11facts/mã trong input riêng, chạy4EPS/Z references. Latest FY2025 assessment20/300cells (EPS8/Z8/F2/M2),8/50symbols với ít nhất một reference. EPS printed rounding2/2, balance identities2/2, provider18MATCH/4NO_PROVIDER_FIELD; independent60pins/2reviewinventories/report PASS,23testsPASS/compilePASS. Không network/OCR mới; publication exact-PDF MWG/VHC thiếu, F/M còn chưa-review/history/semantics; tất cả gates đóng. VHC EPS current-vintage có caveat quỹ phúc lợi chưa duyệt; không gọi final-revision/TTM EPS.
+[Report/worklog — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-mwg-vhc-template-review-v1/report.md). User FullOcr46MWG/64VHCpages và tạo blank templates; agent đối chiếu18ảnh, điền11facts/mã trong input riêng, chạy4EPS/Z references. Latest FY2025 assessment20/300cells (EPS8/Z8/F2/M2),8/50symbols với ít nhất một reference. EPS printed rounding2/2, balance identities2/2, provider18MATCH/4NO_PROVIDER_FIELD; independent60pins/2reviewinventories/report PASS,23testsPASS/compilePASS. Không network/OCR mới; publication exact-PDF MWG/VHC thiếu, F/M còn chưa-review/history/semantics; tất cả gates đóng. VHC EPS current-vintage có caveat quỹ phúc lợi chưa duyệt; không gọi final-revision/TTM EPS.
 
 Financial user run inspection08/10/2026: **INTEGRITY PASS / COLLECTION PARTIAL / NO NEW NUMERICAL REFERENCES**.
-[Report](../artifacts/reports/financial-user-run50-review-v1/report.md), [runbook](crawl/FINANCIAL_READINESS_USER_GUIDE.md). User Run `data/financial/user_workflow50_v1`:150 listings,91PDF mới,109vintages;2025 cóPDF41/50mã,2024 có27/50,2023 chưa tải.44PDF failure jobs (28timeout/14live404/2known404),123pendingPDF jobs;229attempts/947,97MB,17PDFattempts còn lại. OCR4PDF DGC/GMD/64trang mới, không có review/calculation mới; baseline6mã/16ô FY2025 giữ nguyên. Acquisition routing/cache/recovery cần hoàn thiện; không sửa code/config đã frozen, không mở financial cluster.
+[Report — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-user-run50-review-v1/report.md), [runbook](crawl/FINANCIAL_READINESS_USER_GUIDE.md). User Run `data/financial/user_workflow50_v1`:150 listings,91PDF mới,109vintages;2025 cóPDF41/50mã,2024 có27/50,2023 chưa tải.44PDF failure jobs (28timeout/14live404/2known404),123pendingPDF jobs;229attempts/947,97MB,17PDFattempts còn lại. OCR4PDF DGC/GMD/64trang mới, không có review/calculation mới; baseline6mã/16ô FY2025 giữ nguyên. Acquisition routing/cache/recovery cần hoàn thiện; không sửa code/config đã frozen, không mở financial cluster.
 
 Financial local user handoff08/10/2026: **WORKFLOW HANDOFF COMPLETE / FINANCIAL ACCEPTANCE PARTIAL**.
-[Runbook](crawl/FINANCIAL_READINESS_USER_GUIDE.md), [report/tests/self-review](../artifacts/reports/financial-user-workflow50-v2/report.md).
+[Runbook](crawl/FINANCIAL_READINESS_USER_GUIDE.md), [report/tests/self-review — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-user-workflow50-v2/report.md).
 Một runner PowerShell/Python: doctor/plan/audit/acquire/extract/run/template/review/verify; frozen50, FY2025 task matrix300 ô, history2023–2025. Durable network counters/access latch, OS lock, bounded OCR, immutable receipts/reports và human-attested reference calculator EPS/Z/F/M. Handoff QA không network: dùng lại cache, OCR mới16 trang MWG, replay2 PHP references; không mở cluster hoặc gọi PE annual là TTM. Bulk TTM/PB/sector adapters còn gap.
 
 Financial scale validation08/10/2026: **MEASUREMENT COMPLETE / ACCEPTANCE PARTIAL**.
-[Report/log](../artifacts/reports/financial-scale-validation50-v1/report.md),
-[50-symbol assessment](../artifacts/reports/financial-scale-validation50-v1/per-symbol.csv).
+[Report/log — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-scale-validation50-v1/report.md),
+[50-symbol assessment — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-scale-validation50-v1/per-symbol.csv).
 Đã kiểm50 annual listings:44 consolidated candidates,5 annual unlabeled,1 annual
 listing gap.12 PDFs text-tested,11 predominantly scan/unreadable; code OCR294pages
 cho4 mã mới. PHP/VCS/VEA/PAN tính8 EPS/Z references; PHP/PAN có DATE_ONLY exact-PDF
@@ -201,7 +247,7 @@ cells khớp visual review. Gates financial/cluster/research/next100 vẫnfalse.
 Market-only và plan năm giai đoạn giữ nguyên; các đoạn dưới là kết quả stage trước.
 
 Financial reference integration08/10/2026: **OFFLINE INTEGRATION COMPLETE / ACCEPTANCE PARTIAL**.
-[Report/log](../artifacts/reports/cafef-financial-reviewed-integration-v1/report.md),
+[Report/log — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/cafef-financial-reviewed-integration-v1/report.md),
 [config](../configs/data/financial_trial_integration_v1.json).15/900 ô annual có reference:
 FPT9 ô2023–2025, ACV6 ô2025; thêm3 FPT TTM/valuation bridge values, tổng18 trong50.
 VNM/PVS controls ngoài cohort. ACV có arithmetic nhưng thiếu auxiliary date-PIT và
@@ -211,7 +257,7 @@ notes/publication/vintage cho wave Regular PHP/VCS/VEA/PAN, đóng ACV/FPT gaps 
 template10 mã financial-sector; chưa tự chạy wave/100 hoặc mở financial cluster.
 
 Financial CafeF-first trial50,08/10/2026: **BOUNDED RUN COMPLETE / CANDIDATE DATA PARTIAL**.
-[Report/log](../artifacts/reports/cafef-financial-trial50-v1/report.md),
+[Report/log — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/cafef-financial-trial50-v1/report.md),
 [PowerShell active](crawl/FINANCIAL_TRIAL_50_USER_GUIDE.md). Đã thử đúng50/50 mã,
 600 base +120 gap requests;588/600 base parse được,12 HTTP302 BVH giữ lỗi.
 720 attempts/162.610.642 bytes,1.646/1.950 wire statement-periods (84,41%),
@@ -224,7 +270,7 @@ share events và cost review trước100 mã. Giữ plan financial năm giai đo
 workstream và tất cả financial/cluster/research/full-universe gates false.
 
 Financial source review08/10/2026: **PAIRED BENCHMARK COMPLETED; SOURCE QA PARTIAL**.
-[Report/log và cleanup](../artifacts/reports/financial-source-benchmark-v1/report.md),
+[Report/log và cleanup — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-source-benchmark-v1/report.md),
 [engineering selection](../configs/data/financial_source_selection_v1.json).
 297 bounded attempts trên9 mã gồm6 KBS page12 diagnostics; CafeF164/186 kỳ-báo cáo
 wire hiện diện, KBS98/186;78 so với213 requests MAIN. CafeF72/78 numeric reference
@@ -248,11 +294,11 @@ Next: đóng quý/history contract, numeric templates/ground truth, PIT/notes/ev
 và đo ledger/verify cost trước trial100. Market-only workstream giữ nguyên.
 
 Lineage chuẩn bị: [implementation/testing report — archived](../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip),
-[planning report](../artifacts/reports/financial-crawl-50-plan-v1/report.md),
+[planning report — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-crawl-50-plan-v1/report.md),
 [plan50](../configs/data/financial_crawl_50_plan_v1.json). Reports cũ giữ nguyên trạng
 thái tại thời điểm bàn giao. Financial/cluster/full-universe gates vẫn đóng.
 
-Financial user crawler update 06/10/2026: [report/log](../artifacts/reports/financial-crawl-user-v1/report.md),
+Financial user crawler update 06/10/2026: [report/log — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-crawl-user-v1/report.md),
 [hướng dẫn bàn giao](crawl/FINANCIAL_CRAWLER_USER_GUIDE.md), execution plan v9.
 Runner mới không cần pilot artifacts: config mẫu chạy clean4 mã với12 structured
 responses/4 PDF/343 text pages/1 selected OCR page. Batch10 mã có30 structured
@@ -263,7 +309,7 @@ Discovery4 mã ghi hai CafeF404 FPT/VNM, exact issuer/mirror URLs trong config b
 Crawler handoff COMPLETE ở bounded candidate collection; mới0 accepted facts,
 financial/cluster/full-universe gates vẫnfalse. Market-only workstream không thay đổi.
 
-Financial automation update 05/10/2026: [report quá trình](../artifacts/reports/financial-batch-flow-v1/report.md),
+Financial automation update 05/10/2026: [report quá trình — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-batch-flow-v1/report.md),
 [runbook](crawl/README.md), execution plan v8/config batch v6. Latest run
 `batch_flow_v9_final`, replay v10:10 mã có10 PDF candidates,691 embedded-text pages,
 32 unique prefix OCR pages. Acquisition/extraction/checkpoint/queue/reference adapters
@@ -279,7 +325,7 @@ FIN-D5 acceptance/financial/research/full-universe gates vẫn pending/false.
 Next: pilot semantic/PIT/TTM/event closure, ground-truth template parsers và batch
 20–30 với acceptance/cost thresholds được review trước khi mở accepted-data scale.
 
-Financial update 05/10/2026: [pilot ba mã/report và log](../artifacts/reports/financial-three-symbol-pilot-v1/report.md).
+Financial update 05/10/2026: [pilot ba mã/report và log — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-three-symbol-pilot-v1/report.md).
 Latest `three_symbol_pilot_v3`/replay v4, execution plan v7. Có 158 annual facts được
 visual review riêng; không cộng trực tiếp vào matrix v12. VNM/PVS/ACV có 5/6/6 annual
 reference families với arithmetic. F VAS PVS=7, ACV=4; VNM 8/9 known signals, total null.
@@ -292,7 +338,7 @@ Auxiliary publication dates VNM/ACV còn thiếu. Quotes VNM/PVS lưu riêng dư
 không sửa canonical market/M2. FIN-D4 annual reference slice hoàn thành, acceptance PARTIAL;
 FIN-D5 pending. Strict tasks 0/120; financial/research/full-universe gates false.
 
-Financial update 04/10/2026: [FPT acceptance/ESOP report](../artifacts/reports/financial-fpt-acceptance-v2/report.md).
+Financial update 04/10/2026: [FPT acceptance/ESOP report — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-fpt-acceptance-v2/report.md).
 Latest acceptance_v5, equity_review_v1 và execution plan v6: sáu metric families có
 reference values từ 24/08/2026. F/M/Z dùng annual 2025; EPS/PE dùng TTM đến 30/06/2026;
 P/B là latest June equity + verified gross ESOP capital increment, không current net equity.
@@ -303,7 +349,7 @@ FPT reference handoff complete; FIN-D4 four-symbol closure vẫn PARTIAL, FIN-D5
 Không tăng readiness 153/1.176/date 138/task 0/120 hoặc mở financial/research/scale gates.
 Các update bên dưới là lineage, không phải latest blockers đã được giải quyết.
 
-Financial update 04/10/2026: [FPT TTM/share-event report](../artifacts/reports/financial-ttm-valuation-v1/report.md).
+Financial update 04/10/2026: [FPT TTM/share-event report — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-ttm-valuation-v1/report.md).
 Latest supplemental slice: `fpt_ttm_valuation_v3`, execution plan v5.
 14 issuer PDFs mới, 50 selected OCR pages; 6 accounting QA và 13 artifact checks PASS.
 Reported-numerator/share-days TTM EPS ≈ 5.570,36 từ 24/08/2026; P/E/P/B reference
@@ -315,7 +361,7 @@ TTM/event-adjusted P/B null. FIN-D4 PARTIAL_REFERENCE_TTM, FIN-D5 pending.
 Readiness 153/date 138/task 0/120 không tăng vì slice riêng. Market-only protocol
 và financial/research/scale gates giữ nguyên. Phần dưới là lineage các đợt trước.
 
-Financial update 03/10/2026: [source research/VAS report](../artifacts/reports/financial-source-research-v1/report.md).
+Financial update 03/10/2026: [source research/VAS report — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-source-research-v1/report.md).
 `source_completion_v5` là latest financial handoff. KBS trả15 JSON trên bốn mã;
 4.796 wire cells chưa accepted. Thêm17 annual observations và13 H1 facts riêng;
 readiness v12 đạt 153/1.176, date v6 có 138 date references; strict task v8 vẫn 0/120.
@@ -484,7 +530,7 @@ nhưng không tự biến thành full quarter/PIT coverage. Annual document cand
 24/28 mã-năm 2019–2025; VNM 2019/2020/2021/2025 full VAS còn thiếu. Annual report
 VNM 2025 tải được chứa IFRS tables và VAS audit extract, không đóng full-VAS gap.
 Checklist 1.176 mục: 813 raw-present/55 missing/308 note-review-required.
-[Report v2](../artifacts/reports/financial-remediation-v2/report.md) và
+[Report v2 — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-remediation-v2/report.md) và
 [financial contract](research/FINANCIAL_FEATURE_CONTRACT.md) là handoff hiện hành.
 Financial targeted 30 tests PASS, compile/synthetic smoke PASS; full suite
 197/198 PASS, một lỗi M2-PREP DECISIONS checksum đã biết. Stage PARTIAL,
@@ -496,7 +542,7 @@ Financial pilot closure update 03/10/2026: FPT annual core 2019–2025 đạt 49
 raw-unverified, 302 note-review và 54 missing trên 1.176 ô. Giữ riêng số liệu
 2020 reclassified và EPS 2024 restated; correction run sửa hai numerator về VND.
 FPT có document inputs cho 4/9 nhóm F-Score mỗi năm 2021–2025, chưa tính signal.
-Config `configs/data/financial_pilot_closure_v1.json`; [report hiện hành](../artifacts/reports/financial-pilot-closure-v1/report.md).
+Config `configs/data/financial_pilot_closure_v1.json`; [report hiện hành — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-pilot-closure-v1/report.md).
 Stage PARTIAL; PIT NOT_READY. 5 tests mới/compile/synthetic smoke PASS;
 full suite 202/203 PASS trước final unit/hash hardening, lỗi M2-PREP cũ không đổi.
 Next financial stage: hoàn thiện FPT notes/mapping và publication-version
@@ -514,7 +560,7 @@ FPT 2025 PDF: exact attachment/date 19/03/2026, DATE_ONLY, available_at null;
 không gán publication này cho annual-report vintage. 21 targeted tests, compile,
 synthetic smoke PASS; full suite trước final instant-field extension 208/209 PASS,
 còn lỗi M2-PREP frozen DECISIONS checksum đã biết. Exact inventory/PDF/image hashes
-PASS. [Execution report](../artifacts/reports/financial-execution-v1/report.md),
+PASS. [Execution report — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-execution-v1/report.md),
 config `configs/data/financial_execution_plan_v1.json`; features false, PIT NOT_READY.
 Next financial stage: nghiệm thu FPT notes/mappings và publication history, sau
 đó xử lý ba mã pilot còn lại, full VAS VNM và quarter/TTM trước expansion.
@@ -541,7 +587,7 @@ không audit/certify lại tiến độ clustering hoặc thay market methodolog
 
 ### Financial date-PIT handoff hiện hành — 03/10/2026
 
-[Report hiện hành](../artifacts/reports/financial-date-pit-v1/report.md) thay handoff
+[Report hiện hành — archive](../artifacts/archives/financial-history-20261023/artifacts/reports/financial-date-pit-v1/report.md) thay handoff
 financial v7 bên trên. Owner đã duyệt dùng ngày: từ phiên exchange quan sát được
 đầu tiên sau publication_date; thiếu giờ không còn chặn date-PIT daily/monthly.
 10 exact PDFs có publication evidence; 11 prefix exceptions chưa đóng. Phát hiện
