@@ -1266,13 +1266,13 @@ PCA chỉ thuộc phương án C, không áp dụng chung cho K-Means baseline h
 
 ## Đầu vào của Nhiệm vụ 6
 
-- File cấu hình thí nghiệm: `configs/experiments/m2_pca_market_only_v2.json` (được nhân bản từ `m2_market_only_v2.json` ở đầu Nhiệm vụ 6 với cấu hình `algorithm = "pca_kmeans"` và tham số giảm chiều PCA giữ lại phương sai tích lũy >= 90%);
-- Notebook thực thi: `M2/notebooks/06_pca_kmeans_v2_rerun.ipynb` (kết hợp `src/delta_t1/experiments/runner.py`, `src/delta_t1/features/preprocessing.py`, `src/delta_t1/clustering/kmeans.py`);
+- File cấu hình thí nghiệm: `configs/experiments/m2_pca_market_only.json` (được nhân bản từ `m2_market_only_v2.json` ở đầu Nhiệm vụ 6 với cấu hình `algorithm = "pca_kmeans"` và tham số giảm chiều PCA giữ lại phương sai tích lũy >= 90%);
+- Notebook thực thi: `M2/notebooks/06_pca_kmeans.ipynb` (kết hợp `src/delta_t1/experiments/runner.py`, `src/delta_t1/features/preprocessing.py`, `src/delta_t1/clustering/kmeans.py`);
 - Quyết định số cụm tối ưu: Global K = 2 đã đóng băng từ Nhiệm vụ 3;
 - Dữ liệu 60 development snapshots liên tục từ `2019-01-31` đến `2023-12-29` (nạp từ `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`);
 - Vũ trụ cổ phiếu: Đồng nhất tuyệt đối với Nhiệm vụ 4 và 5 (`market_feature_ready_v2 = true`, `n_eligible >= 100`);
 - Chuẩn hóa & Giảm chiều: Robust Scaling per-snapshot, fit PCA chọn số thành phần chính nhỏ nhất đạt phương sai tích lũy >= 90%;
-- Thư mục xuất artifact đầu ra: `M2/artifacts/m2-task6-pca-kmeans-v2/` và mô hình tại `M2/models/pca_kmeans/`.
+- Thư mục xuất artifact đầu ra: `M2/artifacts/m2-task6-pca-kmeans/` và mô hình tại `M2/models/pca_kmeans/`.
 
 Ví dụ minh họa cho snapshot đầu tiên:
 Global K = 2 (đã khóa từ Nhiệm vụ 3)
@@ -1286,7 +1286,7 @@ Universe:
 Input:
 116 × 8 đặc trưng
 
-## Phần 6.0 — Thiết lập file cấu hình thí nghiệm PCA + K-Means (configs/experiments/m2_pca_market_only_v2.json)
+## Phần 6.0 — Thiết lập file cấu hình thí nghiệm PCA + K-Means (configs/experiments/m2_pca_market_only.json)
 
 ### Mục đích
 
@@ -1295,7 +1295,7 @@ Input:
 ### Thao tác chuẩn bị file cấu hình (2 bước)
 
 1. **Nhân bản từ Master Config:**  
-   Sao chép `configs/experiments/m2_market_only_v2.json` thành `configs/experiments/m2_pca_market_only_v2.json`.
+   Sao chép `configs/experiments/m2_market_only_v2.json` thành `configs/experiments/m2_pca_market_only.json`.
 
 2. **Cập nhật thuật toán và tham số giảm chiều PCA:**  
    Trong khối `"clustering"`, thiết lập:
@@ -1544,7 +1544,7 @@ Cần lưu:
 
 Phần này giải thích các file đã có trong repo, vai trò của từng file và cách chúng được gọi trong nhiệm vụ. Người thực hiện không cần chạy từng file `.py` riêng lẻ; thông thường `runner.py` hoặc entry point của experiment sẽ import/gọi các module còn lại.
 
-**`configs/experiments/m2_pca_market_only_v2.json`** — file cấu hình thí nghiệm PCA + K-Means.
+**`configs/experiments/m2_pca_market_only.json`** — file cấu hình thí nghiệm PCA + K-Means.
 > Mục đích: Định nghĩa thuật toán PCA + K-Means và số chiều giảm PCA đã đóng băng.  
 > Cách dùng trong nhiệm vụ này: Nhân bản từ `m2_market_only_v2.json` ở Phần 6.0, cấu hình `"algorithm": "pca_kmeans"` kèm `n_components` và truyền vào `runner.py` để thực thi.
 
@@ -1589,10 +1589,10 @@ Phần này giải thích các file đã có trong repo, vai trò của từng f
 
 ## Vị trí trong repo & Đường dẫn output
 
-- **Code model / Thực thi**: `M2/notebooks/06_pca_kmeans_v2_rerun.ipynb` (kết hợp PCA trong `src/delta_t1/features/preprocessing.py` và `src/delta_t1/clustering/kmeans.py`)
+- **Code model / Thực thi**: `M2/notebooks/06_pca_kmeans.ipynb` (kết hợp PCA trong `src/delta_t1/features/preprocessing.py` và `src/delta_t1/clustering/kmeans.py`)
 - **Mô hình / Trọng số (Models & Transformers)**: `M2/models/pca_kmeans/` (lưu trữ PCA transformer objects, explained variance ratios, fitted KMeans models theo từng snapshot)
-- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_6_PCA_KMeans_v2.md`
-- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task6-pca-kmeans-v2/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `pca_diagnostics.jsonl`, `manifest.json`; lưu trong M2 để push lên GitHub)
+- **Báo cáo (Reports)**: `M2/reports/Bao_cao_M2_Nhiem_vu_6_PCA_KMeans.md`
+- **Artifacts thực nghiệm chuẩn hóa**: `M2/artifacts/m2-task6-pca-kmeans/` (chứa `assignments.jsonl`, `profiles.jsonl`, `diagnostics.jsonl`, `pca_diagnostics.jsonl`, `manifest.json`; lưu trong M2 để push lên GitHub)
 
 
 # NHIỆM VỤ 7 — ĐÁNH GIÁ CHẤT LƯỢNG CỤM (CLUSTER QUALITY EVALUATION)
@@ -1623,30 +1623,30 @@ Nhiệm vụ 7 tuân thủ nguyên tắc cốt lõi của DELTA: **Tầng đánh
 Người thực hiện từng phương án mở và thực thi trực tiếp notebook tương ứng trong thư mục `M2/notebooks/`:
 - **Phương án 1 (K-Means Baseline):** `M2/notebooks/07_cluster_quality_evaluation_kmeans.ipynb`
 - **Phương án 2 (Ward Hierarchical):** `M2/notebooks/07_cluster_quality_evaluation_ward.ipynb`
-- **Phương án 3 (PCA + K-Means):** `M2/notebooks/07_cluster_quality_evaluation_pca_kmeans_v2.ipynb`
+- **Phương án 3 (PCA + K-Means):** `M2/notebooks/07_cluster_quality_evaluation_pca_kmeans.ipynb`
 
 ### Quy trình phối hợp 5 bước (Workflow)
 1. **Bước 1 (Đọc dữ liệu chẩn đoán đầu vào):** Sử dụng `pandas` đọc trực tiếp file `diagnostics.csv` từ thư mục artifact chuẩn hóa của phương án tương ứng:
    - K-Means: `M2/artifacts/m2-task4-kmeans-baseline-v1/diagnostics.csv`
    - Ward: `M2/artifacts/m2-task5-ward-v1/diagnostics.csv`
-   - PCA + K-Means: `M2/artifacts/m2-task6-pca-kmeans-v2/diagnostics.csv`
+   - PCA + K-Means: `M2/artifacts/m2-task6-pca-kmeans/diagnostics.csv`
 2. **Bước 2 (Trích xuất & Xuất file tóm tắt chất lượng đầu ra):** Lọc lấy 60 dòng dữ liệu ứng với cấu hình K=2, dùng các hàm thống kê mô tả cơ bản của pandas để tính Mean, Median, Min, Max cho 5 chỉ số và tự động xuất ra file `quality_summary.csv` vào đúng đường dẫn đích:
    - K-Means: `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv`
    - Ward: `M2/artifacts/m2-evaluation-ward/quality_summary.csv`
-   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans-v2/quality_summary.csv`
+   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv`
 3. **Bước 3 (Hiển thị 2 Bảng chuẩn):** Hiển thị Bảng tổng hợp (Bảng 1) và Bảng chi tiết 60 snapshots (Bảng 2) dưới dạng bảng HTML tương tác (`display()`).
 4. **Bước 4 (Trực quan hóa 5 Biểu đồ đường):** Dùng `matplotlib` vẽ 5 biểu đồ chuỗi thời gian cho 5 chỉ số chất lượng từ Mục 7.1 đến 7.5 kèm đường tham chiếu Median nét đứt màu đỏ.
 5. **Bước 5 (Soạn thảo Nhận định kinh tế & Rào chắn học thuật):** Trình bày phân tích hiện tượng thị trường và giới hạn toán học trực tiếp vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập:
    - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_KMeans.md`
    - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_Ward.md`
-   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans_v2.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans.md`
 
 ## Quy chuẩn Dữ liệu Đầu vào (Input Contract)
 
 Nhiệm vụ 7 chỉ nhận duy nhất file kết quả chẩn đoán **`diagnostics.csv`** (chính là `per-snapshot diagnostics` theo quy chuẩn `DELTA_UNIFIED_PROJECT_PLAN.md`) đã được pipeline sinh ra sẵn từ Nhiệm vụ 4, 5, 6:
 - **K-Means:** `M2/artifacts/m2-task4-kmeans-baseline-v1/diagnostics.csv`
 - **Ward:** `M2/artifacts/m2-task5-ward-v1/diagnostics.csv`
-- **PCA + K-Means:** `M2/artifacts/m2-task6-pca-kmeans-v2/diagnostics.csv`
+- **PCA + K-Means:** `M2/artifacts/m2-task6-pca-kmeans/diagnostics.csv`
 
 *(Lưu ý về quy mô dữ liệu: File chẩn đoán gốc lưu trữ toàn bộ các mức K khảo sát ban đầu từ 2 đến 8 gồm 420 dòng (60 snapshots x 7 K). **Nhiệm vụ 7 chỉ trích xuất và phân tích duy nhất 60 dòng ứng với cấu hình tối ưu K=2 đã khóa ở Nhiệm vụ 3**).*
 
@@ -1657,7 +1657,7 @@ Cấu trúc các cột bắt buộc phải có trong file diagnostics: `snapshot
 Sau khi chạy xong Notebook, code bắt buộc phải tự động lưu **duy nhất 1 file CSV** đại diện cho **`quality metrics`** của mô hình tại K=2 vào đúng thư mục evaluation chuẩn của từng phương án:
 - **K-Means:** `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv`
 - **Ward:** `M2/artifacts/m2-evaluation-ward/quality_summary.csv`
-- **PCA + K-Means:** `M2/artifacts/m2-evaluation-pca-kmeans-v2/quality_summary.csv`
+- **PCA + K-Means:** `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv`
 
 ### Schema cố định gồm đúng 7 cột:
 Tất cả các file `quality_summary.csv` xuất xưởng của cả 3 mô hình bắt buộc phải có đúng 7 cột với tên và thứ tự như sau:
@@ -1770,15 +1770,15 @@ Mỗi mô hình khi hoàn thành Nhiệm vụ 7 phải có đầy đủ bộ s�
 1. **Notebook thực thi hoàn chỉnh:**
    - K-Means: `M2/notebooks/07_cluster_quality_evaluation_kmeans.ipynb`
    - Ward: `M2/notebooks/07_cluster_quality_evaluation_ward.ipynb`
-   - PCA + K-Means: `M2/notebooks/07_cluster_quality_evaluation_pca_kmeans_v2.ipynb`
+   - PCA + K-Means: `M2/notebooks/07_cluster_quality_evaluation_pca_kmeans.ipynb`
 2. **File Artifact xuất ra đĩa chuẩn hóa:**
    - K-Means: `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv` (7 cột chuẩn)
    - Ward: `M2/artifacts/m2-evaluation-ward/quality_summary.csv` (7 cột chuẩn)
-   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans-v2/quality_summary.csv` (7 cột chuẩn)
+   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv` (7 cột chuẩn)
 3. **Báo cáo chuyên đề Markdown:**
    - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_KMeans.md`
    - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_Ward.md`
-   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans_v2.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans.md`
 
 # NHIỆM VỤ 8 — PHÂN TÍCH HỒ SƠ CỤM (CLUSTER PROFILING)
 
@@ -1802,26 +1802,26 @@ Nhiệm vụ 8 tuân thủ nguyên tắc cốt lõi của DELTA: **Tầng đánh
 Người thực hiện từng phương án mở và chạy trực tiếp notebook tương ứng của mình trong thư mục `M2/notebooks/`:
 - **Phương án 1 (K-Means Baseline):** `M2/notebooks/08_cluster_profiling_kmeans.ipynb`
 - **Phương án 2 (Ward Hierarchical):** `M2/notebooks/08_cluster_profiling_ward.ipynb`
-- **Phương án 3 (PCA + K-Means):** `M2/notebooks/08_cluster_profiling_pca_kmeans_v2.ipynb`
+- **Phương án 3 (PCA + K-Means):** `M2/notebooks/08_cluster_profiling_pca_kmeans.ipynb`
 
 ### Quy trình phối hợp (Workflow)
 1. **Bước 1 (Đọc dữ liệu hồ sơ cụm đầu vào):** Pipeline huấn luyện tự động xuất ra file `cluster_profiles.csv` (13 cột chuẩn) vào thư mục artifact tương ứng, Notebook sẽ đọc trực tiếp từ:
    - K-Means: `M2/artifacts/m2-task4-kmeans-baseline-v1/cluster_profiles.csv`
    - Ward: `M2/artifacts/m2-task5-ward-v1/cluster_profiles.csv`
-   - PCA + K-Means: `M2/artifacts/m2-task6-pca-kmeans-v2/cluster_profiles.csv`
+   - PCA + K-Means: `M2/artifacts/m2-task6-pca-kmeans/cluster_profiles.csv`
 2. **Bước 2 (Nạp dữ liệu vào DataFrame):** Notebook nạp file CSV tương ứng từ đường dẫn trên bằng lệnh `pd.read_csv()`.
 3. **Bước 3 (Tổng hợp số liệu & Trực quan hóa):** Chạy code pandas để xuất ra 3 Bảng số liệu chuẩn và 2 Biểu đồ chuẩn (Radar Chart, Heatmap).
 4. **Bước 4 (Viết nhận định & Báo cáo):** Soạn thảo nhận định tài chính và giới hạn học thuật vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập:
    - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_KMeans.md`
    - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_Ward.md`
-   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_PCA_KMeans_v2.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_PCA_KMeans.md`
 
 ## Quy chuẩn Dữ liệu Đầu vào (Input Contract)
 
 Nhiệm vụ 8 chỉ nhận duy nhất file kết quả **`cluster_profiles.csv`** gồm đúng **13 cột chuẩn** đã được tạo ra từ Nhiệm vụ 4, 5, 6:
 - K-Means: `M2/artifacts/m2-task4-kmeans-baseline-v1/cluster_profiles.csv`
 - Ward: `M2/artifacts/m2-task5-ward-v1/cluster_profiles.csv`
-- PCA + K-Means: `M2/artifacts/m2-task6-pca-kmeans-v2/cluster_profiles.csv` (đã được ánh xạ ngược inverse transform về 8 chiều gốc ngay từ Nhiệm vụ 6, không chứa chuỗi JSON thô).
+- PCA + K-Means: `M2/artifacts/m2-task6-pca-kmeans/cluster_profiles.csv` (đã được ánh xạ ngược inverse transform về 8 chiều gốc ngay từ Nhiệm vụ 6, không chứa chuỗi JSON thô).
 
 *(Cấu trúc 13 cột chuẩn: `snapshot_date`, `raw_cluster_id`, `aligned_cluster_id`, `size`, `size_ratio`, `mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126`, `liquidity_21`).*
 
@@ -1933,15 +1933,15 @@ Mỗi mô hình khi hoàn thành Nhiệm vụ 8 phải có đầy đủ bộ bà
 1. **Notebook thực thi hoàn chỉnh:**
    - K-Means: `M2/notebooks/08_cluster_profiling_kmeans.ipynb`
    - Ward: `M2/notebooks/08_cluster_profiling_ward.ipynb`
-   - PCA + K-Means: `M2/notebooks/08_cluster_profiling_pca_kmeans_v2.ipynb`
+   - PCA + K-Means: `M2/notebooks/08_cluster_profiling_pca_kmeans.ipynb`
 2. **Hình ảnh biểu đồ xuất xưởng (lưu vào đúng thư mục evaluation của từng mô hình):**
    - K-Means: `M2/artifacts/m2-evaluation-kmeans/radar_chart.png`, `M2/artifacts/m2-evaluation-kmeans/heatmap.png`
    - Ward: `M2/artifacts/m2-evaluation-ward/radar_chart.png`, `M2/artifacts/m2-evaluation-ward/heatmap.png`
-   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans-v2/radar_chart.png`, `M2/artifacts/m2-evaluation-pca-kmeans-v2/heatmap.png`
+   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/radar_chart.png`, `M2/artifacts/m2-evaluation-pca-kmeans/heatmap.png`
 3. **Báo cáo chuyên đề Markdown:**
    - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_KMeans.md`
    - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_Ward.md`
-   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_PCA_KMeans_v2.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_PCA_KMeans.md`
 
 # NHIỆM VỤ 9 — ĐÁNH GIÁ ĐỘ ỔN ĐỊNH THEO THỜI GIAN (TEMPORAL STABILITY)
 
@@ -1968,26 +1968,26 @@ Nhiệm vụ 9 tuân thủ nguyên tắc cốt lõi của DELTA: **Tầng đánh
 Người thực hiện từng phương án mở và chạy trực tiếp notebook tương ứng của mình trong thư mục `M2/notebooks/`:
 - **Phương án 1 (K-Means Baseline):** `M2/notebooks/09_temporal_stability_kmeans.ipynb`
 - **Phương án 2 (Ward Hierarchical):** `M2/notebooks/09_temporal_stability_ward.ipynb`
-- **Phương án 3 (PCA + K-Means):** `M2/notebooks/09_temporal_stability_pca_kmeans_v2.ipynb`
+- **Phương án 3 (PCA + K-Means):** `M2/notebooks/09_temporal_stability_pca_kmeans.ipynb`
 
 ### Quy trình phối hợp (Workflow)
 1. **Bước 1 (Đọc dữ liệu độ ổn định thời gian đầu vào):** Pipeline huấn luyện tự động xuất ra bộ 3 file CSV chuẩn gồm `temporal_stability.csv`, `transition_matrices.csv` và `centroid_drift.csv` vào thư mục artifact evaluation tương ứng, Notebook sẽ đọc trực tiếp từ:
    - K-Means: `M2/artifacts/m2-evaluation-kmeans/`
    - Ward: `M2/artifacts/m2-evaluation-ward/`
-   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans-v2/`
+   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/`
 2. **Bước 2 (Nạp dữ liệu vào Notebook):** Notebook đọc trực tiếp 3 file CSV từ các đường dẫn trên bằng lệnh `pd.read_csv()`.
 3. **Bước 3 (Tổng hợp số liệu & Trực quan hóa):** Chạy code pandas để xuất ra đúng 4 Bảng số liệu chuẩn và 2 Biểu đồ chuẩn (Đồ thị xu hướng đa panel và Heatmap ma trận chuyển dịch).
 4. **Bước 4 (Viết nhận định & Báo cáo):** Soạn thảo nhận định tài chính và giới hạn học thuật vào các ô Markdown trong Notebook, sau đó tổng hợp thành file báo cáo Markdown độc lập:
    - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_KMeans.md`
    - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_Ward.md`
-   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_PCA_KMeans_v2.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_PCA_KMeans.md`
 
 ## Quy chuẩn Dữ liệu Đầu vào (Unified Input Contract)
 
 Nhiệm vụ 9 của cả 3 mô hình đều đọc vào **bộ 3 file CSV phẳng** có cấu trúc cột cố định từ thư mục artifact evaluation của từng mô hình:
 - K-Means: `M2/artifacts/m2-evaluation-kmeans/`
 - Ward: `M2/artifacts/m2-evaluation-ward/`
-- PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans-v2/`
+- PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/`
 
 ### Chi tiết cấu trúc 3 file input:
 1. **`temporal_stability.csv` (10 cột chuẩn, 59 dòng = 59 cặp tháng liên tiếp):**
@@ -2117,15 +2117,15 @@ Mỗi mô hình khi hoàn thành Nhiệm vụ 9 phải có đầy đủ bộ bà
 1. **Notebook thực thi hoàn chỉnh:**
    - K-Means: `M2/notebooks/09_temporal_stability_kmeans.ipynb`
    - Ward: `M2/notebooks/09_temporal_stability_ward.ipynb`
-   - PCA + K-Means: `M2/notebooks/09_temporal_stability_pca_kmeans_v2.ipynb`
+   - PCA + K-Means: `M2/notebooks/09_temporal_stability_pca_kmeans.ipynb`
 2. **Hình ảnh biểu đồ xuất xưởng (lưu vào đúng thư mục evaluation của từng mô hình):**
    - K-Means: `M2/artifacts/m2-evaluation-kmeans/temporal_trends.png`, `M2/artifacts/m2-evaluation-kmeans/transition_heatmap.png`
    - Ward: `M2/artifacts/m2-evaluation-ward/temporal_trends.png`, `M2/artifacts/m2-evaluation-ward/transition_heatmap.png`
-   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans-v2/temporal_trends.png`, `M2/artifacts/m2-evaluation-pca-kmeans-v2/transition_heatmap.png`
+   - PCA + K-Means: `M2/artifacts/m2-evaluation-pca-kmeans/temporal_trends.png`, `M2/artifacts/m2-evaluation-pca-kmeans/transition_heatmap.png`
 3. **Báo cáo chuyên đề Markdown:**
    - K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_KMeans.md`
    - Ward: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_Ward.md`
-   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_PCA_KMeans_v2.md`
+   - PCA + K-Means: `M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_PCA_KMeans.md`
 
 # NHIỆM VỤ 10 — SO SÁNH CÁC PHƯƠNG ÁN VÀ CHỌN RA 1 MÔ HÌNH TỐT NHẤT (FINAL METHOD SELECTION)
 
@@ -2216,10 +2216,10 @@ Quy trình thực thi trong notebook `M2/notebooks/10_model_comparison.ipynb` g�
 
 - **Bước 1: Nạp và kiểm định tính toàn vẹn của dữ liệu đầu vào (Input Ingestion & Integrity Check)**
   Nạp 9 file artifacts đã đóng băng từ Nhiệm vụ 7, 8, 9 của cả 3 mô hình:
-  - 3 file chất lượng: `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv`, `M2/artifacts/m2-evaluation-ward/quality_summary.csv`, `M2/artifacts/m2-evaluation-pca-kmeans-v2/quality_summary.csv`
-  - 3 file hồ sơ cụm: `M2/artifacts/m2-evaluation-kmeans/cluster_profiles.csv`, `M2/artifacts/m2-evaluation-ward/cluster_profiles.csv`, `M2/artifacts/m2-task6-pca-kmeans-v2/cluster_profiles.csv`
+  - 3 file chất lượng: `M2/artifacts/m2-evaluation-kmeans/quality_summary.csv`, `M2/artifacts/m2-evaluation-ward/quality_summary.csv`, `M2/artifacts/m2-evaluation-pca-kmeans/quality_summary.csv`
+  - 3 file hồ sơ cụm: `M2/artifacts/m2-evaluation-kmeans/cluster_profiles.csv`, `M2/artifacts/m2-evaluation-ward/cluster_profiles.csv`, `M2/artifacts/m2-task6-pca-kmeans/cluster_profiles.csv`
   - Notebook Nhiệm vụ 10 chuẩn hóa schema của ba file trong bộ nhớ trước khi so sánh: K-Means bỏ hậu tố `_mean`; Ward giữ 8 cột feature; PCA + K-Means giải mã `centroid` JSON. Không sao chép ngược hoặc sửa artifact nguồn trong `m2-task4/5/6-*-v1`.
-  - 3 file ổn định thời gian: `M2/artifacts/m2-evaluation-kmeans/temporal_stability.csv`, `M2/artifacts/m2-evaluation-ward/temporal_stability.csv`, `M2/artifacts/m2-evaluation-pca-kmeans-v2/temporal_stability.csv`
+  - 3 file ổn định thời gian: `M2/artifacts/m2-evaluation-kmeans/temporal_stability.csv`, `M2/artifacts/m2-evaluation-ward/temporal_stability.csv`, `M2/artifacts/m2-evaluation-pca-kmeans/temporal_stability.csv`
   - Bổ sung chỉ đọc để kiểm chứng: ba `diagnostics.csv` của Nhiệm vụ 4/5/6 (lọc `K=2`, tính Std và đối chiếu `quality_summary.csv`) và ba `centroid_drift.csv` trong `m2-evaluation-*` (so sánh Centroid Drift theo Phần 10.2).
   Kiểm tra xác nhận đủ 60 snapshots và 59 cặp tháng cho cả 3 mô hình trước khi tính toán.
 
@@ -2304,6 +2304,8 @@ Báo cáo `M2/reports/Bao_cao_M2_Nhiem_vu_10_So_sanh_va_Chon_mo_hinh_tot_nhat.md
 
 # NHIỆM VỤ 11 — MỞ VÀ CHẠY FINAL HOLDOUT (OUT-OF-SAMPLE VALIDATION)
 
+> Trạng thái hiện tại (22/10/2026): nhiệm vụ 11 đã hoàn tất trên dữ liệu mới, đủ 24/24 snapshot, 30.155 assignments và 23 cặp thời gian; báo cáo đầy đủ tại `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`. Chạy lại notebook chỉ kiểm chứng checksum và nạp bộ complete, không refit.
+
 ## Mục đích của Nhiệm vụ 11
 
 Kiểm định độc lập năng lực tổng quát hóa ngoài mẫu (out-of-sample generalization) của **DUY NHẤT 1 MÔ HÌNH PHÂN CỤM TỐT NHẤT** đã được lựa chọn và đóng băng tại Nhiệm vụ 10 trên giai đoạn dữ liệu ngoài mẫu 2 năm (2024 - 2025).
@@ -2326,20 +2328,20 @@ Final Holdout (24 snapshots: 2024-01-31 đến 2025-12-31)
 
 ## Đầu vào của Nhiệm vụ 11
 
-- File cấu hình thí nghiệm: `configs/experiments/m2_final_holdout_v2.json` (được tạo ở đầu Nhiệm vụ 11 dựa trên mô hình chiến thắng trích xuất từ `final_method_decision.json`, chuyển danh sách snapshot sang 24 snapshots Holdout);
+- File cấu hình thí nghiệm: `configs/experiments/m2_final_holdout.json` (được tạo ở đầu Nhiệm vụ 11 dựa trên mô hình chiến thắng trích xuất từ `final_method_decision.json`, chuyển danh sách snapshot sang 24 snapshots Holdout);
 - File quyết định đóng băng mô hình: `M2/artifacts/m2-evaluation-v2/final_method_decision.json` (bắt buộc trạng thái `status == "FROZEN_FOR_HOLDOUT"`);
-- Notebook thực thi: `M2/notebooks/11_final_holdout_execution_v2.ipynb`;
+- Notebook thực thi: `M2/notebooks/11_final_holdout_execution.ipynb`;
 - Dữ liệu 24 snapshots Holdout liên tục từ `2024-01-31` đến `2025-12-31` (nạp từ `artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/feature_snapshots.jsonl`);
 - Vũ trụ cổ phiếu: Lọc theo từng snapshot `market_experiment_eligible(t) = market_feature_ready_v2(t)` và `n_eligible >= 100`;
 - Chuẩn hóa: Đúng 8 đặc trưng thị trường, Robust Scaling độc lập theo từng snapshot;
-- Thư mục xuất artifact đầu ra: `M2/artifacts/m2-final-holdout-v2/` và mô hình tại `M2/models/holdout_v2/`.
+- Thư mục xuất artifact đầu ra: `M2/artifacts/m2-final-holdout/` và mô hình tại `M2/models/holdout/`.
 
-> **Entry point V2 hiện hành:** `M2/notebooks/11_final_holdout_execution_v2.ipynb`;
-> config `configs/experiments/m2_final_holdout_v2.json`; đọc C8
+> **Entry point hiện hành:** `M2/notebooks/11_final_holdout_execution.ipynb`;
+> config `configs/experiments/m2_final_holdout.json`; đọc C8
 > `artifacts/cafef_primary/cafef-c8-complete-only-v2/`. Gate chỉ kiểm tra development;
-> Bước 2 mới mở holdout. Bộ V1 bảy tháng năm 2026 giữ làm lịch sử.
+> Trong lần thực thi đầu, Bước 2 mới mở holdout; bộ complete chỉ verify khi chạy lại. Không sử dụng kết quả hoặc runner của bộ bảy tháng năm 2026.
 
-## Phần 11.0 — Thiết lập file cấu hình Final Holdout (configs/experiments/m2_final_holdout_v2.json)
+## Phần 11.0 — Thiết lập file cấu hình Final Holdout (configs/experiments/m2_final_holdout.json)
 
 ### Mục đích
 
@@ -2351,7 +2353,7 @@ Khóa cấu hình thực nghiệm trên 24 snapshots ngoài mẫu (2024 - 2025) 
    Nạp file `M2/artifacts/m2-evaluation-v2/final_method_decision.json`, kiểm tra `status == "FROZEN_FOR_HOLDOUT"`, trích xuất tên thuật toán chiến thắng (`winning_algorithm`) và Global K = 2.
 
 2. **Tạo file cấu hình Holdout:**  
-   Tạo file `configs/experiments/m2_final_holdout_v2.json` kế thừa cấu hình của mô hình chiến thắng, thiết lập:
+   Tạo file `configs/experiments/m2_final_holdout.json` kế thừa cấu hình của mô hình chiến thắng, thiết lập:
    - `"stage": "M2_TASK_11_HOLDOUT"`
    - `"start": "2024-01-31"`, `"end": "2025-12-31"`
    - Danh sách snapshot thực thi gồm đúng 24 snapshots Holdout từ `2024-01-31` đến `2025-12-31`.
@@ -2417,7 +2419,7 @@ Tính toán các chỉ số chất lượng phân cụm hình học trên từng
 - Calinski-Harabasz Index
 - Cluster Balance (min_size / max_size) và quy mô từng cụm
 
-Tổng hợp thành bảng thống kê chất lượng Holdout `M2/artifacts/m2-final-holdout-v2/diagnostics.jsonl`.
+Tổng hợp thành bảng thống kê chất lượng Holdout `M2/artifacts/m2-final-holdout/diagnostics.jsonl`.
 
 ## Phần 11.6 — Đánh giá độ ổn định thời gian và Quy tắc ngắt chuỗi tại Gap (Temporal Stability & Gap Reset)
 
@@ -2458,7 +2460,7 @@ So sánh hồ sơ 8 đặc trưng gốc của các cụm giữa Development và 
 
 ## Phần 11.9 — Quy trình thực thi 7 bước trong Notebook 11
 
-Quy trình thực thi trong notebook `M2/notebooks/11_final_holdout_execution_v2.ipynb` gồm đúng 7 bước:
+Quy trình thực thi trong notebook `M2/notebooks/11_final_holdout_execution.ipynb` gồm đúng 7 bước:
 
 - **Bước 1: Kiểm định Cổng đóng băng (Holdout Gate Verification)**  
   Nạp file `M2/artifacts/m2-evaluation-v2/final_method_decision.json`, kiểm tra điều kiện tiên quyết `status == "FROZEN_FOR_HOLDOUT"`. Nếu file không tồn tại hoặc trạng thái chưa đóng băng, lập tức dừng chương trình (fail-closed). Trích xuất tên mô hình chiến thắng và Global K = 2.
@@ -2475,13 +2477,13 @@ Quy trình thực thi trong notebook `M2/notebooks/11_final_holdout_execution_v2
   - Tính ARI, NMI, Persistence, Migration Rate cho 23 cặp tháng liên tiếp của Holdout, lưu vào `temporal_stability.csv`.
   - Tính toán `Delta_Silhouette` và lập bảng khoảng cách suy thoái `holdout_generalization_gap.csv`.
 - **Bước 7: Trực quan hóa, Tạo Manifest kiểm toán và Soạn thảo Báo cáo**  
-  - Vẽ biểu đồ quỹ đạo chất lượng `M2/artifacts/m2-final-holdout-v2/holdout_vs_dev_trajectory.png`.
-  - Tạo file kiểm toán `M2/artifacts/m2-final-holdout-v2/manifest.json` ghi nhận mã băm sha256 của tất cả các artifacts.
-  - Soạn thảo báo cáo chuyên đề `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout_v2.md`.
+  - Vẽ biểu đồ quỹ đạo chất lượng `M2/artifacts/m2-final-holdout/holdout_vs_dev_trajectory.png`.
+  - Tạo file kiểm toán `M2/artifacts/m2-final-holdout/manifest.json` ghi nhận mã băm sha256 của tất cả các artifacts.
+  - Soạn thảo báo cáo chuyên đề `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`.
 
 ## Phần 11.10 — Trực quan hóa chuẩn hóa: Biểu đồ Quỹ đạo Development vs Holdout
 
-Notebook 11 bắt buộc phải xuất biểu đồ `M2/artifacts/m2-final-holdout-v2/holdout_vs_dev_trajectory.png`:
+Notebook 11 bắt buộc phải xuất biểu đồ `M2/artifacts/m2-final-holdout/holdout_vs_dev_trajectory.png`:
 - Kích thước đồ thị: `figsize=(14, 6)`.
 - Trục tung: Điểm số Silhouette (từ 0.0 đến 1.0).
 - Trục hoành: Toàn bộ 84 mốc thời gian (60 mốc Development từ 2019-01-31 đến 2023-12-29, và 24 mốc Holdout từ 2024-01-31 đến 2025-12-31).
@@ -2491,19 +2493,19 @@ Notebook 11 bắt buộc phải xuất biểu đồ `M2/artifacts/m2-final-holdo
 ## Kết quả cần đạt & Đường dẫn bàn giao của Nhiệm vụ 11
 
 1. **Notebook thực thi hoàn chỉnh:**
-   - `M2/notebooks/11_final_holdout_execution_v2.ipynb`
+   - `M2/notebooks/11_final_holdout_execution.ipynb`
 2. **Thư mục lưu trữ mô hình và đối tượng Holdout:**
-   - `M2/models/holdout_v2/`
-3. **Artifacts thực nghiệm chuẩn hóa (Thư mục `M2/artifacts/m2-final-holdout-v2/`):**
-   - `M2/artifacts/m2-final-holdout-v2/assignments.jsonl` (gán nhãn cụm cho từng mã qua 24 snapshots holdout)
-   - `M2/artifacts/m2-final-holdout-v2/profiles.jsonl` (hồ sơ tâm cụm trên 8 đặc trưng gốc)
-   - `M2/artifacts/m2-final-holdout-v2/diagnostics.jsonl` (chỉ số chất lượng Silhouette, DB, CH, Balance theo từng snapshot)
-   - `M2/artifacts/m2-final-holdout-v2/temporal_stability.csv` (chỉ số ARI, NMI, Persistence, Migration giữa 23 cặp tháng holdout)
-   - `M2/artifacts/m2-final-holdout-v2/holdout_generalization_gap.csv` (bảng đối chiếu suy thoái chất lượng giữa Dev và Holdout)
-   - `M2/artifacts/m2-final-holdout-v2/holdout_vs_dev_trajectory.png` (biểu đồ quỹ đạo phân cụm xuyên suốt 84 snapshots)
-   - `M2/artifacts/m2-final-holdout-v2/manifest.json` (bằng chứng kiểm toán và mã băm sha256)
+   - `M2/models/holdout/`
+3. **Artifacts thực nghiệm chuẩn hóa (Thư mục `M2/artifacts/m2-final-holdout/`):**
+   - `M2/artifacts/m2-final-holdout/assignments.jsonl` (gán nhãn cụm cho từng mã qua 24 snapshots holdout)
+   - `M2/artifacts/m2-final-holdout/profiles.jsonl` (hồ sơ tâm cụm trên 8 đặc trưng gốc)
+   - `M2/artifacts/m2-final-holdout/diagnostics.jsonl` (chỉ số chất lượng Silhouette, DB, CH, Balance theo từng snapshot)
+   - `M2/artifacts/m2-final-holdout/temporal_stability.csv` (chỉ số ARI, NMI, Persistence, Migration giữa 23 cặp tháng holdout)
+   - `M2/artifacts/m2-final-holdout/holdout_generalization_gap.csv` (bảng đối chiếu suy thoái chất lượng giữa Dev và Holdout)
+   - `M2/artifacts/m2-final-holdout/holdout_vs_dev_trajectory.png` (biểu đồ quỹ đạo phân cụm xuyên suốt 84 snapshots)
+   - `M2/artifacts/m2-final-holdout/manifest.json` (bằng chứng kiểm toán và mã băm sha256)
 4. **Báo cáo chuyên đề Markdown:**
-   - `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout_v2.md`
+   - `M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md`
 
 # NHIỆM VỤ 12 — M2 VERIFY: KIỂM TOÁN TÍNH TOÀN VẸN VÀ RÀO CHẮN HỌC THUẬT
 

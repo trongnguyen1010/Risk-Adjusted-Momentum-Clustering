@@ -26,6 +26,12 @@ def compute_sha256(filepath):
 
 def main():
     base_dir = os.path.abspath(".")
+    if not os.path.isfile(os.path.join(base_dir, "M2", "artifacts", "m2-final-holdout-v1", "manifest.json")):
+        raise SystemExit(
+            "BLOCKED: this historical Task 13 generator requires the original seven-month "
+            "holdout and 22-snapshot package. The current 60+24 workflow cannot be substituted. "
+            "No output has been written; prepare a current Task 13 workflow separately."
+        )
     handoff_dir = os.path.join(base_dir, "M2", "artifacts", "m2-final-handoff-v1")
     models_dir = os.path.join(base_dir, "M2", "models", "final_selected_model")
     holdout_models_dir = os.path.join(base_dir, "M2", "models", "holdout")

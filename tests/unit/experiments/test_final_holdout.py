@@ -1,226 +1,157 @@
-"""Bounded Task-11 tests; no real holdout fitting or mutable development outputs."""
+"""Bounded synthetic tests; the real holdout feature payload is never loaded."""
+import ast
 import copy
+import json
 from pathlib import Path
 import shutil
-import sys
 import tempfile
 import unittest
 from unittest.mock import patch
 
+from delta_t1.experiments import final_holdout as h
+from delta_t1.io import digest, write_json
+
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / "src"))
-from delta_t1.experiments.final_holdout import freeze_gate, prepare_holdout, fit_holdout, run_final_holdout
-from delta_t1.experiments.protocol import M2_HOLDOUT_SNAPSHOTS, M2_MARKET_FEATURES
-from delta_t1.io import read_json, write_json
 
 
-def row(day, index, shift=0):
-    group = 0 if index < 60 else 1
-    result = dict(security_id=f"FIXTURE-{index:03d}", as_of_date=day,
-        available_at=day + "T17:00:00+07:00", feature_version="1.6.0",
-        data_version="fixture", adjustment_basis="vendor_adjusted",
-        market_feature_ready=True, eligibility=False)
-    result.update({f: float(group * 10 + index % 7 + shift) for f in M2_MARKET_FEATURES})
-    return result
+def synthetic_rows(day):
+    rows=[]
+    for i in range(102):
+        level=(i%6) + (12 if i>=51 else 0)
+        rows.append(dict(security_id=f'FIXTURE:{i:03d}',as_of_date=day,
+                         available_at=day+'T17:00:00+07:00',adjustment_basis='vendor_adjusted',
+                         market_feature_ready_v2=True,
+                         **{f:level*(j+1)+i*.001 for j,f in enumerate(h.M2_MARKET_FEATURES)}))
+    return rows
 
 
-class FinalHoldoutTests(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.production_gate = freeze_gate(ROOT)
+class HoldoutTests(unittest.TestCase):
+    def test_invalid_decision_rejected_before_loading_holdout(self):
+        original=h.read_json
+        cfg=original(ROOT/h.CONFIG_PATH)
+        decision_path=ROOT/cfg['decision_path']
+        decision=original(decision_path)
+        for key,value in [('status','DRAFT'),('decision_timestamp','2099-01-01T00:00:00+00:00')]:
+            bad=copy.deepcopy(decision);bad[key]=value
+            with self.subTest(key=key),patch.object(h,'read_json',side_effect=lambda p:bad if p==decision_path else original(p)),patch.object(h,'load_verified_market_only_features') as loader:
+                with self.assertRaises(ValueError):h.freeze_gate(ROOT)
+                loader.assert_not_called()
 
-    def setUp(self):
-        self.temp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
-        for rel in self.production_gate["input_sha256"]:
-            target = self.root / rel
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(ROOT / rel, target)
-
-    def test_freeze_status_is_checked_before_any_holdout_loader(self):
-        path = self.root / "M2/artifacts/m2-evaluation/final_method_decision.json"
-        decision = read_json(path)
-        decision["status"] = "DRAFT"
-        write_json(path, decision)
-        with patch("delta_t1.experiments.final_holdout.load_verified_market_only_features") as loader:
-            with self.assertRaisesRegex(ValueError, "FROZEN_FOR_HOLDOUT"):
-                run_final_holdout(self.root)
-            loader.assert_not_called()
-        self.assertFalse((self.root / "M2/artifacts/m2-final-holdout-v1").exists())
-
-    def test_model_tamper_is_rejected_before_holdout_access(self):
-        path = self.root / "M2/models/final_selected_model/2023-11-30.json"
-        path.write_bytes(path.read_bytes() + b" ")
-        with patch("delta_t1.experiments.final_holdout.load_verified_market_only_features") as loader:
-            with self.assertRaisesRegex(ValueError, "checksum mismatch"):
-                run_final_holdout(self.root)
+    def test_selected_model_tampering_rejected_before_holdout(self):
+        cfg=h.read_json(ROOT/h.CONFIG_PATH)
+        index=h.read_json(ROOT/cfg['selected_models_manifest_path'])
+        model=(ROOT/cfg['selected_models_manifest_path']).parent/index['files'][0]['name']
+        payload=model.read_bytes();original=h.digest
+        with patch.object(h,'digest',side_effect=lambda b:'0'*64 if b==payload else original(b)),patch.object(h,'load_verified_market_only_features') as loader:
+            with self.assertRaisesRegex(ValueError,'checksum mismatch'):h.freeze_gate(ROOT)
             loader.assert_not_called()
 
-    def test_future_decision_timestamp_and_k_scan_are_rejected(self):
-        path = self.root / "M2/artifacts/m2-evaluation/final_method_decision.json"
-        decision = read_json(path)
-        decision["decision_timestamp"] = "2099-01-01T00:00:00+00:00"
-        write_json(path, decision)
-        with self.assertRaisesRegex(ValueError, "timestamp"):
-            freeze_gate(self.root)
-        config_path = self.root / "configs/experiments/m2_final_holdout_v1.json"
-        config = read_json(config_path)
-        config["k_scan_enabled"] = True
-        write_json(config_path, config)
-        with self.assertRaisesRegex(ValueError, "k_scan_enabled"):
-            freeze_gate(self.root)
+    def test_loader_uses_only_holdout_dates_and_per_month_membership(self):
+        gate=h.freeze_gate(ROOT);dates=tuple(gate['task_config']['holdout_snapshots'])
+        rows=[dict(r,feature_version='1.6.0') for day in dates for r in synthetic_rows(day)]
+        rows[0]['security_id']='FIRST_MONTH_ONLY'
+        with patch.object(h,'load_verified_market_only_features',return_value=({},rows)) as loader:
+            _,prepared=h.prepare_holdout(ROOT,gate)
+        self.assertEqual(dates,tuple(loader.call_args.args[1]))
+        self.assertIn('FIRST_MONTH_ONLY',{r['security_id'] for r in prepared[0]['rows']})
+        self.assertNotIn('FIRST_MONTH_ONLY',{r['security_id'] for r in prepared[-1]['rows']})
+        self.assertTrue(all(p['status']=='ready' for p in prepared))
 
-    def test_loader_receives_only_holdout_dates_and_uses_each_months_members(self):
-        gate = freeze_gate(self.root)
-        rows = [row(day, i) for day in M2_HOLDOUT_SNAPSHOTS for i in range(120)]
-        rows[0]["security_id"] = "FIRST-MONTH-ONLY"
-        with patch("delta_t1.experiments.final_holdout.load_verified_market_only_features",
-                   return_value=({}, rows)) as loader:
-            _, prepared = prepare_holdout(self.root, gate)
-        self.assertEqual(M2_HOLDOUT_SNAPSHOTS, loader.call_args.args[1])
-        self.assertIn("FIRST-MONTH-ONLY", {r["security_id"] for r in prepared[0]["rows"]})
-        self.assertNotIn("FIRST-MONTH-ONLY", {r["security_id"] for r in prepared[-1]["rows"]})
-        self.assertTrue(all(p["status"] == "ready" for p in prepared))
+    def test_minimum_universe_threshold_100_is_enforced_without_imputation(self):
+        gate=h.freeze_gate(ROOT);dates=gate['task_config']['holdout_snapshots']
+        for count,expected in [(99,'skipped'),(100,'ready')]:
+            rows=[dict(r,feature_version='1.6.0') for day in dates for r in synthetic_rows(day)[:count]]
+            with self.subTest(count=count),patch.object(h,'load_verified_market_only_features',return_value=({},rows)):
+                _,prepared=h.prepare_holdout(ROOT,gate)
+            self.assertTrue(all(p['status']==expected and p['eligible_count']==count for p in prepared))
+            if count==99:self.assertTrue(all(not p['rows'] for p in prepared))
 
-    def test_late_features_are_rejected(self):
-        gate = freeze_gate(self.root)
-        late = row(M2_HOLDOUT_SNAPSHOTS[0], 0)
-        late["available_at"] = "2026-02-28T00:00:01+07:00"
-        with patch("delta_t1.experiments.final_holdout.load_verified_market_only_features",
-                   return_value=({}, [late])):
-            with self.assertRaisesRegex(ValueError, "Future feature availability"):
-                prepare_holdout(self.root, gate)
+    def test_real_preflight_verifies_development_without_opening_holdout(self):
+        with patch.object(h,'load_verified_market_only_features',side_effect=AssertionError('Holdout opened')):
+            gate=h.freeze_gate(ROOT)
+        self.assertEqual(('kmeans','sklearn',2,[2]),
+                         (gate['algorithm'],gate['clustering']['implementation'],gate['clustering']['k'],gate['clustering']['k_range']))
+        self.assertEqual((60,24),(len(gate['dev_diagnostics']),len(gate['task_config']['holdout_snapshots'])))
 
-    def test_exactly_one_fit_at_k2_per_month_and_skip_resets_chain(self):
-        gate = freeze_gate(self.root)
-        prepared = [dict(snapshot_date=day, status="ready", rows=[dict(row(day, i, shift=m * 100), market_feature_ready_v2=True)
-                    for i in range(120)]) for m, day in enumerate(M2_HOLDOUT_SNAPSHOTS)]
-        from delta_t1.clustering.registry import get_algorithm
-        real = get_algorithm(gate["algorithm"])
-        with patch("delta_t1.experiments.final_holdout.get_algorithm", return_value=real) as lookup:
-            snaps, temporal, transitions, _ = fit_holdout(prepared, gate["clustering"], gate["algorithm"])
-        lookup.assert_called_once_with(gate["algorithm"])
-        self.assertEqual(7, len(snaps))
-        self.assertEqual(6, len(temporal))
-        self.assertEqual(24, len(transitions))
-        self.assertEqual(list(zip(M2_HOLDOUT_SNAPSHOTS[:-1], M2_HOLDOUT_SNAPSHOTS[1:])),
-                         [(r["from_date"], r["to_date"]) for r in temporal])
-        self.assertTrue(all(len(s["diagnostics"]) == 1 and s["diagnostics"][0]["k"] == 2 for s in snaps))
-        centers = [s["model"]["scaler"]["mom_21"]["center"] for s in snaps]
-        self.assertEqual(100, centers[1]-centers[0])
-        skipped = copy.deepcopy(prepared)
-        skipped[2].update(status="skipped", rows=[])
-        _, temporal, _, _ = fit_holdout(skipped, gate["clustering"], gate["algorithm"])
-        self.assertEqual(4, len(temporal))
-        self.assertNotIn((M2_HOLDOUT_SNAPSHOTS[1], M2_HOLDOUT_SNAPSHOTS[3]),
-                         [(r["from_date"], r["to_date"]) for r in temporal])
+    def test_wrong_flags_and_unpinned_input_fail_before_holdout(self):
+        original=h.read_json
+        cfg=original(ROOT/h.CONFIG_PATH)
+        for key,value in [('min_eligible_count',120),('selected_method','PCA_KMeans'),
+                          ('implementation','stdlib'),('k_scan_enabled',True)]:
+            bad=copy.deepcopy(cfg);bad[key]=value
+            def read(p):return bad if p==ROOT/h.CONFIG_PATH else original(p)
+            with self.subTest(key=key),patch.object(h,'read_json',side_effect=read),self.assertRaises(ValueError):
+                h.freeze_gate(ROOT)
+        bad=copy.deepcopy(cfg);bad['frozen_inputs_sha256'][cfg['decision_path']]='0'*64
+        with patch.object(h,'read_json',side_effect=lambda p:bad if p==ROOT/h.CONFIG_PATH else original(p)):
+            with self.assertRaisesRegex(ValueError,'checksum mismatch'):
+                h.freeze_gate(ROOT)
 
-    def test_raw_label_permutation_does_not_create_false_migration(self):
-        gate = freeze_gate(self.root)
-        prepared = [dict(snapshot_date=day, status="ready", rows=[row(day, i) for i in range(4)])
-                    for day in M2_HOLDOUT_SNAPSHOTS[:2]]
-        class PermutedAlgorithm:
-            def fit_snapshot(self, rows, config):
-                flipped = rows[0]["as_of_date"] == M2_HOLDOUT_SNAPSHOTS[1]
-                labels = [1, 1, 0, 0] if flipped else [0, 0, 1, 1]
-                profiles = [dict(raw_cluster_id=raw, size=2, economic_rank=1-raw if flipped else raw,
-                    centroid={f: float(1-raw if flipped else raw) for f in M2_MARKET_FEATURES}) for raw in range(2)]
-                return dict(rows=rows, labels=labels, profiles=profiles,
-                            snapshot_date=rows[0]["as_of_date"], diagnostics=[{"k":2}])
-        with patch("delta_t1.experiments.final_holdout.get_algorithm", return_value=PermutedAlgorithm()):
-            _, temporal, transitions, drift = fit_holdout(prepared, gate["clustering"], gate["algorithm"])
-        self.assertEqual(0, temporal[0]["migration_rate"])
-        self.assertEqual([2,0,0,2], [r["count"] for r in transitions])
-        self.assertTrue(all(r["value_from"] == r["value_to"] and r["delta"] == 0 for r in drift))
+    def test_future_availability_rejected(self):
+        gate=h.freeze_gate(ROOT)
+        day=gate['task_config']['holdout_snapshots'][0]
+        rows=synthetic_rows(day)
+        rows[0].update(feature_version='1.6.0',available_at='2026-01-01T17:00:00+07:00')
+        with patch.object(h,'load_verified_market_only_features',return_value=({},rows)):
+            with self.assertRaisesRegex(ValueError,'future availability'):
+                h.prepare_holdout(ROOT,gate)
 
-    def test_119_eligible_rows_are_skipped_without_invention(self):
-        gate = freeze_gate(self.root)
-        rows = [row(day, i) for day in M2_HOLDOUT_SNAPSHOTS for i in range(119)]
-        with patch("delta_t1.experiments.final_holdout.load_verified_market_only_features",
-                   return_value=({}, rows)):
-            _, prepared = prepare_holdout(self.root, gate)
-        self.assertTrue(all(p["status"] == "skipped" and p["eligible_count"] == 119 and not p["rows"]
-                            for p in prepared))
+    def test_full_synthetic_run_rerun_and_tamper(self):
+        gate=h.freeze_gate(ROOT)
+        tmp_parent=ROOT/'tmp';tmp_parent.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='holdout-v2-fixture-',dir=tmp_parent) as td:
+            root=Path(td).resolve()
+            self.assertTrue(root.is_relative_to(tmp_parent.resolve()))
+            gate=copy.deepcopy(gate)
+            cfg=gate['task_config'];cfg['feature_store']='fixture_store';cfg['synthetic']=True
+            eval_dir=root/'development';eval_dir.mkdir()
+            for name in ['cluster_profiles.csv','temporal_stability.csv']:
+                shutil.copy2(gate['evaluation_dir']/name,eval_dir/name)
+            gate['evaluation_dir']=eval_dir
+            source_path=root/'fixture_store';(source_path/'canonical').mkdir(parents=True)
+            feature=source_path/'canonical/feature_snapshots.jsonl';feature.write_text('{}\n',encoding='utf-8')
+            source=dict(data_version='SYNTHETIC_FIXTURE',outputs={'canonical/feature_snapshots.jsonl':digest(feature.read_bytes())})
+            write_json(source_path/'manifest.json',source)
+            code=root/'fixture.py';code.write_text('# synthetic source only\n',encoding='utf-8')
+            gate['input_sha256']={'fixture.py':digest(code.read_bytes())}
+            gate['code_sha256']=dict(gate['input_sha256'])
+            prepared=[]
+            ready={0,1,3}
+            for i,day in enumerate(cfg['holdout_snapshots']):
+                prepared.append(dict(snapshot_date=day,status='ready' if i in ready else 'skipped',
+                    eligible_count=102 if i in ready else 0,reason=None if i in ready else 'synthetic skip',
+                    rows=synthetic_rows(day) if i in ready else []))
+            with patch.object(h,'freeze_gate',return_value=gate),patch.object(h,'prepare_holdout',return_value=(source,prepared)),patch.object(h,'_code_paths',return_value=[code]):
+                target,manifest=h.run_final_holdout(root)
+                self.assertTrue(manifest['synthetic'])
+                self.assertEqual((3,21,306,1),(manifest['n_snapshots'],manifest['n_skipped'],manifest['n_assignments'],manifest['n_temporal_pairs']))
+                pairs=h._csv_rows(target/'temporal_stability.csv')
+                self.assertEqual([(cfg['holdout_snapshots'][0],cfg['holdout_snapshots'][1])],
+                                 [(r['from_date'],r['to_date']) for r in pairs])
+                self.assertEqual(4,len(h._csv_rows(target/'transition_matrices.csv')))
+                self.assertEqual(16,len(h._csv_rows(target/'centroid_drift.csv')))
+                with patch.object(h,'fit_holdout',side_effect=AssertionError('Rerun refit')):
+                    self.assertEqual((target,manifest),h.run_final_holdout(root))
+                    (target/'assignments.csv').write_text('tampered',encoding='utf-8')
+                    with self.assertRaisesRegex(ValueError,'checksum mismatch'):
+                        h.run_final_holdout(root)
 
+    def test_incomplete_evidence_never_refits(self):
+        gate=h.freeze_gate(ROOT)
+        tmp_parent=ROOT/'tmp';tmp_parent.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='holdout-v2-incomplete-',dir=tmp_parent) as td:
+            root=Path(td).resolve();self.assertTrue(root.is_relative_to(tmp_parent.resolve()))
+            target=root/gate['task_config']['output_dir'];target.mkdir(parents=True)
+            write_json(target/'manifest.json',{'status':'failed'})
+            with patch.object(h,'freeze_gate',return_value=gate),patch.object(h,'fit_holdout',side_effect=AssertionError('Refit')):
+                with self.assertRaisesRegex(ValueError,'Incomplete run'):
+                    h.run_final_holdout(root)
 
-class SavedFinalHoldoutEvidenceTests(unittest.TestCase):
-    """Independent saved-evidence checks; never retrain on real holdout."""
-    @classmethod
-    def setUpClass(cls):
-        from delta_t1.experiments.final_holdout import _csv_rows
-        cls.gate = freeze_gate(ROOT)
-        cls.target = ROOT / "M2/artifacts/m2-final-holdout-v1"
-        if not cls.target.exists():
-            raise unittest.SkipTest("Task 11 has not been executed yet")
-        cls.assignments = _csv_rows(cls.target / "assignments.csv")
-        cls.profiles = _csv_rows(cls.target / "cluster_profiles.csv")
-        cls.temporal = _csv_rows(cls.target / "temporal_stability.csv")
-        cls.transitions = _csv_rows(cls.target / "transition_matrices.csv")
-        cls.drift = _csv_rows(cls.target / "centroid_drift.csv")
-
-    def test_repeat_execution_verifies_without_fit_or_artifact_mutation(self):
-        from delta_t1.io import digest
-        before = {p: digest(p.read_bytes()) for p in self.target.rglob("*") if p.is_file()}
-        with patch("delta_t1.experiments.final_holdout.fit_holdout") as fit:
-            _, manifest = run_final_holdout(ROOT)
-            fit.assert_not_called()
-        self.assertEqual(before, {p: digest(p.read_bytes()) for p in before})
-        self.assertEqual(["kmeans"], manifest["methods_executed"])
-        self.assertEqual([2], manifest["k_values_executed"])
-        self.assertEqual((7,6,4624), (manifest["n_snapshots"], manifest["n_temporal_pairs"], manifest["n_assignments"]))
-
-    def test_independent_cross_sections_reproduce_model_scalers_and_labels(self):
-        import numpy as np
-        _, prepared = prepare_holdout(ROOT, self.gate)
-        saved = {(r["snapshot_date"],r["security_id"]):r for r in self.assignments}
-        profiles = {(r["snapshot_date"],int(r["raw_cluster_id"])):r for r in self.profiles}
-        for prep in prepared:
-            day = prep["snapshot_date"]
-            model = read_json(self.target / "models" / (day + ".json"))
-            x = np.array([[r[f] for f in M2_MARKET_FEATURES] for r in prep["rows"]])
-            center = np.array([model["scaler"][f]["center"] for f in M2_MARKET_FEATURES])
-            scale = np.array([model["scaler"][f]["scale"] for f in M2_MARKET_FEATURES])
-            iqr = np.quantile(x,.75,axis=0)-np.quantile(x,.25,axis=0)
-            self.assertTrue(np.allclose(center,np.median(x,axis=0)))
-            self.assertTrue(np.allclose(scale,np.where(iqr==0,1,iqr)))
-            z=(x-center)/scale
-            centers=np.array(model["centroids"])
-            labels=((z[:,None,:]-centers[None,:,:])**2).sum(axis=2).argmin(axis=1)
-            actual=[int(saved[day,r["security_id"]]["raw_cluster_id"]) for r in prep["rows"]]
-            self.assertEqual(labels.tolist(),actual)
-            for label in range(2):
-                p=profiles[day,label]
-                self.assertEqual(int(p["size"]), int((labels==label).sum()))
-                self.assertTrue(np.allclose(x[labels==label].mean(axis=0),[float(p[f]) for f in M2_MARKET_FEATURES]))
-
-    def test_temporal_counts_and_drift_match_persistent_labels(self):
-        from collections import Counter
-        dates=list(M2_HOLDOUT_SNAPSHOTS)
-        members={day:{r["security_id"]:int(r["aligned_cluster_id"]) for r in self.assignments if r["snapshot_date"]==day}
-                 for day in dates}
-        self.assertEqual(list(zip(dates[:-1],dates[1:])),[(r["from_date"],r["to_date"]) for r in self.temporal])
-        for pair in self.temporal:
-            a,b=members[pair["from_date"]],members[pair["to_date"]]
-            shared=a.keys() & b.keys()
-            counts=Counter((a[s],b[s]) for s in shared)
-            transitions=[r for r in self.transitions if r["from_date"]==pair["from_date"] and r["to_date"]==pair["to_date"]]
-            for r in transitions:
-                source,target=int(r["from_cluster"]),int(r["to_cluster"])
-                self.assertEqual(counts[source,target],int(r["count"]))
-            self.assertEqual(len(shared),int(pair["n_common"]))
-            self.assertEqual(len(b.keys()-a.keys()),int(pair["entered_count"]))
-            self.assertEqual(len(a.keys()-b.keys()),int(pair["exited_count"]))
-            self.assertAlmostEqual(sum(c for (x,y),c in counts.items() if x!=y)/len(shared),float(pair["migration_rate"]))
-        profiles={(r["snapshot_date"],int(r["aligned_cluster_id"])):r for r in self.profiles}
-        self.assertEqual(96,len(self.drift))
-        for r in self.drift:
-            label,f=int(r["aligned_cluster_id"]),r["feature"]
-            a=float(profiles[r["from_date"],label][f]); b=float(profiles[r["to_date"],label][f])
-            self.assertAlmostEqual(a,float(r["value_from"]))
-            self.assertAlmostEqual(b,float(r["value_to"]))
-            self.assertAlmostEqual(b-a,float(r["delta"]),delta=max(1e-10,abs(b-a)*1e-12))
+    def test_notebook_all_code_cells_compile(self):
+        nb=json.loads((ROOT/'M2/notebooks/11_final_holdout_execution.ipynb').read_text(encoding='utf-8'))
+        for i,c in enumerate(nb['cells']):
+            if c['cell_type']=='code':ast.parse(''.join(c['source']),filename=f'cell{i}')
 
 
-if __name__ == "__main__":
+if __name__=='__main__':
     unittest.main()
