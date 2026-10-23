@@ -1,5 +1,10 @@
 # DELTA — dữ liệu và phân cụm cổ phiếu Việt Nam
 
+**Execution56 (23/10/2026):** đã tính lại 70.320 tỷ số và chạy baseline K-Means cho
+1.172 mã × 10 năm. [Kết quả và giới hạn](artifacts/reports/financial-full10-baseline-v1/report.md).
+Kiểm tra thực thi PASS; chất lượng cần review vì cả 10 năm có cụm dưới 10 mã.
+EPS/P/E/P/B/F/M/Z, PIT và M3 vẫn PARTIAL. Các ghi chú cleanup bên dưới là lịch sử.
+
 **Cleanup55:** `data/financial` còn **59** thư mục (trước221), `artifacts/reports` còn **13** (trước57). Các lượt cũ đã gom vào [kho lịch sử](artifacts/archives/financial-history-20261023/README.md); chỉ dùng handoff hiện hành cho M2.
 
 ## Bắt đầu tại đây
@@ -16,7 +21,7 @@
 Financial hiện có **1.172 mã đủ10 annual periods2016–2025**, gồm11.720 dòng trong
 cohort bàn giao. Dataset rộng hơn có13.529 reference rows. Sáu tỷ số cơ bản đã
 tính; EPS/P/E/P/B/F/M/Z toàn lịch sử, PIT và M3 vẫn PARTIAL. Phân cụm financial
-chưa chạy trong các lượt cleanup. Bước tiếp theo là baseline thăm dò trêncohort đủ.
+đã chạy sau cleanup ở Execution56; cần review outliers/preprocessing trước protocol tiếp theo.
 
 ## Thư mục nào cần dùng
 

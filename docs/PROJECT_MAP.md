@@ -1,5 +1,10 @@
 # Project Map
 
+**Execution56:** [kết quả financial baseline](../artifacts/reports/financial-full10-baseline-v1/report.md)
+ở `data/financial/financial_full10_baseline_v1/results/4d521e71139a48340d3d`.
+1.172 mã/10 năm, sáu core ratios, independent annual static K-Means. Kiểm tra thực thi PASS;
+review chất lượng cụm còn mở, PIT/M3 chưa đạt. Các section chưa chạy bên dưới là lịch sử.
+
 **Execution55 — lịch sử đã gom:** data221→59roots, reports57→13. [Archive vàrestore](../artifacts/archives/financial-history-20261023/README.md). Giữ dependency/control của dataset1.172mã; M2chỉ đọc handoff hiệnhành. Phân cụm chưa chạy.
 
 **Cleanup54 — cache cũ đã lưu lạnh:** 102,504candidatefiles từbốn batch được chuyểnZIPđãverify, raw/receipts/journals giữtrực tiếp. [Guide restore](../artifacts/archives/financial-cache-20261023/README.md). Chỉdùng [handoff mới nhất](../data/handoffs/financial-reference-2016-2025/README.md) choM2; dataset1.172full10khôngđổi, chưa phâncụm. Fullhistoricalreplay cóthểcầnrestorecache.

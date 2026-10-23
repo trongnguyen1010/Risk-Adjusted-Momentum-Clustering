@@ -1,3 +1,14 @@
+# Chưa phát hành — Baseline financial full10 (2026-10-23)
+
+Execution56: push checkpoint f1a5ba7 trước chạy; thêm offline driver/config trên handoff
+1.172 candidates/11.720 annual rows. Tính lại 70.320 core ratios từ selected CafeF,
+DStock, reviewed PDF/HTML inputs, giữ direct-CFO evidence và source partitions.
+Reuse k=3/seed42/n_init20/max_iter300/zscore/no winsorization/no PCA; checkpoints theo
+năm, immutable result, PowerShell Status/Check/Run và independent verifier.
+11 targeted tests, compile, synthetic smoke và 1.786 input pins/scaler/assignments/
+inertia/profiles/checkpoints PASS. Cả 10 năm có cụm nhỏ, chất lượng cần review;
+không promote original-six/PIT/research/M3. Không network acquisition/PDF/OCR mới.
+
 # Chưa phát hành — Gom lịch sử financial vào archive (2026-10-23)
 
 Execution55 chuyển162data/44report roots vào financial-history-20261023; main data221→59/report57→13. Giữcurrentinput/provenance/boundarycontrol,797anchorsPASS; inventory/filemetadata vànetworkhashes khớp.205directoryIDs nguyênvẹn;1BRCreport kiểmđủpre-pinned manifest memberhashes thayidentityproof. Catalogue/availability/restore vàmasterreportupdated;khôngsửa dữliệu/hashfrozen,counter,formula/model.Đây làmove cùngvolume,khôngclaimgiảmdisk.0network/PDF/OCR/model.

@@ -1,5 +1,21 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-23 — Execution56: thực thi baseline trên cohort full10 hiện hành
+
+Owner yêu cầu commit/push trước rồi tính tỷ số và phân cụm. Checkpoint `f1a5ba7`
+đã push sau khi owner xác nhận repository/branch/payload. Dùng named handoff được
+pin theo delivery; không rerun acquisition hoặc old configs trỏ archived inputs.
+Driver mới chỉ reuse methodology core-ratio reference đã duyệt: annual independent
+static K-Means k=3, seed42/n_init20/max_iter300, zscore, no winsorization/PCA/fill.
+Tính lại tỷ số giữ đúng selected source partition và existing direct-CFO/document
+evidence. Arithmetic replay không phải independent source-fact verification.
+
+Baseline có cụm nhỏ trong cả 10 năm; giữ đầy đủ unfavorable evidence. Không đổi
+scaling/k hoặc loại điểm để làm đẹp kết quả. Thay preprocessing tiếp theo là
+`MANUAL_REVIEW_REQUIRED`, cần version/protocol được owner duyệt trước run mới.
+Cohort full10 cố định có selection/survivorship bias; không coi là historical
+investable universe, Dynamic Clustering hoặc final M2/PIT/M3. Mọi gate này giữ đóng.
+
 ## 2026-10-23 — Storage55: gom lịch sử, giữ hot dependencies vàboundarypins
 
 Owner cho phéparchive các lượt cũ đểlàm gọnmainfolders. Chuyển nguyên cây trên

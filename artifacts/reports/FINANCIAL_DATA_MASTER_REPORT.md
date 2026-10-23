@@ -1,6 +1,9 @@
 # Báo cáo tổng quá trình xây dựng dữ liệu financial
 
-**Cập nhật gần nhất:23/10/2026 — Execution55 gom lịch sử khỏi thư mục chính.** Dataset50 giữ1.172full10/13.529rows; phân cụm chưa chạy.
+**Cập nhật gần nhất:23/10/2026 — Execution56 đã chạy baseline financial.** 1.172 mã ×
+10 năm, tính lại 70.320 core ratios, 10 static models hội tụ. [Report56](financial-full10-baseline-v1/report.md).
+Verification kỹ thuật PASS; cả 10 năm có cụm nhỏ, chất lượng cần review. EPS/P/E/P/B/F/M/Z,
+PIT/M3 vẫn PARTIAL. Dataset50 rộng hơn giữ nguyên 13.529 reference rows.
 
 **Latest50 — toàn bộ Regular API gaps đã được thử:** **1.172 mã đủ10 annual periods2016–2025 /13.529 reference rows**, tăng170full10/961rows so với49. [Report50](financial-dstock-remaining-v1/report.md), [1.172mã](financial-dstock-remaining-v1/full10-candidates.csv), [cohort/features](financial-dstock-remaining-v1/delivery-result-ref.json), [field review](financial-dstock-remaining-v1/field-review.csv). Còn761held kỳ/257Regular và93candidates ngoài Regular schema;95mã thiếu1kỳ. 0PDF/0OCR;47targeted tests vàindependent verification PASS. Worker đã dừng. Core ratios reference; originalsixfamilies/PIT/M3 vẫn PARTIAL.
 
@@ -611,6 +614,7 @@ Execution48: HSG2 annual rows/64fields,8OCRpages; counters155→163. 11.844basel
 | 23/10/2026 | 53 | Cleanup:archive verified+cache removal+readable handoff | **1.172 → 1.172** | 2,889filesgỡ;no raw/counter/modelchange;M2chưachạy |
 | 23/10/2026 | 54 | Lưu lạnh bốn normalized candidate caches | **1.172 → 1.172** | 102,504files gỡ; raw/receipts/journals giữ; 713 direct pins PASS; 0 model/network |
 | 23/10/2026 | 55 | Chuyển162data/44report roots vào kho lịch sử | **1.172 → 1.172** | Data221→59;reports57→13;797anchorsPASS;0model/network |
+| 23/10/2026 | 56 | Push checkpoint, tính lại 70.320 core ratios; fit 10 annual static models | **1.172 → 1.172** | Verification PASS; cả10năm có cụm nhỏ; chất lượng REVIEW_REQUIRED;0newPDF/OCR |
 
 Các Execution8–40 được tổng hợp hồi cứu từ report/plan đã lưu, không giả rằng report tổng này đã tồn tại ở các ngày trước. Khi có sửa nhầm số hoặc scope, thêm ghi chú correction và trỏ source snapshot; không âm thầm sửa bằng chứng cũ.
 
@@ -638,3 +642,92 @@ Fullsuite chưaPASS: chạy trongvàngoàisandbox khônghoàn tất, stdout cu�
 fixtures; đãdừng cókiểmsoát, log ở.tmp/precommit-tests*/test.log. Khôngsửa/skip
 assertions đểđạtgreen. Checkpointkhôngphải release/M2/M3acceptance; bướcmodel
 chỉlàbaselinefinancial-only thăm dò theo protocolk3/zscore từngnămđãchốt.
+
+Commit `f1a5ba7` đã tạo và push thành công lên
+`origin/research/financial-data` của repository `trongnguyen1010/Risk-Adjusted-Momentum-Clustering`.
+Automatic approval review ban đầu chặn push do cần xác nhận repository/payload;
+owner đã xác nhận rõ trước khi retry đúng remote/branch. Không đổi giao thức để né chặn.
+
+## Execution56 — tính lại core ratios và chạy baseline full10 — 23/10/2026
+
+### Input và cách thực hiện
+
+Sau checkpoint Git, dùng named handoff hiện hành và kiểm khớp frozen delivery
+`6eadc4924d41c2de1f9f`, không rebuild acquisition hoặc sửa bản đã seal. Cohort đúng
+1.172 registry candidates × 10 năm 2016–2025 = 11.720 dòng, không duplicate/missing.
+Đối chiếu sáu tỷ số với tám input đã chọn; phục hồi đúng đường evidence cho CFO
+trực tiếp và reviewed document vectors thay vì suy/điền missing.
+
+| Nguồn vector trong cohort full10 | Dòng annual |
+|---|---:|
+| CafeF API selected partition, gồm direct-CFO recovery | 10.400 |
+| DStock complete vector | 1.309 |
+| Reviewed PDF đã có từ trước | 10 |
+| Reviewed issuer HTML đã có từ trước | 1 |
+| Tổng | **11.720** |
+
+**70.320 giá trị core ratios tính lại khớp.** Đây là arithmetic replay trên
+reference input đã chọn, không phải xác thực độc lập lại mọi fact với BCTC gốc.
+Không mở thêm source priority, không mix provider trong một vector, không crawl
+hoặc tải PDF/OCR mới. Không thay bằng EPS/P/E/P/B/F/M/Z.
+
+Reuse static K-Means: k=3, seed42, n_init20, max_iter300, sáu core features,
+zscore theo từng cross-section năm; không winsorize, PCA hoặc imputation.
+Không dùng future-year rows để fit scaler; không gọi independent annual models
+là Dynamic Clustering hoặc out-of-sample backtest. Cohort full10 cố định còn có
+selection/survivorship bias, chưa phải universe đầu tư lịch sử.
+
+### Kết quả model và vấn đề chất lượng
+
+| Năm | Kích thước ba cụm (sắp giảm dần, không phải nhãn cố định) | Silhouette |
+|---|---|---:|
+| 2016 | 1.169 / 2 / 1 | 0,9255 |
+| 2017 | 1.170 / 1 / 1 | 0,9398 |
+| 2018 | 1.048 / 119 / 5 | 0,4349 |
+| 2019 | 1.168 / 2 / 2 | 0,9079 |
+| 2020 | 1.165 / 5 / 2 | 0,8851 |
+| 2021 | 1.154 / 17 / 1 | 0,7695 |
+| 2022 | 1.169 / 2 / 1 | 0,9125 |
+| 2023 | 1.170 / 1 / 1 | 0,9406 |
+| 2024 | 1.170 / 1 / 1 | 0,9269 |
+| 2025 | 1.168 / 3 / 1 | 0,9045 |
+
+10/10 models hội tụ nhưng **10/10 năm có cụm dưới 10 mã**. Kết quả hiện chủ yếu
+tách các điểm cực trị; silhouette cao không đủ chứng minh cấu trúc cụm hữu ích.
+Năm 2025: cụm ba mã VTI/CAD/JOS, singleton QBS và cụm 1.168 mã còn lại.
+Ví dụ cần review: QBS net_margin=-522,434; CAD liabilities/assets=131,480;
+VTI liabilities/assets=127,058 (đều là ratios, chưa nhân100%). Giá trị cực trị
+không tự chứng minh lỗi nguồn: cần xem tử/mẫu, scope, đơn vị và tình trạng doanh nghiệp.
+
+Đã lưu [180 dòng review top3 absolute zscore cho từng feature/năm](financial-full10-baseline-v1/outlier-review.csv)
+và [33 memberships trong các cụm nhỏ](financial-full10-baseline-v1/small-cluster-members.csv).
+Giữ nguyên dữ liệu và kết quả, không tự loại mã/cắt tails để cải thiện metric.
+
+### Kiểm tra, bàn giao và bước tiếp theo
+
+- **11 targeted tests PASS**, compileall và synthetic smoke PASS
+  (`run-20261023T154334Z-8bc948c5`). Full repository suite từ checkpoint trước vẫn
+  chưa có kết quả PASS; không diễn giải targeted tests thành toàn bộ gate.
+- [Independent verification PASS](financial-full10-baseline-v1/verification.json):
+  1.786 input pins; đúng 11.720 keys; scaler mean/population std tính theo từng năm;
+  toàn bộ labels là nearest centroid; inertia/profile means/sizes khớp; checkpoint
+  identity/checksum khớp. Không refit model trong review.
+- [Report và thông số](financial-full10-baseline-v1/report.md),
+  [result pointer](financial-full10-baseline-v1/result-ref.json).
+  Output: `data/financial/financial_full10_baseline_v1/results/4d521e71139a48340d3d`;
+  manifest SHA256 `4d521e71139a48340d3d00f5e505ab3f07613ed9754d5e5ceaf33172c99b1da3`.
+  Có features, assignments, metrics và snapshots (scaler/centroid/profiles), pins/config/protocol.
+- `scripts/financial_full10_baseline.ps1 -Mode Status` xem tiến độ;
+  `-Mode Check` kiểm lại inputs; `-Mode Run` resume đúng pins/checkpoint hoặc tạo
+  run mới nếu pins đổi. `scripts/financial_full10_review.py` kiểm không refit.
+
+**Execution kỹ thuật COMPLETE; chất lượng clustering REVIEW_REQUIRED; final M2/M3 PARTIAL.**
+Bước tiếp theo: review outlier queue từ cache và nguyên nhân tử/mẫu; đề xuất một
+protocol preprocessing comparator (ví dụ rank hoặc robust transform, hoặc clipping
+có policy rõ), giữ baseline này làm đối chứng. Thay preprocessing cần owner duyệt
+và version mới trước khi chạy; không chọn bằng returns hoặc sửa model cũ. Còn cần
+publication/vintages/historical identity và bàn giao market của team để mở PIT/M3.
+Không tải PDF mới trong bước review nếu chưa hỏi owner.
+
+**Bàn giao khi chuyển session:** [Execution56 handoff](../../docs/FINANCIAL_SESSION_HANDOFF.md)
+giữ kết quả, trạng thái Git, lệnh kiểm tra và phạm vi cần owner duyệt trước bước mới.

@@ -1,5 +1,10 @@
 # Roadmap DELTA
 
+**Execution56 đã execute:** baseline financial 1.172 mã/10 năm, 70.320 core ratios
+tính lại, k=3/zscore/no winsorization. [Report](../artifacts/reports/financial-full10-baseline-v1/report.md).
+Technical verification PASS; mọi năm có cụm nhỏ, nên cần review outliers/preprocessing
+trước bước methodology tiếp theo. M2 research freeze/PIT/M3 chưa hoàn tất.
+
 **Cleanup53 trước M2 đã hoàn tất:**2.889filesđãgỡ, evidencecầnthiết giữarchive/hash;
 [handoff hiện hành](../data/handoffs/financial-reference-2016-2025/README.md).
 Chưa chạy/refitphâncụm; bước tiếp làbaselinefinancial-only trêncohort1.172mã.

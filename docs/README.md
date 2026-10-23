@@ -1,8 +1,16 @@
 # Documentation — START HERE
 
+**Hiện tại — Execution56:** [baseline 1.172 mã × 2016–2025 đã chạy](../artifacts/reports/financial-full10-baseline-v1/report.md).
+70.320 tỷ số được tính lại; kiểm tra độc lập PASS, nhưng cả 10 năm có cụm nhỏ.
+Đọc [report tổng](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md) để xem kết quả,
+outlier queue và giới hạn M2/M3. Các ghi chú chưa phân cụm bên dưới thuộc các lượt cũ.
+
 **Cleanup55:** `data/financial` còn **59** thư mục (trước221), `artifacts/reports` còn **13** (trước57). Các lượt cũ đã gom vào [kho lịch sử](../artifacts/archives/financial-history-20261023/README.md); chỉ dùng handoff hiện hành cho M2.
 
 ## Công việc hiện hành
+
+Chuyển session: đọc [bản bàn giao Execution56](FINANCIAL_SESSION_HANDOFF.md)
+để biết trạng thái Git, kết quả model, tests và bước review tiếp theo.
 
 | Nội dung | Tài liệu |
 |---|---|

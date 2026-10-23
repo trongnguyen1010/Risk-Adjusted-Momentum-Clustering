@@ -1,5 +1,14 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+**Execution56 — baseline financial đã chạy (23/10/2026):** 1.172 candidates × 10 annual
+periods, 70.320 core ratios tính lại khớp, 10 static K-Means models hội tụ. [Report](../artifacts/reports/financial-full10-baseline-v1/report.md),
+[verification](../artifacts/reports/financial-full10-baseline-v1/verification.json).
+1.786 input pins, scaler từng năm, assignments/inertia/profiles và checkpoints đã kiểm độc lập.
+11 targeted tests/compile/synthetic smoke PASS. Chất lượng **REVIEW_REQUIRED**: mọi năm có cụm
+dưới 10 mã, năm 2025 là 1.168/3/1; không gọi M2/M3 final PASS. Giữ protocol hiện tại,
+không tự loại outliers hoặc đổi scaling. Checkpoint trước chạy `f1a5ba7` đã push lên
+`origin/research/financial-data`. Các section dưới là lịch sử.
+
 **Execution55 — lịch sử đã gom:** data221→59roots, reports57→13. [Archive vàrestore](../artifacts/archives/financial-history-20261023/README.md). Giữ dependency/control của dataset1.172mã; M2chỉ đọc handoff hiệnhành. Phân cụm chưa chạy.
 
 **Cleanup54 — cache cũ đã lưu lạnh:** 102,504candidatefiles từbốn batch được chuyểnZIPđãverify, raw/receipts/journals giữtrực tiếp. [Guide restore](../artifacts/archives/financial-cache-20261023/README.md). Chỉdùng [handoff mới nhất](../data/handoffs/financial-reference-2016-2025/README.md) choM2; dataset1.172full10khôngđổi, chưa phâncụm. Fullhistoricalreplay cóthểcầnrestorecache.

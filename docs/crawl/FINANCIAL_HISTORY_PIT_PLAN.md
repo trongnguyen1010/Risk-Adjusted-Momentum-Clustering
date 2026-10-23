@@ -1,5 +1,14 @@
 # Plan financial lịch sử và PIT phục vụ market 10 năm, M3 backtest
 
+**Execution56 — bước baseline đã chạy:** kiểm đúng cohort 1.172 candidates × 2016–2025,
+tính lại 70.320 core ratios từ selected reference inputs; fit 10 independent annual
+static K-Means theo protocol đã duyệt. [Report](../../artifacts/reports/financial-full10-baseline-v1/report.md),
+[outlier queue](../../artifacts/reports/financial-full10-baseline-v1/outlier-review.csv).
+Không crawl/PDF/OCR mới. Verification PASS; mọi năm có cụm dưới 10 mã, nên chưa
+chốt chất lượng phân cụm hoặc promote M2/M3. Review preprocessing phải được chốt
+trước run mới; không tự sửa dataset hoặc formula để cải thiện metric. Mọi ghi chú
+chưa chạy baseline bên dưới là lịch sử trước Execution56.
+
 **Execution55 — lịch sử đã gom:** data221→59roots, reports57→13. [Archive vàrestore](../../artifacts/archives/financial-history-20261023/README.md). Giữ dependency/control của dataset1.172mã; M2chỉ đọc handoff hiệnhành. Phân cụm chưa chạy.
 
 **Cleanup54 — cache cũ đã lưu lạnh:** 102,504candidatefiles từbốn batch được chuyểnZIPđãverify, raw/receipts/journals giữtrực tiếp. [Guide restore](../../artifacts/archives/financial-cache-20261023/README.md). Chỉdùng [handoff mới nhất](../../data/handoffs/financial-reference-2016-2025/README.md) choM2; dataset1.172full10khôngđổi, chưa phâncụm. Fullhistoricalreplay cóthểcầnrestorecache.

@@ -5,6 +5,9 @@ script/config cũ là lineage cần giữ, không phải lời mời chạy lạ
 
 | Việc cần làm | Điểm vào |
 |---|---|
+| Xem tiến độ baseline financial | `financial_full10_baseline.ps1 -Mode Status` |
+| Kiểm input / chạy lại đúng protocol baseline | `financial_full10_baseline.ps1 -Mode Check` / `-Mode Run` (thêm `-Python` nếu cần) |
+| Kiểm độc lập baseline, không refit | `python scripts/financial_full10_review.py` |
 | Lấy dataset tài chính hiện hành để bàn giao | [Financial reference2016–2025](../data/handoffs/financial-reference-2016-2025/README.md) |
 | Xem trạng thái DStock đã hoàn tất | `financial_dstock_remaining.ps1 -Mode Status` |
 | Replay DStock offline | `financial_dstock_remaining.ps1 -Mode Offline` từprojectroot |
@@ -13,6 +16,12 @@ script/config cũ là lineage cần giữ, không phải lời mời chạy lạ
 | Khôi phục report/helper đã lưu ZIP | `project_cleanup.py restore` — không ghi đè nội dung khác hash |
 
 Python của runtime hiện có:
+
+Baseline đã hoàn tất; [report](../artifacts/reports/financial-full10-baseline-v1/report.md).
+Run giữ checkpoint theo năm và pins của config/code/input; resume chỉ tái sử dụng
+checkpoint khớp identity/checksum. Đổi input/protocol sinh run khác, không ghi đè.
+Log của lượt này: `.tmp/financial-full10-baseline.log`; trạng thái bền vững nằm ở
+`data/financial/financial_full10_baseline_v1/pipeline-status.json`.
 
 ```powershell
 & 'C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' scripts/project_cleanup.py check
