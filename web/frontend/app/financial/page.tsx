@@ -1,9 +1,9 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 import Link from "next/link";
 import { useSelection } from "@/lib/selection";
 import { useApi, url } from "@/lib/api";
-import { number, COLORS, metric } from "@/lib/format";
+import { number, clusterColor, metric } from "@/lib/format";
 import type { SnapshotData, Matrix } from "@/lib/types";
 import {
   Panel,
@@ -18,281 +18,406 @@ import {
 import { Chart, baseChart, axis } from "@/components/chart";
 import { MembersTable } from "@/components/members-table";
 import { StockDrawer } from "@/components/stock-drawer";
+import { WorkspaceTabs } from "@/components/workspace-tabs";
+import { ModelVersion, PreviewNote } from "@/components/model-version";
+import { IndicatorCoverage } from "@/components/indicator-reference";
+const tabs = [
+  ["distribution", "Phân bố"],
+  ["compare", "Đối chiếu A/B/C"],
+  ["coverage", "Coverage"],
+] as const;
 export default function Financial() {
   const s = useSelection("financial");
-  const year = s.params.get("year") || "2025";
-  const [field, setField] = useState("net_margin"),
-    [ticker, select] = useState<string | null>(null),
-    [cell, setCell] = useState<{ market: number; financial: number } | null>(
-      null,
-    );
-  const close = useCallback(() => select(null), []);
+  const year =
+    s.params.get("year") || s.data?.datasets.financial.latest.date || "2025";
+  const tab = tabs.some(([id]) => id === s.params.get("tab"))
+    ? s.params.get("tab")!
+    : "distribution";
+  const field = s.params.get("field") || "net_margin";
+  const a = s.params.get("matrix_a"),
+    b = s.params.get("matrix_b");
+  const cell =
+    a !== null && b !== null
+      ? { market: Number(a), financial: Number(b) }
+      : null;
+  const ticker = s.params.get("ticker");
+  const close = useCallback(() => {
+    const p = new URLSearchParams(window.location.search);
+    p.delete("ticker");
+    window.history.pushState(null, "", `${window.location.pathname}?${p}`);
+  }, []);
+  const selectedVersion = s.dataset?.version;
+  const marketVersion = s.data
+    ? [s.data.datasets.market, ...(s.data.variants?.market || [])].find(
+        (d) => d.version === selectedVersion,
+      )?.version || s.data.datasets.market.version
+    : undefined;
+  const combinedVersion = s.data
+    ? [s.data.datasets.combined, ...(s.data.variants?.combined || [])].find(
+        (d) => d.version === selectedVersion,
+      )?.version || s.data.datasets.combined.version
+    : undefined;
   const state = useApi<SnapshotData>(
-    url("snapshots/financial", { date: year }),
+    tab !== "coverage" && s.data
+      ? url("snapshots/financial", {
+          date: year,
+          version: selectedVersion,
+          include_points: 0,
+        })
+      : null,
   );
-  const matrix = useApi<Matrix>(url(`matrix/${year}`));
-  if (s.error) return <ErrorState message={s.error} />;
+  const matrix = useApi<Matrix>(
+    tab === "compare" && s.data
+      ? url(`matrix/${year}`, {
+          version: selectedVersion,
+          market_version: marketVersion,
+        })
+      : null,
+  );
+  if (s.error) return <ErrorState message={s.error} retry={s.retry} />;
   if (!s.data) return <Skeleton height={600} />;
+  const marketLabels =
+    matrix.data?.market_labels ||
+    [...new Set(matrix.data?.cells.map((c) => c.market_cluster) || [])].sort(
+      (a, b) => a - b,
+    );
+  const financialLabels =
+    matrix.data?.financial_labels ||
+    [...new Set(matrix.data?.cells.map((c) => c.financial_cluster) || [])].sort(
+      (a, b) => a - b,
+    );
+  const combinedDate = s.data.datasets.combined.dates.find((d) =>
+    d.startsWith(year),
+  );
   return (
     <>
       <PageHeading
-        eyebrow="NỀN TẢNG DOANH NGHIỆP / LÁT CẮT THEO NĂM"
+        eyebrow="FINANCIAL / NỀN TẢNG DOANH NGHIỆP"
         title="Góc nhìn tài chính"
-        description="Khám phá cấu trúc tài chính theo năm và đối chiếu với hành vi thị trường trên nhóm cổ phiếu giao nhau."
+        description="Xem một phân bố, đối chiếu nhóm và kiểm tra độ phủ theo từng năm."
         action={
           <select
             aria-label="Năm tài chính"
             value={year}
-            onChange={(e) => {
-              setCell(null);
-              s.set({ year: e.target.value });
-            }}
+            onChange={(e) =>
+              s.set({
+                year: e.target.value,
+                matrix_a: null,
+                matrix_b: null,
+                page: null,
+                ticker: null,
+              })
+            }
           >
             {s.data.datasets.financial.dates.map((y) => (
               <option key={y} value={y}>
-                Năm TC {y}
+                FY{y}
               </option>
             ))}
           </select>
         }
       />
-      <div className="inline-actions">
-        <Badge tone="purple">Tham chiếu năm tài chính</Badge>
-        <Badge tone="amber">
-          0 / {number(s.data.metadata.financial_rows)} mốc thời gian công bố
-        </Badge>
-      </div>
+      <Badge tone="amber">
+        {number(s.data.metadata.financial_publication_rows)} /{" "}
+        {number(s.data.metadata.financial_rows)} rows có mốc công bố
+      </Badge>
       <ScopeNote kind="financial" />
-      {state.error ? (
-        <ErrorState message={state.error} />
-      ) : !state.data ? (
-        <Skeleton />
-      ) : (
-        <>
-          <div className="grid-equal section-gap">
-            <Panel
-              title="Phân bố cụm tài chính"
-              eyebrow={`Năm TC ${year} · NHÓM CỐ ĐỊNH ĐỦ 10 NĂM`}
-            >
-              <div className="lens-metrics">
-                {state.data.profiles.map((p) => (
-                  <div key={p.cluster}>
-                    <ClusterBadge kind="financial" id={p.cluster} />
-                    <strong style={{ display: "block", marginTop: 10 }}>
-                      {number(p.size)}
-                    </strong>
-                    <span>
-                      {number((p.size / state.data!.snapshot.n) * 100, 1)}% nhóm
-                      cổ phiếu theo năm
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <Chart
-                height={230}
-                label="Kích thước các cụm tài chính"
-                option={{
-                  ...baseChart,
-                  xAxis: {
-                    ...axis,
-                    type: "category",
-                    data: state.data.profiles.map((p) => `B${p.cluster}`),
-                  },
-                  yAxis: { ...axis, type: "value" },
-                  series: [
-                    {
-                      type: "bar",
-                      barMaxWidth: 65,
-                      label: { show: true, position: "top", color: "#b4c9d7" },
-                      data: state.data.profiles.map((p) => ({
-                        value: p.size,
-                        itemStyle: { color: COLORS[p.cluster] },
-                      })),
-                    },
-                  ],
-                }}
-              />
-              <p className="panel-note">
-                Các nhóm mất cân bằng có thể chịu ảnh hưởng bởi giá trị tài
-                chính cực đoan. Nhãn cụm không phải đánh giá chất lượng, độ an
-                toàn hay thứ hạng đầu tư.
-              </p>
-            </Panel>
-            <Panel
-              title="Phân bố và giá trị cực đoan"
-              eyebrow="TỨ PHÂN VỊ THỰC TẾ · KHÔNG CẮT NGỌN"
-              action={
-                <select
-                  aria-label="Chỉ tiêu tài chính cần xem phân bố"
-                  value={field}
-                  onChange={(e) => setField(e.target.value)}
+      {s.dataset && (
+        <ModelVersion
+          options={s.options}
+          value={s.dataset.version}
+          onChange={(version) =>
+            s.set({
+              version,
+              matrix_a: null,
+              matrix_b: null,
+              cluster: null,
+              page: null,
+            })
+          }
+        />
+      )}
+      <PreviewNote dataset={s.dataset} />
+      <WorkspaceTabs
+        tabs={tabs}
+        scope="financial"
+        value={tab}
+        onChange={(tab) => s.set({ tab })}
+      />
+      <div
+        role="tabpanel"
+        id="financial-panel"
+        aria-labelledby={`financial-${tab}`}
+      >
+        {tab === "coverage" ? (
+          <IndicatorCoverage />
+        ) : state.error ? (
+          <ErrorState message={state.error} retry={state.retry} />
+        ) : !state.data ? (
+          <Skeleton />
+        ) : (
+          <>
+            {tab === "distribution" && (
+              <div className="grid-two">
+                <Panel
+                  title="Phân bố một chỉ tiêu"
+                  eyebrow={`FY${year} · MIN / Q1 / MEDIAN / Q3 / MAX ĐÃ LƯU`}
+                  action={
+                    <select
+                      aria-label="Chỉ tiêu tài chính cần xem phân bố"
+                      value={field}
+                      onChange={(e) => s.set({ field: e.target.value })}
+                    >
+                      {s.data.datasets.financial.features.map((f) => (
+                        <option key={f} value={f}>
+                          {s.data?.metadata.definitions[f]?.label || f}
+                        </option>
+                      ))}
+                    </select>
+                  }
                 >
-                  {s.data.datasets.financial.features.map((f) => (
-                    <option key={f} value={f}>
-                      {s.data?.metadata.definitions[f]?.label}
-                    </option>
-                  ))}
-                </select>
-              }
-            >
-              <Chart
-                height={305}
-                label={`Biểu đồ hộp của ${field} theo các cụm tài chính`}
-                option={{
-                  ...baseChart,
-                  tooltip: { ...baseChart.tooltip, renderMode: "richText" },
-                  xAxis: {
-                    ...axis,
-                    type: "category",
-                    data: state.data.profiles.map((p) => `B${p.cluster}`),
-                  },
-                  yAxis: { ...axis, type: "value", scale: true },
-                  series: [
-                    {
-                      type: "boxplot",
-                      data: state.data.profiles.map((p) => ({
-                        value: p.quartiles[field] || [],
-                        itemStyle: {
-                          color: COLORS[p.cluster] + "33",
-                          borderColor: COLORS[p.cluster],
+                  {!s.data.datasets.financial.features.includes(field) ? (
+                    <ErrorState
+                      message="Feature trong URL không có trong model này."
+                      retry={() => s.set({ field: null })}
+                    />
+                  ) : (
+                    <Chart
+                      height={360}
+                      label={`Phân bố ${field} theo cụm; cùng thông tin trong bảng bên cạnh.`}
+                      option={{
+                        ...baseChart,
+                        tooltip: {
+                          ...baseChart.tooltip,
+                          renderMode: "richText",
                         },
-                      })),
-                    },
-                  ],
-                }}
-              />
-              <p className="panel-note">
-                Giá trị nhỏ nhất, Q1, trung vị, Q3 và lớn nhất trong nhóm đã
-                lưu. Khoảng giá trị rộng có thể nén phần trung tâm; hãy đổi chỉ
-                tiêu để xem thêm.
-              </p>
-            </Panel>
-          </div>
-          <div className="grid-equal section-gap">
-            <Panel
-              title="Giao thị trường × tài chính"
-              eyebrow={`THỊ TRƯỜNG CUỐI NĂM × NĂM TÀI CHÍNH ${year}`}
-              action={<Badge tone="amber">Sau kỳ báo cáo</Badge>}
-            >
-              {matrix.error ? (
-                <ErrorState message={matrix.error} />
-              ) : !matrix.data ? (
-                <Skeleton />
-              ) : !matrix.data.available ? (
-                <EmptyState
-                  title="Chưa có phần giao thị trường trong năm này"
-                  message={matrix.data.reason}
-                />
-              ) : (
-                <>
-                  <div className="matrix-cells">
-                    <span />
-                    <span className="matrix-axis">Thị trường A0</span>
-                    <span className="matrix-axis">Thị trường A1</span>
-                    {[0, 1, 2].map((b) => (
-                      <div style={{ display: "contents" }} key={b}>
-                        <span className="matrix-axis">Tài chính B{b}</span>
-                        {[0, 1].map((a) => {
-                          const n =
-                            matrix.data!.cells.find(
-                              (c) =>
-                                c.market_cluster === a &&
-                                c.financial_cluster === b,
-                            )?.n || 0;
-                          return (
-                            <button
-                              aria-label={`Xem thị trường A${a} × Tài chính B${b}: ${n} cổ phiếu`}
-                              className={`matrix-cell ${cell?.market === a && cell.financial === b ? "selected" : ""}`}
-                              key={a}
-                              onClick={() =>
-                                setCell({ market: a, financial: b })
-                              }
-                            >
-                              <strong>{number(n)}</strong>
-                              <small>Xem thành viên ↗</small>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ))}
+                        xAxis: {
+                          ...axis,
+                          type: "category",
+                          data: state.data.profiles.map((p) => `B${p.cluster}`),
+                        },
+                        yAxis: { ...axis, type: "value", scale: true },
+                        series: [
+                          {
+                            type: "boxplot",
+                            data: state.data.profiles.map((p) => ({
+                              value: p.quartiles[field] || [],
+                              itemStyle: {
+                                color:
+                                  clusterColor(
+                                    p.cluster,
+                                    Object.keys(state.data!.snapshot.sizes).map(
+                                      Number,
+                                    ),
+                                  ) + "33",
+                                borderColor: clusterColor(
+                                  p.cluster,
+                                  Object.keys(state.data!.snapshot.sizes).map(
+                                    Number,
+                                  ),
+                                ),
+                              },
+                            })),
+                          },
+                        ],
+                      }}
+                    />
+                  )}
+                  <p className="panel-note">
+                    Một feature trên một thang đơn vị gốc. Hộp Q1–median–Q3, hai
+                    đầu là min/max, giữ tails; không cắt ngọn hoặc đổi input
+                    model.
+                  </p>
+                </Panel>
+                <Panel
+                  title="Đối chiếu nhóm"
+                  eyebrow={`FY${year} · ${number(state.data.snapshot.n)} MÃ`}
+                >
+                  <div className="data-table-wrap">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <th>Nhóm / số mã</th>
+                          <th>Median</th>
+                          <th>Q1 – Q3</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {state.data.profiles.map((p) => (
+                          <tr key={p.cluster}>
+                            <th>
+                              <ClusterBadge
+                                kind="financial"
+                                id={p.cluster}
+                                labels={Object.keys(
+                                  state.data!.snapshot.sizes,
+                                ).map(Number)}
+                              />
+                              <span className="block">{number(p.size)} mã</span>
+                            </th>
+                            <td>{metric(p.medians[field], field)}</td>
+                            <td>
+                              {metric(p.quartiles[field]?.[1], field)} —{" "}
+                              {metric(p.quartiles[field]?.[3], field)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                   <p className="panel-note">
-                    {number(matrix.data.total)} cổ phiếu giao nhau · thị trường{" "}
-                    {matrix.data.date}. {matrix.data.reason}
+                    Cohort cố định đủ 10 năm, có survivorship bias. Nhãn không
+                    xếp hạng chất lượng hoặc an toàn đầu tư.
                   </p>
-                </>
-              )}
-            </Panel>
-            <Panel title="Tham chiếu kết hợp C" eyebrow="MỘT THỬ NGHIỆM RIÊNG">
-              <div className="panel-body">
-                <Badge tone="amber">
-                  14 đặc trưng · hai nhóm có trọng số bằng nhau
-                </Badge>
-                <h3 style={{ fontSize: 22, margin: "20px 0 12px" }}>
-                  Khám phá cấu trúc kết hợp
-                </h3>
-                <p className="muted">
-                  Tám đặc trưng thị trường và sáu tỷ số tài chính cốt lõi, chuẩn
-                  hóa trên nhóm giao nhau từng năm. K-Means K=3, seed 42. Các
-                  cụm nhỏ được giữ nguyên.
-                </p>
-                <p className="warning-line" style={{ marginTop: 15 }}>
-                  Chưa xác minh thời điểm báo cáo sẵn có. Thử nghiệm chỉ có ý
-                  nghĩa mô tả, chưa thể dùng cho backtest PIT.
-                </p>
-                <Link
-                  className="button section-gap"
-                  href={`/atlas?kind=combined&date=${s.data.datasets.combined.dates.find((d) => d.startsWith(year)) || s.data.datasets.combined.latest.date}`}
-                >
-                  Mở bản đồ kết hợp ·{" "}
-                  {s.data.datasets.combined.dates.find((d) =>
-                    d.startsWith(year),
-                  )
-                    ? year
-                    : `gần nhất ${s.data.datasets.combined.latest.date.slice(0, 4)}`}{" "}
-                  ↗
-                </Link>
+                  <Link
+                    className="button ghost"
+                    href={`/atlas?kind=financial&date=${year}&tab=profiles`}
+                  >
+                    Mở hồ sơ đầy đủ ↗
+                  </Link>
+                </Panel>
               </div>
-            </Panel>
-          </div>
-          <Panel
-            className="section-gap"
-            title={
-              cell
-                ? `Thành viên giao nhau · A${cell.market} × B${cell.financial}`
-                : "Thành viên tài chính theo năm"
-            }
-            action={
-              cell ? (
-                <button className="button small" onClick={() => setCell(null)}>
-                  Bỏ lọc phần giao
-                </button>
-              ) : undefined
-            }
-          >
-            <MembersTable
-              kind="financial"
-              date={year}
-              onSelect={select}
-              matrix={cell}
-            />
-          </Panel>
-          <Panel
-            className="section-gap"
-            title="Tâm cụm · chỉ tiêu tài chính đang chọn"
-          >
-            <div className="panel-body">
-              {state.data.profiles.map((p) => (
-                <div className="feature-row" key={p.cluster}>
-                  <ClusterBadge kind="financial" id={p.cluster} />
-                  <span>Trung bình {metric(p.means[field], field)}</span>
-                  <span>Trung vị {metric(p.medians[field], field)}</span>
+            )}
+            {tab === "compare" && (
+              <>
+                <div className="grid-two">
+                  <Panel
+                    title="Thị trường A × tài chính B"
+                    eyebrow={`MARKET CUỐI NĂM × FY${year} · EX-POST, CHƯA PIT`}
+                  >
+                    {matrix.error ? (
+                      <ErrorState message={matrix.error} retry={matrix.retry} />
+                    ) : !matrix.data ? (
+                      <Skeleton />
+                    ) : !matrix.data.available ? (
+                      <EmptyState
+                        title="Không có mô hình thị trường cho FY này"
+                        message={matrix.data.reason}
+                      />
+                    ) : (
+                      <>
+                        <div className="data-table-wrap">
+                          <table className="data-table matrix-table">
+                            <caption>
+                              {number(matrix.data.total)} mã common cohort ·
+                              market {matrix.data.date}. Bấm một ô để xem thành
+                              viên.
+                            </caption>
+                            <thead>
+                              <tr>
+                                <th>B / A</th>
+                                {marketLabels.map((label) => (
+                                  <th key={label}>A{label}</th>
+                                ))}
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {financialLabels.map((label) => (
+                                <tr key={label}>
+                                  <th>B{label}</th>
+                                  {marketLabels.map((market) => {
+                                    const n =
+                                      matrix.data!.cells.find(
+                                        (c) =>
+                                          c.market_cluster === market &&
+                                          c.financial_cluster === label,
+                                      )?.n || 0;
+                                    return (
+                                      <td key={market}>
+                                        <button
+                                          aria-label={`Xem A${market} × B${label}: ${n} cổ phiếu`}
+                                          aria-pressed={
+                                            cell?.market === market &&
+                                            cell?.financial === label
+                                          }
+                                          className="matrix-cell"
+                                          onClick={() =>
+                                            s.set({
+                                              matrix_a: String(market),
+                                              matrix_b: String(label),
+                                              cluster: null,
+                                              page: null,
+                                            })
+                                          }
+                                        >
+                                          <strong>{number(n)}</strong>
+                                          <small>Xem thành viên ↗</small>
+                                        </button>
+                                      </td>
+                                    );
+                                  })}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        <p className="panel-note">{matrix.data.reason}</p>
+                      </>
+                    )}
+                  </Panel>
+                  <Panel
+                    title="C · mô hình kết hợp độc lập"
+                    eyebrow="KHÔNG PHẢI NHÃN GỘP A / B"
+                  >
+                    <div className="panel-body">
+                      <p>
+                        C kết hợp tám features thị trường và sáu core ratios
+                        trên common cohort từng năm. Variance đầu vào hai block
+                        được cân bằng; không đảm bảo separation 50/50.
+                      </p>
+                      {combinedDate ? (
+                        <>
+                          <p className="warning-line section-gap">
+                            Kỳ {combinedDate}. Giữ tiny clusters và các evidence
+                            bất lợi; mô hình chỉ có ý nghĩa mô tả.
+                          </p>
+                          <Link
+                            className="button section-gap"
+                            href={`/atlas?kind=combined&date=${combinedDate}&version=${encodeURIComponent(combinedVersion || "")}`}
+                          >
+                            Xem nhóm C đúng năm {year} ↗
+                          </Link>
+                        </>
+                      ) : (
+                        <EmptyState
+                          title={`Không có C năm ${year}`}
+                          message="C chỉ có artifact trong các năm 2019–2025. Không thay bằng năm khác."
+                        />
+                      )}
+                    </div>
+                  </Panel>
                 </div>
-              ))}
-            </div>
-          </Panel>
-        </>
-      )}
+                {cell && matrix.data?.available && (
+                  <Panel
+                    className="section-gap"
+                    title={`Thành viên A${cell.market} × B${cell.financial}`}
+                    action={
+                      <button
+                        className="button small"
+                        onClick={() =>
+                          s.set({ matrix_a: null, matrix_b: null, page: null })
+                        }
+                      >
+                        Bỏ chọn ô
+                      </button>
+                    }
+                  >
+                    <MembersTable
+                      key={`${year}:${a}:${b}`}
+                      kind="financial"
+                      version={selectedVersion}
+                      matrixMarketVersion={marketVersion}
+                      date={year}
+                      matrix={cell}
+                      onSelect={(ticker) => s.set({ ticker })}
+                    />
+                  </Panel>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </div>
       {ticker && (
         <StockDrawer
           ticker={ticker}

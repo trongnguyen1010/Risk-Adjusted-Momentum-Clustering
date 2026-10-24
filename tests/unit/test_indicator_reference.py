@@ -53,4 +53,46 @@ class IndicatorReferenceTests(unittest.TestCase):
     def test_missing_local_package_remains_unavailable(self):
         self.assertFalse(IndicatorReferences(self.root,'absent.json').stock('TEST')['available'])
 
+    def test_all_null_cohort_preserves_missing_reason_in_six_slots(self):
+        r=self.fixture([dict(symbol='TEST',family='F_SCORE',cohort_id='c',year='2025',value='',status='MISSING_INPUT')])
+        body=r.stock('TEST')
+        self.assertFalse(body['available']);self.assertEqual(len(body['groups']),1)
+        metrics=body['groups'][0]['metrics'];self.assertEqual(len(metrics),6)
+        self.assertEqual(metrics[3]['availability'],'MISSING_INPUT')
+        self.assertEqual(metrics[0]['availability'],'REVIEW_PENDING')
+
+    def test_missing_configured_source_is_reported_not_zero_coverage(self):
+        r=self.fixture([dict(symbol='TEST',family='EPS',cohort_id='c',year='2025',value='100')])
+        (self.root/'metrics.csv').unlink()
+        coverage=r.coverage()
+        self.assertEqual(coverage['unavailable_sources'],['test']);self.assertEqual(coverage['packages'],[])
+
+    def test_response_contract_keeps_decimal_text_and_availability(self):
+        from app.schemas import IndicatorResponse
+        r=self.fixture([dict(symbol='TEST',family='EPS',cohort_id='c',year='2025',value='123.000000000000000001')])
+        model=IndicatorResponse.model_validate(r.stock('TEST'))
+        self.assertEqual(model.groups[0].metrics[0].value,'123.000000000000000001')
+
+    def test_manifest_mismatch_rejected_even_with_csv_hash_valid(self):
+        r=self.fixture([dict(symbol='TEST',family='EPS',cohort_id='c',year='2025',value='1')])
+        (self.root/'manifest.json').write_text('{}',encoding='utf8')
+        with self.assertRaises(MissingData):r.stock('TEST')
+
+    def test_pinned_calculation_evidence_supplies_partial_reason_and_components(self):
+        r=self.fixture([dict(symbol='TEST',family='F_SCORE',cohort_id='c',year='2025',value='',status='PARTIAL')])
+        detail=self.root/'details.json';deps=self.root/'dependencies.json'
+        detail.write_text(json.dumps([dict(symbol='TEST',family='F_SCORE',result=dict(value=None,known_signals=8))]),encoding='utf8')
+        deps.write_text(json.dumps([dict(symbol='TEST',family='F_SCORE',missing=[dict(field='long_term_debt_including_current_portion',year=2024)])]),encoding='utf8')
+        sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+        manifest=self.root/'manifest.json';pins=json.loads(manifest.read_bytes())
+        pins.update({detail.name:sha(detail),deps.name:sha(deps)});manifest.write_text(json.dumps(pins),encoding='utf8')
+        config=json.loads((self.root/'config.json').read_bytes());source=config['sources'][0];source['manifest_sha256']=sha(manifest)
+        source['supplements']=[dict(kind=k,file=p.name,sha256=sha(p)) for k,p in [('calculation_details',detail),('dependencies',deps)]]
+        (self.root/'config.json').write_text(json.dumps(config),encoding='utf8')
+        metric=r.stock('TEST')['groups'][0]['metrics'][3]
+        self.assertEqual(metric['availability'],'MISSING_INPUT');self.assertEqual(metric['components']['known_signals'],8)
+        self.assertIn('2024',metric['missing_inputs'])
+        r.load.cache_clear();detail.write_text('[]',encoding='utf8')
+        with self.assertRaises(MissingData):r.stock('TEST')
+
 if __name__=='__main__':unittest.main()

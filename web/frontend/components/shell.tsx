@@ -80,8 +80,13 @@ export function Shell({ children }: { children: React.ReactNode }) {
       }
       if (e.key === "Escape") setMobile(false);
     };
+    const openSearch = () => setSearch(true);
+    window.addEventListener("delta:search", openSearch);
     document.addEventListener("keydown", key);
-    return () => document.removeEventListener("keydown", key);
+    return () => {
+      window.removeEventListener("delta:search", openSearch);
+      document.removeEventListener("keydown", key);
+    };
   }, []);
   useEffect(() => {
     setMobile(false);
@@ -144,28 +149,6 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </Link>
           ))}
         </nav>
-        <div className="nav-label source-title">CÁC NHÓM MÔ HÌNH</div>
-        <Link href="/atlas?kind=market" className="source-link">
-          <span className="source-letter teal">A</span>
-          <span>
-            Mô hình thị trường<small>84 thời điểm theo tháng</small>
-          </span>
-          <span className="small-dot teal" />
-        </Link>
-        <Link href="/atlas?kind=financial" className="source-link">
-          <span className="source-letter purple">B</span>
-          <span>
-            Mô hình tài chính<small>10 năm tài chính</small>
-          </span>
-          <span className="small-dot purple" />
-        </Link>
-        <Link href="/atlas?kind=combined" className="source-link">
-          <span className="source-letter amber">C</span>
-          <span>
-            Tham chiếu kết hợp<small>7 thời điểm theo năm</small>
-          </span>
-          <span className="small-dot amber" />
-        </Link>
         <div className="sidebar-bottom">
           <div className="archive-box">
             <Boxes size={20} />
@@ -215,7 +198,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <button className="global-search" onClick={() => setSearch(true)}>
               <Search size={15} />
               <span>Tìm cổ phiếu</span>
-              <kbd>⌘ K</kbd>
+              <kbd>Ctrl K</kbd>
             </button>
           </div>
         </header>
@@ -282,6 +265,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 function CommandSearch({ open, close }: { open: boolean; close: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const input = useRef<HTMLInputElement>(null);
+  const previousFocus = useRef<HTMLElement | null>(null);
   const [q, setQ] = useState("");
   const [index, setIndex] = useState(0);
   const router = useRouter();
@@ -291,9 +275,13 @@ function CommandSearch({ open, close }: { open: boolean; close: () => void }) {
   );
   useEffect(() => {
     if (open) {
+      previousFocus.current = document.activeElement as HTMLElement;
       dialog.current?.showModal();
       setTimeout(() => input.current?.focus(), 50);
-    } else dialog.current?.close();
+    } else {
+      dialog.current?.close();
+      previousFocus.current?.focus();
+    }
   }, [open]);
   useEffect(() => setIndex(0), [debounced]);
   const select = (ticker: string) => {
@@ -304,6 +292,7 @@ function CommandSearch({ open, close }: { open: boolean; close: () => void }) {
     <dialog
       ref={dialog}
       className="command-dialog"
+      aria-label="Tìm doanh nghiệp"
       onClose={close}
       onClick={(e) => {
         if (e.target === dialog.current) close();
@@ -340,7 +329,7 @@ function CommandSearch({ open, close }: { open: boolean; close: () => void }) {
       </div>
       <div className="command-results">
         <div className="eyebrow">TẬP CỔ PHIẾU NGHIÊN CỨU</div>
-        {loading ? (
+        {loading || q !== debounced ? (
           <p className="muted">Đang tìm kiếm…</p>
         ) : error ? (
           <p className="muted">{error}</p>

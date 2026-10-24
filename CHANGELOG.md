@@ -1,5 +1,30 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Financial period serving và UX chỉ số (2026-10-24)
+
+Thêm offline EPS source builder có raw/hash/period/code/unit checks, ledger đầy
+đủ kỳ mục tiêu, SQLite read-only theo ticker và trạng thái SOURCE_REPORTED riêng.
+Giữ provider-zero chưa xác nhận ở pending, không ghi đè source hoặc scores cũ.
+Chạy calculator coverage cho cached annual partitions, xuất input blockers thay
+vì tạo scores thiếu input. Panel chỉ số dùng năm/kỳ báo cáo, mô tả mục đích ngắn,
+history theo năm và source details; bỏ package IDs khỏi các lựa chọn chính.
+Đây là thay đổi local; không tuyên bố coverage sáu families đầy đủ hoặc đã deploy.
+
+## DELTA upgrade — local implementation (2026-10-24)
+
+- Tổ chức lại Home/Stock/Atlas/Financial/Lab; typography 15/14/12px, local Vietnamese mono,
+  accessible tabs/drawer/search, lazy deep panels, full-key bounded cache và revision links.
+- Typed six-indicator adapter, hai Z reviewed FY2024, exact supplementary components/missing
+  inputs; giữ null/decimal/vintages, không thay baseline dataset hoặc PIT gates.
+- D0/R0 ledger/dedup và frozen diagnostics; R1 757 configurations/217 transforms independent
+  replay PASS. Candidate P1/P3 k2 đạt geometry/seed targets, chưa promote source/usefulness.
+- Polynomial rectangular migration, dynamic labels/palette/matrix và profile-only API payload.
+- R1 sidecar 202 snapshots/186.228 observations: selector baseline/P1/P3, saved peers/diagnostics, source/version/revision adapters; NOT_PROMOTED và giữ baseline mặc định.
+- Browser 25 responsive cases PASS; production build/bundle/synthetic checks PASS. Full suite
+  984 tests: một missing legacy fixture error, bốn optional Streamlit skips; chưa public release.
+- Chi tiết/pins/recovery/limitations tại `docs/DELTA_UPGRADE_PLAN.md` §11 và `web/README.md`.
+
+
 ## Demo follow-up — bộ sáu chỉ số reference và chất lượng cụm (2026-10-24)
 
 Bổ sung API/panel EPS/P/E/P/B/F/M/Z từ hai gói đã pin hash; giữ nguyên decimal,

@@ -2,7 +2,8 @@
 from contextlib import contextmanager
 from collections import Counter
 from functools import lru_cache
-from itertools import permutations
+from datetime import date as calendar_date
+from .alignment import maximum_overlap
 import json
 import hashlib
 from pathlib import Path
@@ -52,7 +53,7 @@ class TerminalRepository:
             for r in history:
                 r['sizes']=json.loads(r['sizes']);r['metrics']=json.loads(r['metrics'])
             datasets[kind]=dict(history=history,dates=[r['date'] for r in history],latest=history[-1],**self.meta['model_configs'][kind])
-        return dict(metadata=self.meta,datasets=datasets,
+        return dict(metadata=dict(self.meta,bundle_revision=self.manifest['database_sha256']),datasets=datasets,
                     provenance=[dict(path=p,sha256=v['sha256'],bytes=v['size']) for p,v in self.manifest['sources'].items()])
 
     def resolve_snapshot(self,kind,date=None):
@@ -126,6 +127,10 @@ class TerminalRepository:
 
     def prices(self,ticker,end=None,basis='adj_close'):
         self.security(ticker)
+        if end:
+            try:
+                if calendar_date.fromisoformat(end).isoformat()!=end:raise ValueError
+            except ValueError:raise InvalidQuery('Invalid ISO price date.')
         if basis not in ['adj_close','raw_close']:raise InvalidQuery('Unknown price basis.')
         args=[ticker.upper()];where='ticker=?'
         if end:where+=' AND date<=?';args.append(end)
@@ -147,22 +152,33 @@ class TerminalRepository:
         return dict(snapshot=snap,items=records,features=self.meta['model_configs'][kind]['features'])
 
     def matrix(self,year):
+        if not year.isdigit() or len(year)!=4:raise InvalidQuery('Invalid fiscal year.')
         dates=self.query("SELECT DISTINCT date FROM relations WHERE substr(date,1,4)=? ORDER BY date",(year,))
         if not dates:return dict(available=False,date=None,year=year,total=0,cells=[],scope='EX_POST_NOT_PIT',reason='Year-end market × financial overlap is available only for 2019–2025.')
         day=dates[-1]['date']
         cells=self.query("SELECT market_cluster,financial_cluster,count(*) AS n FROM relations WHERE date=? AND coverage='BOTH' GROUP BY market_cluster,financial_cluster",(day,))
-        return dict(available=True,date=day,year=year,total=sum(r['n'] for r in cells),cells=cells,scope='EX_POST_SAME_FISCAL_YEAR_NOT_PIT',
+        return dict(available=True,date=day,year=year,total=sum(r['n'] for r in cells),cells=cells,
+                    market_labels=sorted({int(x) for x in self.resolve_snapshot('market',day)['sizes']}|{r['market_cluster'] for r in cells}),
+                    financial_labels=sorted({int(x) for x in self.resolve_snapshot('financial',year)['sizes']}|{r['financial_cluster'] for r in cells}),scope='EX_POST_SAME_FISCAL_YEAR_NOT_PIT',
                     reason='Financial FY may be published after this market date; exploratory reference only.')
 
     def migration(self,kind,source,target):
         a=self.snapshot(kind,source);b=self.snapshot(kind,target)
         left={r['ticker']:r['cluster'] for r in a['points']};right={r['ticker']:r['cluster'] for r in b['points']}
-        common=sorted(set(left)&set(right));k=a['snapshot']['k']
-        if k!=b['snapshot']['k']:raise InvalidQuery('Variable-k alignment is not supported.')
-        # Display-only maximum-overlap alignment; frozen labels remain untouched.
-        mapping=max(permutations(range(k)),key=lambda p:sum(left[t]==p[right[t]] for t in common))
+        common=sorted(set(left)&set(right))
+        counts=Counter((left[t],right[t]) for t in common if left[t]>=0 and right[t]>=0)
+        source_labels=sorted(set(left.values())|{int(x) for x in a['snapshot']['sizes']})
+        target_labels=sorted(set(right.values())|{int(x) for x in b['snapshot']['sizes']})
+        mapping,unmatched_source,unmatched_target=maximum_overlap(counts,source_labels,target_labels)
+        next_id=max([0]+source_labels+target_labels)+1
+        for label in unmatched_target:
+            mapping[label]=next_id;next_id+=1
+        for label in target_labels:
+            if label<0:mapping[label]=label
         cells=Counter((left[t],mapping[right[t]]) for t in common)
         return dict(source=source,target=target,kind=kind,common=len(common),entered=len(set(right)-set(left)),exited=len(set(left)-set(right)),
-                    stayed=sum(n for (i,j),n in cells.items() if i==j),mapping={str(i):mapping[i] for i in range(k)},
+                    stayed=sum(n for (i,j),n in cells.items() if i==j and i>=0),mapping={str(i):value for i,value in mapping.items()},
+                    source_labels=source_labels,target_labels=target_labels,display_target_labels=sorted(set(mapping.values())),
+                    unmatched_source=unmatched_source,unmatched_target=unmatched_target,
                     cells=[dict(source=i,target=j,n=n) for (i,j),n in sorted(cells.items())],
                     alignment='Pairwise maximum-overlap label alignment for display; not economic regime identity. Raw stored assignments are preserved.')

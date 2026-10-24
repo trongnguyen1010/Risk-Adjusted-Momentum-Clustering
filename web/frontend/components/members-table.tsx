@@ -19,30 +19,64 @@ import { metric, number } from "@/lib/format";
 import type { Kind, Members, Observation } from "@/lib/types";
 import { useCatalog } from "./providers";
 import { ClusterBadge, ErrorState, Skeleton, EmptyState } from "./ui";
+import { useSelection } from "@/lib/selection";
 export function MembersTable({
   kind,
   date,
   onSelect,
   matrix,
+  clusterValue,
+  onClusterChange,
+  version: selectedVersion,
+  matrixMarketVersion,
 }: {
   kind: Kind;
   date: string;
   onSelect: (s: string) => void;
   matrix?: { market: number; financial: number } | null;
+  clusterValue?: string;
+  onClusterChange?: (value: string) => void;
+  version?: string;
+  matrixMarketVersion?: string;
 }) {
-  const [q, setQ] = useState(""),
-    [exchange, setExchange] = useState(""),
-    [cluster, setCluster] = useState("");
+  const selection = useSelection(kind);
+  const q = selection.params.get("q") || "",
+    exchange = selection.params.get("exchange") || "";
+  const cluster = clusterValue ?? selection.params.get("cluster") ?? "";
+  const page = Math.max(1, Number(selection.params.get("page")) || 1);
+  const sorting: SortingState = selection.params.get("sort")
+    ? [
+        {
+          id: selection.params.get("sort")!,
+          desc: selection.params.get("direction") === "desc",
+        },
+      ]
+    : [];
+  const setQ = (q: string) => selection.set({ q: q || null, page: null });
+  const setExchange = (exchange: string) =>
+    selection.set({ exchange: exchange || null, page: null });
+  const setCluster = (cluster: string) =>
+    onClusterChange
+      ? onClusterChange(cluster)
+      : selection.set({ cluster: cluster || null, page: null });
   const search = useDebounced(q);
-  const [page, setPage] = useState(1),
-    [sorting, setSorting] = useState<SortingState>([]),
-    [visibility, setVisibility] = useState<VisibilityState>({});
+  const [visibility, setVisibility] = useState<VisibilityState>({});
   const catalog = useCatalog();
-  useEffect(() => setPage(1), [search, exchange, cluster, kind, date, matrix]);
+  const version =
+    selectedVersion ||
+    selection.params.get("version") ||
+    catalog.data?.datasets[kind].version;
+  const dataset = catalog.data
+    ? [
+        catalog.data.datasets[kind],
+        ...(catalog.data.variants?.[kind] || []),
+      ].find((d) => d.version === version)
+    : undefined;
   const state = useApi<Members>(
     date
       ? url(`members/${kind}`, {
           date,
+          version,
           q: search,
           exchange,
           cluster,
@@ -52,10 +86,11 @@ export function MembersTable({
           direction: sorting[0]?.desc ? "desc" : "asc",
           matrix_market: matrix?.market,
           matrix_financial: matrix?.financial,
+          matrix_market_version: matrixMarketVersion,
         })
       : null,
   );
-  const features = catalog.data?.datasets[kind].features || [];
+  const features = dataset?.features || [];
   const columns = useMemo<ColumnDef<Observation>[]>(
     () => [
       {
@@ -90,7 +125,13 @@ export function MembersTable({
         header: "Cụm",
         accessorKey: "cluster",
         cell: ({ getValue }) => (
-          <ClusterBadge kind={kind} id={getValue() as number} />
+          <ClusterBadge
+            kind={kind}
+            id={getValue() as number}
+            labels={Object.keys(
+              dataset?.history.find((s) => s.date === date)?.sizes || {},
+            ).map(Number)}
+          />
         ),
       },
       ...features.map((key) => ({
@@ -101,13 +142,26 @@ export function MembersTable({
           metric(getValue() as number | null, key),
       })),
     ],
-    [kind, features, catalog.data, onSelect],
+    [kind, date, features, catalog.data, dataset, onSelect],
   );
   const table = useReactTable({
     data: state.data?.items || [],
     columns,
-    state: { sorting, columnVisibility: visibility },
-    onSortingChange: setSorting,
+    state: {
+      sorting,
+      columnVisibility: {
+        ...Object.fromEntries(features.slice(3).map((f) => [f, false])),
+        ...visibility,
+      },
+    },
+    onSortingChange: (updater) => {
+      const next = typeof updater === "function" ? updater(sorting) : updater;
+      selection.set({
+        sort: next[0]?.id || null,
+        direction: next[0]?.desc ? "desc" : "asc",
+        page: null,
+      });
+    },
     onColumnVisibilityChange: setVisibility,
     getCoreRowModel: getCoreRowModel(),
     manualSorting: true,
@@ -142,14 +196,20 @@ export function MembersTable({
             onChange={(e) => setCluster(e.target.value)}
           >
             <option value="">Tất cả các cụm</option>
-            {Array.from(
-              { length: catalog.data?.datasets[kind].k || 3 },
-              (_, i) => (
+            {Object.keys(
+              state.data?.snapshot.sizes ||
+                catalog.data?.datasets[kind].history.find(
+                  (s) => s.date === date,
+                )?.sizes ||
+                {},
+            )
+              .map(Number)
+              .sort((a, b) => a - b)
+              .map((i) => (
                 <option value={i} key={i}>
                   Cụm {i}
                 </option>
-              ),
-            )}
+              ))}
           </select>
           <details className="columns-menu">
             <summary>
@@ -233,7 +293,7 @@ export function MembersTable({
                 aria-label="Trang trước"
                 className="icon-button"
                 disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
+                onClick={() => selection.set({ page: String(page - 1) })}
               >
                 <ChevronLeft size={14} />
               </button>
@@ -244,7 +304,7 @@ export function MembersTable({
                 aria-label="Trang sau"
                 className="icon-button"
                 disabled={page * 20 >= state.data.total}
-                onClick={() => setPage((p) => p + 1)}
+                onClick={() => selection.set({ page: String(page + 1) })}
               >
                 <ChevronRight size={14} />
               </button>

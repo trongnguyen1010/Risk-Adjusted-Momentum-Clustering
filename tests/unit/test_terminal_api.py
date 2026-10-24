@@ -50,7 +50,7 @@ class TerminalContractTests(unittest.TestCase):
         self.assertIsNone(body['items'][1]['observation'])
         self.assertEqual(self.client.get('/api/v2/compare?tickers=A,B,C,D,E').status_code,400)
     def test_invalid_queries_and_ambiguous_identity_fail_closed(self):
-        for path,status in [('/snapshots/unknown',422),('/stocks/AMB',409),('/stocks/MISSING',404),('/members/market?sort=DROP%20TABLE',400),('/members/market?page=0',422),('/members/market?page_size=1000',422),('/prices/TESTA?basis=mixed',400)]:
+        for path,status in [('/snapshots/unknown',422),('/stocks/AMB',409),('/stocks/MISSING',404),('/members/market?sort=DROP%20TABLE',400),('/members/market?page=0',422),('/members/market?page_size=1000',422),('/prices/TESTA?basis=mixed',400),('/prices/TESTA?end=2025-02-30',400),('/prices/TESTA?end=20250101',400),('/prices/TESTA?end=2025-W01-1',400),('/matrix/invalid',400)]:
             with self.subTest(path=path):self.assertEqual(self.client.get('/api/v2'+path).status_code,status)
     def test_filters_sort_and_pagination(self):
         body=self.client.get('/api/v2/members/market?date=2024-12-31&exchange=HOSE&page_size=1').json()
@@ -72,5 +72,18 @@ class TerminalContractTests(unittest.TestCase):
         self.assertEqual(members['total'],1)
     def test_numeric_null_and_quartile_presentation(self):
         self.assertIsNone(numeric('nan'));self.assertIsNone(numeric(True));self.assertEqual(quantiles([1,2,3]),[1,1.5,2,2.5,3])
+
+    def test_profiles_payload_explicitly_omits_points_without_mutating_cached_snapshot(self):
+        small=self.client.get('/api/v2/snapshots/market?date=2024-12-31&include_points=false').json()
+        self.assertFalse(small['points_included']);self.assertEqual(small['points'],[])
+        complete=self.client.get('/api/v2/snapshots/market?date=2024-12-31').json()
+        self.assertTrue(complete['points_included']);self.assertEqual(len(complete['points']),2)
+
+    def test_revision_and_model_version_mismatch_fail_closed(self):
+        revision=self.client.get('/api/v2/catalog').json()['metadata']['bundle_revision']
+        self.assertEqual(self.client.get('/api/v2/snapshots/market',params={'revision':revision,'version':'fixture'}).status_code,200)
+        self.assertEqual(self.client.get('/api/v2/snapshots/market?revision=other').status_code,409)
+        self.assertEqual(self.client.get('/api/v2/snapshots/market?version=other').status_code,409)
+        self.assertEqual(self.client.get('/api/v2/indicators/TESTA?revision=other').status_code,409)
 
 if __name__=='__main__':unittest.main()

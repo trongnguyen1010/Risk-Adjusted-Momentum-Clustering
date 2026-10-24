@@ -4,6 +4,7 @@ import Link from "next/link";
 import { X, ArrowUpRight } from "lucide-react";
 import { useApi, url } from "@/lib/api";
 import { metric } from "@/lib/format";
+import { useSelection } from "@/lib/selection";
 import { useCatalog } from "./providers";
 import { ClusterBadge, ErrorState, Skeleton, ScopeNote } from "./ui";
 import type { Kind, Stock } from "@/lib/types";
@@ -18,11 +19,15 @@ export function StockDrawer({
   date: string;
   close: () => void;
 }) {
-  const state = useApi<Stock>(url(`stocks/${ticker}`, { kind, date }));
+  const selection = useSelection(kind);
+  const version = selection.dataset?.version;
+  const state = useApi<Stock>(url(`stocks/${ticker}`, { kind, date, version }));
   const catalog = useCatalog();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement;
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     ref.current?.focus();
     const fn = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
@@ -32,7 +37,11 @@ export function StockDrawer({
         );
         const first = nodes[0],
           last = nodes[nodes.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
+        if (
+          e.shiftKey &&
+          (document.activeElement === first ||
+            document.activeElement === ref.current)
+        ) {
           e.preventDefault();
           last?.focus();
         } else if (!e.shiftKey && document.activeElement === last) {
@@ -44,6 +53,7 @@ export function StockDrawer({
     document.addEventListener("keydown", fn);
     return () => {
       document.removeEventListener("keydown", fn);
+      document.body.style.overflow = overflow;
       previous?.focus();
     };
   }, [close]);
@@ -83,7 +93,13 @@ export function StockDrawer({
             <ScopeNote kind={kind} />
             {state.data.current ? (
               <>
-                <ClusterBadge kind={kind} id={state.data.current.cluster} />
+                <ClusterBadge
+                  kind={kind}
+                  id={state.data.current.cluster}
+                  labels={Object.keys(state.data.current_snapshot.sizes).map(
+                    Number,
+                  )}
+                />
                 <div className="drawer-features">
                   {Object.entries(state.data.current.features).map(
                     ([key, v]) => (
@@ -103,7 +119,7 @@ export function StockDrawer({
             )}
             <Link
               className="button primary section-gap"
-              href={`/stocks?ticker=${ticker}&kind=${kind}&date=${date}`}
+              href={`/stocks?ticker=${ticker}&kind=${kind}&date=${date}${version ? `&version=${encodeURIComponent(version)}` : ""}`}
             >
               Mở tra cứu cổ phiếu
               <ArrowUpRight size={14} />
