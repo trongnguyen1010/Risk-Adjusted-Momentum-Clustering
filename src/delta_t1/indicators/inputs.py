@@ -197,35 +197,42 @@ def load_cafef_regular(pins, job, families):
     return frame[['ticker', 'fiscal_year', 'field', 'value', 'source']], dict(stats)
 
 
+def raw_annual_cells(pins, job, rid, statements=None, stats=None):
+    """Annual numeric cells with a unique code/label from a symbol's pinned raw CafeF payloads."""
+    sources = json.loads(pins.read(f'{job}/symbols/{rid}/input-pins.json'))['sources']
+    for path in sources:
+        if '/receipts/' not in path:
+            continue
+        receipt = json.loads(pins.read(path))
+        task = receipt['task']
+        if task['kind'] != 'REPORT' or task['mode'] != 'NAM' or not receipt.get('record'):
+            continue
+        if statements and task['statement'] not in statements:
+            continue
+        record = receipt['record']
+        body = pins.read(record['path'])
+        for cell in parse_candidates(body, task, record['path'], record['sha256']):
+            if cell['quarter'] != 0 or cell['year'] not in YEARS or cell['value_status'] != 'NUMERIC_CANDIDATE':
+                continue
+            if cell['mapping_status'] != 'UNIQUE_CODE_LABEL_CANDIDATE':
+                continue
+            if float(cell['value']) == CAFEF_ABSENT:
+                if stats is not None:
+                    stats['absent_sentinel'] += 1
+                continue
+            yield cell
+
+
 def load_cafef_financial(pins, job, families):
     """Bank/securities/insurance values parsed from pinned raw CafeF annual payloads."""
     rows, stats = [], Counter()
     targets = families[families.template_family != 'Regular']
     for ticker, rid in targets[['ticker', 'registry_id']].itertuples(index=False):
-        sources = json.loads(pins.read(f'{job}/symbols/{rid}/input-pins.json'))['sources']
         buckets = defaultdict(set)
-        for path, sha in sources.items():
-            if '/receipts/' not in path:
-                continue
-            receipt = json.loads(pins.read(path))
-            task = receipt['task']
-            if task['kind'] != 'REPORT' or task['mode'] != 'NAM' or not receipt.get('record'):
-                continue
-            record = receipt['record']
-            body = pins.read(record['path'])
-            for cell in parse_candidates(body, task, record['path'], record['sha256']):
-                if cell['quarter'] != 0 or cell['year'] not in YEARS or cell['value_status'] != 'NUMERIC_CANDIDATE':
-                    continue
-                if cell['mapping_status'] != 'UNIQUE_CODE_LABEL_CANDIDATE':
-                    continue
-                field = FINANCIAL_LABELS.get((cell['statement'], nlabel(cell['label'])))
-                if not field:
-                    continue
-                value = float(cell['value'])
-                if value == CAFEF_ABSENT:
-                    stats['absent_sentinel'] += 1
-                    continue
-                buckets[cell['year'], cell['provider_type'], field].add(value)
+        for cell in raw_annual_cells(pins, job, rid, stats=stats):
+            field = FINANCIAL_LABELS.get((cell['statement'], nlabel(cell['label'])))
+            if field:
+                buckets[cell['year'], cell['provider_type'], field].add(float(cell['value']))
         for (year, ptype, field), values in buckets.items():
             if len(values) != 1:
                 stats['conflicting_cells'] += 1
@@ -292,6 +299,58 @@ def gate_financial(frame):
     w = w.drop(columns=[c for c in ('_profit_to_funds',) if c in w])
     long = w.stack().rename('value').reset_index()
     return long[long['value'].notna()], dict(stats)
+
+
+# Direct-method cash-flow template (LCTT trực tiếp), not mapped by the 1.522 job.
+# Pinned (code, label); the totals are only used when the template's own cash
+# identity holds: CFO + CFI + CFF = net change in cash.
+_DIRECT_CASHFLOW = {
+    ('HDKD_9', 'Lưu chuyển tiền thuần từ hoạt động kinh doanh'): 'cfo',
+    ('HDDT_18', 'Lưu chuyển tiền thuần từ hoạt động đầu tư'): 'cfi',
+    ('HDTC_27', 'Lưu chuyển tiến thuần từ hoạt động tài chính'): 'cff',
+    ('HDTC_28', 'Lưu chuyền tiền thuần trong kỳ'): 'net',
+}
+DIRECT_CASHFLOW = {(code, nlabel(label)): key for (code, label), key in _DIRECT_CASHFLOW.items()}
+
+
+def direct_cfo(parts):
+    """CFO only when CFO + CFI + CFF equals the reported net change in cash (1%)."""
+    if set(parts) != {'cfo', 'cfi', 'cff', 'net'}:
+        return None
+    scale = max(abs(x) for x in parts.values())
+    gap = abs(parts['cfo'] + parts['cfi'] + parts['cff'] - parts['net'])
+    return parts['cfo'] if gap <= 0.01 * scale + 1e6 else None
+
+
+def load_cafef_direct_cashflow(pins, job, families, regular):
+    """operating_cash_flow for Regular ticker-years whose CafeF CFO is missing (direct-method LCTT)."""
+    stats = Counter()
+    have = set(map(tuple, regular.loc[regular.field == 'operating_cash_flow', ['ticker', 'fiscal_year']].values))
+    years_with_data = regular[['ticker', 'fiscal_year']].drop_duplicates()
+    need = {t for t, y in years_with_data.itertuples(index=False) if (t, y) not in have}
+    rows = []
+    reg = families[(families.template_family == 'Regular') & families.ticker.isin(need)]
+    for ticker, rid in reg[['ticker', 'registry_id']].itertuples(index=False):
+        buckets = defaultdict(lambda: defaultdict(set))
+        for cell in raw_annual_cells(pins, job, rid, statements={'LCTT'}):
+            key = DIRECT_CASHFLOW.get((cell['raw_code'], nlabel(cell['label'])))
+            if key:
+                buckets[cell['year'], cell['provider_type']][key].add(float(cell['value']))
+        for (year, ptype), parts in buckets.items():
+            if (ticker, year) in have or any(len(v) != 1 for v in parts.values()) or len(parts) < 4:
+                continue
+            cfo = direct_cfo({k: next(iter(v)) for k, v in parts.items()})
+            if cfo is None:
+                stats['identity_failed'] += 1
+                continue
+            rows.append(dict(ticker=ticker, fiscal_year=year, field='operating_cash_flow', value=cfo,
+                             provider_type=ptype))
+    frame = pd.DataFrame(rows, columns=['ticker', 'fiscal_year', 'field', 'value', 'provider_type'])
+    frame = _pick_provider(frame)
+    frame['source'] = 'CAFEF_RAW_DIRECT:' + frame['provider_type'].astype(str)
+    stats['cells'] = len(frame)
+    stats['tickers'] = int(frame.ticker.nunique())
+    return frame[['ticker', 'fiscal_year', 'field', 'value', 'source']], dict(stats)
 
 
 def load_dstock(pins, raw_files, tickers):

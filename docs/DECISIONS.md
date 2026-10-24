@@ -19,6 +19,11 @@ bằng identity LN thuần HĐKD và DStock; ngân hàng/CK/bảo hiểm lấy t
 nhãn pin + identity bảng cân đối/phân bổ lợi nhuận. DStock (25/10/2026, owner chọn):
 chỉ lấp **cả mã-năm** CafeF không có dòng nào, không trộn vào năm CafeF đã có;
 chỉ dùng field khớp CafeF ≥85% (chênh <0,5%) trên ô trùng; ô ghi `source=DSTOCK`.
+LCTT trực tiếp (25/10/2026, owner yêu cầu nâng coverage F/M): CFO lấy từ dòng
+`HDKD_9` của mẫu trực tiếp khi CafeF thiếu CFO và CFO + CFĐT + CFTC = lưu chuyển thuần
+(1%); `source=CAFEF_RAW_DIRECT`. Mẫu trực tiếp không có khấu hao ⇒ M-score dùng
+mức tăng hao mòn lũy kế TSCĐ hữu hình trong năm (bỏ qua thanh lý), cờ
+`DEP_FROM_ACCUMULATED_DEPRECIATION` trên ô — owner có thể bỏ quy tắc này.
 
 
 ## 2026-10-24 — Reported EPS tách khỏi calculated/verified scores

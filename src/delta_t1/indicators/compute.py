@@ -297,14 +297,31 @@ def f_score(t, p, pp):
     return cell(float(sum(known)), inputs=body, flags=flags + t.flags + p.flags)
 
 
-def m_score(t, p):
+ACCUMULATED_DEPRECIATION = 'owned_tangible_ppe_accumulated_depreciation'
+
+
+def depreciation(y, prior, tag, flags):
+    """Cash-flow depreciation add-back; direct-method cash flows have none, so fall back
+    to the yearly increase of accumulated tangible depreciation (ignores disposals; flagged)."""
+    dep = y('aggregate_fixed_property_depreciation_amortization')
+    if dep is not None:
+        return dep
+    acc, acc_prior = y(ACCUMULATED_DEPRECIATION), prior(ACCUMULATED_DEPRECIATION)
+    if acc is None or acc_prior is None or abs(acc) - abs(acc_prior) <= 0:
+        return None
+    flags.append('DEP_FROM_ACCUMULATED_DEPRECIATION:' + tag)
+    return abs(acc) - abs(acc_prior)
+
+
+def m_score(t, p, pp):
     """Beneish 8-variable model; any zero denominator or missing input makes it null."""
-    for y in (t, p):
+    for y in (t, p, pp):
         y.used, y.flags = {}, []
+    flags = []
     sales_t, sales_p = t('net_revenue'), p('net_revenue')
     ta_t, ta_p = t('total_assets'), p('total_assets')
     ppe_t, ppe_p = t.ppe, p.ppe
-    dep_t, dep_p = t('aggregate_fixed_property_depreciation_amortization'), p('aggregate_fixed_property_depreciation_amortization')
+    dep_t, dep_p = depreciation(t, p, 't', flags), depreciation(p, pp, 'p', flags)
 
     def quality(y, ta, ppe):
         ca = y('current_assets')
@@ -330,12 +347,12 @@ def m_score(t, p):
         SGAI=div(sga_rate(t, sales_t), sga_rate(p, sales_p)),
         LVGI=div(lev(t, ta_t), lev(p, ta_p)),
         TATA=None if ni is None or cfo is None else div(ni - cfo, ta_t))
-    body = dict(variables=v, **_inputs(('t', t), ('p', p)))
+    body = dict(variables=v, **_inputs(('t', t), ('p', p), ('pp', pp)))
     missing = [k for k, x in v.items() if x is None]
     if missing:
-        return cell(status=MISSING_INPUT, inputs=body, missing=missing)
+        return cell(status=MISSING_INPUT, inputs=body, missing=missing, flags=flags)
     score = M_COEFFICIENTS['intercept'] + sum(M_COEFFICIENTS[k] * x for k, x in v.items())
-    return cell(score, inputs=body)
+    return cell(score, inputs=body, flags=flags)
 
 
 def z_components(t):
@@ -391,7 +408,7 @@ def compute_year(rows, prices, year, sector):
                 out[m] = cell(status=NOT_APPLICABLE, sector=sector)
         return out
     out['f_score'] = f_score(t, p, pp)
-    out['m_score'] = m_score(t, p)
+    out['m_score'] = m_score(t, p, pp)
     out['z_score'], out['z_score_dp'] = z_scores(t, out['market_cap'])
     return out
 

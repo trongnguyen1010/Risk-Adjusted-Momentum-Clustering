@@ -92,6 +92,12 @@ class IndicatorInputsTest(unittest.TestCase):
         got = {(r.fiscal_year, r.field): r.source for r in out.itertuples()}
         self.assertEqual(got, {(2024, 'total_assets'): 'CAFEF:HK', (2023, 'total_assets'): 'DSTOCK'})
 
+    def test_direct_cashflow_requires_cash_identity(self):
+        self.assertEqual(ind.direct_cfo(dict(cfo=50e9, cfi=-20e9, cff=-10e9, net=20e9)), 50e9)
+        self.assertIsNone(ind.direct_cfo(dict(cfo=50e9, cfi=-20e9, cff=-10e9, net=35e9)))
+        self.assertIsNone(ind.direct_cfo(dict(cfo=50e9, cfi=-20e9, net=30e9)))
+        self.assertEqual(ind.DIRECT_CASHFLOW['HDKD_9', ind.nlabel('Lưu chuyển tiền thuần từ hoạt động kinh doanh')], 'cfo')
+
     def test_labels_normalize_vietnamese(self):
         self.assertEqual(ind.nlabel('TỔNG CỘNG TÀI SẢN'), 'tongcongtaisan')
         self.assertEqual(ind.FINANCIAL_LABELS['KQKD', ind.nlabel('XV. Lợi nhuận sau thuế của cổ đông của Ngân hàng mẹ')],

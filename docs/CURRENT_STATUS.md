@@ -2,16 +2,13 @@
 
 ## Indicators v1 — Giai đoạn 1–3 xong, chờ owner duyệt QA (25/10/2026)
 
-Nhánh `feature/indicators-v1`. Input: `data/financial/indicators_v1/inputs/inputs-633098561762877d/`
-(1.510 mã, 14.738 mã-năm; ngân hàng/CK/bảo hiểm từ raw CafeF; DStock lấp 616 mã-năm CafeF thiếu).
-Engine `src/delta_t1/indicators/compute.py` + `scripts/build_indicators.py` →
-`data/financial/indicators_v1/results/indicators-60955353951643fa/indicators.sqlite`
-(1.522 mã × 2016–2025 × 21 chỉ số = 319.620 ô, mỗi ô có trạng thái + inputs).
-2025 có giá trị: EPS 1.368, P/E 1.206, P/B 1.295, ROE 1.416, F 1.090, M 1.008, Z 1.279 mã.
-EPS tự tính khớp EPS công bố ±10%: 75% mã-năm (chủ yếu lệch do CP bình quân gia quyền).
-QA (`scripts/verify_indicators.py`, `qa-report.md` trong thư mục results): tính lại độc lập 800 ô PASS;
-mục tiêu 2025 đạt cho EPS 92,5%, P/E 91,8%, P/B 91,5%, ROE 99,9%, Z 91,2%; **chưa đạt** F 77,7%, M 71,9%
-(110 mã chỉ có DStock, 160 mã thiếu LCTT được map). Dừng chờ owner trước Giai đoạn 4 (API).
+Nhánh `feature/indicators-v1`. Input `data/financial/indicators_v1/inputs/inputs-5b4836454b70d737/`
+(1.510 mã, 14.738 mã-năm; ngân hàng/CK/bảo hiểm từ raw CafeF; DStock lấp 616 mã-năm CafeF thiếu;
+CFO của 181 mã từ LCTT trực tiếp). Kết quả `data/financial/indicators_v1/results/indicators-2c4a24e3830d325f/`
+(`indicators.sqlite`, 319.620 ô, `qa-report.md`). QA độc lập 800 ô PASS. Mục tiêu 2025 đạt hết:
+EPS 92,5%, P/E 91,8%, P/B 91,5%, ROE 99,9%, F 88,4%, M 80,0% (sát ngưỡng; 114 ô dùng khấu hao
+dự phòng từ hao mòn lũy kế), Z 91,2%. EPS khớp EPS công bố ±10%: 75%.
+Dừng chờ owner trước Giai đoạn 4 (API).
 
 ## Bổ sung EPS theo kỳ và UX chỉ số — local, chưa release (24/10/2026)
 

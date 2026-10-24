@@ -1,5 +1,12 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Indicators v1 — LCTT trực tiếp cho F/M (2026-10-25)
+
+Map CFO từ mẫu lưu chuyển tiền tệ trực tiếp (kiểm cân đối dòng tiền), khấu hao dự phòng từ
+mức tăng hao mòn lũy kế cho M-score (gắn cờ, có mục kiểm trong qa-report). Coverage 2025:
+F 77,7% → 88,4%, M 71,9% → 80,0%. Run mới `inputs-5b4836454b70d737`, `indicators-2c4a24e3830d325f`.
+
+
 ## Indicators v1 — Giai đoạn 3: QA độc lập (2026-10-25)
 
 Thêm `scripts/verify_indicators.py`: tự viết lại công thức (không import engine), tính lại

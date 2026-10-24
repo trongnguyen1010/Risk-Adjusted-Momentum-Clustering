@@ -105,7 +105,7 @@ def recompute(metric, t, p, pp, price):
     if metric == 'f_score':
         return piotroski(t, p, pp)
     if metric == 'm_score':
-        return beneish(t, p)
+        return beneish(t, p, pp)
     if metric == 'z_score':
         return altman(t, price)
     if metric == 'z_score_dp':
@@ -133,20 +133,27 @@ def piotroski(t, p, pp):
     return None if any(s is None for s in sig) else float(sum(sig))
 
 
-def beneish(t, p):
+def dep_of(r, prior):
+    d = v(r, 'aggregate_fixed_property_depreciation_amortization')
+    if d is not None:
+        return d
+    a, b = v(r, 'owned_tangible_ppe_accumulated_depreciation'), v(prior, 'owned_tangible_ppe_accumulated_depreciation')
+    return None if a is None or b is None or abs(a) <= abs(b) else abs(a) - abs(b)
+
+
+def beneish(t, p, pp):
     if p is None:
         return None
     ppe = lambda r: None if v(r, 'net_tangible_ppe') is None else v(r, 'net_tangible_ppe') + (v(r, 'finance_lease_ppe') or 0)  # noqa: E731
     sga = lambda r: None if v(r, 'selling_expense') is None or v(r, 'administrative_expense') is None else v(r, 'selling_expense') + v(r, 'administrative_expense')  # noqa: E731
     gm = lambda r: q(v(r, 'gross_profit'), v(r, 'net_revenue'))  # noqa: E731
-    dep = 'aggregate_fixed_property_depreciation_amortization'
 
     def aq(r):
         ca, pp_, ta = v(r, 'current_assets'), ppe(r), v(r, 'total_assets')
         return None if ca is None or pp_ is None or not ta else 1 - (ca + pp_) / ta
 
-    def dr(r):
-        d, pp_ = v(r, dep), ppe(r)
+    def dr(r, prior):
+        d, pp_ = dep_of(r, prior), ppe(r)
         return None if d is None or pp_ is None else q(d, d + pp_)
 
     def lv(r):
@@ -155,7 +162,7 @@ def beneish(t, p):
 
     ni, cfo = v(t, 'net_profit'), v(t, 'operating_cash_flow')
     x = [q(q(v(t, 'receivables'), v(t, 'net_revenue')), q(v(p, 'receivables'), v(p, 'net_revenue'))),
-         q(gm(p), gm(t)), q(aq(t), aq(p)), q(v(t, 'net_revenue'), v(p, 'net_revenue')), q(dr(p), dr(t)),
+         q(gm(p), gm(t)), q(aq(t), aq(p)), q(v(t, 'net_revenue'), v(p, 'net_revenue')), q(dr(p, pp), dr(t, p)),
          q(q(sga(t), v(t, 'net_revenue')), q(sga(p), v(p, 'net_revenue'))), q(lv(t), lv(p)),
          None if ni is None or cfo is None else q(ni - cfo, v(t, 'total_assets'))]
     if any(a is None for a in x):
@@ -370,9 +377,26 @@ def main():
     lines += [md_table(pd.DataFrame(rows_t)), '',
               f'Ghi chú: {dstock_only} mã năm 2025 chỉ có dữ liệu DStock (DStock không có vốn góp, phải thu, '
               'vay dài hạn, lợi nhuận chưa phân phối) nên không tính được EPS/P/E/P/B/F/M/Z; '
-              f'{no_cf} mã CafeF năm 2025 không có lưu chuyển tiền tệ được map (thường là mẫu LCTT trực tiếp, '
-              'không có dòng khấu hao/LNTT gián tiếp) nên thiếu CFO và khấu hao ⇒ F/M null. '
-              'Hai nhóm này giải thích gần hết phần chưa đạt. Không hạ mục tiêu.', '']
+              f'{no_cf} mã CafeF năm 2025 vẫn không có CFO (LCTT vắng hoặc không qua kiểm tra cân đối) ⇒ F/M null. '
+              'Hai nhóm này giải thích gần hết phần còn thiếu. Không hạ mục tiêu.', '']
+    # 7. Depreciation fallback (direct-method cash flows) checked where both measures exist.
+    ws = wide.sort_values(['ticker', 'fiscal_year'])
+    acc = 'owned_tangible_ppe_accumulated_depreciation'
+    consecutive = ws.fiscal_year.eq(ws.groupby('ticker').fiscal_year.shift() + 1)
+    proxy = (ws[acc].abs() - ws.groupby('ticker')[acc].shift().abs()).where(consecutive)
+    dep = ws['aggregate_fixed_property_depreciation_amortization']
+    both = proxy.notna() & dep.notna() & (dep > 0) & (proxy > 0)
+    ratio = proxy[both] / dep[both]
+    con = sqlite3.connect(f'file:{out / "indicators.sqlite"}?mode=ro', uri=True)
+    used = con.execute("select count(*) from indicator_values where metric='m_score' and fiscal_year=2025 "
+                       "and status='OK' and inputs_json like '%DEP_FROM_ACCUMULATED_DEPRECIATION%'").fetchone()[0]
+    con.close()
+    lines += ['## 7. Khấu hao dự phòng cho M-score', '',
+              f'{used} ô M-score 2025 dùng mức tăng hao mòn lũy kế TSCĐ hữu hình thay cho khấu hao trên LCTT '
+              f'(mẫu trực tiếp không có dòng này). Kiểm trên {int(both.sum())} mã-năm có cả hai: trung vị '
+              f'dự phòng/khấu hao thật = {ratio.median():.2f}, {((ratio - 1).abs() < 0.25).mean():.0%} lệch < 25% '
+              '(thường thấp hơn do thanh lý TSCĐ và không gồm hao mòn vô hình). DEPI là tỷ lệ năm trước/năm nay '
+              'nên sai lệch cùng chiều phần lớn triệt tiêu; ô được gắn cờ `DEP_FROM_ACCUMULATED_DEPRECIATION`.', '']
     (out / 'qa-report.md').write_text('\n'.join(lines), encoding='utf-8')
     pd.DataFrame(mismatches).to_csv(out / 'qa-mismatches.csv', index=False)
     print(f'recompute {checked} cells: {"PASS" if passed else "FAIL"} ({len(mismatches)} mismatches)')
