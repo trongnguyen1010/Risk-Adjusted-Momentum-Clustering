@@ -1,12 +1,20 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Indicators v1 — Giai đoạn 2: engine tính chỉ số (2026-10-25)
+
+Thêm `src/delta_t1/indicators/compute.py` (hàm thuần: 15 chỉ số hiển thị, giá/số CP,
+Piotroski F, Beneish M, Altman Z và Z''), `scripts/build_indicators.py` (SQLite
+`indicator_values`/`company`/`latest`, wide CSV, coverage, manifest) và
+`tests/unit/test_indicators_compute.py`. DStock giờ lấp cả mã-năm CafeF thiếu (ngưỡng 85%).
+
+
 ## Indicators v1 — Giai đoạn 1: bảng input chuẩn (2026-10-25)
 
 Thêm `src/delta_t1/indicators/inputs.py`, `scripts/build_indicator_inputs.py`,
 `tests/unit/test_indicator_inputs.py` và quyết định D-IND-01. Gộp CafeF Regular +
 raw ngân hàng/CK/bảo hiểm, chuẩn hóa dấu chi phí, đánh lại nhãn khối tài chính
 KQKD bị lệch, kiểm DStock theo field, ghi checks/coverage/manifest vào run mới
-`inputs-3be22c6b787f1e30`. Không sửa artifact cũ.
+`inputs-633098561762877d`. Không sửa artifact cũ.
 
 
 ## Financial period serving và UX chỉ số (2026-10-24)

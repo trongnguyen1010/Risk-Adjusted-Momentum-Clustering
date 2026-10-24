@@ -83,6 +83,15 @@ class IndicatorInputsTest(unittest.TestCase):
         self.assertFalse(report.accepted.any())
         self.assertEqual(report.loc['total_assets', 'pass_rate'], 1.0)
 
+    def test_dstock_fills_only_years_cafef_lacks(self):
+        cols = ['ticker', 'fiscal_year', 'field', 'value', 'source']
+        cafef = pd.DataFrame([('A', 2024, 'total_assets', 100.0, 'CAFEF:HK')], columns=cols)
+        dstock = pd.DataFrame([('A', 2024, 'net_profit', 5.0, 'DSTOCK'), ('A', 2023, 'total_assets', 90.0, 'DSTOCK'),
+                               ('A', 2023, 'finance_income', 1.0, 'DSTOCK')], columns=cols)
+        out = ind.combine([cafef], dstock, {'total_assets', 'net_profit'})
+        got = {(r.fiscal_year, r.field): r.source for r in out.itertuples()}
+        self.assertEqual(got, {(2024, 'total_assets'): 'CAFEF:HK', (2023, 'total_assets'): 'DSTOCK'})
+
     def test_labels_normalize_vietnamese(self):
         self.assertEqual(ind.nlabel('TỔNG CỘNG TÀI SẢN'), 'tongcongtaisan')
         self.assertEqual(ind.FINANCIAL_LABELS['KQKD', ind.nlabel('XV. Lợi nhuận sau thuế của cổ đông của Ngân hàng mẹ')],

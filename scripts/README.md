@@ -4,9 +4,10 @@
 
 ```powershell
 python scripts/build_indicator_inputs.py   # Giai đoạn 1: ~7 phút, ghi data/financial/indicators_v1/inputs/<run-id>/
+python scripts/build_indicators.py         # Giai đoạn 2: ~1 phút, đọc inputs/latest.json, ghi results/<run-id>/
 ```
 
-Run mới không ghi đè run cũ; `data/financial/indicators_v1/inputs/latest.json` trỏ run gần nhất.
+Run mới không ghi đè run cũ; `inputs/latest.json` và `results/latest.json` trỏ run gần nhất.
 
 ## A/B/C reference hiện hành
 
