@@ -1,0 +1,67 @@
+{
+  "version": "combined-reference-v1",
+  "mode": "EX_POST_ANNUAL_DESCRIPTIVE_NOT_PIT",
+  "years": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "k": 3,
+  "seed": 42,
+  "n_init": 20,
+  "max_iter": 300,
+  "minimum_common_cohort": 100,
+  "scaling": "PER_YEAR_COMMON_COHORT_ZSCORE",
+  "block_weights": {
+    "market": 0.5,
+    "financial": 0.5
+  },
+  "clipping": false,
+  "pca": false,
+  "imputation": false,
+  "strict_pit_ready": false,
+  "research_ready": false,
+  "backtest_allowed": false,
+  "holdout_claim": false,
+  "market_features": [
+    "mom_21",
+    "mom_63",
+    "mom_126",
+    "mom_252",
+    "vol_63",
+    "mdd_126",
+    "beta_126",
+    "liquidity_21"
+  ],
+  "financial_features": [
+    "gross_margin",
+    "net_margin",
+    "liabilities_to_assets",
+    "current_ratio",
+    "operating_cashflow_to_assets",
+    "asset_turnover_ending_assets"
+  ],
+  "input_review": {
+    "path": "artifacts/reports/dual-cluster-review-v1",
+    "manifest_sha256": "ac76b2f395648c63f74c276aabc3eaac895519df6797ddd31acaf445b5c501c9"
+  },
+  "owner_approval": {
+    "status": "APPROVED",
+    "date": "2026-10-24",
+    "evidence": "Owner explicitly approved the proposed 14-feature equal-block annual descriptive KMeans k3 protocol in this chat",
+    "scope": "reference only; not PIT/backtest; no untouched holdout claim"
+  },
+  "selection_rule": "K3 preregistered descriptive baseline; no k/algorithm selection with portfolio returns",
+  "weight_formula": "sqrt(0.5 / number_of_features_in_block) times within-year common-cohort zscore",
+  "label_scope": "Independent annual labels; no cross-year semantic identity",
+  "data_limitations": [
+    "same-fiscal-year annual financials may be published after December; descriptive only",
+    "ticker mapping is provisional, not historical security identity",
+    "six core ratios do not substitute for complete EPS/PE/PB/F/M/Z",
+    "2024-2025 previously accessed in parent M2; no new untouched holdout claim"
+  ]
+}

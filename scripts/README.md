@@ -1,5 +1,21 @@
 # Lệnh làm việc hiện tại
 
+## A/B/C reference hiện hành
+
+```powershell
+python scripts/dual_cluster_review.py
+python scripts/combined_reference.py
+python scripts/combined_reference.py --execute
+python scripts/verify_combined_reference.py --result data/experiments/combined_reference_v1/results/3904b52cda7753aeac90
+python scripts/build_cluster_comparison_report.py
+```
+
+C đã được owner duyệt/chạy; cùng code/config/pins sẽ verify/reuse immutable result,
+không tự refit. Default combined_reference.py chỉ preflight. A/B giữ modelnguồn.
+Các bảng annualjoin là ex-postreference, không trading/PITinput. Full replay cần
+localdata/evidence; Git không chứa toàn bộ raw hoặc prepared14-featuretable.
+
+
 ## Integration market–financial — 23/10/2026
 
 Financial Execution56 checkpoint `819cd82` đã merge cùng market `340519d` trên

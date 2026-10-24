@@ -1,5 +1,32 @@
 # Bàn giao session — financial baseline Execution56
 
+## Execution58 — A/B đối chiếu và C kết hợp đã chạy — 24/10/2026
+
+Đã giữ A market-only (168 profiles/84tháng) và B financial-only (30 profiles/10năm)
+riêng, tạo bảng đối chiếu và chạy C theo cấu hình owner đã duyệt trong chat.
+C:14features, z-score từng năm trên common cohort, blockweights50/50,
+KMeans k3/seed42/n_init20/max_iter300, no clipping/PCA/imputation. 7 models hội tụ,
+5.593assignments trên2019–2025; independent verification PASS. C2025 có663/479/6mã;
+cả7năm có cụm dưới10, quality REVIEW_REQUIRED. Không sửa A/B hoặc tối ưu bằng returns.
+
+- [Report A/B/C](../artifacts/reports/cluster-comparison-v1/report.md).
+- [Bảng nhãn A/B/C cuối năm](../artifacts/reports/cluster-comparison-v1/memberships-a-b-c-year-end.csv):9.213unionrows,5.593BOTH có C.
+- [Catalog219profiles](../artifacts/reports/cluster-comparison-v1/cluster-catalog-a-b-c.csv).
+- [Protocol C](../configs/experiments/combined_reference_v1.json).
+- [C verification](../artifacts/reports/combined-reference-v1/verification.json).
+- [C result pointer](../artifacts/reports/combined-reference-v1/result-ref.json).
+
+Market liquidity_21 chiếm median99,997% phần tách centroid theo fittedmetric;
+không tự chứng minh dataerror. Financial180outlierrows/157vectors replay đúng
+selected inputs; scope/unit/facts chưa tự nghiệm thu. 0/11.720rows có published_at
+trong delivery: C là EX_POST_ANNUAL_DESCRIPTIVE_NOT_PIT, khônghistoricalPIT,
+khôngbacktest/M3, khôngnewholdout. Historical C vẫn cần gates theoUnifiedPlan§15–16.
+
+Integration tới efb7104 đã push; Execution58 là công việc mới local, chưa push.
+Full repository gate vẫn chưa có PASS; targeted và numerical verification ghi riêng.
+
+## Bàn giao cũ (lineage)
+
 ## Integration market–financial — 23/10/2026
 
 Financial Execution56 checkpoint `819cd82` đã merge cùng market `340519d` trên

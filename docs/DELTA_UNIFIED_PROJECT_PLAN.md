@@ -951,3 +951,13 @@ chưa full-PDF semantic QA. FIN-D2/3/4 PARTIAL; FIN-D5 scale chưa mở.
 
 [Execution config v4](../configs/data/financial_execution_plan_v4.json),
 [report](../artifacts/reports/financial-source-research-v1/report.md).
+
+
+## Clarification 24/10/2026 — A/B/C descriptive reference
+
+Owner yêu cầu cả cụm riêng/bảng đối chiếu và modelkết hợp, đã duyệt protocolC
+14features/annual/z-score/equalblocks/K3 trước execution. Execution58 bổ sung
+thí nghiệmC EX_POST_ANNUAL_DESCRIPTIVE_NOT_PIT ở config riêng, không sửa M2v1
+và không waive điều kiện historical extension ở mục15–16. HistoricalC/M3 vẫn
+đóng cho đến publication/vintage/identity/PIT acceptance. Report hiện hành:
+[cluster comparison](../artifacts/reports/cluster-comparison-v1/report.md).

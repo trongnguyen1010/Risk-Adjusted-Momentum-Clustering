@@ -1,5 +1,11 @@
 # DELTA — dữ liệu và phân cụm cổ phiếu Việt Nam
 
+**Execution58 (24/10/2026):** có A market-only, B financial-only riêng và bảng đối chiếu;
+C kết hợp14features đã chạy theo owner-approved protocol:7models/5.593assignments,
+2025 chia663/479/6. Đây là descriptive reference, không PIT/backtest; quality REVIEW_REQUIRED.
+[Report và bảng A/B/C](artifacts/reports/cluster-comparison-v1/report.md).
+
+
 **Integration market + financial — 23/10/2026.** Nhánh `integration/market-financial`
 kế thừa financial checkpoint `819cd82` và market `340519d`. C8 V2 đã nhập từ
 `DELTA_02_ACTIVE_M2_M3.zip`, giữ đúng hashes và path. Market có 84 snapshots

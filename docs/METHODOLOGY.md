@@ -41,3 +41,26 @@ M2 Task 1 chỉ freeze protocol; chưa chạy clustering. Protocol market-only v
 ## Technical debt cho variable-cluster method
 
 Common interface hiện giả định fixed `k`: bắt buộc `config["k"]`, quét `k_range`, profile IDs `0..k-1`, và temporal alignment yêu cầu cùng số cluster. DBSCAN không được triển khai bằng cách ép vào contract này. Một design được review phải hỗ trợ noise label, số cluster thay đổi theo snapshot, diagnostics phù hợp density method và temporal comparison khi cluster birth/death/noise xảy ra. Đây là preparation note, không phải approval DBSCAN hoặc Dynamic Clustering.
+
+
+## Owner-approved combined reference C — 24/10/2026
+
+configs/experiments/combined_reference_v1.json khóa thí nghiệm mô tả14features,
+annualcommoncohort2019–2025, z-scoreperyear +sqrt(0.5/p)blockweight, KMeansk3,
+seed42/n_init20. Owner duyệt rõ protocol trước realfit. Không có newholdoutclaim,
+không thay M2marketfreeze hoặc historical/research/PIT gates. Same-fiscal-year
+December join dùng thông tin có thể công bố sau snapshot: chỉex-postreference.
+A/B vẫn nguyên artifacts; label0/1/2 củaC chỉ có nghĩa trong từng năm. Không so
+trực tiếp silhouettekhácfeaturespace/cohort để tuyên bố winner hoặc chọn model.
+
+
+### Execution58 verification và phạm vi còn lại
+
+27 targeted tests PASS (8tests mới + financial/integration/clustering regression),
+compileall PASS; synthetic smoke `run-20261024T021711Z-30619c75` PASS. Independent
+C review kiểm lại scalers, weights, nearest-centroid, inertia, raw profile means và
+centroids cho5593assignments/7models PASS. RerunC giữ nguyên bytes và timestamps
+của numericaloutputs, khôngrefit; comparison idempotent và coverage9213/5593 PASS.
+C kế thừa financialfull10fixedcohort, còn selection/survivorshipbias. Sourcefacts
+không tự accepted, khôngclaimPIT hoặcnewholdout. Fullsuitegate vẫn PARTIAL;
+lượtstage58 có log `.tmp/dual-combined-full-suite.log` và summaryJSON cùngprefix.
