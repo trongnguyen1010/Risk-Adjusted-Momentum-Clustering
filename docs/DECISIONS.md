@@ -1349,3 +1349,16 @@ checkpoint819cd82, không bỏ bất kỳ hashcheck nào. Overlay chỉ áp src/
 raw/data pins vẫn kiểm tại path gốc. Review outputv2 giữ bảnv1 nguyên vẹn; explicitLF
 cho reviewscript giữ checksum ổn định khi checkout. Đây là packaging/provenancefix,
 không thay phép tính, sourcefacts hoặc model. Lệnh Verify hiện dùng overlay/reviewv2.
+
+
+## 2026-10-24 — Dual clusters A/B và combined reference C (owner approved)
+
+Owner yêu cầu giữ hai bộ cụm riêng, có bảng đối chiếu, và thêm model kết hợp.
+Unified Project Plan mục16 có A/B/C; historical C vẫn cần PIT. Owner đã duyệt
+cấu hình reference C cụ thể: 8 market +6 core financial ratios, cohort giao cuối
+mỗi năm2019–2025, z-score từng năm trên cohort chung, blockweightsmarket/financial
+50/50 theo sqrt(0.5/p), KMeans k3/seed42/n_init20/max_iter300, no clipping/PCA/imputation.
+Không sửa A/B, không chọn bằng returns, không claim holdout mới. Same-year financial
+có thể công bố sauDecember: EX_POST_ANNUAL_DESCRIPTIVE_NOT_PIT; historical/research/M3
+vẫn false. Thí nghiệm riêng có manifest/config/code/input pins, chất lượng review độc lập.
+Protocol: configs/experiments/combined_reference_v1.json; chỉ chạy khi owner_approvalAPPROVED.

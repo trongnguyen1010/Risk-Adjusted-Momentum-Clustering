@@ -1,5 +1,31 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Execution58 — A/B đối chiếu và C kết hợp đã chạy — 24/10/2026
+
+Đã giữ A market-only (168 profiles/84tháng) và B financial-only (30 profiles/10năm)
+riêng, tạo bảng đối chiếu và chạy C theo cấu hình owner đã duyệt trong chat.
+C:14features, z-score từng năm trên common cohort, blockweights50/50,
+KMeans k3/seed42/n_init20/max_iter300, no clipping/PCA/imputation. 7 models hội tụ,
+5.593assignments trên2019–2025; independent verification PASS. C2025 có663/479/6mã;
+cả7năm có cụm dưới10, quality REVIEW_REQUIRED. Không sửa A/B hoặc tối ưu bằng returns.
+
+- [Report A/B/C](../artifacts/reports/cluster-comparison-v1/report.md).
+- [Bảng nhãn A/B/C cuối năm](../artifacts/reports/cluster-comparison-v1/memberships-a-b-c-year-end.csv):9.213unionrows,5.593BOTH có C.
+- [Catalog219profiles](../artifacts/reports/cluster-comparison-v1/cluster-catalog-a-b-c.csv).
+- [Protocol C](../configs/experiments/combined_reference_v1.json).
+- [C verification](../artifacts/reports/combined-reference-v1/verification.json).
+- [C result pointer](../artifacts/reports/combined-reference-v1/result-ref.json).
+
+Market liquidity_21 chiếm median99,997% phần tách centroid theo fittedmetric;
+không tự chứng minh dataerror. Financial180outlierrows/157vectors replay đúng
+selected inputs; scope/unit/facts chưa tự nghiệm thu. 0/11.720rows có published_at
+trong delivery: C là EX_POST_ANNUAL_DESCRIPTIVE_NOT_PIT, khônghistoricalPIT,
+khôngbacktest/M3, khôngnewholdout. Historical C vẫn cần gates theoUnifiedPlan§15–16.
+
+Integration tới efb7104 đã push; Execution58 là công việc mới local, chưa push.
+Full repository gate vẫn chưa có PASS; targeted và numerical verification ghi riêng.
+
+
 ### Chốt integration — 24/10/2026
 
 Đã xử lý toàn bộ merge conflicts; imported data giữ local theo ignore policy.
@@ -1326,3 +1352,32 @@ checkpoint819cd82, không bỏ bất kỳ hashcheck nào. Overlay chỉ áp src/
 raw/data pins vẫn kiểm tại path gốc. Review outputv2 giữ bảnv1 nguyên vẹn; explicitLF
 cho reviewscript giữ checksum ổn định khi checkout. Đây là packaging/provenancefix,
 không thay phép tính, sourcefacts hoặc model. Lệnh Verify hiện dùng overlay/reviewv2.
+
+
+### Execution58 verification và phạm vi còn lại
+
+27 targeted tests PASS (8tests mới + financial/integration/clustering regression),
+compileall PASS; synthetic smoke `run-20261024T021711Z-30619c75` PASS. Independent
+C review kiểm lại scalers, weights, nearest-centroid, inertia, raw profile means và
+centroids cho5593assignments/7models PASS. RerunC giữ nguyên bytes và timestamps
+của numericaloutputs, khôngrefit; comparison idempotent và coverage9213/5593 PASS.
+C kế thừa financialfull10fixedcohort, còn selection/survivorshipbias. Sourcefacts
+không tự accepted, khôngclaimPIT hoặcnewholdout. Fullsuitegate vẫn PARTIAL;
+lượtstage58 có log `.tmp/dual-combined-full-suite.log` và summaryJSON cùngprefix.
+
+
+C2025 separation driver bổ sung: market block chiếm96,11% phần tách centroid,
+financial3,89%, dù inputblockvariance cân bằng50/50. Đây là kết quả geometry thực tế,
+không phải đặt weight sai; dominant features là mom126, mom252, mdd126, mom63 vàvol63.
+Không đổi preprocessing hoặc weight sau khi xem kết quả. Queue cụm nhỏC2025 gồm
+DNN/GTD/NVP/TVH/VEC/VIC; giữ evidence, chưa source-fact accept hoặc quarantine.
+
+
+### Execution58 final gate — 24/10/2026
+
+Fullsuite timeout 240.1giây, ít nhất254testlines kết thúcok,
+không FAIL/ERROR trước timeout. Cuối log ở financial_crawl_trial fixture50;
+không diễn giải timeout thành suitePASS hoặc xác định nguyên nhân treo.
+Targeted27tests/compile/smoke/independentCverification đềuPASS. A/Bsourceartifacts giữnguyên.
+Execution58 đã hoàn tất chạy và đối chiếu ở phạm vi descriptive reference; quality
+REVIEW_REQUIRED và PIT/M3gates false. Không tự thay preprocessing sau kết quả.

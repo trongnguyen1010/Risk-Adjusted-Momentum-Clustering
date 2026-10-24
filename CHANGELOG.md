@@ -1047,3 +1047,38 @@ checkpoint819cd82, không bỏ bất kỳ hashcheck nào. Overlay chỉ áp src/
 raw/data pins vẫn kiểm tại path gốc. Review outputv2 giữ bảnv1 nguyên vẹn; explicitLF
 cho reviewscript giữ checksum ổn định khi checkout. Đây là packaging/provenancefix,
 không thay phép tính, sourcefacts hoặc model. Lệnh Verify hiện dùng overlay/reviewv2.
+
+
+## 2026-10-24 — Dual clusters A/B và combined reference C (owner approved)
+
+Owner yêu cầu giữ hai bộ cụm riêng, có bảng đối chiếu, và thêm model kết hợp.
+Unified Project Plan mục16 có A/B/C; historical C vẫn cần PIT. Owner đã duyệt
+cấu hình reference C cụ thể: 8 market +6 core financial ratios, cohort giao cuối
+mỗi năm2019–2025, z-score từng năm trên cohort chung, blockweightsmarket/financial
+50/50 theo sqrt(0.5/p), KMeans k3/seed42/n_init20/max_iter300, no clipping/PCA/imputation.
+Không sửa A/B, không chọn bằng returns, không claim holdout mới. Same-year financial
+có thể công bố sauDecember: EX_POST_ANNUAL_DESCRIPTIVE_NOT_PIT; historical/research/M3
+vẫn false. Thí nghiệm riêng có manifest/config/code/input pins, chất lượng review độc lập.
+Protocol: configs/experiments/combined_reference_v1.json; chỉ chạy khi owner_approvalAPPROVED.
+
+
+### Execution58 verification và phạm vi còn lại
+
+27 targeted tests PASS (8tests mới + financial/integration/clustering regression),
+compileall PASS; synthetic smoke `run-20261024T021711Z-30619c75` PASS. Independent
+C review kiểm lại scalers, weights, nearest-centroid, inertia, raw profile means và
+centroids cho5593assignments/7models PASS. RerunC giữ nguyên bytes và timestamps
+của numericaloutputs, khôngrefit; comparison idempotent và coverage9213/5593 PASS.
+C kế thừa financialfull10fixedcohort, còn selection/survivorshipbias. Sourcefacts
+không tự accepted, khôngclaimPIT hoặcnewholdout. Fullsuitegate vẫn PARTIAL;
+lượtstage58 có log `.tmp/dual-combined-full-suite.log` và summaryJSON cùngprefix.
+
+
+### Execution58 final gate — 24/10/2026
+
+Fullsuite timeout 240.1giây, ít nhất254testlines kết thúcok,
+không FAIL/ERROR trước timeout. Cuối log ở financial_crawl_trial fixture50;
+không diễn giải timeout thành suitePASS hoặc xác định nguyên nhân treo.
+Targeted27tests/compile/smoke/independentCverification đềuPASS. A/Bsourceartifacts giữnguyên.
+Execution58 đã hoàn tất chạy và đối chiếu ở phạm vi descriptive reference; quality
+REVIEW_REQUIRED và PIT/M3gates false. Không tự thay preprocessing sau kết quả.
