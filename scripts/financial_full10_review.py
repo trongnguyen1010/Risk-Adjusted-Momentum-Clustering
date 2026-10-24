@@ -40,7 +40,7 @@ def main():
     frozen_source = {}
     for name, expected in pins.items():
         candidate = inside(ROOT, name)
-        if args.source_root and name.startswith('src/'):
+        if args.source_root and name.startswith(('src/', 'scripts/', 'configs/')):
             frozen = inside(inside(ROOT, str(args.source_root)), name)
             if frozen.is_file():
                 candidate = frozen
