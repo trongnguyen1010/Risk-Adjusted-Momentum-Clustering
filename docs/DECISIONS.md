@@ -16,8 +16,9 @@ Quy tắc dữ liệu đi kèm (Giai đoạn 1): CafeF `-1` = dòng vắng ⇒ n
 = 0 là placeholder ⇒ null; khối tài chính KQKD Regular của CafeF lệch một dòng
 (code 22→chi phí tài chính, 23→lãi vay, 24→LN liên kết) được đánh lại nhãn, kiểm
 bằng identity LN thuần HĐKD và DStock; ngân hàng/CK/bảo hiểm lấy từ raw CafeF theo
-nhãn pin + identity bảng cân đối/phân bổ lợi nhuận. DStock chỉ lấp ô thiếu khi
-field QA đạt ≥95% chênh <0,5%; lượt này không field nào đạt nên chưa dùng.
+nhãn pin + identity bảng cân đối/phân bổ lợi nhuận. DStock (25/10/2026, owner chọn):
+chỉ lấp **cả mã-năm** CafeF không có dòng nào, không trộn vào năm CafeF đã có;
+chỉ dùng field khớp CafeF ≥85% (chênh <0,5%) trên ô trùng; ô ghi `source=DSTOCK`.
 
 
 ## 2026-10-24 — Reported EPS tách khỏi calculated/verified scores

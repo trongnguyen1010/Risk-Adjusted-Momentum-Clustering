@@ -1,8 +1,10 @@
 """Standardized annual input table for product indicators (D-IND-01).
 
-Sources, in priority order for one (ticker, fiscal_year, field) cell:
+Sources, in priority order:
 1. CafeF annual statements, consolidated provider types before separate ones.
-2. DStock annual statements (Regular template only, field accepted by overlap QA).
+2. DStock annual statements (Regular template only), used only for ticker-years
+   where CafeF has no cell at all (owner decision 25/10/2026), and only for
+   fields whose values agree with CafeF on overlapping cells.
 
 Missing stays missing: no zero fill, no forward fill between years.
 """
@@ -41,7 +43,9 @@ CAFEF_ABSENT = -1.0
 PROVIDER_PRIORITY = ('HK', 'H', 'HTK', 'K', 'MK', 'M', 'N', 'S')
 DSTOCK_QA_FIELDS = ('total_assets', 'net_revenue', 'total_equity', 'net_profit')
 DSTOCK_TOLERANCE = 0.005
-DSTOCK_MIN_PASS = 0.95
+# Owner lowered the bar from 0.95 (25/10/2026) because DStock is only used for
+# ticker-years CafeF lacks entirely; cells are marked source=DSTOCK.
+DSTOCK_MIN_PASS = 0.85
 INSURANCE = frozenset({'ABI', 'AIC', 'BHI', 'BIC', 'BLI', 'BMI', 'BVH', 'MIG', 'PGI', 'PRE', 'PTI', 'PVI', 'VNR'})
 
 
@@ -333,10 +337,11 @@ def validate_dstock(cafef, dstock, min_overlap=30):
 
 
 def combine(cafef_parts, dstock, accepted_fields):
+    """DStock fills whole ticker-years missing from CafeF; it never mixes into a CafeF year."""
     primary = pd.concat(cafef_parts, ignore_index=True)
-    have = pd.MultiIndex.from_frame(primary[['ticker', 'fiscal_year', 'field']])
+    have = pd.MultiIndex.from_frame(primary[['ticker', 'fiscal_year']].drop_duplicates())
     fill = dstock[dstock.field.isin(accepted_fields)]
-    fill = fill[~pd.MultiIndex.from_frame(fill[['ticker', 'fiscal_year', 'field']]).isin(have)]
+    fill = fill[~pd.MultiIndex.from_frame(fill[['ticker', 'fiscal_year']]).isin(have)]
     return normalize_signs(pd.concat([primary, fill], ignore_index=True))
 
 

@@ -1,5 +1,13 @@
 # Roadmap DELTA
 
+## Indicators v1 — ngoài phạm vi lượt hiện tại
+
+- Chạy lại phân cụm B/C bằng bộ chỉ số mới; log-transform + winsorize liquidity_21 cho cụm A; ngưỡng coverage vào cụm.
+- Chỉ số quý/TTM; ngày công bố BCTC cho PIT; backtest M3.
+- Số CP bình quân gia quyền (EPS hiện dùng vốn góp cuối kỳ/10.000); năm tài chính không kết thúc 31/12.
+- Deploy public (Render/Vercel/HF upload) — chờ owner duyệt; `indicators.sqlite` hiện ~110 MB.
+
+
 ## Execution59 — Research demo web
 
 Đã triển khai local demo 5 modules dùng A/B riêng và C combined reference.
