@@ -1,5 +1,19 @@
 # Project Map
 
+**Integration market + financial — 23/10/2026.** Nhánh `integration/market-financial`
+kế thừa financial checkpoint `819cd82` và market `340519d`. C8 V2 đã nhập từ
+`DELTA_02_ACTIVE_M2_M3.zip`, giữ đúng hashes và path. Market có 84 snapshots
+2019–2025, K=2/robust; financial có 1.172 mã × annual 2016–2025, K=3/zscore.
+Đây là hai baseline độc lập. Cả hai cần review chất lượng cụm; strict PIT/research/M3
+chưa được nghiệm thu. Giao ticker tại cuối 2025 là 1.148 mã, chưa phải historical PIT join.
+
+Chạy `scripts/verify_market_financial_integration.py --publish` để kiểm current
+60+24 artifacts và tạo manifest tham chiếu có version; script này không fit.
+`verify_m2_task12.py` và `generate_m2_task13_handoff.py` là historical V1,
+không dùng chúng để tái tạo current84. Xem `M2/artifacts/market-financial-integration-v1/`.
+
+## Ghi chú và lineage từ các giai đoạn trước
+
 **Execution56:** [kết quả financial baseline](../artifacts/reports/financial-full10-baseline-v1/report.md)
 ở `data/financial/financial_full10_baseline_v1/results/4d521e71139a48340d3d`.
 1.172 mã/10 năm, sáu core ratios, independent annual static K-Means. Kiểm tra thực thi PASS;
@@ -52,6 +66,9 @@ GAS PDFreference32facts/2annualZ″EM; criticalreviewGAS/SHS giữ9rawdifference
 | `src/delta_t1/experiments/` | Protocol, runner, immutable artifact và reporting |
 | `src/delta_t1/evaluation/` | Cluster/temporal/portfolio metrics được tách biệt |
 | `configs/data/` | C8 complete-only, C6 expansion, supplemental recovery, identity review, minimal M1 universe compatibility và synthetic smoke |
+| `configs/experiments/m2_market_only_v1.json` | Frozen preregistration cho M2 market-only; portfolio evaluation tắt |
+| `configs/experiments/m2_final_holdout_v1.json` | Task 11 paths/gates; algorithm và fit parameters lấy từ frozen winning models |
+| `src/delta_t1/experiments/final_holdout.py` | Single-winner holdout execution và verify-only rerun |
 | `tests/` | Unit/integration/regression tests còn hiệu lực |
 
 ## Financial flow hiện tại
@@ -100,10 +117,17 @@ Cold data nằm tại `artifacts/archives/financial-cleanup-20261008-v1/`, index
 | `artifacts/cafef_primary/cafef-c8-verify-v1/` | Compact C8-VERIFY evidence được track |
 | `artifacts/repository/r1-consolidation-v1/` | Before/after inventory, deletion inventory và R1 verification manifest |
 | `artifacts/reports/m1-market-foundation-v1/` | Compact M1 market-foundation report, report-level tables và deterministic plots |
+| `M2/artifacts/m2-final-holdout-v1/` | Task 11 complete: 7 holdout snapshots, selected K-Means only, models/metrics/gap/manifest |
+| `M2/notebooks/11_final_holdout_execution.ipynb` | Notebook Task 11 bảy bước; đọc lại evidence khi rerun, không refit |
+| `artifacts/financial_pit/fin-pit-2-semantic-extraction-v1/` | FIN-PIT-2 report/fact/linkage/taxonomy/revision candidates và gate `PARTIAL`; không phải canonical financial data |
+| `artifacts/financial_pit/fin-pit-2-r1-ocr-remediation-v1/` | FIN-PIT-2-R1 derived OCR/page provenance, updated semantic candidates, before/after coverage và gate `PARTIAL`; raw PDF không bị thay thế |
 | `scripts/run_cafef_c8_complete_only.py` | Heavy C8 runner; không dùng cho verify thông thường |
 | `scripts/verify_cafef_c8_results.py` | One-time compact C8 verification artifact generator; không rerun khi output tồn tại |
 | `scripts/verify_repository_r1.py` | Exact-inventory verifier cho frozen R1 revision; không phải current-tree gate hậu M1/D1 |
 | `scripts/build_m1_market_foundation_report.py` | Offline deterministic M1 report generator/verifier |
+| `scripts/run_fin_pit_2_semantic_extraction.py` | Dry-run, offline semantic extraction, resume-as-verify và verifier FIN-PIT-2 |
+| `scripts/run_fin_pit_2_r1_ocr_remediation.py` | Preflight inventory, selective local OCR, semantic re-extraction, resume và offline verifier FIN-PIT-2-R1 |
+| `src/delta_t1/ingestion/financial_pit_ocr.py` | Page-scoped OCR/provenance, quality controls, numeric fail-closed và before/after coverage cho FIN-PIT-2-R1 |
 | `scripts/run_cafef_expansion_worker.py` | Frozen C6 acquisition runner |
 | `scripts/run_cafef_supplemental_worker.py` | Deferred supplemental acquisition runner |
 | `scripts/consolidate_cafef_expansion_handoffs.py` | Central offline consolidation |
@@ -117,6 +141,9 @@ Notebook human-facing duy nhất của M1 report là
 artifact và không chứa acquisition hoặc scientific gate logic riêng.
 
 Trong critical path M2, next stage là **M2-R1 — Protocol Freeze v1**; project map này không cấp quyền chạy real clustering, mở holdout, sửa market-only runner hoặc chạy backtest. Sau khi M2-R1 PASS mới chuyển sang M2-R2. Workstream mở rộng dữ liệu mới đi theo M0/F0 của hai plan ở đầu tài liệu; registry chưa thay acquisition/source gates.
+
+Task 11 đã được owner yêu cầu và thực thi sau Task 10 freeze. Exact next stage là
+M2 Nhiệm vụ 12; project map này không cấp quyền chạy Task 12, backtest hoặc supplemental crawl.
 
 ## Tài liệu canonical
 

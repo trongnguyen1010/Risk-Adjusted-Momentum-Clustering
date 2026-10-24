@@ -1,5 +1,7 @@
 # Báo cáo tổng quá trình xây dựng dữ liệu financial
 
+**Execution57 — integration market/financial:** checkpointfinancial819cd82 + market340519d; dữ liệuC8V2 nhập đúnghash. Hai baseline giữ độc lập, technicalverificationPASS; fullrepositorygate chưaPASS, quality/PIT/M3cònreview. Chi tiết cuối report.
+
 **Cập nhật gần nhất:23/10/2026 — Execution56 đã chạy baseline financial.** 1.172 mã ×
 10 năm, tính lại 70.320 core ratios, 10 static models hội tụ. [Report56](financial-full10-baseline-v1/report.md).
 Verification kỹ thuật PASS; cả 10 năm có cụm nhỏ, chất lượng cần review. EPS/P/E/P/B/F/M/Z,
@@ -731,3 +733,64 @@ Không tải PDF mới trong bước review nếu chưa hỏi owner.
 
 **Bàn giao khi chuyển session:** [Execution56 handoff](../../docs/FINANCIAL_SESSION_HANDOFF.md)
 giữ kết quả, trạng thái Git, lệnh kiểm tra và phạm vi cần owner duyệt trước bước mới.
+
+
+## Execution57 — hợp repository market và financial — 23/10/2026
+
+## Integration market–financial — 23/10/2026
+
+Financial Execution56 checkpoint `819cd82` đã merge cùng market `340519d` trên
+`integration/market-financial`. C8 V2 giữ19/19hashes; current market verifier kiểm84models,
+75.801assignments, nearest centroid và eligibility, tạo reference handoff có version.
+Financial vẫn11.720annualrows/1.172symbols; model không refit.
+
+Shared KMeans/preprocessing hiện kế thừa market. Hai file source đã pin của Execution56
+được lưu exact bytes tại `M2/artifacts/financial-execution56-frozen-source-v1/`;
+historical review dùng explicit source overlay và output mới, không sửa frozen input hashes.
+
+```powershell
+python scripts/import_market_bundle.py 'C:/Users/ASUS/Downloads/DELTA_02_ACTIVE_M2_M3.zip'
+python scripts/verify_market_financial_integration.py --publish
+python scripts/financial_full10_review.py --source-root M2/artifacts/financial-execution56-frozen-source-v1 --output M2/artifacts/financial-execution56-integration-review-v1
+```
+
+Tại cuối2025 có1.148financialsymbols đồng thời market-ready; giao theo snapshot thay đổi.
+Chưa có availability-aware historical join hoặc model kết hợp. Quality REVIEW_REQUIRED,
+strict PIT/research/M3 vẫn false. Tests/gates integration được ghi ở Current status.
+
+
+### Kiểm chứng integration đã thực hiện
+
+- Market:19/19C8outputs,68holdoutoutputs,9frozenpins,84models và75.801assignments PASS;
+  kiểm sourceeligibility và nearestcentroid, không refit.
+- Financial:1.786inputpins,11.720rows, scaler/assignment/inertia/profiles/checkpoints PASS
+  với hai frozen source files đúng hash trong sourceoverlay có version; output review riêng.
+- 76 targeted tests: OK,4Streamlittests skipped do thiếu optionaldashboarddependency;
+  6 PCAartifacttests PASS. Importer/immutability tests bổ sung PASS.
+- compileall, synthetic smoke (`run-20261023T161947Z-e04ef3b8`), `node --check web/app.js` PASS.
+- Full repository suite chưa PASS: sandboxtimeout240giây; lượt ngoàisandbox được giới hạn360giây,
+  xem `.tmp/integration-full-suite-unsandboxed.json` và log. Không bỏ assertions.
+- Plain diffcheck toàn nhánh có inheritedCRLF/Markdownhardbreak warnings từ market artifacts;
+  scoped integrationdiffcheck với `cr-at-eol` không có whitespace errors. Không sửa sealedbytes để làm sạch warnings.
+
+
+
+### Chốt integration — 24/10/2026
+
+Đã xử lý toàn bộ merge conflicts; imported data giữ local theo ignore policy.
+Financial checkpoint `819cd82`, market parent `340519d`; active branch `integration/market-financial`.
+PowerShell wrapper `scripts/market_financial_integration.ps1 -Mode Verify` đã PASS:
+market19C8outputs/68holdoutoutputs/84models/75.801assignments; financial1.786pins/11.720rows.
+Targeted76tests OK (4optionalStreamlit skips), PCA6tests PASS, importer/immutability5tests PASS
+(suite5 gồm4tests đã có trong targeted76 và1test bổ sung, không cộng trùng).
+Compile, synthetic smoke và webJS syntax PASS; importer replay20files PASS.
+
+Full repository gate vẫn PARTIAL: sandbox timeout240,2giây; ngoài sandbox timeout360,1giây,
+ít nhất250testlines kết thúcok, chưa cóFAIL/ERRORtrước timeout; cuối log ở
+`unit.experiments.test_financial_crawl_trial.TrialTests.test_invalid_payload_stops_next_wave_with_all_symbol_gap_rows`.
+Không khẳng định suite treo hoặc xác định nguyên nhân từ việc timeout; không bỏ assertions.
+Logs `.tmp/integration-full-suite*.log`, summaries `.tmp/integration-full-suite*.json`.
+
+Không fit lại model thực, không acquisition/PDF/OCR mới, không backtest; PIT/research/M3
+vẫn false, chất lượng cụm REVIEW_REQUIRED. Commit tích hợp chỉ local; chưa push remote.
+

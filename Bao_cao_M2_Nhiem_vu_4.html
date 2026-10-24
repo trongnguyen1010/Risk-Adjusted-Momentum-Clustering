@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang='vi'>
+<head>
+  <meta charset='UTF-8'>
+  <title>Báo Cáo M2 - Nhiệm Vụ 4: K-Means Baseline</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1e293b; background: #f8fafc; padding: 40px 20px; margin: 0; }
+    .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    h1 { color: #0f172a; border-bottom: 2px solid #2563eb; padding-bottom: 10px; font-size: 22px; }
+    h2 { color: #1d4ed8; margin-top: 30px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; font-size: 18px; }
+    h3 { color: #334155; font-size: 15px; margin-top: 18px; }
+    p, li { font-size: 14.5px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13.5px; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; }
+    th { background: #f1f5f9; font-weight: 600; color: #0f172a; }
+    tr:nth-child(even) { background: #f8fafc; }
+    code { background: #f1f5f9; color: #0f172a; padding: 2px 5px; border-radius: 4px; font-family: Consolas, monospace; font-size: 13px; }
+    hr { border: 0; height: 1px; background: #e2e8f0; margin: 24px 0; }
+  </style>
+</head>
+<body>
+<div class='container'>
+<h1>BÁO CÁO MILESTONE M2 — NHIỆM VỤ 4: PHƯƠNG ÁN A — K-MEANS BASELINE</h1>
+<p><b>Người thực hiện:</b> Nhóm nghiên cứu DELTA</p>
+<p><b>Tập dữ liệu chuẩn hóa:</b> <code>cafef-c8-complete-only-v2</code> (Bộ dữ liệu thị trường đã vá bù & đối soát dữ liệu hoàn chỉnh)</p>
+<p><b>Giai đoạn thực thi:</b> Development (60 snapshot cuối tháng liên tiếp từ 2019-01-31 đến 2023-12-29)</p>
+<p><b>File cấu hình chuẩn:</b> <code>configs/experiments/m2_market_only_v2.json</code></p>
+<p><b>Notebook thực thi:</b> <code>M2/notebooks/04_kmeans_baseline.ipynb</code></p>
+<p><b>Thư mục lưu trữ artifact:</b> <code>M2/artifacts/m2-task4-kmeans-baseline-v1/</code></p>
+<p><b>Thư mục lưu trữ mô hình:</b> <code>M2/models/kmeans/</code> (60 file model JSON)</p>
+<hr>
+<h2>1. Mục đích và Quy tắc thực nghiệm</h2>
+<h3>1.1. Mục đích</h3>
+<p>Nhiệm vụ 4 thiết lập đường cơ sở phân cụm (Baseline) chính thức cho toàn bộ Milestone M2 bằng thuật toán K-Means với số cụm tối ưu <b>Global K = 2</b> đã được phê duyệt và đóng băng từ Nhiệm vụ 3.</p>
+<p>Kết quả của Nhiệm vụ 4 cung cấp dữ liệu nền tảng cho:</p>
+<li><b>Nhiệm vụ 7:</b> Đánh giá chất lượng cụm (Cluster Quality Evaluation).</li>
+<li><b>Nhiệm vụ 8:</b> Phân tích hồ sơ cụm (Cluster Profiling).</li>
+<li><b>Nhiệm vụ 9:</b> Đánh giá độ ổn định chuỗi thời gian (Temporal Stability & Transition Tracking).</li>
+<li><b>Nhiệm vụ 10:</b> So sánh đa phương án (Model Comparison giữa K-Means, Ward và PCA + K-Means).</li>
+<h3>1.2. Rào chắn học thuật bất biến (Invariants)</h3>
+<p style='margin-left: 20px;'>1. <b>Khóa Global K = 2:</b> Chỉ sử dụng số cụm K = 2 đã đóng băng, tuyệt đối không quét lại K = 2..8.</p>
+<p style='margin-left: 20px;'>2. <b>Không gian thời gian Development:</b> Thực thi độc lập trên toàn bộ 60 snapshot cuối tháng (2019-01-31 đến 2023-12-29). Niêm phong tuyệt đối 24 snapshot Holdout (2024–2025).</p>
+<p style='margin-left: 20px;'>3. <b>Chuẩn hóa độc lập (Snapshot-level Robust Scaling):</b> Từng snapshot tính riêng Median và IQR trên tập cổ phiếu đủ điều kiện của chính snapshot đó theo công thức <code>x_scaled = (x - Median) / IQR</code>. Tuyệt đối không dùng chung scaler giữa các tháng.</p>
+<p style='margin-left: 20px;'>4. <b>Vũ trụ cổ phiếu linh hoạt:</b> Lọc theo từng snapshot với <code>market_feature_ready_v2 == True</code> và kiểm tra ngưỡng tối thiểu <code>n_eligible >= 100</code> mã. Không áp đặt danh sách mã cố định ngược về quá khứ.</p>
+<p style='margin-left: 20px;'>5. <b>Rào chắn mục tiêu:</b> Đánh giá cụm hoàn toàn dựa trên thước đo hình học và đặc trưng nội tại (Silhouette, Davies-Bouldin, Calinski-Harabasz, Inertia, Cluster Balance). Tuyệt đối không dùng lợi nhuận tương lai, Sharpe ratio, Sortino, ROI hoặc bất kỳ chỉ số danh mục đầu tư nào (thuộc Milestone M3).</p>
+<hr>
+<h2>2. Kết quả tổng quan thực thi trên 60 Snapshots Development (Dữ liệu Đã Vá Bù)</h2>
+<li><b>Số snapshot hoàn thành:</b> 60 / 60 snapshot (100% đạt ngưỡng, 0 snapshot bị bỏ qua).</li>
+<li><b>Số lượng cổ phiếu hợp lệ:</b> Dao động từ <b>503 mã</b> (tháng 11/2020) đến <b>1,134 mã</b> (tháng 12/2023), trung bình đạt <b>760.77 mã / tháng</b>.</li>
+<li><b>Tổng số lượt gán nhãn cụm (Assignments):</b> <b>45,646 bản ghi</b> (tăng hơn 15,700 bản ghi so với bản chạy trước khi vá dữ liệu).</li>
+<li><b>Tham số thuật toán K-Means:</b> <code>seed = 42</code>, <code>n_init = 10</code>, <code>max_iter = 300</code>.</li>
+<hr>
+<h2>3. Chỉ số chất lượng cụm (Quality Metrics)</h2>
+<p>Bảng tổng hợp các chỉ số chất lượng cụm K-Means Baseline (K = 2) qua 60 snapshot development (trích xuất từ <code>M2/artifacts/m2-task4-kmeans-baseline-v1/metrics.csv</code> và <code>manifest.json</code>):</p>
+<table><thead><tr>
+<th>Chỉ số chất lượng</th>
+<th>Giá trị Nhỏ nhất (Min)</th>
+<th>Giá trị Trung vị (Median)</th>
+<th>Giá trị Lớn nhất (Max)</th>
+<th>Ngưỡng chuẩn đánh giá</th>
+<th>Đánh giá học thuật</th>
+</tr></thead><tbody>
+<tr>
+<td><b>Silhouette Score</b></td>
+<td>0.8174</td>
+<td><b>0.9408</b></td>
+<td>0.9782</td>
+<td>> 0.50</td>
+<td>Cực kỳ xuất sắc; ranh giới phân tách giữa 2 cụm rất rõ nét</td>
+</tr>
+<tr>
+<td><b>Davies-Bouldin Index</b></td>
+<td>0.0898</td>
+<td><b>0.3992</b></td>
+<td>0.5846</td>
+<td>< 0.65</td>
+<td>Tối ưu; cụm có độ cô đặc nội bộ cao và khoảng cách tâm lớn</td>
+</tr>
+<tr>
+<td><b>Calinski-Harabasz Index</b></td>
+<td>358.12</td>
+<td><b>1586.37</b></td>
+<td>4512.80</td>
+<td>Càng cao càng tốt</td>
+<td>Phương sai liên cụm tăng vọt, phân tách rõ nét</td>
+</tr>
+<tr>
+<td><b>Inertia</b></td>
+<td>4,210.50</td>
+<td><b>120,531.06</b></td>
+<td>6,812,410.15</td>
+<td>Tham chiếu quy mô</td>
+<td>Hội tụ ổn định qua 60 tháng</td>
+</tr>
+<tr>
+<td><b>Cluster Balance</b></td>
+<td>0.0033</td>
+<td><b>0.0207</b></td>
+<td>0.0528</td>
+<td>Tỷ lệ quy mô</td>
+<td>Tương ứng cấu trúc 1 cụm thiểu số tinh hoa (~15 mã) và 1 cụm đa số (~746 mã)</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. Hồ sơ kinh tế và Đặc trưng đại diện 2 Cụm (Cluster Profiling)</h2>
+<p>Sau khi căn chỉnh chuỗi thời gian để triệt tiêu hiện tượng đảo nhãn (Label Switching), các đặc trưng bình quân của 2 cụm thể hiện rõ nét bản chất dòng tiền thị trường:</p>
+<table><thead><tr>
+<th>Đặc trưng phân tích</th>
+<th>Toàn thị trường (Bình quân)</th>
+<th>Cụm 0 (Thiểu số - Thanh khoản cao)</th>
+<th>Cụm 1 (Đa số - Thị trường đại trà)</th>
+<th>So sánh tương quan giữa 2 cụm</th>
+</tr></thead><tbody>
+<tr>
+<td><b>Quy mô bình quân (<code>size</code>)</b></td>
+<td>760.77 mã</td>
+<td><b>14.93 mã (2.0%)</b></td>
+<td><b>745.83 mã (98.0%)</b></td>
+<td>Cụm 0 là nhóm cổ phiếu hạt nhân, Cụm 1 đại diện số đông</td>
+</tr>
+<tr>
+<td><b>Thanh khoản (<code>liquidity_21</code>)</b></td>
+<td>~12.0 tỷ VND</td>
+<td><b>348.56 tỷ VND / phiên</b></td>
+<td><b>5.26 tỷ VND / phiên</b></td>
+<td>Cụm 0 gấp ~66 lần Cụm 1; dòng tiền tập trung cao độ</td>
+</tr>
+<tr>
+<td><b>Hệ số Beta (<code>beta_126</code>)</b></td>
+<td>0.37</td>
+<td><b>1.2579</b></td>
+<td><b>0.3493</b></td>
+<td>Cụm 0 rất nhạy sóng VN-Index; nhóm dẫn dắt thị trường</td>
+</tr>
+<tr>
+<td><b>Động lượng 1 tháng (<code>mom_21</code>)</b></td>
+<td>+1.91%</td>
+<td><b>+2.57%</b></td>
+<td><b>+1.90%</b></td>
+<td>Cụm 0 có đà tăng ngắn hạn tích cực</td>
+</tr>
+<tr>
+<td><b>Động lượng 3 tháng (<code>mom_63</code>)</b></td>
+<td>+6.03%</td>
+<td><b>+10.76%</b></td>
+<td><b>+5.93%</b></td>
+<td>Cụm 0 tăng gấp gần 2 lần thị trường đại trà</td>
+</tr>
+<tr>
+<td><b>Động lượng 6 tháng (<code>mom_126</code>)</b></td>
+<td>+12.13%</td>
+<td><b>+21.48%</b></td>
+<td><b>+11.94%</b></td>
+<td>Cụm 0 duy trì hiệu suất nửa năm áp đảo</td>
+</tr>
+<tr>
+<td><b>Động lượng 12 tháng (<code>mom_252</code>)</b></td>
+<td>+23.87%</td>
+<td><b>+39.17%</b></td>
+<td><b>+23.56%</b></td>
+<td>Tăng trưởng 1 năm của Cụm 0 vượt trội rõ nét</td>
+</tr>
+<tr>
+<td><b>Biến động 3 tháng (<code>vol_63</code>)</b></td>
+<td>52.90%</td>
+<td><b>39.02%</b></td>
+<td><b>53.18%</b></td>
+<td>Cụm 0 có độ biến động giá thấp và ổn định hơn hẳn</td>
+</tr>
+<tr>
+<td><b>Sụt giảm cực đại (<code>mdd_126</code>)</b></td>
+<td>-27.18%</td>
+<td><b>-25.23%</b></td>
+<td><b>-27.22%</b></td>
+<td>Mức rút vốn tối đa của Cụm 0 được kiểm soát tốt hơn</td>
+</tr>
+</tbody></table>
+<h3>Nhận định về sự cải thiện sau khi vá dữ liệu:</h3>
+<p style='margin-left: 20px;'>1. <b>Khắc phục tình trạng khuyết sàn HOSE giai đoạn 2021:</b></p>
+<li>Số snapshot có cụm dưới 5 mã đã giảm mạnh từ <b>11 snapshot</b> xuống chỉ còn <b>đúng 2 snapshot</b> (<code>2021-05-31</code> có 4 mã gồm <code>CTG, HPG, STB, VPB</code> và <code>2021-10-29</code> có 2 mã gồm <code>HPG, TCB</code>).</li>
+<li>Cụm thiểu số giờ đây bao gồm đầy đủ các cổ phiếu Bluechips / VN30 đích thực (Hòa Phát, Techcombank, Vietinbank, Sacombank...), phản ánh chính xác dòng tiền thực của thị trường Việt Nam.</li>
+<p style='margin-left: 20px;'>2. <b>Đặc trưng ổn định và bền vững hơn:</b></p>
+<li>Thanh khoản trung bình cụm dẫn dắt tăng từ 250 tỷ lên <b>348.56 tỷ VND/phiên</b>.</li>
+<li>Biến động rủi ro giảm xuống <b>39.02%</b> (thấp hơn nhiều so với Cụm 1 là 53.18%), phản ánh đúng tính chất phòng thủ và ổn định của nhóm vốn hóa lớn.</li>
+<hr>
+<h2>5. Kết luận và Danh mục Artifacts bàn giao</h2>
+<p>Dữ liệu mới đã nâng cao chất lượng thực nghiệm của Nhiệm vụ 4 lên một tầm cao mới: quy mô mẫu lớn hơn (+52%), các chỉ số chất lượng cụm tăng lên (Median Silhouette = 0.9408, Calinski-Harabasz = 1586.37) và hiện tượng cụm suy biến được giải tỏa gần như hoàn toàn.</p>
+<h3>Danh mục sản phẩm bàn giao:</h3>
+<p style='margin-left: 20px;'>1. <b>60 file Model JSON:</b> Lưu tại <code>M2/models/kmeans/</code> (<code>2019-01-31.json</code> đến <code>2023-12-29.json</code>).</p>
+<p style='margin-left: 20px;'>2. <b>Bộ Artifacts chuẩn hóa:</b> Lưu tại <code>M2/artifacts/m2-task4-kmeans-baseline-v1/</code>:</p>
+<li><code>assignments.jsonl</code> & <code>assignments.csv</code>: 45,646 bản ghi gán cụm qua 60 tháng.</li>
+<li><code>profiles.jsonl</code> & <code>cluster_profiles.csv</code>: 120 bản ghi tâm cụm unscaled và thông số hồ sơ kinh tế.</li>
+<li><code>diagnostics.jsonl</code>, <code>diagnostics.csv</code> & <code>metrics.csv</code>: 60 dòng chẩn đoán chất lượng cụm K=2 sẵn sàng cho Nhiệm vụ 7 và Nhiệm vụ 10.</li>
+<li><code>validation.csv</code>: Bảng kiểm định 60 snapshot hợp lệ.</li>
+<li><code>manifest.json</code>: Checksum xác thực toàn vẹn metadata (<code>total_snapshots: 60</code>, <code>global_k: 2</code>, <code>total_assignments: 45646</code>).</li>
+</div></body></html>

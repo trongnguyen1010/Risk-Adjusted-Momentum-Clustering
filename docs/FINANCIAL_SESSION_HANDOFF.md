@@ -1,5 +1,28 @@
 # Bàn giao session — financial baseline Execution56
 
+## Integration market–financial — 23/10/2026
+
+Financial Execution56 checkpoint `819cd82` đã merge cùng market `340519d` trên
+`integration/market-financial`. C8 V2 giữ19/19hashes; current market verifier kiểm84models,
+75.801assignments, nearest centroid và eligibility, tạo reference handoff có version.
+Financial vẫn11.720annualrows/1.172symbols; model không refit.
+
+Shared KMeans/preprocessing hiện kế thừa market. Hai file source đã pin của Execution56
+được lưu exact bytes tại `M2/artifacts/financial-execution56-frozen-source-v1/`;
+historical review dùng explicit source overlay và output mới, không sửa frozen input hashes.
+
+```powershell
+python scripts/import_market_bundle.py 'C:/Users/ASUS/Downloads/DELTA_02_ACTIVE_M2_M3.zip'
+python scripts/verify_market_financial_integration.py --publish
+python scripts/financial_full10_review.py --source-root M2/artifacts/financial-execution56-frozen-source-v1 --output M2/artifacts/financial-execution56-integration-review-v1
+```
+
+Tại cuối2025 có1.148financialsymbols đồng thời market-ready; giao theo snapshot thay đổi.
+Chưa có availability-aware historical join hoặc model kết hợp. Quality REVIEW_REQUIRED,
+strict PIT/research/M3 vẫn false. Tests/gates integration được ghi ở Current status.
+
+## Nội dung từ checkpoint trước integration
+
 Ngày bàn giao: **23/10/2026**. Workspace: `C:\Projects\Intern\SourceCode-CafeF`.
 Đây là bản bàn giao theo yêu cầu owner để chuyển session, không phải protocol mới
 hoặc giấy phép tự đổi phương pháp phân cụm.
@@ -203,3 +226,24 @@ Các ràng buộc còn hiệu lực:
 > trước khi tôi duyệt protocol; chưa tải PDF/OCR nếu chưa hỏi tôi. Giữ các thay
 > đổi Execution56 chưa commit, không reset working tree. Không gọi core ratios
 > là bộ EPS/P/E/P/B/F/M/Z hoàn chỉnh hoặc kết quả PIT/M3 cuối cùng.
+
+
+### Chốt integration — 24/10/2026
+
+Đã xử lý toàn bộ merge conflicts; imported data giữ local theo ignore policy.
+Financial checkpoint `819cd82`, market parent `340519d`; active branch `integration/market-financial`.
+PowerShell wrapper `scripts/market_financial_integration.ps1 -Mode Verify` đã PASS:
+market19C8outputs/68holdoutoutputs/84models/75.801assignments; financial1.786pins/11.720rows.
+Targeted76tests OK (4optionalStreamlit skips), PCA6tests PASS, importer/immutability5tests PASS
+(suite5 gồm4tests đã có trong targeted76 và1test bổ sung, không cộng trùng).
+Compile, synthetic smoke và webJS syntax PASS; importer replay20files PASS.
+
+Full repository gate vẫn PARTIAL: sandbox timeout240,2giây; ngoài sandbox timeout360,1giây,
+ít nhất250testlines kết thúcok, chưa cóFAIL/ERRORtrước timeout; cuối log ở
+`unit.experiments.test_financial_crawl_trial.TrialTests.test_invalid_payload_stops_next_wave_with_all_symbol_gap_rows`.
+Không khẳng định suite treo hoặc xác định nguyên nhân từ việc timeout; không bỏ assertions.
+Logs `.tmp/integration-full-suite*.log`, summaries `.tmp/integration-full-suite*.json`.
+
+Không fit lại model thực, không acquisition/PDF/OCR mới, không backtest; PIT/research/M3
+vẫn false, chất lượng cụm REVIEW_REQUIRED. Commit tích hợp chỉ local; chưa push remote.
+

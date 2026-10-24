@@ -1,5 +1,6 @@
 """Immutable experiment input verification, manifests and source snapshots."""
 import importlib.metadata
+import json
 from pathlib import Path
 import platform
 import subprocess
@@ -20,6 +21,59 @@ REQUIRED_DATA_ARTIFACTS = {
     "clean/trading_calendar.jsonl",
     "clean/benchmark_daily.jsonl",
 }
+
+C8_MARKET_ONLY_FEATURES = "canonical/feature_snapshots.jsonl"
+C8_MARKET_ONLY_EXECUTION_VERSION = "c8-complete-only-v1"
+
+
+def load_verified_market_only_features(
+        data_run: Path, snapshot_dates: set[str] | tuple[str, ...] | list[str]) -> tuple[dict, list[dict]]:
+    """Load selected C8 feature snapshots without applying the strict M3 identity gate.
+
+    The C8 artifact uses a different immutable layout from legacy data runs.  Its own
+    manifest checksum is verified before any rows are returned.  This adapter is
+    deliberately limited to feature snapshots and does not claim historical identity,
+    point-in-time financial readiness, or strict-research readiness.
+    """
+    data_run = Path(data_run).resolve()
+    manifest_path = contained_file(data_run, "manifest.json")
+    source = read_json(manifest_path)
+    allowed_versions = {C8_MARKET_ONLY_EXECUTION_VERSION, "c8-complete-only-v2", "cafef_c8_complete_only_v2"}
+    allowed_artifacts = {"cafef-c8-complete-only-v1", "cafef-c8-complete-only-v2"}
+    if (source.get("execution_version") not in allowed_versions
+            or source.get("artifact_id") not in allowed_artifacts):
+        raise ValueError("verified C8 complete-only artifact required for M2 market-only")
+    expected = source.get("outputs", {}).get(C8_MARKET_ONLY_FEATURES)
+    if not isinstance(expected, str):
+        raise ValueError("C8 manifest missing feature snapshot checksum")
+    feature_path = contained_file(data_run, C8_MARKET_ONLY_FEATURES)
+    if digest(feature_path.read_bytes()) != expected:
+        raise ValueError("data artifact checksum mismatch: " + C8_MARKET_ONLY_FEATURES)
+
+    wanted = set(snapshot_dates)
+    rows = []
+    with feature_path.open(encoding="utf-8") as stream:
+        for line in stream:
+            if line.strip():
+                row = json.loads(line)
+                if row.get("as_of_date") in wanted:
+                    rows.append(row)
+    validate_rows("feature_snapshots", rows)
+    found = {row["as_of_date"] for row in rows}
+    if found != wanted:
+        raise ValueError("C8 feature snapshot(s) missing: " + ", ".join(sorted(wanted - found)))
+    versions = {row["data_version"] for row in rows}
+    if len(versions) != 1:
+        raise ValueError("C8 market-only input must have one data version")
+    normalized_source = dict(
+        source,
+        run_id=source["artifact_id"],
+        data_version=next(iter(versions)),
+        synthetic=False,
+        market_only=True,
+        historical_identity_verified=False,
+    )
+    return normalized_source, rows
 
 
 def load_verified_data_run(data_run: Path, config: dict) -> tuple[dict, dict[str, list[dict]]]:
@@ -53,8 +107,30 @@ def load_verified_data_run(data_run: Path, config: dict) -> tuple[dict, dict[str
 
 
 def start_experiment(root: Path, data_run: Path, source: dict, config: dict) -> tuple[Path, dict]:
-    run_id = new_artifact_id("experiment")
-    target = Path(root).resolve() / "data/experiments" / run_id
+    run_id = config.get("run_id") or new_artifact_id("experiment")
+    output_dir = config.get("output_dir") or config.get("output_directory")
+    if not output_dir and (
+        config.get("protocol_scope") in ("m2_market_only_v1", "m2_market_only_v2")
+        or str(config.get("stage", "")).startswith("M2_")
+    ):
+        algo = config.get("clustering", {}).get("algorithm") or config.get("clustering", {}).get("baseline")
+        if config.get("stage") == "M2_TASK_11_HOLDOUT" or (
+            config.get("start") == "2026-02-27" and config.get("end") == "2026-08-28"
+        ):
+            output_dir = "M2/artifacts/m2-final-holdout-v1"
+        elif algo == "ward":
+            output_dir = "M2/artifacts/m2-task5-ward-v1"
+        elif algo == "pca_kmeans":
+            output_dir = "M2/artifacts/m2-task6-pca-kmeans-v1"
+        elif algo == "kmeans":
+            output_dir = "M2/artifacts/m2-task4-kmeans-baseline-v1"
+
+    if output_dir:
+        custom = Path(output_dir)
+        target = custom if custom.is_absolute() else Path(root).resolve() / custom
+    else:
+        target = Path(root).resolve() / "data/experiments" / run_id
+    # A frozen run, including a notebook-repaired v2, must never be overwritten.
     target.mkdir(parents=True, exist_ok=False)
     package = Path(__file__).parents[1]
     with zipfile.ZipFile(target / "source_snapshot.zip", "w", zipfile.ZIP_DEFLATED) as archive:
