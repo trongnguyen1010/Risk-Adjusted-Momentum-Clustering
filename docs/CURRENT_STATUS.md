@@ -1316,3 +1316,13 @@ review một verified subset được freeze rõ.
 kết quả K-Means chính thức với Global K = 2 trên 15 development snapshots, chuẩn bị cho
 Nhiệm vụ 5 (Ward) và Nhiệm vụ 6 (PCA + K-Means). Không mở holdout và không backtest.
 
+
+
+### Portable financial replay — 24/10/2026
+
+Kiểm thử Git export phát hiện nhiều financial source pins cũ còn phụ thuộc LF/CRLF.
+Đã thêm frozen-source-v2 giữ exact bytes toàn bộ16trackedsource/config/scriptpins từ
+checkpoint819cd82, không bỏ bất kỳ hashcheck nào. Overlay chỉ áp src/scripts/configs;
+raw/data pins vẫn kiểm tại path gốc. Review outputv2 giữ bảnv1 nguyên vẹn; explicitLF
+cho reviewscript giữ checksum ổn định khi checkout. Đây là packaging/provenancefix,
+không thay phép tính, sourcefacts hoặc model. Lệnh Verify hiện dùng overlay/reviewv2.

@@ -23,7 +23,7 @@ try {
     } else {
         & $Python scripts/verify_market_financial_integration.py --publish
         if ($LASTEXITCODE -ne 0) { throw 'Market integration verification failed' }
-        & $Python scripts/financial_full10_review.py --source-root M2/artifacts/financial-execution56-frozen-source-v1 --output M2/artifacts/financial-execution56-integration-review-v1
+        & $Python scripts/financial_full10_review.py --source-root M2/artifacts/financial-execution56-frozen-source-v2 --output M2/artifacts/financial-execution56-integration-review-v2
         if ($LASTEXITCODE -ne 0) { throw 'Financial verification failed' }
     }
 } finally {

@@ -8,13 +8,13 @@ Financial Execution56 checkpoint `819cd82` đã merge cùng market `340519d` tr�
 Financial vẫn11.720annualrows/1.172symbols; model không refit.
 
 Shared KMeans/preprocessing hiện kế thừa market. Hai file source đã pin của Execution56
-được lưu exact bytes tại `M2/artifacts/financial-execution56-frozen-source-v1/`;
+được lưu exact bytes tại `M2/artifacts/financial-execution56-frozen-source-v2/`;
 historical review dùng explicit source overlay và output mới, không sửa frozen input hashes.
 
 ```powershell
 python scripts/import_market_bundle.py 'C:/Users/ASUS/Downloads/DELTA_02_ACTIVE_M2_M3.zip'
 python scripts/verify_market_financial_integration.py --publish
-python scripts/financial_full10_review.py --source-root M2/artifacts/financial-execution56-frozen-source-v1 --output M2/artifacts/financial-execution56-integration-review-v1
+python scripts/financial_full10_review.py --source-root M2/artifacts/financial-execution56-frozen-source-v2 --output M2/artifacts/financial-execution56-integration-review-v2
 ```
 
 Tại cuối2025 có1.148financialsymbols đồng thời market-ready; giao theo snapshot thay đổi.
