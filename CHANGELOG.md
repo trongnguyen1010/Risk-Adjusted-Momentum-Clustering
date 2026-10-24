@@ -1,5 +1,28 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Integration market–financial — 23/10/2026
+
+Financial Execution56 checkpoint `819cd82` đã merge cùng market `340519d` trên
+`integration/market-financial`. C8 V2 giữ19/19hashes; current market verifier kiểm84models,
+75.801assignments, nearest centroid và eligibility, tạo reference handoff có version.
+Financial vẫn11.720annualrows/1.172symbols; model không refit.
+
+Shared KMeans/preprocessing hiện kế thừa market. Hai file source đã pin của Execution56
+được lưu exact bytes tại `M2/artifacts/financial-execution56-frozen-source-v1/`;
+historical review dùng explicit source overlay và output mới, không sửa frozen input hashes.
+
+```powershell
+python scripts/import_market_bundle.py 'C:/Users/ASUS/Downloads/DELTA_02_ACTIVE_M2_M3.zip'
+python scripts/verify_market_financial_integration.py --publish
+python scripts/financial_full10_review.py --source-root M2/artifacts/financial-execution56-frozen-source-v1 --output M2/artifacts/financial-execution56-integration-review-v1
+```
+
+Tại cuối2025 có1.148financialsymbols đồng thời market-ready; giao theo snapshot thay đổi.
+Chưa có availability-aware historical join hoặc model kết hợp. Quality REVIEW_REQUIRED,
+strict PIT/research/M3 vẫn false. Tests/gates integration được ghi ở Current status.
+
+## Nội dung từ checkpoint trước integration
+
 Execution56: push checkpoint f1a5ba7 trước chạy; thêm offline driver/config trên handoff
 1.172 candidates/11.720 annual rows. Tính lại 70.320 core ratios từ selected CafeF,
 DStock, reviewed PDF/HTML inputs, giữ direct-CFO evidence và source partitions.
@@ -553,8 +576,227 @@ Giữ single network worker, original deadline và toàn bộ source latches. T�
 - Giữ financial `PIT_UNRESOLVED`, không thay canonical schema hoặc bật financial features/calculators.
 - Thêm regression tests cho null/zero, annual quarter zero, identity, missing LCTT, duplicate pagination, access stop, caps và raw tampering.
 
+# Chưa phát hành — Chia sẻ dashboard qua Git, dữ liệu gửi riêng (2026-10-23)
+
+- Thêm hướng dẫn cài extra dashboard, đặt ba file C8 đúng đường dẫn và verify offline.
+- Giữ nguyên bytes bộ handoff bằng `.gitattributes -text` để bảo toàn checksum.
+- Pin pandas 2.3.3 trong extra dashboard cho API Styler đang dùng; không đổi model/data.
+
+# Chưa phát hành — Trục cố định liquidity/beta và overview-only (2026-10-23)
+
+- X=liquidity_21 symlog, Y=beta_126 linear cố định toàn dashboard; giữ raw values,
+  zero/outliers, nhãn X theo tỷ VND và tooltip VND gốc.
+- Thêm viền/focus ring cho ô tìm kiếm; bỏ Stock Detail và bộ chọn chế độ xem.
+- Migrate assertions về ticker/source/missing sang member table; giữ query
+  offline và mở rộng kiểm tra trục cố định/zero/missing của hai tọa độ mới.
+
+# Chưa phát hành — Thiết kế lại Market dashboard theo ảnh owner (2026-10-23)
+
+- Bộ lọc trái, thẻ tổng quan, scatter mom_252/mom_63, profile và members panels;
+  toàn bộ số liệu lấy đúng snapshot, giữ raw outliers và hai nhóm M2 hiện hành.
+- Tên nhóm theo liquidity profile: Dẫn đầu thanh khoản / Đại trà, có fallback
+  trung tính; không sửa scientific labels hoặc thêm ranking.
+- Members có company names từ C8 securities checksummed, đủ 8 ticker features,
+  search và pagination 10/25/50/100 rows; giữ Stock Detail/provenance/missing states.
+- Thêm native light theme, không thêm dependency; migrate assertions cũ và mở
+  rộng targeted tests lên 21.
+
+# Chưa phát hành — M3-B Market-only Streamlit (2026-10-23)
+
+- Thêm entry point duy nhất `m3_dashboard.py`: Overview, members và Stock Detail;
+  selector chỉ gồm 84 snapshot từ handoff hiện hành, không dùng bộ legacy 2026.
+- Kiểm chứng handoff hashes, C8/development/holdout lineage, schema, exact unique
+  join và profile size/ratio. Missing giữ trạng thái rõ ràng, không zero-fill.
+- Ticker features lấy trực tiếp JSONL; cluster profiles lấy CSV riêng. Không gọi
+  model hoặc tính lại features/clustering, không Financial/ranking/backtest.
+- Thêm extra `dashboard` pin Streamlit 1.66.1 và 18 targeted tests, bao gồm UI
+  AppTest/dữ liệu thật/cache/missing states; hướng dẫn Windows ở CURRENT_STATUS.
+- Giữ nguyên toàn bộ official artifacts và local changes có trước stage này.
+
+# Chưa phát hành — Kết quả mới và báo cáo đầy đủ Nhiệm vụ 11 (2026-10-22)
+
+- Ghi nhận lần chạy thật complete: 24 tháng 2024–2025, 30.155 assignments,
+  24 model, 23 cặp thời gian; KMeans Baseline/sklearn/K=2 trên nguồn C8 ab1a34a8….
+- Viết lại báo cáo đúng tên chuẩn theo mẫu A/B/C cũ, cập nhật toàn bộ bảng và
+  diễn giải bằng kết quả mới: Silhouette median 0,949324, delta +0,008487,
+  ARI median 0,843260; giữ cảnh báo Balance/thanh khoản và giới hạn đầu tư.
+- Lưu bản xuất tự động gốc trong artifact, cập nhật report checksum/revision;
+  không refit hoặc sửa model, numerical artifacts, input, code và thời điểm chạy.
+- Cập nhật CURRENT STATUS/START HERE; Nhiệm vụ 12 và M3 thực hiện riêng.
+
+# Chưa phát hành — Chuẩn bị nhiệm vụ 11 trên dữ liệu mới (2026-10-22)
+
+- Tạo notebook/config/runner Task 11 tên chuẩn, chỉ KMeans Baseline/sklearn/K=2,
+  24 tháng 2024–2025; không nạp model hoặc kết quả holdout đã xóa trước đó.
+- Khóa chín development inputs hiện hành và kiểm chứng 60 model trước khi mở
+  holdout; giữ nguyên tham số, boundary, universe và pipeline đã freeze.
+- Synthetic tests kiểm tra gate, future availability, skip/gap reset, one-use
+  rerun và tamper detection. Chưa fit hoặc xuất kết quả holdout thật.
+- Cập nhật kế hoạch/START HERE và giữ generator Task 13 lịch sử chặn rõ ràng
+  để không trộn gói 22 snapshot cũ với workflow 60+24 hiện tại.
+
+# Chưa phát hành — Tên chuẩn PCA và xóa Task 11 (2026-10-22)
+
+- Đổi tên toàn bộ notebook/config/artifacts/báo cáo PCA nhiệm vụ 6–9 không thêm
+  hậu tố phiên bản; cập nhật kế hoạch, notebook 10 và các bài kiểm chứng artifacts.
+- Đồng bộ checksum đường dẫn/config/freeze/model metadata; sửa checksum báo cáo
+  7–9, ghi provenance đổi tên, giữ nguyên số liệu và không huấn luyện lại.
+- Theo yêu cầu mới nhất, xóa hết Task 11 thay vì thay thế bản cũ: notebook,
+  config, runner/helpers, tests riêng, models, artifacts và báo cáo các phiên bản.
+- Audit 12 và generator 13 dừng trước khi ghi output nếu thiếu Task 11; giữ
+  dữ liệu C8 và kết quả riêng của các phương án khác.
+
+# Chưa phát hành — Kết quả và báo cáo Nhiệm vụ 11 V2 (2026-10-22)
+
+- Holdout đã hoàn tất: 24 snapshot 2024–2025, 28.110 assignments, 24 model,
+  23 cặp tháng; chỉ sklearn KMeans/K=2, không skip hoặc chạy comparator.
+- Mở rộng báo cáo Nhiệm vụ 11 V2 theo mẫu A/B/C: quality/generalization gap,
+  temporal/universe, hồ sơ mean/median, biểu đồ 84 mốc và giới hạn diễn giải.
+- Giữ bản xuất tự động gốc trong artifact; làm mới checksum báo cáo và ghi
+  nhận revision. Model/numerical outputs/input/code giữ nguyên, không refit.
+
+# Chưa phát hành — Chuẩn bị Nhiệm vụ 11 V2 (2026-10-22)
+
+- Thêm notebook/config/runner V2 cho 24 snapshot holdout 2024–2025, giữ duy nhất
+  sklearn KMeans/K=2 đã freeze, Robust Scaling riêng tháng, ngưỡng eligibility 100.
+- Gate pin development inputs và kiểm chứng 60 selected models trước đọc holdout;
+  khôi phục đúng byte LF theo hash cũ và Git attributes để tránh lỗi checkout Windows.
+- Xuất V2 riêng, bảy bước, gap/profile diagnostics, biểu đồ 84 mốc, source snapshot;
+  rerun verify-only, từ chối run dở/tamper/code/input thay đổi. Giữ runner V1 lịch sử.
+- Chỉ preflight và test dữ liệu giả trong lần chuẩn bị; chưa chạy holdout thật.
+
+# Chưa phát hành — Báo cáo PCA V2 đầy đủ và đồng bộ Git (2026-10-22)
+
+- Thay bốn báo cáo chính PCA + K-Means Nhiệm vụ 6–9 bằng bản đầy đủ theo mẫu
+  A/B/C, giữ đường dẫn `_v2.md`; cập nhật trạng thái Task 10 V2 đã freeze.
+- Làm mới checksum báo cáo và tham chiếu manifest phụ thuộc; giữ nguyên model,
+  numerical artifacts, biểu đồ và frozen Task 10 outputs. Bản trước giữ ở Git history.
+- Notebook đánh giá 7–9 tái sử dụng bản đầy đủ sau kiểm chứng checksum để tránh
+  ghi đè bằng bản tóm tắt. Đồng bộ các commit KMeans/Task 10 mới từ nhánh GitHub.
+
+# Chưa phát hành — M2 Task 10 V2: sanity warning và final method selection (2026-10-21)
+
+- Làm rõ chính sách sanity Task 10: cụm dưới 5 mã là cảnh báo bắt buộc; chỉ loại phương án khi cảnh báo riêng biệt hoặc có bằng chứng phân mảnh không thể diễn giải. Khi cả ba phương án cùng có cảnh báo, ghi `WARNING` và tiếp tục so sánh evidence-first.
+- Chạy lại Task 10 trên 60 snapshot V2; PCA + KMeans dẫn Silhouette nhưng KMeans Baseline được freeze theo Occam do chênh lệch dưới 0,03. Decision trace giữ số snapshot/cụm nhỏ và các phương án đối chứng.
+
+# Chưa phát hành — K-Means Nhiệm vụ 4, 7, 8 và 9 trên C8 v2 (2026-10-21)
+
+- Fit lại 60 development snapshot bằng scikit-learn K-Means với Global K=2 đã khóa; giữ nguyên Nhiệm vụ 1–3 và các nhánh Ward/PCA.
+- Đặt output đúng kế hoạch: `M2/artifacts/m2-task4-kmeans-baseline-v1/`, 60 model/scaler ở `M2/models/kmeans/`, notebook và báo cáo Nhiệm vụ 4 đúng tên.
+- Cập nhật K-Means Nhiệm vụ 7: `quality_summary.csv` 5 dòng và 5 biểu đồ từ 60 snapshot; Nhiệm vụ 9: 59 cặp tháng, 236 transitions, 944 drift rows, 2 biểu đồ và báo cáo đúng tên.
+- Nhiệm vụ 8 K-Means hiển thị ba bảng 60 tháng trong notebook, xuất radar, heatmap và báo cáo đúng tên. Đồng bộ hồ sơ cụm, thành viên và scaler reference K-Means 60 tháng cho các bước sau; manifest Task 4 ghi hash nguồn C8. Đưa code thực thi vào notebook và dọn CSV/script/slide phụ ngoài bộ bàn giao. Đã đối chiếu offline schema, checksum, metrics, báo cáo và biểu đồ. Không chạy Nhiệm vụ 10 trở đi trong lần cập nhật này.
+- Chuẩn hóa newline LF của artifact/model K-Means để checksum giữ nguyên sau Git checkout; khai báo `scikit-learn` và `ipywidgets` trong research dependencies cho notebook 4/8.
+
+# Chưa phát hành — PCA + K-Means dữ liệu mới V2 (2026-10-21)
+
+- Đưa lên Git bộ PCA + K-Means Nhiệm vụ 6–9 đã chạy trên 60 tháng development
+  2019–2023, 29.907 assignments, Global K=2 và PCA 2 chiều, kèm notebook, config,
+  60 models, báo cáo, bằng chứng freeze và checksum.
+- Theo yêu cầu owner, loại bốn notebook PCA cũ, config `m2_task6_pca.json`,
+  `m2-task6-pca-kmeans-v1` và `m2-evaluation-pca-kmeans` khỏi active tree.
+  Git history giữ bản cũ; không xóa lịch sử hoặc thay dữ liệu nguồn C8.
+- Chuyển đường dẫn kế hoạch và regression tests sang V2; bảo toàn byte artifact
+  qua Git để checksum không đổi khi checkout trên Windows.
+- Task 10 yêu cầu cùng development dates và nguồn dữ liệu trước khi so sánh;
+  lần chạy mới dùng output V2. Task 10–13 lịch sử không được coi là kết quả V2;
+  audit Task 12 lịch sử dừng rõ ràng nếu bộ PCA cũ không còn trong checkout.
+
+# Chưa phát hành — M2 Task 11 Final Holdout (2026-10-04)
+
+- Thêm freeze-gated offline runner `experiments/final_holdout.py`, config và notebook
+  11 bảy bước; đọc C8 immutable Feature Store 1.6.0, chỉ KMeans winner/K=2 với tham số
+  từ 15 selected models đã verify. Không sửa Task 10, C8 hoặc fit comparator.
+- Thực thi 7 holdout tháng 02–08/2026: 4.624 assignments, 14 profiles, 7 models và
+  6 cặp tháng; xuất quality/gap/temporal/transitions/drift/scalers, chart 22 mốc,
+  source snapshot, checksummed manifest và report. Reset chuỗi tại gap/skip.
+- Rerun verify-only, không refit/retune; fail-closed khi frozen inputs/checksum đổi.
+  Thêm 11 tests với fixtures và kiểm chứng độc lập saved labels/scalers/transitions;
+  targeted tests, compile và synthetic smoke qua. Task 12/backtest chưa thực hiện.
+
+# Chưa phát hành — PCA replacement v2 → v1 theo yêu cầu owner (2026-10-04)
+
+- Thay bộ PCA v1 cũ bằng kết quả sửa v2, dùng `m2-task6-pca-kmeans-v1`,
+  `m2-evaluation-pca-kmeans` và `M2/models/pca_kmeans`; giữ nguyên số liệu/model.
+- Cập nhật notebook 06–09, config, tests, report links và checksum manifest.
+  Notebook 06 tự kiểm chứng bộ hiện hành, không cần artifacts legacy đã loại bỏ.
+- Bỏ report Task 6 tên legacy, giữ report đúng tên trong kế hoạch. Ghi rõ
+  `storage_migration` và lineage gốc; bản sao khôi phục đã kiểm tra checksum
+  nằm ngoài active artifacts. Không chỉnh sửa hoặc chạy nhiệm vụ 10.
+
+# Chưa phát hành — PCA notebook nhiệm vụ 6–9 (2026-10-04)
+
+- Sửa root/import của bốn notebook PCA + K-Means, chạy độc lập từ `M2/notebooks`
+  và lưu output đầy đủ. Giữ fitted models/scaler/K=2/số chiều 4; không refit, đọc holdout
+  hoặc mở nhiệm vụ 10. Bảng development chứng minh fixed count=4 đủ ≥90% ở mọi tháng.
+- Xuất bộ `m2-task6-pca-kmeans-v2`/`m2-evaluation-pca-kmeans-v2` có lineage/checksum;
+  giữ v1 nguyên trạng. Bổ sung PC1–PC4, PCA diagnostics/loadings, profile 13 cột,
+  quality summary 5×7, bảng Mean/Median/đối đầu/chuỗi thời gian và widget snapshot.
+- Sửa transitions dùng aligned IDs xuyên chuỗi và drift có tâm gốc thật hai tháng;
+  thêm kiểm tra chain/schema/counts/checksum. Kết luận và reports lấy số liệu chạy thực tế,
+  tách migration/entry-exit khỏi chi phí/turnover danh mục. Radar giới hạn hiển thị
+  ±3 có đánh dấu ngoài biên; heatmap 2×8 giữ annotation Z thật.
+- Runner đọc PCA n_components từ config; protocol yêu cầu số chiều frozen hợp lệ,
+  từ chối reduction mâu thuẫn. Thêm regression tests cho cấu hình và artifacts;
+  cô lập model output trong test runner để không sửa model thật khi chạy tests.
+- Experiment writer từ chối thư mục output đã tồn tại, bảo vệ bộ v1/v2 khỏi
+  việc chạy runner đè lên evidence đã freeze.
+
+# Chưa phát hành — FIN-PIT-2-R1 OCR remediation (2026-10-01)
+
+- Thêm selective local OCR runner dùng Tesseract `v5.4.0.20240606`, preflight 5 trạng
+  thái, page-level provenance/bounding boxes/confidence, immutable raw-hash checks,
+  numeric ambiguity fail-closed, semantic re-extraction và 15 targeted contract tests.
+- OCR đúng 26 scan/mixed documents và 209 pages; 205 pages đạt quality gate, 4 pages
+  `LOW_CONFIDENCE` không được semantic-promote. Linkage verified tăng 6→27,
+  ambiguous giảm 34→4; 9 scope conflicts mới được giữ nguyên thay vì ép match.
+- Gate `PARTIAL`: quarantine 29→26, semantic-ready reports 3→6, fact candidates
+  220→242 nhưng semantic-ready facts giữ 216; 7 revision groups vẫn `UNKNOWN`, Q2/Q3
+  duration chưa resolve. Preserve 4 `A_EXACT_TIMESTAMP`, 28 `B_OFFICIAL_DATE_D1`,
+  canonical/features bằng 0 và không mở FIN-PIT-3.
+
+# Chưa phát hành — FIN-PIT-2 semantic extraction (2026-10-01)
+
+- Thêm offline FIN-PIT-2 extractor/verifier và 13 contract tests cho document linkage,
+  statement/period/scope/assurance/unit semantics, taxonomy candidates, provenance,
+  revision `UNKNOWN`, R5 timing preservation và no-canonical/no-feature boundary.
+- Sinh artifact `fin-pit-2-semantic-extraction-v1` từ immutable FIN-PIT-1 evidence:
+  32 documents, 40 linkages, 4 primary reports, 220 fact candidates, 29 quarantine,
+  0 conflicts; gate `PARTIAL` vì phần lớn PDF scan không có usable text layer và OCR
+  engine không khả dụng.
+- Preserve 4 `A_EXACT_TIMESTAMP` và 28 report-document candidates dùng
+  `B_OFFICIAL_DATE_D1`; không thay methodology R5, không final-promote taxonomy/revision,
+  không ghi canonical rows và không bật financial features.
+
+# Chưa phát hành — M2 Ward tasks 7–9 aligned with updated plan (2026-10-03)
+
+- Viết lại ba notebook Ward theo hợp đồng M2 mới, mỗi nhiệm vụ nằm trọn trong một
+  file `.ipynb`; không dùng helper `.py`, không fit lại Ward/scaler và không đọc M1
+  hoặc final holdout.
+- Nhiệm vụ 7 chỉ đọc `diagnostics.csv`, lọc 15 dòng Global K=2, xuất duy nhất
+  `quality_summary.csv`, hiển thị hai bảng chuẩn và năm biểu đồ có đường median.
+- Nhiệm vụ 8 chuẩn hóa `m2-evaluation-ward/cluster_profiles.csv` về đúng schema cố
+  định 13 cột của kế hoạch, xuất ba bảng chuẩn, bảng Robust Z, `radar_chart.png` và
+  `heatmap.png`; metadata gốc vẫn được giữ trong artifact Task 5, scaler JSON chỉ
+  dùng để đổi thang, clipping [-3, 3] chỉ dùng khi vẽ và widget state được lưu đồng
+  bộ để notebook render lại không lỗi.
+- Nhiệm vụ 9 đọc trực tiếp ba CSV phẳng trong `m2-evaluation-ward`, xuất bốn bảng
+  chuẩn cùng `temporal_trends.png` và `transition_heatmap.png`; bổ sung reset gap,
+  năm cặp ARI thấp và đối chiếu bối cảnh thị trường có nguồn, không suy diễn nhân quả.
+- Cả ba notebook tự ghi báo cáo Markdown tương ứng; migration được giữ là proxy cho
+  áp lực đổi thành viên, không bị gọi là portfolio turnover có trọng số.
+- Xóa các artifact reporting cũ ngoài hợp đồng, chuẩn hóa tên ba báo cáo với hậu tố
+  `Ward`, chạy sạch 14/14 code cells và lưu output; kiểm tra schema/row count/ảnh và
+  đối chiếu số liệu lõi với artifact Task 5 đều PASS.
+
 # Chưa phát hành — Post-M1 documentation alignment (2026-09-26)
 
+- Hoàn tất M2 Nhiệm vụ 3: chạy 105 lượt K-Means trên 15 development snapshots; phê duyệt chính thức Global K = 2 (ADR-049) với median Silhouette 0.7557 và Davies-Bouldin 0.5219; ghi nhận cấu hình k: 2 và chuyển stage sang M2_TASK_3_GLOBAL_K_FROZEN, sẵn sàng thực thi Nhiệm vụ 4.
+- Hoàn tất M2 Nhiệm vụ 2: thêm C8 market-only checksum adapter, snapshot-local eligibility, fail-closed 8-feature validation, minimum-120 skip và common clustering interface integration; không chạy Global K/holdout/backtest.
+- Thêm 5 nhóm test runner bắt buộc: 142 mã tại `2023-11-30`, terminal-universe guard, 8 finite features, below-minimum skip và `build_snapshot` integration.
+- Hoàn tất M2 Nhiệm vụ 1: tạo `m2_market_only_v1.json` với development/holdout snapshots, minimum eligibility, 8 features, fail-closed missing, no clipping, Robust Scaling per-snapshot, `k=2..8`, Global K selection firewall và comparator-only PCA.
+- Mở rộng protocol validator bằng strict market-only scope trong khi giữ backward compatibility với config mẫu; thêm fail-closed tests cho feature, portfolio firewall, time boundary và preprocessing.
+- Giữ M2-PREP artifact bất biến; verifier có thể đối chiếu input blob tại recorded parent commit khi active source đã tiến hóa.
+- Phục hồi local immutable C5 artifact từ upstream reproducibility package sau khi xác minh manifest hash và 20/20 output hashes; full repository gate đạt 173/173 tests. Recovery WIP untracked được backup ngoài active test discovery, không khôi phục stack superseded.
 - Ghi nhận C8 `EXECUTED_AND_VERIFIED`, R1 `COMPLETE` và M1-REPORT `COMPLETE FOR MARKET-ONLY EXPERIMENT PREPARATION`; giữ strict research gate `NOT READY`.
 - Đồng bộ active docs với CafeF `TradeHistoryNew`, snapshot `2026-08-28`, 952 candidates, 922 feature-complete, 905 market-ready, 47 failures, 148 deferred và identity/research readiness bằng 0.
 - Tách `market_experiment_eligible(t)` theo từng snapshot khỏi legacy `eligibility`, `historical_identity_ready` và `research_ready`; 905 không phải terminal-universe filter.
@@ -774,3 +1016,24 @@ Owner yêu cầu tăng tốc. Thêm successor chuyển batch200 tại zero-attem
 ## 2026-10-21 — Acquisition200 terminal, nối additional100
 
 Chốt additional100:9.266responses/1.007.884cells/0parsererrors. Thêm streaming exact raw→candidate replay và field/coverage quarantine report; semantic accounting/PDF/PIT review tiếp tục deferred. Fresh boundedrunner rate1 giữ code/config cũ; assignmentnew100 không trùng200. Local pipeline chờ gate rồi zero-requestverify/network, không restart hoặc tắt máy.24targeted/compile/synthetic/preflight PASS.
+
+
+### Chốt integration — 24/10/2026
+
+Đã xử lý toàn bộ merge conflicts; imported data giữ local theo ignore policy.
+Financial checkpoint `819cd82`, market parent `340519d`; active branch `integration/market-financial`.
+PowerShell wrapper `scripts/market_financial_integration.ps1 -Mode Verify` đã PASS:
+market19C8outputs/68holdoutoutputs/84models/75.801assignments; financial1.786pins/11.720rows.
+Targeted76tests OK (4optionalStreamlit skips), PCA6tests PASS, importer/immutability5tests PASS
+(suite5 gồm4tests đã có trong targeted76 và1test bổ sung, không cộng trùng).
+Compile, synthetic smoke và webJS syntax PASS; importer replay20files PASS.
+
+Full repository gate vẫn PARTIAL: sandbox timeout240,2giây; ngoài sandbox timeout360,1giây,
+ít nhất250testlines kết thúcok, chưa cóFAIL/ERRORtrước timeout; cuối log ở
+`unit.experiments.test_financial_crawl_trial.TrialTests.test_invalid_payload_stops_next_wave_with_all_symbol_gap_rows`.
+Không khẳng định suite treo hoặc xác định nguyên nhân từ việc timeout; không bỏ assertions.
+Logs `.tmp/integration-full-suite*.log`, summaries `.tmp/integration-full-suite*.json`.
+
+Không fit lại model thực, không acquisition/PDF/OCR mới, không backtest; PIT/research/M3
+vẫn false, chất lượng cụm REVIEW_REQUIRED. Commit tích hợp chỉ local; chưa push remote.
+

@@ -1,4 +1,5 @@
 """Independent arithmetic/scaler/assignment review; never fit a model or fetch data."""
+import argparse
 import csv
 import hashlib
 import io
@@ -22,6 +23,12 @@ def sha(path):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source-root', type=Path, help='verified frozen source overlay for historical code pins')
+    parser.add_argument('--output', help='new repository-relative review output; required with source overlay')
+    args = parser.parse_args()
+    if args.source_root and not args.output:
+        parser.error('--source-root requires a separate --output; preserve original review evidence')
     report = ROOT / 'artifacts/reports/financial-full10-baseline-v1'
     ref = json.loads((report / 'result-ref.json').read_bytes())
     out = inside(ROOT, ref['path'])
@@ -30,8 +37,17 @@ def main():
     for name, expected in manifest.items():
         assert sha(out / name) == expected, name
     pins = json.loads((out / 'input-pins.json').read_bytes())
+    frozen_source = {}
     for name, expected in pins.items():
-        assert sha(inside(ROOT, name)) == expected, name
+        candidate = inside(ROOT, name)
+        if args.source_root and name.startswith('src/'):
+            frozen = inside(inside(ROOT, str(args.source_root)), name)
+            if frozen.is_file():
+                candidate = frozen
+                frozen_source[name] = str(candidate.relative_to(ROOT)).replace('\\', '/')
+        assert sha(candidate) == expected, name
+    if args.output:
+        report = inside(ROOT, args.output)
     rows = list(csv.DictReader(io.StringIO((out / 'features.csv').read_text(encoding='utf-8-sig'))))
     snapshots = json.loads((out / 'snapshots.json').read_bytes())
     protocol = json.loads((out / 'protocol.json').read_bytes())
@@ -90,6 +106,8 @@ def main():
         year_checks=checks, review_script_sha256=sha(Path(__file__)),
         quality_status='REVIEW_REQUIRED_SMALL_CLUSTERS_NOT_RESEARCH_READY', model_refits=0,
         new_network_requests=0, new_pdf_downloads=0)
+    if args.source_root:
+        verification['frozen_source_overlay'] = frozen_source
     put(report / 'verification.json', verification)
     print(json.dumps(verification, ensure_ascii=False, indent=2))
 

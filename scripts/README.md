@@ -1,5 +1,34 @@
 # Lệnh làm việc hiện tại
 
+## Integration market–financial — 23/10/2026
+
+Financial Execution56 checkpoint `819cd82` đã merge cùng market `340519d` trên
+`integration/market-financial`. C8 V2 giữ19/19hashes; current market verifier kiểm84models,
+75.801assignments, nearest centroid và eligibility, tạo reference handoff có version.
+Financial vẫn11.720annualrows/1.172symbols; model không refit.
+
+Shared KMeans/preprocessing hiện kế thừa market. Hai file source đã pin của Execution56
+được lưu exact bytes tại `M2/artifacts/financial-execution56-frozen-source-v1/`;
+historical review dùng explicit source overlay và output mới, không sửa frozen input hashes.
+
+```powershell
+python scripts/import_market_bundle.py 'C:/Users/ASUS/Downloads/DELTA_02_ACTIVE_M2_M3.zip'
+python scripts/verify_market_financial_integration.py --publish
+python scripts/financial_full10_review.py --source-root M2/artifacts/financial-execution56-frozen-source-v1 --output M2/artifacts/financial-execution56-integration-review-v1
+```
+
+Tại cuối2025 có1.148financialsymbols đồng thời market-ready; giao theo snapshot thay đổi.
+Chưa có availability-aware historical join hoặc model kết hợp. Quality REVIEW_REQUIRED,
+strict PIT/research/M3 vẫn false. Tests/gates integration được ghi ở Current status.
+
+Lệnh gọn hiện hành: `scripts/market_financial_integration.ps1 -Mode Verify -Python <python.exe>`.
+`-Mode Test` chạy targeted regression; `-Mode Import -Bundle <zip>` nhập bundle đã pin.
+Runtime local hiện dùng Python ở `C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe`;
+wrapper thêm `.tools/market-runtime` và `.tools/research-runtime` vào PYTHONPATH.
+Máy mới dùng Python3.12 và `requirements-market-integration.lock.txt`; Streamlit thuộc extra dashboard.
+
+## Nội dung từ checkpoint trước integration
+
 Đọc [documentation index](../docs/README.md) trước. Tên có số phiên bản trong
 script/config cũ là lineage cần giữ, không phải lời mời chạy lại campaign.
 

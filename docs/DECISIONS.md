@@ -1,5 +1,17 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-23 — Integration market và financial
+
+Owner yêu cầu hợp nhất sau kiểm tra hai nhánh và ZIP. Financial checkpoint819cd82,
+market340519d, integration branch riêng. Không thay numerical artifacts, scaler, K,
+source acceptance hoặc PIT gates. Giữ exact LF model bytes, manifest assembled CRLF,
+protocol V2 LF theo checksum đã freeze. Verifier mới kiểm60+24current bằng exact hash,
+labels/source eligibility/nearest centroid và tạo reference handoff có version;
+historical V1 scripts giữ nguyên. Ghép ticker chỉ diagnostic, chưa historical identity
+hoặc availability-aware join. Chất lượng cả hai baseline REVIEW_REQUIRED; methodology
+mới vẫn MANUAL_REVIEW_REQUIRED trước execution. Không backtest hoặc fit lại ở stage này.
+
+
 ## 2026-10-23 — Execution56: thực thi baseline trên cohort full10 hiện hành
 
 Owner yêu cầu commit/push trước rồi tính tỷ số và phân cụm. Checkpoint `f1a5ba7`
@@ -300,6 +312,64 @@ Báo cáo lịch sử chỉ có pointer provenance được archive, không sử
 muốn verify/tái hiện các báo cáo đó cần restore trước.
 Cleanup không thay source acceptance, financial methodology hoặc campaign budget.
 
+## ADR — Phân phối dashboard qua Git, C8 gửi riêng (2026-10-23)
+
+Owner gửi dữ liệu riêng; Git giữ code/theme/dependency và lightweight M2
+handoff/manifests. Giữ ignore root `artifacts/`; ba file C8 hiện hành được đặt
+đúng paths trong SOURCES và kiểm tra hash/lineage như trước. Không tái tạo hoặc
+chuyển đổi dữ liệu khi phân phối. `.gitattributes -text` áp dụng toàn bộ handoff
+để bảo toàn immutable bytes khi checkout. Extra dashboard pin pandas 2.3.3
+đang được dùng, tránh nhận bản pandas cũ không có `Styler.map`. Không đổi
+methodology, source manifest, scientific labels hoặc app behavior.
+
+## ADR — Trục cố định liquidity/beta và giao diện overview-only (2026-10-23)
+
+Owner phê duyệt X=liquidity_21, Y=beta_126 theo đặc trưng kinh tế ổn định qua
+84 monthly profiles; không dùng correlation thấp nhất để chọn trục. Chỉ đổi
+encoding visualization: raw ticker features và assignments giữ nguyên. X symlog
+constant 1 tỷ VND cố định, Y linear; nhãn X theo tỷ VND, tooltip VND. Zero và
+outliers giữ nguyên; không fit scaler/projection hoặc sửa source artifacts.
+
+Theo yêu cầu mới, bỏ Stock Detail UI và view selector; member table là nơi đọc
+ticker features. Giữ helper offline và migrate assertions numeric/missing sang
+bảng members, không giảm coverage để làm thay đổi giao diện pass.
+
+## ADR — Display names và giao diện Market theo ảnh owner (2026-10-23)
+
+Chỉ đổi presentation M3-B, không đổi methodology/labels. Dùng raw ticker
+mom_252/mom_63 cho scatter, không fit projection hoặc xóa outliers để giống ảnh.
+Tên Dẫn đầu thanh khoản dựa vào liquidity_21 profile cao hơn tại snapshot; Đại
+trà chỉ dùng cho nhóm còn lại có size lớn hơn. Thiếu/tie liquidity dùng tên trung
+tính; nguồn label giữ nguyên trong provenance. Không suy alpha/return hoặc ranking.
+
+Tên công ty là metadata tham chiếu từ C8 securities.jsonl, checksum verified và
+join unique security_id; không phải historical identity/PIT claim. Native light
+theme cấu hình trong .streamlit/config.toml; vẫn một file Python implementation.
+Search/pagination chỉ lọc view của nhóm hiện hành, không chọn portfolio/universe.
+
+## ADR — M3-B Market-only Streamlit (2026-10-23)
+
+Owner yêu cầu visualization layer chỉ đọc bộ handoff hiện hành 84 snapshot
+2019–2025 trên source C8 2016–2025. Manifest handoff version 2.0.0 vẫn nằm ở
+`m2-final-handoff-v1`; không dùng bộ legacy năm 2026. Entry point duy nhất là
+`m3_dashboard.py` tại repository root theo yêu cầu explicit của owner.
+
+Selector dùng chính xác `coverage.rebalance_dates`. Labels join ticker features
+bằng `(snapshot_date = as_of_date, security_id)` sau khi chứng minh uniqueness và
+ticker consistency. Cluster profiles là source riêng, không dùng thay features
+từng cổ phiếu. Sáu `MEDIAN_*` rows chỉ là summary, không phải snapshot.
+
+Runtime fail-closed với checksum/schema/date/duplicate/ticker mismatch; missing
+feature row/value được giữ thành trạng thái rõ ràng, không zero-fill hoặc chọn
+row đầu. CSV hashes lấy từ handoff; feature hash/C8 manifest phải khớp lineage
+development và holdout hiện hành. Không sửa manifests nguồn để thêm provenance.
+Cache in-memory invalidate theo fingerprints; có nút clear, loader tests uncached.
+
+Dashboard không load model, gọi fit/predict, recompute features, thay Global K,
+ranking, portfolio hoặc backtest. Financial UI/loading không thuộc stage này.
+Dependency extra `dashboard` pin Streamlit 1.66.1, không dựng API/frontend riêng.
+Audit dữ liệu này không thay thế M2 methodology audit hoặc nâng `research_ready`.
+
 Cập nhật 26/09/2026. Git history giữ thảo luận cũ; file này chỉ chứa quyết định đang ràng buộc implementation. Khi quyết định mới thu hẹp quyết định cũ, ID mới có ưu tiên cho active stage; historical rationale vẫn được giữ nguyên.
 
 | ID | Quyết định |
@@ -309,6 +379,8 @@ Cập nhật 26/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-003 | Raw/canonical/model artifact bất biến; missing giữ null/unavailable. |
 | ADR-004 | Monthly snapshot K-Means + temporal tracking không phải Dynamic Clustering. |
 | ADR-005 | Static K-Means deterministic là baseline; algorithm được chọn qua common registry. |
+| ADR-053 | M2 Nhiệm vụ 4 trên C8 v2 fit lại K-Means bằng scikit-learn với K=2 đã khóa, seed=42, n_init=10, max_iter=300, Robust Scaling riêng từng snapshot. Lựa chọn backend explicit tại notebook; mặc định K-Means stdlib của registry không đổi. Output active dùng đúng `M2/artifacts/m2-task4-kmeans-baseline-v1/` và `M2/models/kmeans/` theo kế hoạch, làm nguồn cho Nhiệm vụ 7–9 K-Means. Không chọn backend bằng metric kết quả. |
+| ADR-054 | **M2 Task 10 V2 sanity-warning policy (2026-10-21):** cụm dưới 5 mã là cảnh báo bắt buộc phải công bố theo phương án/snapshot, không tự động loại toàn bộ mô hình khi hiện tượng cùng xuất hiện ở cả ba phương án. Chỉ loại một phương án nếu cảnh báo riêng biệt hoặc có bằng chứng phân mảnh không thể diễn giải; nếu cùng xuất hiện, Task 10 giữ `WARNING` và tiếp tục thứ tự Silhouette → Davies-Bouldin → temporal stability → Occam. Owner đã phê duyệt cách xử lý này sau khi đối chiếu 60 snapshot V2; không dùng holdout hay chỉ số đầu tư. Ảnh hưởng: kế hoạch M2 §10.3–10.4, notebook Task 10, decision trace và báo cáo Task 10. |
 | ADR-006 | Real clustering cần ba calendar years usable observed history; short history là `REFERENCE_ONLY`. |
 | ADR-007 | Sharpe/ROI bị cấm trong clustering input/quality/selection; Sharpe chỉ thuộc portfolio evaluation. |
 | ADR-008 | CafeF/VietFin/Vnstock là source candidates; không source nào complete trước khi semantics và rights được verify. |
@@ -351,6 +423,13 @@ Cập nhật 26/09/2026. Git history giữ thảo luận cũ; file này chỉ ch
 | ADR-045 | **Monthly readiness diagnosis:** gap VNINDEX `2023-05-15` lan qua `beta_126` gây zero readiness 2023-05..10; 0 canonical equity rows tại open session `2025-02-03` lan qua strict `mom_252` gây zero readiness 2025-02..2026-01. Giữ missing, không impute/timeline-compress. |
 | ADR-046 | **M2-PREP v1 status:** feature set, no-imputation, portfolio firewall và Dynamic `NOT APPROVED` được khóa; development/holdout, coverage/skip rules, `k`, outlier/scaling, PCA components và feature-version resolution cần owner/mentor review. Không tạo final M2 config; status `MANUAL_REVIEW_REQUIRED`. |
 | ADR-047 | **M2 Protocol v1 owner review và stage transition:** owner ngày `2026-09-26` chấp thuận development `2023-11-30..2025-01-24`, sealed holdout `2026-02-27..2026-08-28`, minimum eligible `>=120`, 8 market features, no winsorization/clipping, RobustScaler per snapshot với z-score sensitivity, one global `k` chọn trong `2..8` bằng median Silhouette rồi median Davies–Bouldin tie-break, PCA comparator với cumulative explained variance `>=90%`, C8 feature snapshot `1.6.0` active và registry `1.5.0` legacy-compatible. Dynamic vẫn `NOT APPROVED`, portfolio OFF. Quyết định này giải quyết owner-review gate của ADR-046 và mở M2-R1 để materialize contract; không sửa historical M2-PREP artifact, không tự tạo config, không chạy clustering/holdout và không cho phép M2-R2 trước khi M2-R1 PASS. |
+
+| ADR-047 | **M2 Task 1 protocol freeze:** owner phê duyệt 15 development snapshots `2023-11-30..2025-01-24`, niêm phong 7 holdout snapshots `2026-02-27..2026-08-28`, skip khi `n_eligible < 120`, đúng 8 market features, no-imputation/no-clipping, Robust Scaling fit riêng từng snapshot và `k=2..8`. Global K chỉ chọn trên development bằng median Silhouette rồi median Davies–Bouldin; CH/balance chỉ supporting checks, return/Sharpe/ROI bị cấm. PCA chỉ là comparator `PCA + K-Means`; `portfolio_evaluation.enabled=false`. C8 feature `1.6.0` dùng scoped compatibility với registry metadata `1.5.0`, không mutate evidence. Config: `configs/experiments/m2_market_only_v1.json`. |
+| ADR-048 | **M2 Task 2 runner adapter:** market-only runner được phép đọc duy nhất checksummed C8 `canonical/feature_snapshots.jsonl` mà không áp strict historical-identity gate của M3. Vì C8 v2 lưu field vật lý `market_feature_ready`, adapter tạo alias in-memory `market_feature_ready_v2` theo frozen config; không mutate evidence, không fallback sang legacy `eligibility`. Lọc theo từng snapshot, 8 feature phải numeric finite, `n_eligible < 120` thì skip. Nhiệm vụ 2 chỉ preparation/testing, không fit Global K, mở holdout hay backtest. |
+| ADR-049 | **M2 Task 3 Global K approval:** Phê duyệt Global K = 2 theo kết quả thực nghiệm 15 development snapshots. K = 2 đạt median Silhouette cao nhất (0.7557) và Davies-Bouldin thấp nhất (0.5219). Hiện tượng cụm nhỏ (8-21 mã) siêu thanh khoản được ghi nhận là đặc trưng cấu trúc thực tế của thị trường; K = 2 được cố định làm chuẩn đối chứng đồng nhất cho K-Means baseline, Ward và PCA + K-Means. |
+| ADR-050 | **Sửa notebook PCA nhiệm vụ 6–9 (2026-10-04):** theo yêu cầu người dùng, giữ nguyên 4 components/K=2/scaler/model đã fit và kiểm chứng 4 là số chiều cố định nhỏ nhất để mọi development snapshot đạt ≥90% phương sai. Đây là kiểm chứng sau run, không tuyên bố v1 đã preregister đúng. Runner phải đọc số chiều explicit, protocol từ chối số chiều thiếu/sai hoặc reduction mâu thuẫn. Bộ sửa lỗi ban đầu dùng `m2-task6-pca-kmeans-v2`, `m2-evaluation-pca-kmeans-v2` và `M2/models/pca_kmeans/v2`; tại thời điểm sửa giữ v1 nguyên trạng. Xuất scores PC1–PC4, profile 13 cột, quality summary 5×7, transitions/drift cùng nhãn aligned; không đọc holdout, không backtest hoặc thực hiện nhiệm vụ 10. Đường dẫn hiện hành được thay theo ADR-051. |
+| ADR-051 | **Owner-requested PCA storage replacement (2026-10-04):** người dùng yêu cầu xóa bộ PCA + K-Means v1 cũ và đưa kết quả sửa v2 về v1. Đây là ngoại lệ có chỉ dẫn rõ với quy tắc immutable storage, chỉ đổi vị trí lưu/metadata và giữ nguyên model/số liệu/methodology. Nguồn active: `m2-task6-pca-kmeans-v1`, `m2-evaluation-pca-kmeans`, `M2/models/pca_kmeans`; loại các output/schema cũ và report Task 6 tên legacy. Giữ lineage gốc và trường `storage_migration` để phân biệt bộ thay thế với v1 lịch sử. Notebook 06 kiểm chứng bộ hiện hành, không phụ thuộc legacy; Task 10 không bị sửa/chạy lại. Bản sao khôi phục được nén và kiểm tra checksum ngoài active tree trước replacement. |
+| ADR-052 | **Nhiệm vụ 11 — mở Final Holdout theo yêu cầu owner (2026-10-04):** Task 10 đã freeze `KMeans_Baseline`, K=2 lúc `2026-10-04T08:01:06+00:00`. Kiểm tra hash 15 selected models/cấu hình và input Task 10 trước khi đọc đúng 7 snapshot holdout từ C8 Feature Store 1.6.0 active, không tạo lại `data/canonical/market/`. Fit K-Means/Robust Scaling độc lập mỗi tháng với seed=42, n_init=10, max_iter=300; runtime `k_range=[2]` để không quét K=2..8. Reset nhãn tại đầu holdout, skip/gap; không nối Development → Holdout. Output `m2-final-holdout-v1`, `M2/models/holdout`, notebook/report Task 11. Lần chạy lại chỉ verify/nạp artifacts complete, không refit; inputs thay đổi sau mở holdout thì fail-closed. Không retune, chạy comparator, Task 12 hoặc backtest. |
 
 ## Open decisions
 
@@ -404,8 +483,8 @@ PIT/taxonomy/formula approval là bước riêng sau khi coverage evidence đủ
 | OPEN-03 | CafeF/VietFin/Vnstock rights, endpoint semantics, field mappings/multipliers và source-priority approval |
 | OPEN-04 | Historical universe/delisted security master authority |
 | OPEN-05 | Financial feature taxonomy, sector treatment và citations |
-| OPEN-06 | Final development/validation/holdout và purging/embargo |
-| OPEN-07 | Comparator set và PCA protocol |
+| OPEN-06 | Purging/embargo cho strict research/M3 nếu protocol tương lai cần |
+| OPEN-07 | V1 thiếu bằng chứng preregistration PCA trước fit. ADR-050 giữ và kiểm chứng fixed count=4 cho bộ notebook sửa lỗi; không khôi phục được bằng chứng preregistration lịch sử và không cấp quyền mở holdout. PCA tiếp tục comparator-only. |
 | OPEN-08 | Final portfolio universe/ranking/tie policy |
 | OPEN-09 | Authority, history coverage và field semantics cho listed/outstanding/issued/treasury shares |
 | OPEN-10 | Approved usable-density và final research sample-size threshold cho clustering universe |
@@ -1182,3 +1261,81 @@ Offline successor resolve cache chỉ nhận exact path/SHA256/URL cùng source 
 ## 2026-10-23 — Reference recovery bốn cached statements (Execution47)
 
 Giữ existing single-document reviewed core-vector policy; không đổi residual caps, API partitions, PIT, canonicalidentity hoặc research eligibility. Tổng400 cófundingsection430 được ghi rõ tạiVEA, không áp mapping mới lên universe. Auditqualifiedwarning giữ vàkhôngcấp production/research clearance. VHCsignedpresentation chuyển expense magnitude theoexisting subtractionformula, giữrawsigns/columnproof; deferredtaxincome lànegativeexpense. Chỉcurrentyear consolidated vectors; khôngtrộnseparate/restatedcomparatives. Draftpreimport alias correction giữV1 vàtạoV2 trướcimport, khôngsửaartifactcũ. OCRbatchcachefour47 kếthừacampaignregistrations/anchors,21pages mới khôngresetquota/deadlines;0PDFdownloads.
+
+## ADR — PCA + K-Means dữ liệu mới V2 và active Git tree (2026-10-21)
+
+Owner yêu cầu thay phần PCA + K-Means cũ trên Git bằng bộ đã chạy lại với data
+mới. Active PCA là 60 snapshot development 2019–2023, Global K=2, PCA 2 chiều
+được freeze từ development, cùng notebook/kết quả Nhiệm vụ 6–9 hậu tố V2.
+Bốn notebook cũ, config m2_task6_pca.json và hai thư mục artifact PCA cũ được
+loại khỏi active tree; Git history giữ nguyên evidence lịch sử, không rewrite.
+
+Task 10 mới phải kiểm tra cùng development dates, feature source và universe
+trước khi so sánh; chỉ ghi output V2. Các quyết định Task 10–13 đã freeze vẫn
+là lịch sử, không tự nâng thành quyết định cho data V2. Audit Task 12 lịch sử
+cần checkout cũ còn đủ evidence. Backend source đã được immutable source/holdout
+manifest tham chiếu được giữ để kiểm chứng lịch sử; config V2 ghi output_dir mới
+tường minh. Kết nối Git không đồng nghĩa thực thi stage mới, mở holdout, đổi
+Global K hay dùng portfolio performance chọn mô hình.
+
+Git phải giữ byte chính xác của artifact V2 và báo cáo được manifest tham chiếu;
+không tự chuyển CRLF/LF làm hỏng checksum. Các phương án KMeans/Ward và dữ liệu
+C8 nguồn nằm ngoài phạm vi thay thế PCA này.
+
+### Cập nhật 2026-10-22 — Thay báo cáo chính theo yêu cầu owner
+
+Bản đầy đủ Nhiệm vụ 6–9 thay nội dung tại đường dẫn báo cáo chính `_v2.md`;
+không duy trì bản trùng `_v2_day_du.md`. Checksum báo cáo và metadata nguồn
+phụ thuộc được làm mới; numerical artifacts/model và quyết định Task 10 không đổi.
+Bản xuất trước nằm trong Git history. Notebook đánh giá 7–9 giữ bản đầy đủ khi
+hash khớp manifest đã lưu; báo cáo thay đổi ngoài manifest vẫn bị từ chối.
+
+### Cập nhật 2026-10-22 — Entry point Nhiệm vụ 11 V2
+
+Áp dụng split 60/24 và ngưỡng 100 đã ghi trong protocol/kế hoạch V2, không dùng
+runner legacy khóa 15/7/ngưỡng 120. Giữ duy nhất KMeans Baseline/sklearn đã được
+Task 10 chọn; kiểm chứng params và byte hash 60 selected models cùng development
+inputs trước khi mở C8. Runtime k_range=[2], Robust Scaling/fit độc lập từng tháng,
+reset chuỗi tại ranh giới Dev/Holdout, skip hoặc tháng không liên tiếp.
+Đầu ra V2 riêng; rerun chỉ verify complete, không xóa evidence/retune sau khi mở.
+Sửa LF chỉ khôi phục đúng byte có hash đã freeze, không thay giá trị hoặc chọn lại
+phương án. Bước chuẩn bị không đọc feature holdout hay sinh kết quả thật.
+
+## ADR — Tên chuẩn PCA 6–9 và xóa toàn bộ Task 11 (2026-10-22)
+
+Owner yêu cầu dùng bộ PCA 6–9 trên Git, đổi tên không có hậu tố phiên bản. Di
+chuyển storage và đổi metadata tham chiếu; giữ số liệu, freeze PCA, Global K và
+model numeric payload. Source snapshots nguyên gốc vẫn được giữ để xác định code
+đã thực thi. Manifest task 6 ghi hash trước di chuyển; checksum phụ thuộc và ba
+báo cáo 7–9 được đồng bộ đúng nội dung hiện có, không tính lại metrics hay model.
+Các assertion kiểm chứng PCA được giữ; số dòng kỳ vọng cập nhật 45.646 theo bộ
+dữ liệu mới đã đối chiếu thay cho 29.907 của dữ liệu trước.
+
+Sau đó owner yêu cầu xóa toàn bộ nhiệm vụ 11, thay cho yêu cầu thay thế/đổi tên
+ban đầu. Vì vậy không giữ bản cũ, bản mới hay helper/workflow riêng của Task 11;
+không backup. Giữ nguyên protocol và ranh giới holdout của nghiên cứu, không mở
+holdout và không thay Task 10. Audit 12/generator 13 phải dừng trước khi ghi file
+khi thiếu dependency đã xóa. Đây là quyết định dọn file của owner, không phải
+thay đổi chính sách chọn mô hình hoặc loại bỏ kết quả vì chất lượng bất lợi.
+
+## ADR — Chuẩn bị Task 11 hiện hành theo yêu cầu owner (2026-10-22)
+
+Owner yêu cầu hướng dẫn chạy nhiệm vụ 11, cho phép tạo lại workflow tên chuẩn
+sau bước xóa các bản trước. Dùng quyết định Task 10 hiện hành và config mới
+pin đúng inputs development đang có; không sửa hash hoặc đánh dấu lại kết quả
+holdout cũ thành run mới. Output target chưa tồn tại. Giữ nguyên 24 tháng holdout,
+threshold 100, KMeans/sklearn/K=2, seed42/n_init10/max_iter300, independent Robust
+Scaling, một chiều/no-retune và không nối transition qua ranh giới Dev/Holdout.
+
+Chỉ chuẩn bị notebook và kiểm chứng development gate, thử bằng fixture giả;
+người dùng chủ động chạy cell Bước 2 để mở holdout và lưu mọi kết quả thực tế.
+Không tự chạy Task 12/M3. Các scripts audit/handoff lịch sử không được dùng
+để xác nhận bộ 60+24 hiện tại mà chưa chuẩn bị workflow tương ứng.
+
+
+### Execution56 frozen source khi integration
+
+Shared KMeans/preprocessing thay do merge; current code không được giả khớp old pins.
+Hai file old source khôi phục exact bytes từ financial checkpoint và so SHA256 với frozen input pins.
+Review nhận explicit source overlay (chỉ src paths), data pins vẫn đọc live evidence đúng hash;
+output successor riêng, không sửa old verification hoặc reuse altered run identity. Không bỏ hash check.

@@ -27,16 +27,21 @@ M2-PREP chỉ định nghĩa contract và không được sinh M2 experiment art
 
 `market_experiment_eligible(t) = market_feature_ready_v2(t)` tại chính snapshot `t` đã được freeze; latest snapshot tái lập 905/952. Required feature set gồm `mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126`, `liquidity_21`. `portfolio_evaluation.enabled=false`, Dynamic Clustering `NOT APPROVED`, DBSCAN không tương thích fixed-k flow hiện tại.
 
-Protocol execution chưa được freeze. Các lựa chọn còn `MANUAL_REVIEW_REQUIRED` gồm:
+## M2 market-only v1 đã freeze trong Nhiệm vụ 1
 
-- development window: `2023-01..2023-04`, contiguous main `2023-11..2025-01`, latest recovery `2026-02..2026-08`, hoặc full post-history range với explicit skipped months;
-- final holdout boundary và one-use access rule;
-- minimum eligible cross-section, consecutive-month và low-coverage thresholds;
-- fixed/development-selected `k` và temporal comparability rule;
-- no clipping so với fixed winsorization/robust transform, default scaler;
-- PCA component count hoặc development-only variance threshold;
-- registry version `1.5.0` so với C8 snapshot version `1.6.0`.
+`configs/experiments/m2_market_only_v1.json` là preregistration contract:
 
-Runner hiện vẫn lọc legacy `eligibility`; loader strict-research yêu cầu verified identity và layout data-run cũ. Vì chưa có owner decisions, M2-PREP không tạo fake config và không sửa rộng strict research path. Chi tiết machine-readable nằm tại `artifacts/experiments/m2-prep-v1/`.
+- development gồm đúng 15 snapshot `2023-11-30..2025-01-24`;
+- final holdout gồm đúng 7 snapshot `2026-02-27..2026-08-28`, bị niêm phong khỏi tuning;
+- snapshot có `n_eligible < 120` bị skip; membership dùng `market_feature_ready_v2` tại chính snapshot;
+- đúng tám feature đã đăng ký; missing fail-closed; không impute, winsorize hoặc clipping;
+- Robust Scaling `(x - median) / IQR` fit riêng từng snapshot; không fit scaler gộp development;
+- thử `k=2..8`; Global K tối ưu median Silhouette, phá hòa bằng median Davies–Bouldin; CH và balance chỉ là supporting checks;
+- return/Sharpe/ROI không được tham gia chọn K/model; `portfolio_evaluation.enabled=false`;
+- PCA chỉ thuộc comparator `PCA + K-Means`, không áp dụng cho baseline K-Means hoặc Ward.
+
+C8 snapshot `1.6.0` là input active; registry `1.5.0` chỉ validate tên/formula/eligibility theo scoped compatibility vì tám formula khớp, không mutate immutable C8. PCA component rule không được suy diễn từ ví dụ; phải preregister trước khi thực thi comparator và không được dùng holdout để chọn.
+
+Runner hiện vẫn lọc legacy `eligibility`; loader strict-research yêu cầu verified identity và layout data-run cũ. Sửa runner/input adapter thuộc Nhiệm vụ 2, không thuộc protocol-freeze này. Chi tiết audit M2-PREP bất biến nằm tại `artifacts/experiments/m2-prep-v1/`.
 
 Reporting chỉ render output; không fit model. Product bundle chỉ consume complete experiment artifact.

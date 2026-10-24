@@ -5,40 +5,51 @@ from .base import build_snapshot, validate_k_config
 from ..evaluation.cluster_metrics import squared_distance
 
 
+import numpy as np
+import scipy.cluster.hierarchy as sch
+
 def fit_ward(vectors: list[list[float]], k: int) -> dict:
     if not 2 <= k < len(vectors) or len({tuple(row) for row in vectors}) < k:
         raise ValueError("insufficient distinct observations or invalid Ward parameters")
-    clusters = {index: (index,) for index in range(len(vectors))}
-    next_id = len(vectors)
+    X = np.array(vectors, dtype=float)
+    N = len(vectors)
+    Z = sch.linkage(X, method="ward")
+
+    linkage = []
+    for i in range(N - k):
+        left = int(Z[i, 0])
+        right = int(Z[i, 1])
+        dist = 0.5 * (float(Z[i, 2]) ** 2)
+        sz = int(Z[i, 3])
+        linkage.append({
+            "left": left,
+            "right": right,
+            "distance": dist,
+            "size": sz,
+        })
+
+    clusters = {i: (i,) for i in range(N)}
+    next_id = N
+    for i in range(N - k):
+        l, r = linkage[i]["left"], linkage[i]["right"]
+        clusters[next_id] = tuple(sorted(clusters.pop(l) + clusters.pop(r)))
+        next_id += 1
+
+    ordered = sorted(clusters.values(), key=lambda members: (members[0], members))
+    labels = [-1] * N
+    centers = []
 
     def centroid(members: tuple[int, ...]) -> list[float]:
         return [mean(vectors[index][column] for index in members) for column in range(len(vectors[0]))]
 
-    while len(clusters) > k:
-        ids = sorted(clusters)
-        candidates = []
-        for position, left in enumerate(ids):
-            left_members = clusters[left]
-            left_center = centroid(left_members)
-            for right in ids[position + 1:]:
-                right_members = clusters[right]
-                increase = (len(left_members) * len(right_members)
-                            / (len(left_members) + len(right_members))
-                            * squared_distance(left_center, centroid(right_members)))
-                candidates.append((increase, left_members, right_members, left, right))
-        _, _, _, left, right = min(candidates)
-        clusters[next_id] = tuple(sorted(clusters.pop(left) + clusters.pop(right)))
-        next_id += 1
-    ordered = sorted(clusters.values(), key=lambda members: (members[0], members))
-    labels = [-1] * len(vectors)
-    centers = []
     for label, members in enumerate(ordered):
         centers.append(centroid(members))
         for index in members:
             labels[index] = label
+
     inertia = sum(squared_distance(row, centers[label]) for row, label in zip(vectors, labels))
     return dict(labels=labels, centroids=centers, inertia=inertia,
-                iterations=len(vectors) - k, converged=True)
+                iterations=N - k, converged=True, linkage=linkage)
 
 
 def validate_config(config: dict) -> None:
@@ -49,4 +60,15 @@ def validate_config(config: dict) -> None:
 
 def fit_snapshot(rows: list[dict], config: dict) -> dict:
     validate_config(config)
-    return build_snapshot(rows, config, lambda vectors, k, _: fit_ward(vectors, k))
+    selected_linkage = None
+
+    def fit_vectors(vectors: list[list[float]], k: int, _: dict) -> dict:
+        nonlocal selected_linkage
+        fit = fit_ward(vectors, k)
+        if k == config["k"]:
+            selected_linkage = fit["linkage"]
+        return fit
+
+    snapshot = build_snapshot(rows, config, fit_vectors)
+    snapshot["model"]["linkage"] = selected_linkage
+    return snapshot

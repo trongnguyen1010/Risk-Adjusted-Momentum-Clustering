@@ -36,7 +36,7 @@ Sharpe và ROI không phải clustering feature hay cluster-quality metric. Shar
 
 ## Boundary M2/M3
 
-M2-PREP chỉ freeze protocol; chưa chạy clustering. Khi một M2 development stage riêng được phê duyệt, config vẫn phải có `portfolio_evaluation.enabled=false` và chỉ được sinh cluster/temporal diagnostics, không tạo backtest/performance artifact. Chỉ M3/frozen protocol bật portfolio evaluation; kết quả đó không quay lại chọn `k`, algorithm, PCA components hoặc feature set.
+M2 Task 1 chỉ freeze protocol; chưa chạy clustering. Protocol market-only v1 dùng 15 development snapshots `2023-11-30..2025-01-24`, niêm phong 7 holdout snapshots `2026-02-27..2026-08-28`, skip cross-section dưới 120 mã, không impute/clipping và Robust Scaling fit riêng từng snapshot. Global K chỉ được chọn trong `2..8` bằng cluster quality trên development. PCA chỉ là comparator riêng. Config phải có `portfolio_evaluation.enabled=false` và chỉ được sinh cluster/temporal diagnostics, không tạo backtest/performance artifact. Chỉ M3/frozen protocol bật portfolio evaluation; kết quả đó không quay lại chọn `k`, algorithm, PCA components hoặc feature set.
 
 ## Technical debt cho variable-cluster method
 
