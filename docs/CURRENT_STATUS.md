@@ -1,6 +1,6 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
-## Indicators v1 — Giai đoạn 1–2 xong, local, chưa QA (25/10/2026)
+## Indicators v1 — Giai đoạn 1–3 xong, chờ owner duyệt QA (25/10/2026)
 
 Nhánh `feature/indicators-v1`. Input: `data/financial/indicators_v1/inputs/inputs-633098561762877d/`
 (1.510 mã, 14.738 mã-năm; ngân hàng/CK/bảo hiểm từ raw CafeF; DStock lấp 616 mã-năm CafeF thiếu).
@@ -9,7 +9,9 @@ Engine `src/delta_t1/indicators/compute.py` + `scripts/build_indicators.py` →
 (1.522 mã × 2016–2025 × 21 chỉ số = 319.620 ô, mỗi ô có trạng thái + inputs).
 2025 có giá trị: EPS 1.368, P/E 1.206, P/B 1.295, ROE 1.416, F 1.090, M 1.008, Z 1.279 mã.
 EPS tự tính khớp EPS công bố ±10%: 75% mã-năm (chủ yếu lệch do CP bình quân gia quyền).
-Tiếp theo: Giai đoạn 3 (verify độc lập + qa-report), rồi dừng chờ owner.
+QA (`scripts/verify_indicators.py`, `qa-report.md` trong thư mục results): tính lại độc lập 800 ô PASS;
+mục tiêu 2025 đạt cho EPS 92,5%, P/E 91,8%, P/B 91,5%, ROE 99,9%, Z 91,2%; **chưa đạt** F 77,7%, M 71,9%
+(110 mã chỉ có DStock, 160 mã thiếu LCTT được map). Dừng chờ owner trước Giai đoạn 4 (API).
 
 ## Bổ sung EPS theo kỳ và UX chỉ số — local, chưa release (24/10/2026)
 

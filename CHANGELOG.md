@@ -1,5 +1,12 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Indicators v1 — Giai đoạn 3: QA độc lập (2026-10-25)
+
+Thêm `scripts/verify_indicators.py`: tự viết lại công thức (không import engine), tính lại
+800 ô ngẫu nhiên (PASS), đối chiếu EPS công bố, outliers, spot-check 10 mã, coverage và mục
+tiêu 2025 kèm nguyên nhân theo field; ghi `qa-report.md` + CSV vào thư mục results.
+
+
 ## Indicators v1 — Giai đoạn 2: engine tính chỉ số (2026-10-25)
 
 Thêm `src/delta_t1/indicators/compute.py` (hàm thuần: 15 chỉ số hiển thị, giá/số CP,
