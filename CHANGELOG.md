@@ -1,5 +1,14 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Indicators v1 — Giai đoạn 1: bảng input chuẩn (2026-10-25)
+
+Thêm `src/delta_t1/indicators/inputs.py`, `scripts/build_indicator_inputs.py`,
+`tests/unit/test_indicator_inputs.py` và quyết định D-IND-01. Gộp CafeF Regular +
+raw ngân hàng/CK/bảo hiểm, chuẩn hóa dấu chi phí, đánh lại nhãn khối tài chính
+KQKD bị lệch, kiểm DStock theo field, ghi checks/coverage/manifest vào run mới
+`inputs-3be22c6b787f1e30`. Không sửa artifact cũ.
+
+
 ## Financial period serving và UX chỉ số (2026-10-24)
 
 Thêm offline EPS source builder có raw/hash/period/code/unit checks, ledger đầy
