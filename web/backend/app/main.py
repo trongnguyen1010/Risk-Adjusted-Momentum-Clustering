@@ -23,7 +23,7 @@ def create_app(repository=None):
     async def invalid(request,error):return JSONResponse(status_code=400,content={'detail':str(error)})
     @app.exception_handler(AmbiguousIdentity)
     async def ambiguous(request,error):return JSONResponse(status_code=409,content={'detail':str(error)})
-    @app.get('/api/v2/health',response_model=HealthResponse)
+    @app.api_route('/api/v2/health',methods=['GET','HEAD'],response_model=HealthResponse)
     def health(request:Request):return dict(status='ok',version=repo(request).meta['version'],read_only=True)
     @app.get('/api/v2/catalog',response_model=CatalogResponse)
     def catalog(request:Request):return repo(request).catalog()
