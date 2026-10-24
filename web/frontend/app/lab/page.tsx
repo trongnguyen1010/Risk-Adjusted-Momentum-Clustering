@@ -1,7 +1,6 @@
 "use client";
-import { useState } from "react";
-import { AlertTriangle } from "lucide-react";
-import { useCatalog } from "@/components/providers";
+import Link from "next/link";
+import { useSelection } from "@/lib/selection";
 import {
   Panel,
   PageHeading,
@@ -9,253 +8,249 @@ import {
   Skeleton,
   ErrorState,
 } from "@/components/ui";
+import { WorkspaceTabs } from "@/components/workspace-tabs";
 import { FAMILY, number, compact } from "@/lib/format";
 import type { Kind } from "@/lib/types";
+const tabs = [
+  ["methods", "Phương pháp"],
+  ["quality", "Chất lượng"],
+  ["provenance", "Nguồn & phiên bản"],
+] as const;
 export default function Lab() {
-  const c = useCatalog();
-  const [tab, setTab] = useState("methods"),
-    [query, setQuery] = useState("");
-  if (c.error) return <ErrorState message={c.error} retry={c.retry} />;
-  if (!c.data) return <Skeleton height={600} />;
-  const { metadata: m, datasets: d, provenance } = c.data;
+  const s = useSelection();
+  const tab = tabs.some(([id]) => id === s.params.get("tab"))
+    ? s.params.get("tab")!
+    : "methods";
+  const query = s.params.get("source_q") || "";
+  if (s.error) return <ErrorState message={s.error} retry={s.retry} />;
+  if (!s.data) return <Skeleton height={600} />;
+  const { metadata: m, datasets: d, provenance } = s.data;
   return (
     <>
       <PageHeading
         eyebrow="BẰNG CHỨNG / KHẢ NĂNG TÁI LẬP"
         title="Phòng nghiên cứu"
-        description="Kiểm tra nguồn tạo biểu đồ, những kết luận có bằng chứng và các giới hạn còn lại."
-        action={<Badge>Kết quả nghiên cứu chỉ đọc</Badge>}
+        description="Đối chiếu phương pháp, chất lượng dữ liệu và phiên bản nguồn. Kiểm chứng kỹ thuật và research readiness được đánh giá riêng."
+        action={<Badge>Chỉ đọc artifacts</Badge>}
       />
-      <div className="tabs-line">
-        {[
-          ["methods", "Phương pháp"],
-          ["definitions", "Từ điển đặc trưng"],
-          ["quality", "Chất lượng và giới hạn"],
-          ["provenance", "Nguồn gốc dữ liệu"],
-        ].map(([id, label]) => (
-          <button
-            key={id}
-            className={tab === id ? "active" : ""}
-            onClick={() => setTab(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      {tab === "methods" ? (
-        <>
-          <div className="method-grid">
-            {(Object.keys(FAMILY) as Kind[]).map((kind) => (
-              <Panel key={kind}>
-                <div className="method-card">
-                  <div>
-                    <Badge
-                      tone={
-                        kind === "market"
-                          ? "teal"
-                          : kind === "financial"
-                            ? "purple"
-                            : "amber"
-                      }
-                    >
-                      MÔ HÌNH {FAMILY[kind].letter}
-                    </Badge>
-                    <h3>{FAMILY[kind].label}</h3>
+      <WorkspaceTabs
+        tabs={tabs}
+        scope="lab"
+        value={tab}
+        onChange={(tab) => s.set({ tab })}
+      />
+      <div id="lab-panel" role="tabpanel" aria-labelledby={`lab-${tab}`}>
+        {tab === "methods" && (
+          <>
+            <div className="method-grid">
+              {(Object.keys(FAMILY) as Kind[]).map((kind) => (
+                <Panel
+                  key={kind}
+                  title={`${FAMILY[kind].letter} · ${FAMILY[kind].label}`}
+                >
+                  <div className="panel-body">
                     <p>{FAMILY[kind].subtitle}</p>
-                    <p style={{ marginTop: 15 }}>
-                      K-Means · {d[kind].scaling}
-                      <br />
-                      {d[kind].frequency}
-                      <br />
-                      {d[kind].version}
+                    <p>
+                      K-Means · {d[kind].scaling} · {d[kind].frequency}
+                    </p>
+                    <p>
+                      {d[kind].features.length} features ·{" "}
+                      {d[kind].dates.length} snapshots ·{" "}
+                      {number(d[kind].latest.n)} mã ở kỳ cuối.
+                    </p>
+                    <p className="context-line">
+                      Nhãn độc lập; không xếp hạng đầu tư. Version{" "}
+                      {d[kind].version}.
                     </p>
                   </div>
-                  <div className="method-stats">
-                    <div>
-                      <strong>{d[kind].k}</strong>
-                      <span>Số cụm đã chốt</span>
+                </Panel>
+              ))}
+            </div>
+            {s.data.variants && (
+              <Panel
+                className="section-gap"
+                title="R1 · research preview chưa promote"
+                eyebrow="BASELINE VẪN LÀ MẶC ĐỊNH"
+              >
+                <div className="panel-body">
+                  <p>
+                    202 snapshots P1/P3 đọc từ immutable R1 artifacts. Dùng
+                    selector phiên bản để đối chiếu labels, median/IQR, saved
+                    diagnostics và peer examples; không xem đây là release được
+                    nghiệm thu.
+                  </p>
+                  {Object.entries(s.data.variants).map(([kind, items]) => (
+                    <div className="membership-summary" key={kind}>
+                      <h3>{FAMILY[kind as Kind].label}</h3>
+                      {items?.map((item) => (
+                        <Link
+                          className="button ghost"
+                          key={item.version}
+                          href={`/atlas?kind=${kind}&date=${item.latest.date}&version=${encodeURIComponent(item.version)}`}
+                        >
+                          {item.label} ↗
+                        </Link>
+                      ))}
                     </div>
-                    <div>
-                      <strong>{d[kind].features.length}</strong>
-                      <span>Đặc trưng đầu vào</span>
-                    </div>
-                    <div>
-                      <strong>{d[kind].dates.length}</strong>
-                      <span>Mô hình đã lưu</span>
-                    </div>
-                    <div>
-                      <strong>{number(d[kind].latest.n)}</strong>
-                      <span>Nhóm cổ phiếu gần nhất</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </Panel>
-            ))}
-          </div>
-          <Panel
-            className="section-gap"
-            title="Tham chiếu kết hợp · cấu hình đã duyệt"
-            eyebrow="ỨNG DỤNG KHÔNG FIT MÔ HÌNH"
-          >
-            <pre className="code-block">
-              {JSON.stringify(d.combined.protocol, null, 2)}
-            </pre>
-          </Panel>
-          <Panel className="section-gap" title="Nguyên tắc diễn giải">
-            <ul className="limitations">
-              {[
-                "A, B và C có hệ nhãn riêng. Nhãn cụm không phải xếp hạng đầu tư.",
-                "Căn nhãn chuyển cụm chỉ hoán vị nhãn đích khi hiển thị để tối đa số thành viên trùng nhau, không xác lập cùng một trạng thái kinh tế.",
-                "Đặc trưng thị trường theo điều kiện nghiên cứu market-only đã chốt. Mô hình tài chính và kết hợp là tham chiếu theo năm sau kỳ báo cáo.",
-                "Không huấn luyện khi chạy ứng dụng, không chọn mô hình theo lợi nhuận, không tuyên bố hiệu quả danh mục.",
-                "Sáu tỷ số cốt lõi chưa cung cấp đầy đủ EPS / P/E / P/B / điểm F / M / Z.",
-              ].map((t) => (
-                <li key={t}>
-                  <AlertTriangle size={14} />
-                  {t}
+            )}
+            <Panel className="section-gap" title="Cách diễn giải">
+              <ul className="limitations">
+                <li>
+                  Ứng dụng chỉ đọc frozen artifacts. Không fit model hoặc tính
+                  quality metrics trong browser.
                 </li>
-              ))}
-            </ul>
-          </Panel>
-        </>
-      ) : tab === "definitions" ? (
-        <Panel
-          title="Từ điển đặc trưng"
-          eyebrow="14 ĐẦU VÀO QUAN SÁT · METADATA NGUỒN"
-        >
-          <div className="data-table-wrap">
-            <table className="definition-table">
-              <thead>
-                <tr>
-                  <th>MÃ / NHÓM</th>
-                  <th>ĐẶC TRƯNG</th>
-                  <th>ĐỊNH NGHĨA / ĐƠN VỊ</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(m.definitions).map(([key, f]) => (
-                  <tr id={key} key={key}>
-                    <td>
-                      {key}
-                      <br />
-                      <Badge>
-                        {FAMILY[f.family as Kind]?.label || f.family}
-                      </Badge>
-                    </td>
-                    <td>{f.label}</td>
-                    <td>
-                      {key === "vol_63"
-                        ? "Độ lệch chuẩn mẫu lợi suất ngày trong 63 phiên × √252; quy đổi theo năm"
-                        : f.formula}
-                      <br />
-                      <small>
-                        {{ percent: "Tỷ lệ (%)", ratio: "Tỷ số", vnd: "VND" }[
-                          f.unit
-                        ] || f.unit}
-                      </small>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Panel>
-      ) : tab === "quality" ? (
-        <>
-          <div className="grid-equal">
-            <Panel
-              title="Kiểm chứng kết quả nghiên cứu"
-              eyebrow="KIỂM CHỨNG ≠ ĐỦ ĐIỀU KIỆN NGHIÊN CỨU"
-            >
-              <div className="panel-body status-list">
-                {(Object.keys(FAMILY) as Kind[]).map((kind) => (
-                  <div className="status-row" key={kind}>
-                    <span>{FAMILY[kind].label}</span>
-                    <span>
-                      <Badge tone="teal">{m.validations[kind]?.status}</Badge>{" "}
+                <li>
+                  A/B/C là các feature spaces/cohorts khác nhau; không chọn
+                  winner bằng silhouette giữa ba family.
+                </li>
+                <li>
+                  Financial FY có thể công bố sau ngày market; C và ma trận
+                  same-FY là ex-post, không PIT/backtest.
+                </li>
+                <li>
+                  Cân bằng variance hai block đầu vào C không đảm bảo mỗi block
+                  đóng góp 50% separation.
+                </li>
+                <li>
+                  Peer list chỉ là cùng nhãn/model/kỳ; chưa có distance/rank
+                  được export thì không hiển thị nearest peers giả.
+                </li>
+              </ul>
+            </Panel>
+            <Panel className="section-gap" title="Cấu hình và định nghĩa">
+              <details className="indicator-details">
+                <summary>Protocol C đã duyệt và lưu</summary>
+                <pre className="code-block">
+                  {JSON.stringify(d.combined.protocol, null, 2)}
+                </pre>
+              </details>
+              <details className="indicator-details">
+                <summary>Từ điển 14 features và đơn vị</summary>
+                <div className="data-table-wrap">
+                  <table className="data-table">
+                    <thead>
+                      <tr>
+                        <th>Mã / nhóm</th>
+                        <th>Đặc trưng</th>
+                        <th>Công thức / đơn vị</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.entries(m.definitions).map(([key, f]) => (
+                        <tr key={key}>
+                          <th>
+                            {key}
+                            <small className="block">
+                              {FAMILY[f.family as Kind]?.label || f.family}
+                            </small>
+                          </th>
+                          <td>{f.label}</td>
+                          <td>
+                            {f.formula}
+                            <small className="block">{f.unit}</small>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
+            </Panel>
+          </>
+        )}
+        {tab === "quality" && (
+          <>
+            <div className="grid-equal">
+              <Panel
+                title="Kiểm chứng kỹ thuật"
+                eyebrow="ARITHMETIC / HASH / EXECUTION"
+              >
+                <div className="panel-body status-list">
+                  {(Object.keys(FAMILY) as Kind[]).map((kind) => (
+                    <div className="status-row" key={kind}>
+                      <span>{FAMILY[kind].label}</span>
+                      <Badge>{m.validations[kind]?.status}</Badge>
                       <Badge tone="amber">
                         {m.validations[kind]?.quality_status}
                       </Badge>
-                    </span>
+                    </div>
+                  ))}
+                  <div className="status-row">
+                    <span>Full repository gate trong bundle</span>
+                    <Badge tone="amber">{m.full_suite.status}</Badge>
                   </div>
-                ))}
-                <div className="status-row">
-                  <span>Bộ kiểm thử toàn project</span>
-                  <Badge tone="amber">{m.full_suite.status}</Badge>
+                  <p>{m.full_suite.reason}</p>
                 </div>
-                <p className="muted text-small">{m.full_suite.reason}</p>
-              </div>
+              </Panel>
+              <Panel title="Research readiness" eyebrow="KHÔNG TỰ MỞ GATES">
+                <div className="panel-body">
+                  <p>
+                    Publication timing: {number(m.financial_publication_rows)} /{" "}
+                    {number(m.financial_rows)} rows.
+                  </p>
+                  <p>
+                    Strict PIT / historical identity / final backtest: chưa
+                    nghiệm thu.
+                  </p>
+                  <p>
+                    Seed stability và checksum PASS không mở research gates.
+                  </p>
+                  <p className="warning-line section-gap">
+                    Model có nhóm nhỏ hoặc bị một feature chi phối vẫn cần
+                    review nguồn và usefulness.
+                  </p>
+                </div>
+              </Panel>
+            </div>
+            <Panel className="section-gap" title="Giới hạn đã lưu trong bundle">
+              <ul className="limitations">
+                {m.limitations.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
             </Panel>
-            <Panel
-              title="Mức độ sẵn có của dữ liệu"
-              eyebrow="KHÔNG ĐIỀN CHỈ SỐ GIẢ"
-            >
-              <div className="panel-body status-list">
-                {[
-                  ["Quan sát giá", number(m.price_rows)],
-                  [
-                    "Mốc công bố báo cáo tài chính",
-                    `${m.financial_publication_rows} / ${number(m.financial_rows)}`,
-                  ],
-                  ["PIT / backtest cuối cùng", "Chưa sẵn sàng"],
-                  [
-                    "Bộ EPS/P/E/P/B/F/M/Z",
-                    "Có ở nhóm đã review; chưa đủ mọi mã/năm",
-                  ],
-                  ["Giá thị trường trực tiếp", "Chưa có dữ liệu"],
-                  [
-                    "Khóa giá xung đột được giữ lại",
-                    number(m.price_conflicts_held),
-                  ],
-                ].map(([a, b]) => (
-                  <div className="status-row" key={a}>
-                    <span>{a}</span>
-                    <span>{b}</span>
+          </>
+        )}
+        {tab === "provenance" && (
+          <Panel
+            title="Nguồn và phiên bản"
+            eyebrow="ĐẦU VÀO GHIM SHA-256"
+            action={
+              <input
+                aria-label="Lọc nguồn dữ liệu"
+                placeholder="Tìm đường dẫn nguồn…"
+                value={query}
+                onChange={(e) => s.set({ source_q: e.target.value || null })}
+              />
+            }
+          >
+            <p className="panel-note">
+              Bundle {m.version} · generated {m.generated_at}.{" "}
+              {number(m.price_rows)} observations giá;{" "}
+              {number(m.price_conflicts_held)} keys giá xung đột được giữ lại.
+              Hash database được kiểm lúc API khởi động. Metadata này mô tả
+              artifact, không phải chứng nhận release hiện tại.
+            </p>
+            <details className="indicator-details" open>
+              <summary>Danh sách pins và kích thước</summary>
+              {provenance
+                .filter((p) =>
+                  p.path.toLowerCase().includes(query.toLowerCase()),
+                )
+                .map((p) => (
+                  <div className="artifact-row" key={p.path}>
+                    <strong>{p.path}</strong>
+                    <small>SHA-256 {p.sha256}</small>
+                    <small>{compact(p.bytes)} bytes</small>
                   </div>
                 ))}
-              </div>
-            </Panel>
-          </div>
-          <Panel className="section-gap" title="Giới hạn đã biết">
-            <ul className="limitations">
-              {m.limitations.map((t) => (
-                <li key={t}>
-                  <AlertTriangle size={15} />
-                  {t}
-                </li>
-              ))}
-            </ul>
+            </details>
           </Panel>
-        </>
-      ) : (
-        <Panel
-          title="Nguồn gốc dữ liệu"
-          eyebrow="ĐẦU VÀO ĐÃ GHIM SHA-256"
-          action={
-            <input
-              aria-label="Lọc nguồn dữ liệu"
-              placeholder="Tìm đường dẫn nguồn…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          }
-        >
-          <p className="panel-note">
-            Gói dữ liệu hiển thị {m.version} · xuất lúc {m.generated_at}.
-            Checksum SQLite được kiểm tra khi API khởi động. Đường dẫn là nguồn
-            nghiên cứu local, không phải liên kết tải công khai.
-          </p>
-          {provenance
-            .filter((p) => p.path.toLowerCase().includes(query.toLowerCase()))
-            .map((p) => (
-              <div className="artifact-row" key={p.path}>
-                <strong>{p.path}</strong>
-                <small>SHA-256 {p.sha256}</small>
-                <small>{compact(p.bytes)} bytes</small>
-              </div>
-            ))}
-        </Panel>
-      )}
+        )}
+      </div>
     </>
   );
 }

@@ -1,12 +1,6 @@
 "use client";
 import Link from "next/link";
-import {
-  ArrowUpRight,
-  Layers3,
-  ScanLine,
-  FlaskConical,
-  ArrowRight,
-} from "lucide-react";
+import { Search, ArrowUpRight } from "lucide-react";
 import { useCatalog } from "@/components/providers";
 import { useApi, url } from "@/lib/api";
 import {
@@ -14,254 +8,164 @@ import {
   Badge,
   Skeleton,
   ErrorState,
-  FeatureLink,
+  PageHeading,
+  ClusterBadge,
 } from "@/components/ui";
-import { Chart, baseChart, axis } from "@/components/chart";
 import { Scatter } from "@/components/scatter";
-import { COLORS, FAMILY, number, dateLabel } from "@/lib/format";
+import { FAMILY, number, dateLabel, clusterColor } from "@/lib/format";
 import type { Kind, SnapshotData } from "@/lib/types";
 export default function Overview() {
   const catalog = useCatalog();
-  const scatter = useApi<SnapshotData>(url("snapshots/market"));
+  const state = useApi<SnapshotData>(
+    catalog.data
+      ? url("snapshots/combined", {
+          date: catalog.data.datasets.combined.latest.date,
+          version: catalog.data.datasets.combined.version,
+        })
+      : null,
+  );
   if (catalog.error)
     return <ErrorState message={catalog.error} retry={catalog.retry} />;
   if (!catalog.data) return <Skeleton height={600} />;
-  const { metadata: m, datasets: d } = catalog.data;
+  const d = catalog.data.datasets;
   return (
     <>
-      <section className="hero">
-        <div className="hero-copy">
-          <div className="eyebrow">CỔ PHIẾU VIỆT NAM / TRẠM NGHIÊN CỨU</div>
-          <h1>
-            Khám phá cấu trúc.
-            <br />
-            <span className="teal">Thấu hiểu thị trường.</span>
-          </h1>
-          <p>
-            Khám phá hành vi thị trường và nền tảng doanh nghiệp qua ba mô hình
-            phân cụm độc lập. Mọi kết quả đều có nguồn dữ liệu để đối chiếu.
-          </p>
-          <div className="hero-actions">
-            <Link href="/atlas" className="button primary">
-              Khám phá bản đồ phân cụm
-              <ArrowUpRight size={15} />
-            </Link>
-            <Link href="/lab" className="button ghost">
-              Xem phương pháp
-              <ArrowRight size={14} />
-            </Link>
-          </div>
-          <div className="hero-footnote">
-            <span className="small-dot" />
-            Dữ liệu lịch sử · {dateLabel(d.market.latest.date)} · Không có dữ
-            liệu trực tiếp
-          </div>
-        </div>
-        <div className="hero-visual">
-          {scatter.data ? (
-            <Scatter
-              data={scatter.data}
-              x="mom_63"
-              y="vol_63"
-              kind="market"
-              height={300}
-              mini
-            />
-          ) : (
-            <Skeleton height={300} />
-          )}
-          <span className="hero-visual-label">
-            CẤU TRÚC THỊ TRƯỜNG / A · {number(d.market.latest.n)} CỔ PHIẾU
-          </span>
-          <span className="hero-visual-corner">
-            Động lượng × biến động
-            <br />
-            Tọa độ đặc trưng quan sát
-          </span>
-        </div>
-      </section>
-      <section className="stats-strip">
-        {[
-          [
-            "Tập cổ phiếu thị trường",
-            d.market.latest.n,
-            `${number(m.candidates)} mã trong nguồn dữ liệu`,
-          ],
-          [
-            "Thời điểm lịch sử",
-            m.market_snapshots,
-            "Theo tháng · 01/2019 — 12/2025",
-          ],
-          [
-            "Doanh nghiệp có BCTC",
-            d.financial.latest.n,
-            "Nhóm cố định đủ 10 năm · 2016 — 2025",
-          ],
-          [
-            "Quan sát kết hợp",
-            d.combined.history.reduce((s, r) => s + r.n, 0),
-            "7 mô hình tham chiếu cuối năm",
-          ],
-        ].map(([label, value, note]) => (
-          <div className="stat" key={String(label)}>
-            <div className="stat-top">
-              {label}
-              <ArrowUpRight size={12} />
+      <PageHeading
+        eyebrow="DELTA / KHÁM PHÁ DOANH NGHIỆP"
+        title="Bắt đầu từ một doanh nghiệp."
+        description="Tra cứu chỉ số đã review, rồi khám phá các nhóm từ dữ liệu lịch sử."
+      />
+      <button
+        className="home-search"
+        onClick={() => window.dispatchEvent(new Event("delta:search"))}
+      >
+        <Search size={24} />
+        <span>Tìm mã hoặc tên doanh nghiệp…</span>
+        <kbd>Ctrl K</kbd>
+      </button>
+      <div className="quick-tickers">
+        <span>Tra cứu nhanh</span>
+        {["FPT", "VNM", "HPG"].map((t) => (
+          <Link key={t} href={`/stocks?ticker=${t}`}>
+            {t}
+            <ArrowUpRight size={14} />
+          </Link>
+        ))}
+        <Link href="/financial?tab=coverage">Độ phủ sáu chỉ số ↗</Link>
+      </div>
+      <section
+        className="model-cards section-gap"
+        aria-label="Ba cohort tại kỳ cuối"
+      >
+        {(Object.keys(FAMILY) as Kind[]).map((kind) => (
+          <Link
+            className="model-card"
+            key={kind}
+            href={`/atlas?kind=${kind}&date=${d[kind].latest.date}`}
+          >
+            <div>
+              <Badge>
+                {FAMILY[kind].letter} · {FAMILY[kind].label}
+              </Badge>
+              <ArrowUpRight size={18} />
             </div>
-            <div className="stat-value">{number(Number(value))}</div>
-            <div className="muted text-small">{note}</div>
-          </div>
+            <strong>{number(d[kind].latest.n)}</strong>
+            <p>
+              {kind === "market"
+                ? "Mã đủ điều kiện thị trường"
+                : kind === "financial"
+                  ? "Doanh nghiệp · cohort cố định đủ 10 năm"
+                  : "Mã trong common cohort A × B"}
+            </p>
+            <small>{dateLabel(d[kind].latest.date)}</small>
+          </Link>
         ))}
       </section>
       <div className="grid-two section-gap">
         <Panel
-          title="Độ phủ cổ phiếu qua thời gian"
-          eyebrow="ĐỘ PHỦ QUAN SÁT"
-          action={<Badge tone="teal">84 mô hình theo tháng</Badge>}
+          title="Cấu trúc kết hợp gần nhất"
+          eyebrow={`C · ${d.combined.latest.date} · RAW AXES`}
+          action={
+            <Link
+              className="text-link"
+              href={`/atlas?kind=combined&date=${d.combined.latest.date}`}
+            >
+              Khám phá ↗
+            </Link>
+          }
         >
-          <Chart
-            height={265}
-            label="Số cổ phiếu thị trường đủ điều kiện theo tháng"
-            option={{
-              ...baseChart,
-              tooltip: { ...baseChart.tooltip, trigger: "axis" },
-              xAxis: {
-                ...axis,
-                type: "category",
-                data: d.market.history.map((s) => s.date),
-                axisLabel: {
-                  ...axis.axisLabel,
-                  formatter: (s: string) => s.slice(0, 7),
-                },
-              },
-              yAxis: { ...axis, type: "value", min: "dataMin" },
-              series: [
-                {
-                  type: "line",
-                  data: d.market.history.map((s) => s.n),
-                  symbol: "none",
-                  lineStyle: { width: 2, color: COLORS[0] },
-                  areaStyle: { color: "#2dd4bf12" },
-                },
-              ],
-            }}
-          />
+          {state.error ? (
+            <ErrorState message={state.error} retry={state.retry} />
+          ) : !state.data ? (
+            <Skeleton height={340} />
+          ) : (
+            <Scatter
+              data={state.data}
+              x="mom_63"
+              y="net_margin"
+              kind="combined"
+              height={340}
+              onSelect={(ticker) =>
+                window.location.assign(
+                  `/stocks?ticker=${encodeURIComponent(ticker)}&kind=combined&date=${d.combined.latest.date}`,
+                )
+              }
+            />
+          )}
           <p className="panel-note">
-            Thành viên theo tiêu chí thị trường đã chốt tại từng thời điểm. Số
-            lượng này không đồng nghĩa với tập cổ phiếu lịch sử đã xác minh PIT.
+            Động lượng 63 phiên × biên lợi nhuận ròng: đối chiếu hành vi giá và
+            nền tảng tài chính. Hai trục này không đại diện toàn bộ 14 đầu vào.
           </p>
         </Panel>
-        <Panel
-          title="Ba góc nhìn. Một không gian."
-          eyebrow="CÁC NHÓM THỬ NGHIỆM"
-        >
-          {(Object.keys(FAMILY) as Kind[]).map((kind) => (
-            <Link
-              key={kind}
-              href={`/atlas?kind=${kind}`}
-              className="research-family"
-            >
-              <div className="family-heading">
-                <span
-                  className={`source-letter ${kind === "market" ? "teal" : kind === "financial" ? "purple" : "amber"}`}
-                >
-                  {FAMILY[kind].letter}
-                </span>
+        <Panel title="Nhóm doanh nghiệp" eyebrow="NHÃN GỐC C · QUY MÔ ĐÃ LƯU">
+          <div className="panel-body">
+            {Object.entries(d.combined.latest.sizes).map(([id, n]) => (
+              <Link
+                className="size-row"
+                key={id}
+                href={`/atlas?kind=combined&date=${d.combined.latest.date}&cluster=${id}`}
+              >
                 <div>
-                  <strong>{FAMILY[kind].label}</strong>
-                  <small>{FAMILY[kind].subtitle}</small>
+                  <ClusterBadge
+                    kind="combined"
+                    id={Number(id)}
+                    labels={Object.keys(d.combined.latest.sizes).map(Number)}
+                  />
+                  <strong>{number(n)} mã</strong>
                 </div>
-                <span className="family-count">
-                  {number(d[kind].latest.n)}
-                  <small>{dateLabel(d[kind].latest.date)}</small>
-                </span>
-              </div>
-              <div className="distribution">
-                {Object.entries(d[kind].latest.sizes).map(([id, n]) => (
-                  <span
-                    key={id}
+                <span className="size-track">
+                  <i
                     style={{
-                      width: `${(100 * n) / d[kind].latest.n}%`,
-                      background: COLORS[Number(id)],
+                      width: `${(100 * n) / d.combined.latest.n}%`,
+                      background: clusterColor(
+                        Number(id),
+                        Object.keys(d.combined.latest.sizes).map(Number),
+                      ),
                     }}
                   />
-                ))}
-              </div>
-              <div className="distribution-labels">
-                {Object.entries(d[kind].latest.sizes).map(([id, n]) => (
-                  <span key={id}>
-                    {FAMILY[kind].letter}
-                    {id} · {number(n)}
-                  </span>
-                ))}
-              </div>
+                </span>
+                <small>
+                  {n < Math.max(10, Math.ceil(0.01 * d.combined.latest.n))
+                    ? "Nhóm rất nhỏ · cần xem xét"
+                    : `${number((100 * n) / d.combined.latest.n, 1)}% common cohort`}
+                </small>
+              </Link>
+            ))}
+            <p className="warning-line section-gap">
+              Baseline còn cần review chất lượng. Cụm nhỏ không mặc định là bất
+              thường; nhãn không phải thứ hạng đầu tư.
+            </p>
+            <Link className="text-link" href="/lab?tab=quality">
+              Đọc giới hạn và bằng chứng ↗
             </Link>
-          ))}
+          </div>
         </Panel>
       </div>
-      <Panel
-        className="section-gap"
-        title="Bản đồ độ phủ"
-        eyebrow="THỜI ĐIỂM CÓ MÔ HÌNH · KHÔNG PHẢI NGÀY CÔNG BỐ"
-      >
-        <div className="coverage-grid">
-          <span />{" "}
-          {Array.from({ length: 10 }, (_, i) => (
-            <span key={i}>{2016 + i}</span>
-          ))}
-          {(Object.keys(FAMILY) as Kind[]).map((kind) => (
-            <div style={{ display: "contents" }} key={kind}>
-              <span>{FAMILY[kind].label}</span>
-              {Array.from({ length: 10 }, (_, i) => {
-                const count = d[kind].dates.filter((s) =>
-                  s.startsWith(String(2016 + i)),
-                ).length;
-                return (
-                  <Link
-                    key={i}
-                    title={`${FAMILY[kind].label}: ${count} mô hình đã lưu trong năm ${2016 + i}`}
-                    href={
-                      count
-                        ? `/atlas?kind=${kind}&date=${d[kind].dates.filter((s) => s.startsWith(String(2016 + i))).at(-1)}`
-                        : "/lab"
-                    }
-                    className={`coverage-cell ${count ? "" : "empty"}`}
-                  >
-                    {count
-                      ? `${count} ${count === 1 ? "mô hình" : "mô hình"}`
-                      : "—"}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-      </Panel>
-      <div className="overview-bottom section-gap">
-        <FeatureLink
-          href="/stocks?ticker=FPT"
-          title="Từ cấu trúc đến cổ phiếu"
-          text="Giá, đặc trưng và hành trình phân cụm."
-          icon={<ScanLine size={20} />}
-        />
-        <FeatureLink
-          href="/financial"
-          title="Đối chiếu hai góc nhìn"
-          text="Giao của nhóm thị trường × tài chính."
-          icon={<Layers3 size={20} />}
-        />
-        <FeatureLink
-          href="/lab"
-          title="Kiểm tra bằng chứng"
-          text="Định nghĩa, cấu hình và điều kiện chất lượng."
-          icon={<FlaskConical size={20} />}
-        />
-      </div>
-      <div className="scope-note">
-        Chỉ dùng để tham khảo nghiên cứu. Dữ liệu tài chính còn thiếu ngày công
-        bố; mô hình kết hợp có cụm rất nhỏ. Xem đầy đủ giới hạn tại Phòng nghiên
-        cứu.
-      </div>
+      <p className="scope-note">
+        Dữ liệu lịch sử, không live. Financial và C là ex-post reference, chưa
+        xác minh publication/PIT. Coverage B không đồng nghĩa có đủ
+        EPS/P/E/P/B/F/M/Z.
+      </p>
     </>
   );
 }

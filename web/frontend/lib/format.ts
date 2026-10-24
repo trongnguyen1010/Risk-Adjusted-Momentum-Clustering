@@ -1,5 +1,21 @@
 import type { Kind } from "./types";
-export const COLORS = ["#2dd4bf", "#9c8cff", "#f4b860"];
+export const COLORS = [
+  "#9c8cff",
+  "#38bdf8",
+  "#e9a8e2",
+  "#f4b860",
+  "#67d5bf",
+  "#a5b4fc",
+  "#fb923c",
+  "#d4d67a",
+];
+export function clusterColor(id: number, labels?: number[]) {
+  const ordered = labels
+    ? [...new Set(labels.filter((label) => label >= 0))].sort((a, b) => a - b)
+    : null;
+  const index = ordered ? ordered.indexOf(id) : id;
+  return id < 0 || index < 0 ? "#a3adbf" : COLORS[index % COLORS.length];
+}
 export const FAMILY: Record<
   Kind,
   { label: string; letter: string; subtitle: string }

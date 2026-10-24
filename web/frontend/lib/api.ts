@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { localizePayload, vi } from "./vi";
 
 export function url(
@@ -12,11 +12,84 @@ export function url(
       search.set(key, String(value));
   return `/api/v2/${path}${search.size ? `?${search}` : ""}`;
 }
+// A full URL (including run/version/query) plus the catalog revision is the cache identity.
+let revisionKey = "bootstrap";
+let expectedBundle: string | undefined;
+export function setApiRevision(value: string, bundle?: string) {
+  expectedBundle = bundle;
+  if (revisionKey !== value) {
+    revisionKey = value;
+    cache.clear();
+  }
+}
+const cache = new Map<string, { value: unknown; expires: number }>();
+const pending = new Map<
+  string,
+  { promise: Promise<unknown>; controller: AbortController; users: number }
+>();
+function acquire(path: string, force: boolean) {
+  const key = `${revisionKey}:${path}`;
+  if (force) cache.delete(key);
+  const saved = cache.get(key);
+  if (saved && saved.expires > Date.now())
+    return { promise: Promise.resolve(saved.value), release() {} };
+  let entry = pending.get(key);
+  if (!entry || entry.controller.signal.aborted) {
+    const controller = new AbortController();
+    const timeout = setTimeout(
+      () =>
+        controller.abort(
+          new Error("Dịch vụ chưa sẵn sàng sau 75 giây. Hãy thử lại."),
+        ),
+      75000,
+    );
+    const requestPath =
+      expectedBundle && !/^\/api\/v2\/(catalog|health)(\?|$)/.test(path)
+        ? `${path}${path.includes("?") ? "&" : "?"}revision=${encodeURIComponent(expectedBundle)}`
+        : path;
+    const promise = fetch(requestPath, { signal: controller.signal })
+      .then(async (response) => {
+        const body = await response.json().catch(() => ({
+          detail:
+            "Dịch vụ dữ liệu đang khởi động hoặc trả phản hồi không hợp lệ.",
+        }));
+        if (!response.ok)
+          throw new Error(
+            typeof body.detail === "string"
+              ? vi(body.detail)
+              : "Không thể hoàn tất yêu cầu.",
+          );
+        const value = localizePayload(body);
+        if (cache.size >= 80) cache.delete(cache.keys().next().value!);
+        cache.set(key, { value, expires: Date.now() + 300000 });
+        return value;
+      })
+      .finally(() => {
+        clearTimeout(timeout);
+        if (pending.get(key)?.controller === controller) pending.delete(key);
+      });
+    entry = { promise, controller, users: 0 };
+    pending.set(key, entry);
+  }
+  entry.users++;
+  const used = entry;
+  return {
+    promise: used.promise,
+    release() {
+      used.users--;
+      // Allow StrictMode's immediate resubscription without issuing a second request.
+      setTimeout(() => {
+        if (!used.users && pending.get(key) === used) used.controller.abort();
+      }, 0);
+    },
+  };
+}
 export function useApi<T>(path: string | null) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [revision, setRevision] = useState(0);
+  const retried = useRef(0);
   const [settledPath, setSettledPath] = useState<string | null>(null);
   useEffect(() => {
     if (!path) {
@@ -24,36 +97,32 @@ export function useApi<T>(path: string | null) {
       setData(null);
       return;
     }
-    const controller = new AbortController();
+    let active = true;
     setLoading(true);
     setError(null);
     setData(null);
-    fetch(path, { signal: controller.signal })
-      .then(async (response) => {
-        const body = await response.json();
-        if (!response.ok)
-          throw new Error(
-            typeof body.detail === "string"
-              ? vi(body.detail)
-              : "Không thể hoàn tất yêu cầu.",
-          );
-        return localizePayload(body as T);
-      })
+    const force = revision > retried.current;
+    retried.current = revision;
+    const request = acquire(path, force);
+    request.promise
       .then((value) => {
-        if (!controller.signal.aborted) {
-          setData(value);
+        if (active) {
+          setData(value as T);
           setSettledPath(path);
           setLoading(false);
         }
       })
       .catch((reason) => {
-        if (!controller.signal.aborted) {
+        if (active) {
           setError(reason.message || "Dịch vụ dữ liệu chưa sẵn sàng.");
           setSettledPath(path);
           setLoading(false);
         }
       });
-    return () => controller.abort();
+    return () => {
+      active = false;
+      request.release();
+    };
   }, [path, revision]);
   const current = settledPath === path;
   return {

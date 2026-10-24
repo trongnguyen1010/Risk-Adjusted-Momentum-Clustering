@@ -1,7 +1,7 @@
 "use client";
 import { AlertCircle, ArrowUpRight, Database, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { COLORS, FAMILY } from "@/lib/format";
+import { clusterColor, FAMILY } from "@/lib/format";
 import type { Kind } from "@/lib/types";
 export function Panel({
   title,
@@ -62,18 +62,25 @@ export function Badge({
 }) {
   return <span className={`badge ${tone}`}>{children}</span>;
 }
-export function ClusterBadge({ kind, id }: { kind: Kind; id: number }) {
+export function ClusterBadge({
+  kind,
+  id,
+  labels,
+}: {
+  kind: Kind;
+  id: number;
+  labels?: number[];
+}) {
   return (
     <span
       className="cluster-badge"
       style={{
-        color: COLORS[id % COLORS.length],
-        background: `${COLORS[id % COLORS.length]}13`,
+        color: clusterColor(id, labels),
+        background: `${clusterColor(id, labels)}13`,
       }}
     >
-      <i style={{ background: COLORS[id % COLORS.length] }} />
-      {FAMILY[kind].letter}
-      {id}
+      <i style={{ background: clusterColor(id, labels) }} />
+      {id < 0 ? "Chưa gán / noise" : `${FAMILY[kind].letter}${id}`}
     </span>
   );
 }
@@ -85,11 +92,10 @@ export function FamilyTabs({
   onChange: (value: Kind) => void;
 }) {
   return (
-    <div className="segmented" role="tablist" aria-label="Nhóm mô hình">
+    <div className="segmented" role="group" aria-label="Nhóm mô hình">
       {(Object.keys(FAMILY) as Kind[]).map((kind) => (
         <button
-          role="tab"
-          aria-selected={kind === value}
+          aria-pressed={kind === value}
           className={kind === value ? "active" : ""}
           key={kind}
           onClick={() => onChange(kind)}
@@ -142,11 +148,16 @@ export function Skeleton({ height = 320 }: { height?: number }) {
     <div
       aria-label="Đang tải dữ liệu nghiên cứu"
       className="skeleton"
+      role="status"
       style={{ height }}
     >
       <div />
       <div />
       <div />
+      <p className="loading-note">
+        Đang tải dữ liệu đã lưu. Dịch vụ có thể cần khoảng một phút để khởi
+        động.
+      </p>
     </div>
   );
 }

@@ -1,5 +1,51 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-24 — Reported EPS tách khỏi calculated/verified scores
+
+Owner yêu cầu thực thi bổ sung coverage và làm UI dùng được. Bổ sung offline
+source delivery cho EPS có exact raw period/code/label/value và explicit đơn vị
+đồng/cp, không scale theo magnitude. API status `SOURCE_REPORTED` tách khỏi
+`AVAILABLE_REVIEWED`; không tự nâng production/research/PIT readiness. Source-zero
+chưa xác nhận không hiển thị thành EPS chắc chắn bằng0; giữ raw zero trong
+components/evidence và status `UNCONFIRMED_PROVIDER_ZERO`. Đây là display hold
+cho nguồn reported mới, không thay reviewed zero hoặc frozen source bytes.
+Giữ kỳ annual/quý/lũy kế riêng, không annualize/TTM. Năm/kỳ là thao tác chính;
+source package, variants và hashes vẫn truy được trong technical details.
+Không phát hành F/M/Z từ conditional arithmetic hoặc thiếu inputs chỉ để đủ ô.
+
+
+## 2026-10-24 — Nâng cấp UI/data và R1 descriptive theo yêu cầu thực thi toàn plan
+
+Owner yêu cầu thực hiện hoàn chỉnh `DELTA_UPGRADE_PLAN.md`: cho phép nhiều stage
+trong một single-agent session và R1 fixed bounded protocol. Approval được ghi
+trong `configs/experiments/delta_upgrade_r1_v1.json`; không mở PIT/research/backtest
+hoặc tự promote winner. R1 giữ source/cohort/features, không clipping/imputation/PCA,
+không portfolio metrics. R2 conditional không mở vì có candidates đạt geometry/seed
+thresholds; source và peer usefulness vẫn phải review trước model promotion.
+
+Presentation tiếp tục frozen A/B/C. Adapter chỉ nối thêm hai Z đã review, calculation
+components/missing dependencies có manifest proof; không trộn vintage, giữ null/Decimal.
+Availability được typed; PARTIAL không tự suy missing reason nếu chưa có source details.
+API thêm profile-only payload có cờ omission rõ; catalog/deep links/cache pin bundle
+revision/version. Display migration dùng rectangular maximum-overlap assignment,
+negative labels giữ riêng, unmatched groups có display IDs riêng; không đổi stored labels.
+Palette/matrix động không đồng nghĩa đã nghiệm thu HDBSCAN/noise model contract.
+
+Public deployment/model promotion chờ nghiệm thu theo plan; [evidence và các gates
+còn mở](DELTA_UPGRADE_PLAN.md#11-thực-thi-nâng-cấp--24102026). Không giả fixture legacy
+hoặc số usability để công bố Q1 PASS.
+
+
+
+R1 có presentation sidecar riêng qua `scripts/export_delta_research_preview.py`:
+202 snapshots P1/P3, không overwrite baseline. `PreviewRepository` chỉ đọc saved
+labels/profiles/metrics, kiểm parent/file hashes và source identities; mọi query
+version/revision fail closed. Source-mode mặc định vẫn baseline; NOT_PROMOTED
+preview không mở PIT/research/backtest và không coi là model promotion. Các peer
+examples dùng frozen recipe-space distances, không gán cùng ngành. Presentation
+means được export/replay riêng; browser/API không fit hoặc tính quality metrics.
+
+
 ## 2026-10-24 — Sáu chỉ số reference không đồng nhất với core ratios
 
 Owner hỏi bộ6chỉ số đã tính và so sánh website tham chiếu. Product bổ sung read-only

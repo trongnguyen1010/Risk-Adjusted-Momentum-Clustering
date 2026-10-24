@@ -1,5 +1,14 @@
 # DELTA — dữ liệu và phân cụm cổ phiếu Việt Nam
 
+## DELTA upgrade local — 24/10/2026
+
+Đã nâng cấp năm màn hình, kiểm kê 87 indicator observations/11 mã và chạy R1.
+Baseline giữ mặc định; có research preview P1/P3 trong selector để review 202
+snapshots, chưa promote model hoặc public production. [Kết quả/gates §11](docs/DELTA_UPGRADE_PLAN.md#11-thực-thi-nâng-cấp--24102026), [runbook](web/README.md).
+34 targeted tests, browser gate và independent model/bundle replay PASS; full gate
+984 tests còn một missing legacy fixture error, bốn optional Streamlit skips.
+
+
 ## Demo web — DELTA Intelligence (Execution59)
 
 Đã thêm web local đọc cả A market, B financial và C combined: Overview, Cluster Atlas,

@@ -23,7 +23,7 @@ export interface Snapshot {
   n: number;
   k: number;
   sizes: Record<string, number>;
-  metrics: Record<string, number | string | null>;
+  metrics: Record<string, unknown>;
   scope: string;
 }
 export interface Profile {
@@ -36,6 +36,8 @@ export interface Profile {
   quartiles: Record<string, number[] | null>;
 }
 export interface Dataset {
+  label?: string;
+  status?: string;
   history: Snapshot[];
   dates: string[];
   latest: Snapshot;
@@ -48,6 +50,7 @@ export interface Dataset {
 }
 export interface Catalog {
   metadata: {
+    bundle_revision?: string;
     candidates: number;
     market_snapshots: number;
     financial_periods: number;
@@ -65,9 +68,16 @@ export interface Catalog {
     limitations: string[];
   };
   datasets: Record<Kind, Dataset>;
+  variants?: Partial<Record<Kind, Dataset[]>>;
   provenance: { path: string; sha256: string; bytes: number }[];
 }
 export interface SnapshotData {
+  peer_examples?: {
+    ticker: string;
+    cluster: number;
+    rule: string;
+    peers: { ticker: string; distance: number }[];
+  }[];
   snapshot: Snapshot;
   points: Observation[];
   profiles: Profile[];
@@ -89,6 +99,7 @@ export interface Security {
   ambiguous: number;
 }
 export interface Stock {
+  history_versions?: Record<Kind, string> | null;
   security: Security;
   current: Observation | null;
   current_snapshot: Snapshot;
@@ -124,6 +135,8 @@ export interface Migration {
   alignment: string;
 }
 export interface Matrix {
+  market_labels?: number[];
+  financial_labels?: number[];
   available: boolean;
   date: string | null;
   year: string;

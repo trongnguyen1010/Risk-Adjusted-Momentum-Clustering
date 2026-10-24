@@ -1,5 +1,33 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Bổ sung EPS theo kỳ và UX chỉ số — local, chưa release (24/10/2026)
+
+Đã chạy offline trên inventory 1.522 mã: đối chiếu raw code/label/đơn vị EPS,
+period/provider và raw value, giữ 53.716 reported EPS observations/1.427 mã
+(12.782 annual, 40.934 quý/lũy kế). Serving source có 47.208 EPS/1.426 mã sau
+khi giữ 6.508 source-zero chưa xác nhận ở trạng thái chờ đối chiếu; không gọi
+reported EPS là EPS tự tính hoặc independently verified. Ledger gồm 85.212
+period/mode slots × 6 families = 511.272 cells, có cả kỳ chưa có số.
+79.566 calculator evaluations/13.261 annual provider partitions vẫn chưa sinh
+score mới đủ điều kiện release: weighted shares/EPS numerator, đủ9 F signals,
+owned PPE depreciation, reconciled EBIT và dated valuation basis còn thiếu.
+Không dùng inferred shares/proxy EBIT hoặc ghép giá để tạo coverage giả.
+UI đổi sang năm/kỳ báo cáo và giải thích mục đích từng chỉ số; technical package
+IDs/vintages/hashes xuống source details. API đọc SQLite EPS theo ticker, không
+load 53k evidence rows mỗi request. 26 targeted tests, compile/synthetic smoke và
+production build PASS ở lượt kiểm này. Chưa đóng research/PIT gates hoặc deploy.
+[Runbook và artifacts](../web/README.md#bổ-sung-eps-theo-nămquý-và-trải-nghiệm-chỉ-số).
+
+## Nâng cấp DELTA — triển khai local, chưa release (24/10/2026)
+
+Đã triển khai D0/D1/U1–U3, diagnostics R0 và bounded R1 theo yêu cầu thực hiện
+hoàn chỉnh plan. [Kết quả từng stage, pins/tests và gates còn mở](DELTA_UPGRADE_PLAN.md#11-thực-thi-nâng-cấp--24102026).
+87 unique numeric observations/11 mã; hai Z FY2024 đã nối đúng vintage. UI năm trang
+đã tổ chức lại, 25 responsive cases PASS; R1 757 models được independent replay PASS. Có selector P1/P3 preview (202 snapshots), baseline vẫn mặc định.
+Chưa promote model, chưa đóng source/usefulness/PIT hoặc public release. Full suite
+984 tests còn một error do thiếu immutable legacy fixture, bốn Streamlit skips.
+
+
 ## Rà soát demo: sáu chỉ số và đồ thị phân cụm — 24/10/2026
 
 Đã sửa omission product: EPS/P/E/P/B/F/M/Z đã review có panel riêng tại Tra cứu cổ phiếu,

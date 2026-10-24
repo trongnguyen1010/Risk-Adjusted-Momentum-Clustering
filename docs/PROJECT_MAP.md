@@ -1,5 +1,20 @@
 # Project Map
 
+- `src/delta_t1/product/research_preview.py`, `scripts/export_delta_research_preview.py`: sidecar version mới, source pins, presentation aggregates; no fit.
+- `web/backend/app/previews.py`, `configs/product/model_previews_v1.json`: read-only baseline/R1 registry, composite revision và versioned stock/members/matrix/migration.
+- `scripts/verify_delta_research_preview.py`, `tests/unit/test_terminal_previews.py`: source replay và isolated contracts.
+
+## DELTA upgrade local — 24/10/2026
+
+- `scripts/audit_delta_upgrade.py`: coverage/provenance dedup, frozen geometry và tiny-source trace (no fit/network).
+- `configs/experiments/delta_upgrade_r1_v1.json`, `src/delta_t1/experiments/upgrade_reference.py`: bounded descriptive orchestration.
+- `src/delta_t1/clustering/reference_preprocessing.py`, `src/delta_t1/evaluation/reference_scorecard.py`: snapshot-local transforms và independent geometry layer.
+- `scripts/run_delta_upgrade_r1.py`, `scripts/verify_delta_upgrade_r1.py`: gated execution/recovery và independent no-fit replay.
+- `scripts/verify_delta_ui.cjs`, `scripts/measure_delta_ui.cjs`: optional browser/measurement gates.
+- `web/backend/app/alignment.py`: polynomial rectangular display-label matching; no frozen relabeling.
+- [Stage evidence/gaps](DELTA_UPGRADE_PLAN.md#11-thực-thi-nâng-cấp--24102026), [local/release runbook](../web/README.md).
+
+
 ## Execution59 — Product demo paths
 
 - `web/frontend/`: Next App Router, 5 research screens và components.

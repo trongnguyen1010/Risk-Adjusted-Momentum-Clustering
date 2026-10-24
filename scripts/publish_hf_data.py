@@ -1,7 +1,7 @@
 """Publish the verified DELTA presentation data to a public Hugging Face Dataset repo.
 
 Render (backend host) tải các file này lúc build Docker image. Script không sinh dữ liệu mới:
-chỉ upload bundle đã export và hai gói indicator đã pin hash, fail-closed nếu thiếu/sai hash.
+chỉ upload bundle đã export và các nguồn indicator và supplements đã pin hash, fail-closed nếu thiếu/sai hash.
 Token lấy từ HF_TOKEN hoặc cache của `huggingface_hub.login()`; không truyền token qua tham số.
 """
 import argparse
@@ -35,6 +35,18 @@ def collect():
             if not local.is_file() or sha256(local) != source[f'{key}_sha256']:
                 raise SystemExit(f'Indicator source missing or checksum mismatch: {source[key]}')
             files[source[key]] = local
+        for item in source.get('supplements',[]):
+            local=ROOT/item['file']
+            if not local.is_file() or sha256(local)!=item['sha256']:
+                raise SystemExit('Indicator supplementary evidence missing or checksum mismatch: '+item['file'])
+            files[item['file']]=local
+    preview=ROOT/'configs/product/model_previews_v1.json'
+    if preview.is_file():
+        pointer=json.loads(preview.read_bytes())
+        for key in ('manifest','file'):
+            local=ROOT/pointer[key]
+            if not local.is_file() or sha256(local)!=pointer[key+'_sha256']:raise SystemExit('Research preview source missing or checksum mismatch: '+pointer[key])
+            files[pointer[key]]=local
     return files
 
 

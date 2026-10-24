@@ -1,5 +1,14 @@
 # Documentation — START HERE
 
+## Kế hoạch nâng cấp DELTA Intelligence — 24/10/2026
+
+[Review và plan chi tiết: dữ liệu sáu chỉ số, phân cụm và UI/UX](DELTA_UPGRADE_PLAN.md).
+Đã triển khai UI/data adapters local và execute R1 theo yêu cầu owner; xem **§11**
+trong plan để đọc trạng thái từng stage, evidence và giới hạn. Audit có 87 unique
+numeric observations/11 mã; R1 757 models được independent verifier PASS, chưa promote; 202 snapshots P1/P3 đã nối research preview.
+Browser gate 25 responsive cases PASS; full suite 984 tests còn một fixture legacy thiếu.
+Source/peer review, ba người nghiệm thu usability và public release vẫn chưa hoàn tất.
+
 ## Execution59 — DELTA Intelligence demo web — 24/10/2026
 
 [Hướng dẫn chạy và ma trận prompt → implementation](../web/README.md).
