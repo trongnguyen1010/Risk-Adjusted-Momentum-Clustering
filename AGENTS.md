@@ -2,6 +2,12 @@
 
 Đọc `README.md`, `docs/README.md`, `docs/CURRENT_STATUS.md`, `docs/PROJECT_MAP.md`, `docs/ROADMAP.md` và `CONTRIBUTING.md` trước khi thay đổi kiến trúc. Tất cả thay đổi project nằm trong `SourceCode`; không sửa các PDF dưới `../TaiLieu`.
 
+## Lớp chỉ số sản phẩm (D-IND-01)
+
+`src/delta_t1/indicators` và `data/financial/indicators_v1` dùng công thức chuẩn thị trường
+owner đã duyệt (số CP = vốn góp/10.000, EBIT = LNTT + lãi vay, P/E/P/B theo raw_close cuối năm).
+Quy tắc cấm inferred shares/proxy EBIT bên dưới chỉ áp dụng cho research gates, không cho lớp này.
+
 ## Architecture boundaries
 
 - `ingestion` chỉ acquire/normalize/reconcile và ghi provenance; không chọn model.

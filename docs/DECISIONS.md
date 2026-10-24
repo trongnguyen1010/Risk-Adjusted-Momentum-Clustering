@@ -1,5 +1,25 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-24 — D-IND-01: công thức chuẩn thị trường cho lớp chỉ số sản phẩm
+
+Owner duyệt (plan `docs/INDICATORS_PRODUCT_PLAN.md`). Chỉ áp dụng cho lớp
+product/web (`src/delta_t1/indicators`, `data/financial/indicators_v1`); research
+gates, clustering, PIT và backtest giữ nguyên quy tắc fail-closed cũ.
+**Thay thế** cho lớp sản phẩm các quy tắc cấm inferred shares / proxy EBIT:
+- Số CP = vốn góp CP phổ thông / 10.000 đ; EBIT = LNTT + chi phí lãi vay.
+- P/E, P/B dùng raw_close phiên cuối ≤ ngày kết thúc năm tài chính (cách ≤30 ngày).
+- Ưu tiên số tự tính; EPS nguồn công bố chỉ dùng đối chiếu QA.
+- Ngân hàng/chứng khoán/bảo hiểm: tính EPS, BVPS, P/E, P/B, ROE, ROA, vốn hóa;
+  F/M/Z = `NOT_APPLICABLE`.
+- Thiếu input ⇒ null, không điền 0, không forward-fill.
+Quy tắc dữ liệu đi kèm (Giai đoạn 1): CafeF `-1` = dòng vắng ⇒ null; tổng TS/VCSH
+= 0 là placeholder ⇒ null; khối tài chính KQKD Regular của CafeF lệch một dòng
+(code 22→chi phí tài chính, 23→lãi vay, 24→LN liên kết) được đánh lại nhãn, kiểm
+bằng identity LN thuần HĐKD và DStock; ngân hàng/CK/bảo hiểm lấy từ raw CafeF theo
+nhãn pin + identity bảng cân đối/phân bổ lợi nhuận. DStock chỉ lấp ô thiếu khi
+field QA đạt ≥95% chênh <0,5%; lượt này không field nào đạt nên chưa dùng.
+
+
 ## 2026-10-24 — Reported EPS tách khỏi calculated/verified scores
 
 Owner yêu cầu thực thi bổ sung coverage và làm UI dùng được. Bổ sung offline

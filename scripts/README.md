@@ -1,5 +1,13 @@
 # Lệnh làm việc hiện tại
 
+## Indicators v1 (D-IND-01) — lớp chỉ số sản phẩm
+
+```powershell
+python scripts/build_indicator_inputs.py   # Giai đoạn 1: ~7 phút, ghi data/financial/indicators_v1/inputs/<run-id>/
+```
+
+Run mới không ghi đè run cũ; `data/financial/indicators_v1/inputs/latest.json` trỏ run gần nhất.
+
 ## A/B/C reference hiện hành
 
 ```powershell

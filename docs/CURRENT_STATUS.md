@@ -1,5 +1,16 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Indicators v1 — Giai đoạn 1 (bảng input chuẩn) xong, local (25/10/2026)
+
+Nhánh `feature/indicators-v1`. `scripts/build_indicator_inputs.py` →
+`data/financial/indicators_v1/inputs/inputs-3be22c6b787f1e30/` (inputs-wide.parquet, coverage,
+checks, dstock-mapping-qa, manifest/input-pins). 1.508 mã, 14.122 mã-năm 2015–2025.
+2025: 1.369 mã có tổng tài sản; ngân hàng 29/29, bảo hiểm 11, CK 41 lấy từ raw CafeF.
+Sửa lệch một dòng khối chi phí tài chính/lãi vay của CafeF (khớp DStock 95–98%).
+DStock không đạt ngưỡng QA (tổng TS 93,7%) ⇒ chưa lấp 628 mã-năm — cần owner quyết.
+Tiếp theo: Giai đoạn 2 (engine `compute.py` + `build_indicators.py`).
+
+
 ## Bổ sung EPS theo kỳ và UX chỉ số — local, chưa release (24/10/2026)
 
 Đã chạy offline trên inventory 1.522 mã: đối chiếu raw code/label/đơn vị EPS,
