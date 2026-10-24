@@ -1,5 +1,39 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Rà soát demo: sáu chỉ số và đồ thị phân cụm — 24/10/2026
+
+Đã sửa omission product: EPS/P/E/P/B/F/M/Z đã review có panel riêng tại Tra cứu cổ phiếu,
+API v2 indicators, pin hai nguồn (85 numeric rows/11 mã và pilot5 29/30 subset; không cộng trùng).
+FPT pilotFY2025: EPS5216,068015; PE14,301961; PB3,483579; F3/9; M−2,279981; Z7,106292.
+PE/PB dùng raw22/04/2026, book31/12/2025; không gán vào market31/12/2025 như PIT.
+Snapshot/vintage và YTD/quarter được giữ riêng; VNM F thiếu vẫnnull. Không tính lại/model mới.
+
+Review source `dual-cluster-review-v1/separation-drivers.csv`: A31/12/2025 liquidity share
+0,9999658458053156; native groups26/1384. Atlas cảnh báo rõ baseline bị liquidity chi phối.
+Website owner gửi (`cafz.phuongquan.vn/companyDetail/FPT`) có tab Tech Peers Clustering,
+quan sát7mã/3màu/trụcPE–ROE, chưa có protocol/scaler/cohort đầy đủ để chứng nhận chất lượng.
+Không lấy giá trị hoặc labels của website làm research input.
+
+Giao diện demo đã Việt hóa theo yêu cầu owner: 5 màn hình, nhãn đặc trưng, trạng thái, hướng dẫn và định dạng `vi-VN`; giữ mã feature, công thức và protocol gốc để đối chiếu. Không thay dữ liệu hoặc mô hình.
+
+## Execution59 — Demo web A/B/C đã triển khai — 24/10/2026
+
+Web mới `web/frontend` (Next.js/TypeScript/ECharts/TanStack) + `web/backend` (FastAPI)
+đọc SQLite presentation local, giữ dashboard cũ. Adapter không fit/scaler/research metric.
+Bundle thật có 75.801 A, 11.720 B, 5.593 C observations và 3.214.287 daily price rows.
+API verify checksum, read-only; missing/ambiguous fail closed, không forward-fill hoặc
+trộn price basis. Migration alignment chỉ đổi display target labels; original labels giữ nguyên.
+
+10 API contract tests PASS; compileall + legacy JS syntax PASS; production build PASS.
+Verifier thực PASS: 101 snapshots/219 profiles/7 matrices/22 hashes, sample price replay.
+Full suite 240s: PARTIAL, 254 tests OK trước fixture crawl 50 mã bị timeout; không có full-suite PASS.
+Browser QA đã kiểm Overview, Atlas C/tiny cluster/FPT drawer, Stock Explorer,
+Financial matrix/FY2016 empty state và Research Lab; responsive 390px.
+
+Chạy `python scripts/start_delta_terminal.py`; [setup và giới hạn](../web/README.md).
+Code stage59 đang local; chưa push. Data, node_modules và .next bị ignore.
+Financial published_at vẫn 0/11.720; fixed full10 survivorship bias và tiny clusters chưa giải quyết.
+
 ## Execution58 — A/B đối chiếu và C kết hợp đã chạy — 24/10/2026
 
 Đã giữ A market-only (168 profiles/84tháng) và B financial-only (30 profiles/10năm)

@@ -1,5 +1,15 @@
 # Product Layer
 
+## Execution59 — DELTA Intelligence local terminal
+
+Active demo tại `web/frontend` và `web/backend`; xem [hướng dẫn](../web/README.md).
+5 modules: Overview, Cluster Atlas, Stock Explorer, Financial Lens, Research Lab.
+Thêm immutable presentation index bằng adapter, FastAPI parameterized read-only,
+Next same-origin proxy. UI không đọc raw sources hoặc fit/recompute model.
+Quartiles/medians là descriptive presentation aggregates; saved diagnostics đọc nguyên.
+Annual FY/December joins ghi ex-post; không dùng API để tuyên bố historical availability.
+Migration maximum-overlap label alignment chỉ phục vụ display. No live/F/M/Z/backtest fallback.
+
 ## M3 thesis dashboard
 
 Phạm vi M3 là dashboard đọc versioned experiment artifacts để hiển thị ticker detail, market analytics, cluster, peer stocks, transition history, feature explanation, PCA/UMAP visualization, data quality và provenance. Dashboard không đọc raw data trực tiếp và không recompute scaler/model/metric.

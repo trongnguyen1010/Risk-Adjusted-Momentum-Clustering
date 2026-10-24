@@ -1,5 +1,24 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-24 — Sáu chỉ số reference không đồng nhất với core ratios
+
+Owner hỏi bộ6chỉ số đã tính và so sánh website tham chiếu. Product bổ sung read-only
+adapter cho kết quả đã review EPS/PE/PB/F/M/Z và tách gói/kỳ/snapshot; không thay
+frozen numerical artifacts hoặc clustering inputs. Theo dõi manifest/CSV hashes,
+giữ decimal text và null. Dates của valuations không lấy từ date selector của market.
+Giữ baselineA dù geometry bị thanh khoản chi phối; thông báo rõ thay vì tự đổi k/preprocessing.
+
+## 2026-10-24 — Execution59: web demo theo yêu cầu owner
+
+Owner gửi prompt DELTA Intelligence và yêu cầu so với project, triển khai demo.
+Chọn Next.js + FastAPI + SQLite presentation index để đọc dữ liệu local lớn qua query
+thay vì gửi toàn bộ canonical history vào browser. Giữ static web và monitor cũ.
+Không thay methodology A/B/C; không fit ở runtime, không nâng readiness gates.
+Label alignment và signed-log axes chỉ là presentation, raw labels/features vẫn giữ.
+Không tạo synthetic demo results, không ghép missing giá/basis, không lấp membership khác ngày.
+Bundle và dependency caches giữ local ignored; exporter từ chối overwrite; API hash-check lúc startup.
+[Contract và runbook](../web/README.md); tests ở `tests/unit/test_terminal_api.py`.
+
 ## 2026-10-23 — Integration market và financial
 
 Owner yêu cầu hợp nhất sau kiểm tra hai nhánh và ZIP. Financial checkpoint819cd82,

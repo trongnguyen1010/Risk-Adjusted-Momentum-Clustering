@@ -1,5 +1,14 @@
 # Documentation — START HERE
 
+## Execution59 — DELTA Intelligence demo web — 24/10/2026
+
+[Hướng dẫn chạy và ma trận prompt → implementation](../web/README.md).
+Next.js + FastAPI đọc presentation SQLite từ A/B/C, 5 modules, global search,
+time machine, migration alignment, price history, financial matrix và provenance.
+Targeted API 10 tests PASS; production build PASS; actual-bundle verification PASS
+(101 snapshots, 219 profiles, 3.214.287 prices, 22 source hashes). Full gate 240s
+vẫn PARTIAL tại crawl fixture, 254 tests OK trước timeout. Không mở research/PIT/M3 gates.
+
 ## Execution58 — A/B đối chiếu và C kết hợp đã chạy — 24/10/2026
 
 Đã giữ A market-only (168 profiles/84tháng) và B financial-only (30 profiles/10năm)

@@ -1,5 +1,12 @@
 # Roadmap DELTA
 
+## Execution59 — Research demo web
+
+Đã triển khai local demo 5 modules dùng A/B riêng và C combined reference.
+Product layer đọc artifact; scope này không phải final M3 backtest.
+[Setup và functional mapping](../web/README.md). Hosting public, auth, live feed,
+F/M/Z đầy đủ và financial PIT không nằm trong bản demo này.
+
 ## Execution58 — A/B đối chiếu và C kết hợp đã chạy — 24/10/2026
 
 Đã giữ A market-only (168 profiles/84tháng) và B financial-only (30 profiles/10năm)
