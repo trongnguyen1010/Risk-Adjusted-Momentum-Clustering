@@ -1,5 +1,12 @@
 # DELTA — dữ liệu và phân cụm cổ phiếu Việt Nam
 
+## Demo web — DELTA Intelligence (Execution59)
+
+Đã thêm web local đọc cả A market, B financial và C combined: Overview, Cluster Atlas,
+Stock Explorer, Financial Lens và Research Lab. Chạy `python scripts/start_delta_terminal.py`.
+Xem [setup, so sánh prompt và phạm vi dữ liệu](web/README.md). Không fit lại model;
+financial/combined vẫn ex-post reference, không PIT/backtest. Dữ liệu lớn giữ local.
+
 **Execution58 (24/10/2026):** có A market-only, B financial-only riêng và bảng đối chiếu;
 C kết hợp14features đã chạy theo owner-approved protocol:7models/5.593assignments,
 2025 chia663/479/6. Đây là descriptive reference, không PIT/backtest; quality REVIEW_REQUIRED.

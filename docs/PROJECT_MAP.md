@@ -1,5 +1,15 @@
 # Project Map
 
+## Execution59 — Product demo paths
+
+- `web/frontend/`: Next App Router, 5 research screens và components.
+- `web/backend/app/`: read-only API v2 + SQLite repository.
+- `src/delta_t1/product/terminal_export.py`: adapter A/B/C → presentation index, không fit.
+- `scripts/export_delta_terminal.py`, `scripts/start_delta_terminal.py`, `scripts/verify_delta_terminal.py`.
+- `tests/unit/test_terminal_api.py`: isolated contract fixtures.
+- `data/web/delta-intelligence-v1/`: bundle local ignored; manifest pins source hashes.
+- [Demo guide](../web/README.md). Static web/monitor/Streamlit giữ nguyên.
+
 ## Execution58 — A/B đối chiếu và C kết hợp đã chạy — 24/10/2026
 
 Đã giữ A market-only (168 profiles/84tháng) và B financial-only (30 profiles/10năm)

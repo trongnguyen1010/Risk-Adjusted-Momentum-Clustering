@@ -1,5 +1,20 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Demo follow-up — bộ sáu chỉ số reference và chất lượng cụm (2026-10-24)
+
+Bổ sung API/panel EPS/P/E/P/B/F/M/Z từ hai gói đã pin hash; giữ nguyên decimal,
+null, kỳ YTD/quý và snapshot/vintage. Tách khỏi sáu core ratios của B/C.
+Thêm cảnh báo thanh khoản chi phối baseline A; không refit/đổi model hoặc research gates.
+16 targeted API/adapter tests, production build, compileall và legacy JS syntax PASS.
+
+## Execution59 — DELTA Intelligence demo web (2026-10-24)
+
+Thêm Next.js terminal 5 modules, FastAPI read-only, A/B/C SQLite exporter/verifier,
+search, timeline, scatter, migration alignment, security drawer, historical prices,
+stock comparison, financial intersection và Research Lab. Giữ data/research gates.
+10 API tests, production build, compileall, legacy JS syntax và 22-source replay PASS.
+Full suite PARTIAL (240s timeout ở crawl fixture). [Runbook](web/README.md).
+
 ## Integration market–financial — 23/10/2026
 
 Financial Execution56 checkpoint `819cd82` đã merge cùng market `340519d` trên
