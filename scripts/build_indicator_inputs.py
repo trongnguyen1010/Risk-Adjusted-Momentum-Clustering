@@ -46,12 +46,13 @@ def main():
     families = ind.load_families(pins, READINESS)
     regular, regular_stats = ind.load_cafef_regular(pins, JOB, families)
     financial, financial_stats = ind.load_cafef_financial(pins, JOB, families)
+    direct, direct_stats = ind.load_cafef_direct_cashflow(pins, JOB, families, regular)
     raw = sorted(Path(p).relative_to(ROOT).as_posix() for p in glob.glob(str(ROOT / DSTOCK_GLOB)))
     regular_tickers = set(families.loc[families.template_family == 'Regular', 'ticker'])
     dstock, dstock_stats = ind.load_dstock(pins, raw, regular_tickers)
     dstock_report = ind.validate_dstock(regular, dstock)
     accepted = set(dstock_report.loc[dstock_report.accepted, 'field'])
-    long = ind.combine([regular, financial], dstock, accepted)
+    long = ind.combine([regular, financial, direct], dstock, accepted)
     wide = ind.pivot_wide(long, families, securities())
     checks = ind.run_checks(wide)
     coverage = ind.coverage(wide)
@@ -81,7 +82,7 @@ def main():
             (out / name).write_bytes(body)
     by_source = long.source.str.split(':').str[0].value_counts().to_dict()
     summary = dict(run_id=run_id, tickers=int(wide.ticker.nunique()), rows=len(wide), cells=len(long),
-                   cells_by_source=by_source, regular=regular_stats, financial=financial_stats, dstock=dstock_stats,
+                   cells_by_source=by_source, regular=regular_stats, financial=financial_stats, direct_cashflow=direct_stats, dstock=dstock_stats,
                    dstock_fields_accepted=sorted(accepted), checks=checks.check.str.split(':').str[0].value_counts().to_dict(),
                    tickers_by_year=wide.groupby('fiscal_year').ticker.nunique().to_dict())
     manifest = {name: digest((out / name).read_bytes()) for name in sorted(products)}

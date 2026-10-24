@@ -78,6 +78,21 @@ class ComputeTest(unittest.TestCase):
         self.assertAlmostEqual(z['value'], sum(c.Z_COEFFICIENTS[k] * x[k] for k in c.Z_COEFFICIENTS))
         self.assertEqual(self.y['z_score_dp']['inputs']['variant'], 'Z_DOUBLE_PRIME')
 
+    def test_m_score_depreciation_falls_back_to_accumulated_change(self):
+        dep = 'aggregate_fixed_property_depreciation_amortization'
+        acc = c.ACCUMULATED_DEPRECIATION
+        rows = {y: {k: val for k, val in regular(s, **{acc: -a}).items() if k != dep}
+                for y, s, a in ((2023, 0.8, 4_000e9), (2024, 0.9, 4_720e9), (2025, 1.0, 5_520e9))}
+        m = c.compute_year(rows, PRICES, 2025, 'NON_FINANCIAL')['m_score']
+        self.assertEqual(m['status'], c.OK)
+        self.assertIn('DEP_FROM_ACCUMULATED_DEPRECIATION:t', m['inputs']['flags'])
+        self.assertIn('DEP_FROM_ACCUMULATED_DEPRECIATION:p', m['inputs']['flags'])
+        ppe_t, ppe_p = 8_000e9, 7_200e9
+        expected = (720e9 / (720e9 + ppe_p)) / (800e9 / (800e9 + ppe_t))
+        self.assertAlmostEqual(m['inputs']['variables']['DEPI'], expected)
+        rows[2023].pop(acc)  # no prior accumulated depreciation -> no fallback for p
+        self.assertEqual(c.compute_year(rows, PRICES, 2025, 'NON_FINANCIAL')['m_score']['status'], c.MISSING_INPUT)
+
     def test_missing_price_and_negative_earnings(self):
         rows = {**ROWS, 2025: regular(1.0, parent_net_profit=-500e9)}
         y = c.compute_year(rows, {}, 2025, 'NON_FINANCIAL')
