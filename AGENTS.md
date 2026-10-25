@@ -8,6 +8,24 @@
 owner đã duyệt (số CP = vốn góp/10.000, EBIT = LNTT + lãi vay, P/E/P/B theo raw_close cuối năm).
 Quy tắc cấm inferred shares/proxy EBIT bên dưới chỉ áp dụng cho research gates, không cho lớp này.
 
+## Crawl thực dụng (D-CRAWL-02, 25/10/2026)
+
+Owner nới quy trình thu thập: ưu tiên lấy được dữ liệu, vẫn giữ raw/receipt/hash.
+
+- Không còn latch toàn campaign khi một route/mã gặp lỗi. HTTP 403/429/5xx/timeout: retry tối đa 3 lần với
+  backoff (30 giây, 2 phút, 10 phút); vẫn lỗi thì đánh dấu mã/trang đó `DEFERRED` và chạy tiếp mã khác.
+  Phiên sau được resume các mục `DEFERRED`.
+- Không bắt buộc pilot gate trước khi scale: smoke 20 mã rồi chạy toàn bộ. Budget/tốc độ đặt trong config
+  của từng run, không có hard cap chung.
+- Ngày gửi trên trang Công bố thông tin CafeF (`CreateDate`) được dùng làm ngày công bố cho lớp sản phẩm và
+  M3 (`publication_source=CAFEF_DISCLOSURE`, DATE_ONLY, dùng được từ phiên giao dịch đầu tiên sau ngày đó);
+  không cần câu công bố trong PDF hay khớp hash PDF.
+- Vẫn cấm: giải CAPTCHA/JS challenge, giả đăng nhập, xoay IP/proxy hoặc giả vân tay trình duyệt để né chặn,
+  vượt paywall. Gặp những cơ chế này thì dừng route đó và báo owner.
+
+Quy định cũ nghiêm hơn ở `docs/crawl/` và các gate research/PIT cũ vẫn là lịch sử; khi mâu thuẫn, mục này
+được ưu tiên cho thu thập dữ liệu mới.
+
 ## Architecture boundaries
 
 - `ingestion` chỉ acquire/normalize/reconcile và ghi provenance; không chọn model.
@@ -57,7 +75,7 @@ Quy tắc cấm inferred shares/proxy EBIT bên dưới chỉ áp dụng cho res
 
 ## Forbidden shortcuts
 
-Không hard-code feature validity bằng prefix; không sinh Sharpe trong active feature snapshot; không duplicate metrics trong model; không đặt placeholder thành kết quả; không crawl lớn trước source/pilot gates; không bypass login/anti-bot/paywall/access control; không thêm microservice, broker, Kubernetes, auth/news/sentiment/database migration ngoài active milestone.
+Không hard-code feature validity bằng prefix; không sinh Sharpe trong active feature snapshot; không duplicate metrics trong model; không đặt placeholder thành kết quả; không crawl lớn khi chưa smoke 20 mã (D-CRAWL-02); không bypass login/anti-bot/paywall/access control; không thêm microservice, broker, Kubernetes, auth/news/sentiment/database migration ngoài active milestone.
 
 ## Single-agent execution policy
 
