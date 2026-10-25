@@ -7,7 +7,7 @@ ARG DATA_BASE_URL=https://huggingface.co/datasets/ngyen/delta-intelligence-data/
 ENV PYTHONUNBUFFERED=1 \
     PYTHONIOENCODING=utf-8 \
     PYTHONPATH=/app/web/backend \
-    DELTA_BUNDLE=/app/data/web/delta-intelligence-v1
+    DELTA_BUNDLE=/app/data/web/delta-intelligence-v2
 
 WORKDIR /app
 COPY web/backend/requirements.txt /tmp/requirements.txt
