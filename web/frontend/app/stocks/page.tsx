@@ -116,6 +116,21 @@ export default function Stocks() {
               </p>
             </div>
           </header>
+          {o.groups && o.groups.some((g) => g.name) && (
+            <ul className="stock-groups" aria-label="Nhóm cổ phiếu">
+              {o.groups
+                .filter((g) => g.name)
+                .map((g) => (
+                  <li key={g.kind}>
+                    <a href={`/atlas?kind=${g.kind}&date=${g.date}&cluster=${g.cluster}`}>
+                      <small>{g.kind === "market" ? "Nhóm giá" : g.kind === "financial" ? "Nhóm tài chính" : "Nhóm kết hợp"}</small>
+                      {g.name}
+                    </a>
+                    {g.description && <InfoTip label={g.name || ""} text={g.description} />}
+                  </li>
+                ))}
+            </ul>
+          )}
           {o.cards.length ? (
             <>
               <p className="cards-caption">Chỉ số năm tài chính {o.latest_fiscal_year}</p>

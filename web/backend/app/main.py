@@ -101,7 +101,23 @@ def create_app(repository=None,fundamentals=None):
             found=repo(request).query("SELECT date,liquidity FROM observations WHERE kind='market' AND ticker=? ORDER BY date DESC LIMIT 1",(company['ticker'],))
         except sqlite3.OperationalError:found=[]  # Bundles before v3 have no liquidity column.
         body['liquidity']=dict(status=found[0]['liquidity'],date=found[0]['date']) if found and found[0]['liquidity'] else None
+        body['groups']=stock_groups(request,company['ticker'])
         return body
+    def stock_groups(request,ticker):
+        """The ticker's cluster in the latest snapshot of each model, with its plain-language name (bundle v4+)."""
+        out=[]
+        for kind in ('market','financial','combined'):
+            latest=repo(request).query('SELECT date FROM snapshots WHERE kind=? ORDER BY date DESC LIMIT 1',(kind,))
+            if not latest:continue
+            day=latest[0]['date']
+            own=repo(request).query('SELECT cluster FROM observations WHERE kind=? AND date=? AND ticker=?',(kind,day,ticker))
+            if not own:continue
+            try:
+                story=repo(request).query('SELECT name,description FROM profiles WHERE kind=? AND date=? AND cluster=?',(kind,day,own[0]['cluster']))
+            except sqlite3.OperationalError:story=[]  # Bundles before v4 have no names.
+            out.append(dict(kind=kind,date=day,cluster=own[0]['cluster'],
+                            name=story[0]['name'] if story else None,description=story[0]['description'] if story else None))
+        return out
     @app.get('/api/v2/stocks/{ticker}/fundamentals')
     def stock_fundamentals(request:Request,ticker:str,start:int=Query(2016,alias='from'),end:int=Query(2025,alias='to')):
         return fund(request).fundamentals(ticker,start,end)

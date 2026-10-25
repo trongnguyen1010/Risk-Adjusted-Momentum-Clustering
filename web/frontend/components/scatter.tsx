@@ -13,6 +13,8 @@ export function Scatter({
   query = "",
   mini = false,
   symlog = false,
+  map = false,
+  names = {},
 }: {
   data: SnapshotData;
   x: string;
@@ -24,11 +26,18 @@ export function Scatter({
   query?: string;
   mini?: boolean;
   symlog?: boolean;
+  /** Model map: _map_x/_map_y are PCA axes without units. */
+  map?: boolean;
+  names?: Record<number, string | null | undefined>;
 }) {
   const transform = (v: number | null) =>
     v === null ? null : symlog ? Math.sign(v) * Math.log1p(Math.abs(v)) : v;
   const axisName = (field: string) =>
-    `${data.definitions[field]?.label || field} (${data.definitions[field]?.unit === "percent" ? "%" : data.definitions[field]?.unit === "vnd" ? "VND" : "lần"})`;
+    map
+      ? field === "_map_x"
+        ? "Trục chính 1"
+        : "Trục chính 2"
+      : `${data.definitions[field]?.label || field} (${data.definitions[field]?.unit === "percent" ? "%" : data.definitions[field]?.unit === "vnd" ? "VND" : "lần"})`;
   return (
     <Chart
       height={height}
@@ -54,9 +63,12 @@ export function Scatter({
                   value: number[];
                   raw: number[];
                   cluster: number;
+                  illiquid?: boolean;
                 };
               }
             ).data;
+            if (map)
+              return `${d.ticker} · ${FAMILY[kind].letter}${d.cluster}${names[d.cluster] ? ` · ${names[d.cluster]}` : ""}${d.illiquid ? "\nKém thanh khoản: được xếp vào nhóm gần nhất" : ""}`;
             return `${d.ticker} · ${FAMILY[kind].letter}${d.cluster} · ${data.snapshot.date}\n${data.definitions[x]?.label || x}: ${metric(d.raw[0], x)}\n${data.definitions[y]?.label || y}: ${metric(d.raw[1], y)}`;
           },
         },
@@ -66,7 +78,7 @@ export function Scatter({
           name: mini ? undefined : symlog ? `log1p có dấu · ${x}` : axisName(x),
           axisLabel: {
             ...axis.axisLabel,
-            ...(!symlog ? { formatter: (v: number) => metric(v, x) } : {}),
+            ...(!symlog && !map ? { formatter: (v: number) => metric(v, x) } : {}),
           },
           scale: true,
           show: !mini,
@@ -79,7 +91,7 @@ export function Scatter({
           name: mini ? undefined : symlog ? `log1p có dấu · ${y}` : axisName(y),
           axisLabel: {
             ...axis.axisLabel,
-            ...(!symlog ? { formatter: (v: number) => metric(v, y) } : {}),
+            ...(!symlog && !map ? { formatter: (v: number) => metric(v, y) } : {}),
           },
           scale: true,
           show: !mini,
@@ -101,7 +113,7 @@ export function Scatter({
           .sort((a, b) => a - b)
           .map((cluster) => ({
             type: "scatter" as const,
-            name: `${FAMILY[kind].letter}${cluster}`,
+            name: `${FAMILY[kind].letter}${cluster}${names[cluster] ? ` · ${names[cluster]}` : ""}`,
             symbolSize: mini ? 4 : 7,
             emphasis: {
               scale: 1.7,
@@ -124,6 +136,8 @@ export function Scatter({
               .map((p) => ({
                 ticker: p.ticker,
                 cluster,
+                illiquid: p.liquidity === "ILLIQUID",
+                symbolSize: mini ? 4 : p.liquidity === "ILLIQUID" ? 5 : 7,
                 value: [transform(p.features[x]), transform(p.features[y])],
                 raw: [p.features[x], p.features[y]],
                 itemStyle: {
@@ -132,7 +146,9 @@ export function Scatter({
                     (query &&
                       !p.ticker.toLowerCase().includes(query.toLowerCase()))
                       ? 0.08
-                      : 0.78,
+                      : p.liquidity === "ILLIQUID"
+                        ? 0.3
+                        : 0.78,
                 },
               })),
           })),

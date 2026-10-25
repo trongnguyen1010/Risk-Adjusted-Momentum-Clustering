@@ -1,5 +1,13 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Bundle v4 = v3 + giải thích (bản đồ mô hình, tên cụm) — đã build, CHỜ OWNER KIỂM TRA (25/10/2026)
+
+`scripts/build_delta_bundle_v4.py` → `data/web/delta-intelligence-v4/` (cụm giữ nguyên như v3, không học lại).
+Atlas mặc định "Bản đồ mô hình" (PCA của không gian mô hình), tên + mô tả 1 câu cho mỗi cụm
+(`src/delta_t1/product/cluster_story.py`), khung "Mô hình hoạt động thế nào?"; trang cổ phiếu hiện nhóm giá/tài
+chính/kết hợp của mã. Deploy vẫn trỏ v2.
+
+
 ## Bundle v3 (học trên mã có giao dịch, gán phần còn lại) — đã build, CHỜ OWNER KIỂM TRA (25/10/2026)
 
 `scripts/build_delta_bundle_v3.py` → `data/web/delta-intelligence-v3/` (v1, v2 giữ nguyên; deploy vẫn trỏ v2).

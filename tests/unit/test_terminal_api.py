@@ -153,6 +153,13 @@ class FundamentalsApiTests(unittest.TestCase):
         self.assertEqual(body['price']['close'],123);self.assertIsNone(body['price']['change_1d'])  # no adjusted close: no change shown
         self.assertTrue(any('ROE 3 năm' in line for line in body['summary']))
         self.assertTrue(any('giảm 10%' in line for line in body['summary']))
+    def test_groups_without_story_columns_have_no_names(self):
+        groups=self.get('TESTA/overview')['groups']
+        self.assertEqual({g['kind'] for g in groups},{'market','financial','combined'})
+        self.assertTrue(all(g['name'] is None for g in groups))  # pre-v4 bundle: no name column, no error
+        market=[g for g in groups if g['kind']=='market'][0]
+        self.assertEqual((market['date'],market['cluster']),('2025-12-31',1))
+        self.assertEqual(self.get('TESTC/overview')['groups'],[])
     def test_liquidity_flag_from_latest_market_observation(self):
         self.assertEqual(self.get('TESTB/overview')['liquidity'],dict(status='ILLIQUID',date='2024-12-31'))
         self.assertEqual(self.get('TESTA/overview')['liquidity']['status'],'LIQUID')
