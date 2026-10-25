@@ -7,6 +7,7 @@ import "@fontsource/inter/700.css";
 import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/600.css";
 import "./globals.css";
+import "./blueprint.css";
 import { Providers } from "@/components/providers";
 import { Shell } from "@/components/shell";
 import { THEME_BOOT } from "@/components/theme-toggle";
