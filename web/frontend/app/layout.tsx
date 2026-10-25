@@ -9,6 +9,7 @@ import "@fontsource/jetbrains-mono/600.css";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { Shell } from "@/components/shell";
+import { THEME_BOOT } from "@/components/theme-toggle";
 export const metadata: Metadata = {
   title: "DELTA Intelligence · Nghiên cứu cổ phiếu Việt Nam",
   description:
@@ -20,7 +21,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi">
+    <html lang="vi" data-theme="dark" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body>
         <a className="skip-link" href="#main-content">
           Chuyển đến nội dung nghiên cứu

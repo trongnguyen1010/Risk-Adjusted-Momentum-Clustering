@@ -21,7 +21,7 @@ import {
 import { useApi, useDebounced, url } from "@/lib/api";
 import type { Security } from "@/lib/types";
 import { useCatalog } from "./providers";
-import { Badge } from "./ui";
+import { ThemeToggle } from "./theme-toggle";
 const nav = [
   { href: "/", label: "Tổng quan", icon: LayoutDashboard, tag: "01" },
   { href: "/atlas", label: "Bản đồ phân cụm", icon: Telescope, tag: "02" },
@@ -123,55 +123,45 @@ export function Shell({ children }: { children: React.ReactNode }) {
                 d="M15 2 29 27H20L15 18 10 27H1L15 2Z"
                 fill="currentColor"
               />
-              <path d="M15 9 21 20H9L15 9Z" fill="#0c1421" />
+              <path d="M15 9 21 20H9L15 9Z" style={{ fill: "var(--surface)" }} />
             </svg>
           </span>
-          <span>
-            DELTA<span className="brand-sub">INTELLIGENCE</span>
+          <span className="brand-text">
+            DELTA<span className="brand-sub">Intelligence</span>
           </span>
         </Link>
-        <div className="workspace-label">
-          <span className="small-dot" />
-          Không gian nghiên cứu <span className="version-tag">V1</span>
-        </div>
-        <div className="nav-label">KHÁM PHÁ</div>
+        <div className="nav-label">Khám phá</div>
         <nav>
-          {nav.map(({ href, icon: Icon, label, tag }) => (
+          {nav.map(({ href, icon: Icon, label }) => (
             <Link
               key={href}
               href={href}
               className={`nav-item ${pathname === href ? "selected" : ""}`}
               aria-current={pathname === href ? "page" : undefined}
             >
-              <Icon size={18} strokeWidth={1.6} />
+              <Icon size={18} strokeWidth={1.8} />
               <span>{label}</span>
-              <span className="nav-index">{tag}</span>
             </Link>
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="archive-box">
-            <Boxes size={20} />
-            <h3>Nghiên cứu từ bằng chứng.</h3>
-            <p>
-              Khám phá kết quả đã lưu. Không cung cấp giá trực tiếp hay khuyến
-              nghị danh mục.
-            </p>
-            <Link href="/lab">
-              Giới hạn nghiên cứu <ArrowUpRight size={13} />
-            </Link>
-          </div>
           <button className="tour-button" onClick={() => move(0)}>
             <Sparkles size={16} />
             Hướng dẫn khám phá
             <ArrowRight size={14} />
           </button>
+          <Link className="tour-button" href="/lab">
+            <Boxes size={16} />
+            Giới hạn nghiên cứu
+            <ArrowUpRight size={14} />
+          </Link>
+          <ThemeToggle variant="segmented" />
           <div className="sidebar-footer">
-            <span className="avatar">Δ</span>
+            <span className="small-dot" />
             <div>
-              DELTA Research<small>Cổ phiếu Việt Nam · dữ liệu lịch sử</small>
+              Dữ liệu lịch sử, chỉ đọc
+              <small>Cập nhật đến {data?.datasets.market.latest.date || "—"}</small>
             </div>
-            <Check size={14} />
           </div>
         </div>
       </aside>
@@ -186,20 +176,17 @@ export function Shell({ children }: { children: React.ReactNode }) {
             >
               <Menu size={20} />
             </button>
-            <span>Trạm nghiên cứu</span>
+            <span className="crumb-root">DELTA</span>
             <ChevronRight size={14} />
             <strong>{page}</strong>
           </div>
           <div className="topbar-actions">
-            <Badge tone="subtle">
-              <span className="small-dot" />
-              Dữ liệu lịch sử
-            </Badge>
             <button className="global-search" onClick={() => setSearch(true)}>
               <Search size={15} />
               <span>Tìm cổ phiếu</span>
               <kbd>Ctrl K</kbd>
             </button>
+            <ThemeToggle />
           </div>
         </header>
         <main id="main-content" className="main-content">

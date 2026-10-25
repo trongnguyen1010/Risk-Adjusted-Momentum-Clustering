@@ -51,7 +51,7 @@ export default function Overview() {
             <ArrowUpRight size={14} />
           </Link>
         ))}
-        <Link href="/financial?tab=coverage">Độ phủ sáu chỉ số ↗</Link>
+        <Link href="/financial?tab=coverage">Độ phủ chỉ số tài chính ↗</Link>
       </div>
       <section
         className="model-cards section-gap"
@@ -72,10 +72,10 @@ export default function Overview() {
             <strong>{number(d[kind].latest.n)}</strong>
             <p>
               {kind === "market"
-                ? "Mã đủ điều kiện thị trường"
+                ? "Cổ phiếu được phân nhóm theo hành vi giá"
                 : kind === "financial"
-                  ? "Doanh nghiệp có đủ 10 năm báo cáo"
-                  : "Mã có cả dữ liệu A và B"}
+                  ? "Doanh nghiệp được phân nhóm theo tài chính"
+                  : "Cổ phiếu có cả dữ liệu giá và tài chính"}
             </p>
             <small>{dateLabel(d[kind].latest.date)}</small>
           </Link>
@@ -84,7 +84,7 @@ export default function Overview() {
       <div className="grid-two section-gap">
         <Panel
           title="Cấu trúc kết hợp gần nhất"
-          eyebrow={`C · ${d.combined.latest.date} · RAW AXES`}
+          eyebrow={`Mô hình C · ${dateLabel(d.combined.latest.date)}`}
           action={
             <Link
               className="text-link"
@@ -101,8 +101,10 @@ export default function Overview() {
           ) : (
             <Scatter
               data={state.data}
-              x="mom_63"
-              y="net_margin"
+              x={state.data.points.some((p) => p.features._map_x != null) ? "_map_x" : "mom_63"}
+              y={state.data.points.some((p) => p.features._map_x != null) ? "_map_y" : "net_margin"}
+              map={state.data.points.some((p) => p.features._map_x != null)}
+              names={Object.fromEntries(state.data.profiles.map((pr) => [pr.cluster, pr.name]))}
               kind="combined"
               height={340}
               onSelect={(ticker) =>
@@ -113,11 +115,11 @@ export default function Overview() {
             />
           )}
           <p className="panel-note">
-            Động lượng 63 phiên × biên lợi nhuận ròng: đối chiếu hành vi giá và
-            nền tảng tài chính. Hai trục này không đại diện toàn bộ 14 đầu vào.
+            Mỗi chấm là một cổ phiếu; chấm gần nhau là cổ phiếu giống nhau cả về giá lẫn tài chính.
+            Bấm một chấm để mở trang cổ phiếu.
           </p>
         </Panel>
-        <Panel title="Nhóm doanh nghiệp" eyebrow="NHÃN GỐC C · QUY MÔ ĐÃ LƯU">
+        <Panel title="Các nhóm cổ phiếu" eyebrow="Mô hình C · kỳ gần nhất">
           <div className="panel-body">
             {Object.entries(d.combined.latest.sizes).map(([id, n]) => (
               <Link
@@ -133,6 +135,9 @@ export default function Overview() {
                   />
                   <strong>{number(n)} mã</strong>
                 </div>
+                {state.data?.profiles.find((pr) => pr.cluster === Number(id))?.name && (
+                  <em className="cluster-name">{state.data.profiles.find((pr) => pr.cluster === Number(id))?.name}</em>
+                )}
                 <span className="size-track">
                   <i
                     style={{
@@ -161,9 +166,7 @@ export default function Overview() {
         </Panel>
       </div>
       <p className="scope-note">
-        Dữ liệu lịch sử, không live. Financial và C là ex-post reference, chưa
-        xác minh publication/PIT. Coverage B không đồng nghĩa có đủ
-        EPS/P/E/P/B/F/M/Z.
+        Dữ liệu lịch sử, không phải giá trực tiếp. Báo cáo tài chính năm có thể công bố sau ngày giá được dùng.
       </p>
     </>
   );
