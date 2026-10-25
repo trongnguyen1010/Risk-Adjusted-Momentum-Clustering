@@ -2,7 +2,9 @@ import unittest
 
 from delta_t1.m3.engine import Portfolio, rebalance, run
 from delta_t1.m3.ranking import combined_scores, n_select, percentiles, select_top
-from delta_t1.m3.universe import candidate_universe, financial_state, leading_cluster, stale_after
+from delta_t1.m3.prices import PriceBook, repair_ratio_glitches
+from delta_t1.m3.universe import (allowed_clusters, candidate_universe, cluster_order, financial_state,
+                                  leading_cluster, stale_after)
 
 
 def prices(table):
@@ -60,7 +62,7 @@ class PitTests(unittest.TestCase):
         av = {(t, 2023): dict(usable_from_date='2024-03-11') for t in ('AAA', 'BBB', 'CCC', 'DDD')}
         fin = {2023: {'AAA': (1, {}), 'BBB': (2, {}), 'CCC': (1, {}), 'DDD': (1, {})}}
         cands, audit, lead = candidate_universe(market, '2024-04-26', fin, av, {'VCB': 'BANK'}, {2023: 1})
-        self.assertEqual(lead, 0)
+        self.assertEqual(lead, {0})
         self.assertEqual([c['ticker'] for c in cands], ['AAA'])
         reasons = {a['ticker']: a['reason'] for a in audit}
         self.assertEqual(reasons, dict(AAA='', BBB='FINANCIAL_NOT_IN_LEADING_CLUSTER', CCC='MARKET_NOT_IN_LEADING_CLUSTER',
@@ -134,6 +136,87 @@ class EngineTests(unittest.TestCase):
     def test_execution_must_follow_decision(self):
         with self.assertRaises(AssertionError):
             run([('d1', 'd1', dict(A=1.0))], prices({'d1': dict(A=1)}), ALWAYS)
+
+
+class RuleVariantTests(unittest.TestCase):
+    def test_cluster_order_and_allowed_sets(self):
+        members = [(0, dict(k=0.1, d=1)), (1, dict(k=0.5, d=1)), (2, dict(k=0.3, d=1))]
+        order = cluster_order(members, 'k', 'd')
+        self.assertEqual(order, [1, 2, 0])
+        self.assertEqual(allowed_clusters(order, 'leading'), {1})
+        self.assertEqual(allowed_clusters(order, 'top2'), {1, 2})
+        self.assertEqual(allowed_clusters(order, 'not_weakest'), {1, 2})
+        self.assertIsNone(allowed_clusters([], 'leading'))
+
+    def test_one_sided_scores(self):
+        rows = {'A': dict(m=1, roe=None), 'B': dict(m=2, roe=None)}
+        s = combined_scores(rows, {'m': True}, {})
+        self.assertEqual((s['A']['score'], s['B']['score']), (0.0, 1.0))
+        f = combined_scores({'A': dict(roe=0.1), 'B': dict(roe=0.2)}, {}, {'roe': True})
+        self.assertEqual(f['B']['score'], 1.0)
+
+
+class PriceTests(unittest.TestCase):
+    def test_one_session_adj_glitch_is_repaired(self):
+        rows = [('d1', 123.0, 146.0), ('d2', 111.3, 145.5), ('d3', 123.1, 146.2)]  # FPT 03/02/2025 pattern
+        fixed = repair_ratio_glitches(rows)
+        self.assertEqual(fixed['d2'][1], 'ADJ_GLITCH_REPAIRED')
+        self.assertAlmostEqual(fixed['d2'][0], 145.5 * 123.1 / 146.2)
+        self.assertIsNone(fixed['d1'][1])
+
+    def test_real_corporate_action_is_not_touched(self):
+        rows = [('d1', 100.0, 100.0), ('d2', 100.0, 85.0), ('d3', 100.0, 85.0)]  # ratio steps and stays
+        self.assertTrue(all(flag is None for _, flag in repair_ratio_glitches(rows).values()))
+
+    def test_limit_close_blocks_the_matching_side(self):
+        book = PriceBook.__new__(PriceBook)
+        book.adj = {('A', 'd'): 10.0, ('B', 'd'): 10.0, ('C', 'd'): 10.0}
+        book.volume = {('A', 'd'): 100, ('B', 'd'): 100, ('C', 'd'): 0}
+        book.limits = {('A', 'd'): (10.7, 10.7, 9.3), ('B', 'd'): (9.3, 10.7, 9.3)}
+        self.assertFalse(book.tradable('A', 'd', 'BUY'))
+        self.assertTrue(book.tradable('A', 'd', 'SELL'))
+        self.assertFalse(book.tradable('B', 'd', 'SELL'))
+        self.assertFalse(book.tradable('C', 'd', 'BUY'))  # zero volume
+
+
+class PlanV51ExampleTests(unittest.TestCase):
+    """The three-period worked example of the team's M3 plan V5.1 (§16.1), reproduced number by number."""
+
+    PRICES = {
+        '2024-02-01': dict(FPT=100, HPG=50, VCB=80),
+        '2024-03-01': dict(FPT=108, HPG=48, VCB=84.8, MWG=42, VNM=70, SSI=30),
+        '2024-04-01': dict(FPT=112.32, HPG=50, VCB=76.32, MWG=47.04, VNM=71.4, SSI=28.2),
+        '2024-05-02': dict(FPT=112.32 * 1.03, VCB=76.32 * 1.05, MWG=47.04 * 0.92),
+    }
+    BLOCKED = {('MWG', '2024-02-01', 'BUY'), ('VCB', '2024-03-01', 'SELL'), ('HPG', '2024-04-01', 'BUY')}
+
+    def setUp(self):
+        q = 0.25
+        schedule = [('2024-01-31', '2024-02-01', dict(FPT=q, HPG=q, MWG=q, VCB=q)),
+                    ('2024-02-29', '2024-03-01', dict(FPT=q, MWG=q, VNM=q, SSI=q)),
+                    ('2024-03-29', '2024-04-01', dict(FPT=q, VCB=q, MWG=q, HPG=q))]
+        self.out = run(schedule, prices(self.PRICES), lambda t, d, s: (t, d, s) not in self.BLOCKED, end_date='2024-05-02')
+
+    def test_nav_path(self):
+        navs = [round(v * 100, 6) for _, v in self.out['nav']]
+        self.assertEqual(navs, [100.0, 102.5, 102.218333, 102.218333])
+
+    def test_turnover_is_half_of_v51_gross_turnover(self):
+        # V5.1 reports gross executed value / NAV (0.75, 0.739024, 0.415381); M3_PLAN Q13 uses one-way (÷ 2).
+        got = [round(t * 2, 6) for _, t in self.out['turnover']]
+        self.assertEqual(got, [0.75, 0.739024, 0.415381])
+
+    def test_period_two_scaling_and_forced_hold(self):
+        rows = {r['ticker']: r for r in self.out['ledger'] if r['date'] == '2024-03-01'}
+        self.assertEqual(rows['VCB']['status'], 'SELL_FAILED')
+        self.assertAlmostEqual(rows['MWG']['scale'], 50.375 / 76.875, places=6)
+        self.assertAlmostEqual(rows['MWG']['executed'] * 100, 16.791667, places=5)
+
+    def test_period_three_weights(self):
+        w = {h['ticker']: h['weight'] for h in self.out['holdings'] if h['date'] == '2024-04-01'}
+        for t in ('FPT', 'VCB', 'MWG', 'CASH'):
+            self.assertAlmostEqual(w[t], 0.25, places=6)
+        self.assertNotIn('HPG', w)
 
 
 if __name__ == '__main__':

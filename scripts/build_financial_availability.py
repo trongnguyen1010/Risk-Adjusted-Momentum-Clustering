@@ -5,6 +5,9 @@ Rule (owner, 25/10/2026, D-CRAWL-02 + M3_PLAN Q-dates):
   the audited annual reports (Quarter 5, ReportType HK/K/MK). date_source = CAFEF_DISCLOSURE.
 - CafeF re-imported its history on 2022-11-26: every older record carries that date, so it is never used.
 - Fiscal year < 2022, or no usable CafeF record: publication_date = 30/06 of the next year. date_source = LAG_RULE.
+- non_december_fye = Y for tickers whose fiscal year does not end on 31/12: an audited annual report sent within the
+  fiscal-year label's own calendar year (e.g. CTD FY2024 sent 15/10/2024), plus the known cases CTD/HSG. CafeF labels
+  the year by its end, so the dates stay valid and LAG_RULE is only later than reality for them (no look-ahead).
 - usable_from_date = first observed trading session strictly after publication_date (price calendar of the served
   bundle); beyond the calendar end it stays empty with status CALENDAR_PENDING.
 
@@ -26,6 +29,7 @@ MIGRATION_DATE = '2022-11-26'
 FIRST_CAFEF_YEAR = 2022
 ANNUAL_TYPES = {'HK', 'K', 'MK'}
 YEARS = range(2016, 2026)
+KNOWN_NON_DECEMBER = {'CTD', 'HSG'}
 
 
 def sha256(path):
@@ -49,6 +53,10 @@ def main():
             if r['quarter'] == '5' and r['report_type'] in ANNUAL_TYPES and r['created_date_vn'] != MIGRATION_DATE:
                 dates[(r['symbol'], int(r['year']))].append((r['created_date_vn'], r['report_type'], r['id']))
 
+    non_dec = set(KNOWN_NON_DECEMBER)
+    for (ticker, year), found in dates.items():
+        if year >= FIRST_CAFEF_YEAR and min(found)[0] <= f'{year}-12-31':
+            non_dec.add(ticker)
     rows = []
     for ticker in tickers:
         for year in YEARS:
@@ -64,6 +72,7 @@ def main():
             rows.append(dict(ticker=ticker, fiscal_year=year, publication_date=publication, date_source=source,
                              report_type=report_type, provider_report_id=report_id, usable_from_date=usable,
                              status='OK' if usable else 'CALENDAR_PENDING',
+                             non_december_fye='Y' if ticker in non_dec else '',
                              crawl_status=state.get(ticker, 'NOT_CRAWLED')))
 
     body = ''.join(f'{r}\n' for r in [','.join(rows[0])] + [','.join(str(v) for v in r.values()) for r in rows])
@@ -84,7 +93,8 @@ def main():
                                               after_04_30=sum(d > '04-30' for d in v),
                                               after_06_30=sum(d > '06-30' for d in v), n=len(v))
                                      for y, v in sorted(lags.items())},
-        calendar_end=calendar[-1], calendar_pending=sum(r['status'] == 'CALENDAR_PENDING' for r in rows))
+        calendar_end=calendar[-1], calendar_pending=sum(r['status'] == 'CALENDAR_PENDING' for r in rows),
+        non_december_fye=sorted(non_dec & set(tickers)))
     manifest = dict(rule=__doc__.split('Usage')[0].strip(), run=args.run, lag=args.lag,
                     bundle_sha256=sha256(BUNDLE), receipts_sha256=sha256(run_dir / 'receipts.jsonl'),
                     output_sha256=hashlib.sha256(body.encode()).hexdigest(), rows=len(rows))

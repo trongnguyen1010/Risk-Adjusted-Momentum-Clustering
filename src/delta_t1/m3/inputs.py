@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 BUNDLE = ROOT / 'data/web/delta-intelligence-v4/terminal.sqlite'
 INDICATORS = ROOT / 'data/financial/indicators_v1/results/indicators-2c4a24e3830d325f/indicators.sqlite'
-AVAILABILITY = ROOT / 'data/financial/disclosure_dates_v1/availability-0c412f60f7c21bd3/availability.csv'
+AVAILABILITY = ROOT / 'data/financial/disclosure_dates_v1/availability-4f0f83108e761dae/availability.csv'
 C8 = ROOT / 'artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical'
 BENCHMARK = C8 / 'benchmark_daily.jsonl'
 CALENDAR = C8 / 'trading_calendar.jsonl'
