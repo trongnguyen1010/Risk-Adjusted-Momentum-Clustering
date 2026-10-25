@@ -139,6 +139,10 @@ export default function Atlas() {
         />
       </div>
       <ScopeNote kind={s.kind} />
+      {s.dataset.liquidity_filter && (
+        <p className="model-note">Nhóm được học trên mã có giao dịch. {s.dataset.liquidity_filter}.</p>
+      )}
+      {s.dataset.stability_note && <p className="model-note amber">{s.dataset.stability_note}</p>}
       <PreviewNote dataset={s.dataset} />
       {/* Diagnostic measured on the v1 market model only; v2 (rework) caps liquidity first. */}
       {s.kind === "market" && s.dataset.version === "C8 V2 / M2 60+24" && (

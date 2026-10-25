@@ -18,7 +18,7 @@ except ImportError as error:
     raise unittest.SkipTest('Optional terminal API dependencies unavailable: '+str(error))
 from delta_t1.product.terminal_export import schema,encoded,numeric,quantiles
 
-def build_bundle(bundle,extra_prices=()):
+def build_bundle(bundle,extra_prices=(),illiquid=()):
     db=sqlite3.connect(bundle/'terminal.sqlite');schema(db)
     config={k:dict(k=2,features=['mom_21'],scaling='test',frequency='test',version='fixture') for k in ['market','financial','combined']}
     db.execute('INSERT INTO metadata VALUES (?,?)',('overview',encoded(dict(version='delta-intelligence-v1',model_configs=config,definitions={'mom_21':{'label':'Momentum','unit':'percent','formula':'fixture','family':'market'}}))))
@@ -29,6 +29,10 @@ def build_bundle(bundle,extra_prices=()):
     db.execute('INSERT INTO prices VALUES (?,?,?,?,?,?,?,?,?)',('TESTA','s1','2025-01-02',None,123,100,'RAW','2025-01-02',0))
     db.execute('INSERT INTO relations VALUES (?,?,?,?,?,?)',('2025-12-31','TESTA',1,0,0,'BOTH'))
     db.executemany('INSERT INTO prices VALUES (?,?,?,?,?,?,?,?,?)',extra_prices)
+    if illiquid:  # Bundle v3 schema: per-observation liquidity flag.
+        db.execute('ALTER TABLE observations ADD COLUMN liquidity TEXT')
+        db.execute("UPDATE observations SET liquidity='LIQUID' WHERE kind='market'")
+        db.executemany("UPDATE observations SET liquidity='ILLIQUID' WHERE kind='market' AND ticker=?",[(x,) for x in illiquid])
     db.commit();db.close()
     with (bundle/'terminal.sqlite').open('rb') as f:digest=hashlib.file_digest(f,'sha256').hexdigest()
     (bundle/'manifest.json').write_text(encoded(dict(version='delta-intelligence-v1',database_sha256=digest,sources={})),encoding='utf8')
@@ -131,7 +135,7 @@ class FundamentalsApiTests(unittest.TestCase):
         self.temp=tempfile.TemporaryDirectory();folder=Path(self.temp.name)
         prices=[('TESTB','s2',d,adj,raw,1,'vendor_adjusted',d,0) for d,raw,adj in
                 [('2024-12-31',50000,25000),('2025-11-28',41000,41000),('2025-12-30',39000,39000),('2025-12-31',40000,40000)]]
-        repo=build_bundle(folder,prices)
+        repo=build_bundle(folder,prices,illiquid=('TESTB',))
         digest=build_indicators(folder/'indicators.sqlite')
         self.source=FundamentalsRepository(folder/'indicators.sqlite',digest)
         self.context=TestClient(create_app(repo,self.source));self.client=self.context.__enter__()
@@ -149,6 +153,12 @@ class FundamentalsApiTests(unittest.TestCase):
         self.assertEqual(body['price']['close'],123);self.assertIsNone(body['price']['change_1d'])  # no adjusted close: no change shown
         self.assertTrue(any('ROE 3 năm' in line for line in body['summary']))
         self.assertTrue(any('giảm 10%' in line for line in body['summary']))
+    def test_liquidity_flag_from_latest_market_observation(self):
+        self.assertEqual(self.get('TESTB/overview')['liquidity'],dict(status='ILLIQUID',date='2024-12-31'))
+        self.assertEqual(self.get('TESTA/overview')['liquidity']['status'],'LIQUID')
+        self.assertIsNone(self.get('TESTC/overview')['liquidity'])  # not in the market model
+        members=self.client.get('/api/v2/members/market?date=2024-12-31').json()['items']
+        self.assertEqual({m['ticker']:m['liquidity'] for m in members}['TESTB'],'ILLIQUID')
     def test_bank_overview_swaps_scores_for_roa_and_bvps(self):
         body=self.get('TESTB/overview')
         self.assertEqual([c['metric'] for c in body['cards']],['eps','pe','pb','roe','roa','bvps'])

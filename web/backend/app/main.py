@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 import os
 from pathlib import Path
+import sqlite3
 from fastapi import FastAPI, Query, Request
 from fastapi.responses import JSONResponse
 from .repository import TerminalRepository, MissingData, InvalidQuery, AmbiguousIdentity
@@ -95,7 +96,12 @@ def create_app(repository=None,fundamentals=None):
     @app.get('/api/v2/stocks/{ticker}/overview')
     def stock_overview(request:Request,ticker:str):
         source=fund(request);company=source.company(ticker)
-        return source.overview(company['ticker'],closes(request,company['ticker']))
+        body=source.overview(company['ticker'],closes(request,company['ticker']))
+        try:
+            found=repo(request).query("SELECT date,liquidity FROM observations WHERE kind='market' AND ticker=? ORDER BY date DESC LIMIT 1",(company['ticker'],))
+        except sqlite3.OperationalError:found=[]  # Bundles before v3 have no liquidity column.
+        body['liquidity']=dict(status=found[0]['liquidity'],date=found[0]['date']) if found and found[0]['liquidity'] else None
+        return body
     @app.get('/api/v2/stocks/{ticker}/fundamentals')
     def stock_fundamentals(request:Request,ticker:str,start:int=Query(2016,alias='from'),end:int=Query(2025,alias='to')):
         return fund(request).fundamentals(ticker,start,end)

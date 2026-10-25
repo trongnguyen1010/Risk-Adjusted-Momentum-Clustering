@@ -14,6 +14,7 @@ import { FundamentalsTable } from "@/components/stock/fundamentals-table";
 import { ScoresPanel } from "@/components/stock/scores-panel";
 import { PeersTable } from "@/components/stock/peers-table";
 import { MethodDialog } from "@/components/stock/method-dialog";
+import { InfoTip } from "@/components/stock/info-tip";
 
 const tabs = [
   ["overview", "Tổng quan"],
@@ -85,6 +86,15 @@ export default function Stocks() {
               </h1>
               <p>
                 {o.exchange || "—"} · {o.sector_label}
+                {o.liquidity?.status === "ILLIQUID" && (
+                  <span className="illiquid-flag">
+                    <span className="badge amber">Kém thanh khoản</span>
+                    <InfoTip
+                      label="Kém thanh khoản"
+                      text="Ít giao dịch trong 3 tháng gần nhất; giá và nhóm cổ phiếu chỉ để tham khảo."
+                    />
+                  </span>
+                )}
               </p>
             </div>
             <div className="stock-quote">

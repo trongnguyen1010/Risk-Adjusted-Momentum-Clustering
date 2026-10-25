@@ -1,5 +1,13 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-25 — Bundle v3: học cụm trên mã có giao dịch, gán mã kém thanh khoản (owner duyệt build, chưa duyệt deploy)
+
+A: 9 đặc trưng (thêm downside_vol_63), lọc nhẹ (>50% phiên không khớp trong 63 phiên hoặc < 10 triệu đ/ngày),
+K-Means k=3 học trên mã có giao dịch; mã kém thanh khoản gán vào tâm gần nhất (cùng tham số biến đổi) và gắn
+`liquidity='ILLIQUID'`. C: A 8 đặc trưng + B cùng năm, PCA 80% + K-Means k=4, cùng cách học/gán. B giữ như v2,
+ghi chú chưa ổn định (ARI lấy mẫu con 0,50). Giữ đủ mọi mã. Bằng chứng: báo cáo `clustering_rework_v2`.
+
+
 ## 2026-10-25 — Phân cụm lại v1 cho web (owner duyệt cấu hình, chưa duyệt deploy)
 
 Owner duyệt trong chat: A = log(thanh khoản) + cắt đuôi 1–99% + z-score, k-means k=4; B = bộ chỉ số
