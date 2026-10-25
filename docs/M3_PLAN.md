@@ -283,6 +283,17 @@ BUY_FAILED/SELL_FAILED, `execution_scale`, turnover, giá thiếu → `PRICE_STA
 danh mục). 16 test trong `tests/unit/test_m3_engine.py` PASS. Chưa làm: tái hiện ví dụ 3 kỳ mục 16.1 của plan V5.1
 thành fixture, quy tắc trần/sàn và sửa lỗi adj (Q12, Q17) trong hàm giá, `strategies.py`, `benchmark.py`, `run_m3.py`.
 
+**Cập nhật 26/10/2026 — phần không cần mentor đã xong:**
+
+- Engine đủ: `prices.py` (Q17 sửa lỗi adj lệch một phiên, Q12 trần/sàn/khối lượng 0), `strategies.py` (Combined,
+  Market-only, Financial-only, Equal-weight, Momentum-only; Q6 giữ danh mục khi tập ứng viên nhỏ), `benchmark.py`
+  (VNINDEX), `scripts/run_m3.py` (chỉ cho `--targets-only` khi config chưa `LOCKED`).
+- Config `configs/experiments/m3_strategy_v1.json` (status `PROPOSED`, giá trị = các đề xuất).
+- 25 test trong `tests/unit/test_m3_engine.py`, gồm tái hiện đúng từng số ví dụ 3 kỳ §16.1 của plan V5.1
+  (NAV 100 → 102,5 → 102,218333; `execution_scale` 0,655285; turnover hai chiều 0,75 / 0,739024 / 0,415381).
+- Cờ `non_december_fye` (13 mã) trong bảng ngày công bố `availability-4f0f83108e761dae` (ngày dùng được không đổi).
+- Phương án Q5/Q6: `scripts/m3_feasibility_variants.py`; câu hỏi gửi mentor: [M3_MENTOR_QUESTIONS.md](M3_MENTOR_QUESTIONS.md).
+
 ### Giai đoạn 1 — Khóa chiến lược
 
 **1.1 Nếu Q3 chọn B-PIT:** chạy `scripts/build_financial_pit_clusters.py` (mới) → nhãn B-PIT có version, test

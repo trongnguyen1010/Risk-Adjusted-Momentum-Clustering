@@ -39,12 +39,17 @@ def combined_scores(rows, market_criteria, financial_criteria, *, missing=0.5, w
     out = {}
     for t in rows:
         fin = [pct[c][t] for c in financial_criteria]
-        if all(p is None for p in fin):
+        if fin and all(p is None for p in fin):
             continue
         mkt = [pct[c][t] if pct[c][t] is not None else missing for c in market_criteria]
         fin_filled = [p if p is not None else missing for p in fin]
-        s_market, s_fin = sum(mkt) / len(mkt), sum(fin_filled) / len(fin_filled)
-        out[t] = dict(s_market=s_market, s_fin=s_fin, score=weight_market * s_market + (1 - weight_market) * s_fin,
+        s_market = sum(mkt) / len(mkt) if mkt else None
+        s_fin = sum(fin_filled) / len(fin_filled) if fin_filled else None
+        if s_market is None or s_fin is None:  # one-sided strategies (market-only / financial-only)
+            score = s_market if s_fin is None else s_fin
+        else:
+            score = weight_market * s_market + (1 - weight_market) * s_fin
+        out[t] = dict(s_market=s_market, s_fin=s_fin, score=score,
                       missing=[c for c in (*market_criteria, *financial_criteria) if pct[c][t] is None])
     return out
 
