@@ -1,5 +1,12 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Chuyển deploy sang bundle v2 (2026-10-25)
+
+`publish_hf_data.py`, `deploy/render/Dockerfile`, backend và `start_delta_terminal.py` mặc định dùng
+`data/web/delta-intelligence-v2`; bỏ bản xem trước R1 khỏi danh sách publish (ghim theo v1).
+`data-files.txt` cập nhật bằng dry-run. Chưa upload, chưa deploy.
+
+
 ## Bundle web v2 với phân cụm mới (2026-10-25)
 
 Thêm `scripts/build_delta_bundle_v2.py`: sao chép giá/mã từ v1, fit lại A (k=4), B bằng bộ chỉ số mới (k=3),

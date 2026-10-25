@@ -4,7 +4,7 @@
 
 `scripts/build_delta_bundle_v2.py` → `data/web/delta-intelligence-v2/` (v1 giữ nguyên). Cỡ cụm 2025:
 A 634/324/323/129; B 705/279/216; C 733/291/115. Chạy local với `DELTA_BUNDLE=data/web/delta-intelligence-v2`.
-Bản xem trước R1 (ghim theo v1) tự tắt khi chạy v2. Chưa đổi `publish_hf_data.py`/Render sang v2.
+Owner duyệt v2: local, Render (`DELTA_BUNDLE`) và `publish_hf_data.py` đã chuyển sang v2; mới dry-run, CHƯA upload/deploy.
 
 ## Indicators v1 — Giai đoạn 1–5 xong, local, chưa push (25/10/2026)
 

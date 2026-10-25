@@ -10,7 +10,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BUNDLE = ROOT / 'data/web/delta-intelligence-v1'
+# Served bundle (owner switched to v2 on 25/10/2026; v1 stays local, unchanged).
+BUNDLE = ROOT / 'data/web/delta-intelligence-v2'
 INDICATOR_CONFIG = ROOT / 'configs/product/indicator_reference_v1.json'
 DATA_FILES_LIST = ROOT / 'deploy/render/data-files.txt'
 
@@ -50,6 +51,10 @@ def collect():
     preview=ROOT/'configs/product/model_previews_v1.json'
     if preview.is_file():
         pointer=json.loads(preview.read_bytes())
+        seal=json.loads((ROOT/pointer['manifest']).read_bytes())
+        if seal.get('database_sha256')!=manifest.get('database_sha256'):
+            # R1 previews are pinned to another bundle; the API serves without them.
+            return files
         for key in ('manifest','file'):
             local=ROOT/pointer[key]
             if not local.is_file() or sha256(local)!=pointer[key+'_sha256']:raise SystemExit('Research preview source missing or checksum mismatch: '+pointer[key])
