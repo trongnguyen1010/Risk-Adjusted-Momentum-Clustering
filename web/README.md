@@ -1,5 +1,8 @@
 # DELTA Intelligence — web demo
 
+> **LEGACY (D-DIR-01, 26/10/2026):** `web/index.html`, `web/app.js`, `web/styles.css` là dashboard cũ, chỉ giữ cho
+> `product/server.py` và test cũ. Web chính thức là `web/frontend` (Next.js) + `web/backend` (FastAPI).
+
 ## API chỉ số tài chính (Indicators v1, D-IND-01)
 
 Backend đọc `indicators.sqlite` đã pin bởi `configs/product/indicators_v1.json` (sai/thiếu hash ⇒ 404, không phục vụ số chưa xác minh).

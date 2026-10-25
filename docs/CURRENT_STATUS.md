@@ -1,5 +1,18 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Hướng chính thức (D-DIR-01, 26/10/2026)
+
+- **Phân cụm thị trường (M2):** mô hình A của bundle web v4 — 9 đặc trưng, lọc thanh khoản nhẹ, log + cắt đuôi +
+  z-score, K-Means k=3 học trên mã có giao dịch (chọn bằng `clustering_rework_v2`; chọn lại chỉ trên 2019–2023 vẫn k=3).
+- **Phân cụm tài chính:** mô hình B của bundle v4 (9 chỉ số, k=3, chưa đạt ngưỡng ổn định — giới hạn đã ghi).
+- **M3:** `docs/M3_PLAN.md`, đọc A/B v4 + Indicators v1 + ngày công bố CafeF.
+- **Hướng cũ (LEGACY, chỉ làm đối chứng/tái lập):** bàn giao M2 K=2 trong `M2/`, báo cáo `Bao_cao_M2_Nhiem_vu_4.*`,
+  dashboard Streamlit `m3_dashboard.py`, web cũ `web/index.html|app.js|styles.css`. Giữ nguyên đường dẫn vì code/test
+  cũ còn đọc; không dùng làm input cho việc mới.
+- Bằng chứng: `artifacts/reports/m2-vs-rework-v1/report.md`.
+
+Các mục bên dưới là lịch sử theo thời gian; khi mâu thuẫn, mục này được ưu tiên.
+
 ## M3 giai đoạn 0 và lõi engine (25/10/2026)
 
 `scripts/m3_stage0.py`: manifest đầu vào có hash, đếm tập ứng viên từng tháng, kiểm cơ sở lợi suất (không tính lợi
@@ -20,7 +33,7 @@ CafeF cho 1.362 mã có nhãn B (`data/financial/disclosure_dates_v1/full-202610
 `scripts/build_delta_bundle_v4.py` → `data/web/delta-intelligence-v4/` (cụm giữ nguyên như v3, không học lại).
 Atlas mặc định "Bản đồ mô hình" (PCA của không gian mô hình), tên + mô tả 1 câu cho mỗi cụm
 (`src/delta_t1/product/cluster_story.py`), khung "Mô hình hoạt động thế nào?"; trang cổ phiếu hiện nhóm giá/tài
-chính/kết hợp của mã. Deploy vẫn trỏ v2.
+chính/kết hợp của mã. Deploy đã chuyển sang v4 (commit 6380959, Render + Vercel, 25/10/2026).
 
 
 ## Bundle v3 (học trên mã có giao dịch, gán phần còn lại) — đã build, CHỜ OWNER KIỂM TRA (25/10/2026)
