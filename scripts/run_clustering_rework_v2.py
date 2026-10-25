@@ -60,11 +60,14 @@ def sha(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--groups', default=','.join(GROUP))
+    parser.add_argument('--config', default=CONFIG, help='Experiment config (default: the v2 config).')
     args = parser.parse_args()
-    cfg = json.loads((ROOT / CONFIG).read_text(encoding='utf-8'))
+    config = args.config.replace('\\', '/')
+    cfg = json.loads((ROOT / config).read_text(encoding='utf-8'))
+    until = cfg['screening'].get('until')  # Optional: screen only snapshots on or before this date.
     pointer = json.loads((ROOT / INDICATORS).read_text(encoding='utf-8'))
-    pins = {p: sha(p) for p in CODE + [TERMINAL, pointer['file']]}
-    run_id = 'rework2-' + hashlib.sha256(json.dumps(pins, sort_keys=True).encode()).hexdigest()[:16]
+    pins = {p: sha(p) for p in [c for c in CODE if c != CONFIG] + [config, TERMINAL, pointer['file']]}
+    run_id = ('rework2dev-' if until else 'rework2-') + hashlib.sha256(json.dumps(pins, sort_keys=True).encode()).hexdigest()[:16]
     out = ROOT / OUT / run_id
     out.mkdir(parents=True, exist_ok=True)
     groups = args.groups.split(',')
@@ -82,8 +85,12 @@ def main():
     for level in levels:
         for name in ('base', 'dvol'):
             snaps, ex = cr2.market_snapshots(ROOT / TERMINAL, tuple(fs['A_' + name]), levels[level], months, activity)
+            if until:
+                snaps = [s for s in snaps if s.date <= until]
             market[level, name], excluded[level] = snaps, ex
-    financial = {name: cr2.financial_snapshots(ROOT / pointer['file'], tuple(fs['B_' + name])) for name in ('base', 'value')}
+    years = range(2017, int(until[:4]) + 1) if until else range(2017, 2026)
+    financial = {name: cr2.financial_snapshots(ROOT / pointer['file'], tuple(fs['B_' + name]), years)
+                 for name in ('base', 'value')}
     snapshots = {}
     for level in levels:
         for name in ('base', 'dvol'):
@@ -118,7 +125,7 @@ def main():
     cr2.dump(out / 'selection.json', choices)
     cr2.dump(out / 'excluded.json', {lvl: {d: len(v) for d, v in ex.items()} for lvl, ex in excluded.items()})
     (out / 'input-pins.json').write_text(json.dumps(pins, indent=2), encoding='utf-8')
-    write_report(out, cfg, summary, choices, groups, excluded, snapshots)
+    write_report(out, cfg, summary, choices, groups, excluded, snapshots, config)
     manifest = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(out.iterdir()) if p.name != 'manifest.json'}
     (out / 'manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     for g in groups:
@@ -127,11 +134,14 @@ def main():
     print('report:', (out / 'report.md').relative_to(ROOT).as_posix())
 
 
-def write_report(out, cfg, summary, choices, groups, excluded, snapshots):
+def write_report(out, cfg, summary, choices, groups, excluded, snapshots, config=CONFIG):
     lv = cfg['liquidity_filter']['levels']
+    until = cfg['screening'].get('until')
     L = [f'# Báo cáo phân cụm lại v2 — {out.name}', '',
          'Thử nghiệm mô tả, ex post. **Chưa thay mô hình đang phục vụ (bundle v2).** Không dùng lợi nhuận/Sharpe để chọn.', '',
-         '## Quy tắc (đăng ký trước: `configs/experiments/clustering_rework_v2.json`)', '',
+         *([f'**Chỉ sàng lọc trên các kỳ đến {until}** (giai đoạn development của M2); holdout 2024–2025 không tham gia chọn.', '']
+           if until else []),
+         f'## Quy tắc (đăng ký trước: `{config}`)', '',
          f'- **Lọc thanh khoản** (mã bị lọc nhận nhãn riêng "Kém thanh khoản", không tham gia phân cụm/thước đo): '
          f'*nhẹ* = >{lv["light"]["zero_volume_share_gt"]:.0%} phiên không khớp trong 63 phiên hoặc thanh khoản < '
          f'{lv["light"]["liquidity_21_lt"] / 1e6:.0f} triệu đ/ngày; *chặt* = >{lv["strict"]["zero_volume_share_gt"]:.0%} '
