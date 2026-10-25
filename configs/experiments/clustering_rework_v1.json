@@ -1,0 +1,37 @@
+{
+  "version": "clustering-rework-v1",
+  "mode": "EX_POST_DESCRIPTIVE_SENSITIVITY_NOT_PIT",
+  "owner_approval": {
+    "status": "APPROVED_TO_RUN_NOT_TO_PROMOTE",
+    "date": "2026-10-25",
+    "evidence": "Owner asked in chat: rerun clustering with log + winsorize, rank standardization, k=3-8 sweep with a minimum cluster size, compare k-means/GMM, write a report, and wait for approval before swapping the served model."
+  },
+  "families": {
+    "A": {"source": "terminal.observations kind=market", "screen_months": ["06", "12"]},
+    "B": {"source": "terminal.observations kind=financial"},
+    "B2": {"source": "indicators_v1 results", "sector": "NON_FINANCIAL",
+           "features": ["roe", "roa", "gross_margin", "net_margin", "debt_to_equity", "current_ratio",
+                        "asset_turnover", "revenue_growth", "cfo_to_ni"]},
+    "C": {"source": "December A + same fiscal year B", "block_variance": 0.5}
+  },
+  "transforms": {
+    "T0": "baseline as served: robust scaling (A) / z-score (B, B2) per snapshot",
+    "T1": "log1p(liquidity_21), winsorize every feature at p1/p99 within the snapshot, z-score",
+    "T2": "rank within the snapshot -> normal scores (rankit), ties averaged"
+  },
+  "algorithms": ["kmeans", "gmm"],
+  "k": [3, 4, 5, 6, 7, 8],
+  "seed": 42,
+  "stability_seeds": [1, 2, 3],
+  "kmeans_n_init": 10,
+  "gmm": {"covariance_type": "full", "n_init": 2, "reg_covar": 0.0001, "max_iter": 300},
+  "reference_space": "T1 (log + winsor + z-score) for silhouette/Davies-Bouldin, so transforms are compared in one geometry",
+  "admissible": {"min_cluster_share": 0.05, "share_of_snapshots": 0.8, "median_seed_ari": 0.8},
+  "selection_rule": "Among admissible configs: highest median reference-space silhouette; ties within 0.01 -> smaller k, then T1 before T2, kmeans before gmm. Returns, Sharpe or any portfolio metric are never used.",
+  "imputation": false,
+  "pca": false,
+  "promotion": "No automatic promotion; served terminal.sqlite unchanged until owner approval.",
+  "research_ready": false,
+  "strict_pit_ready": false,
+  "backtest_allowed": false
+}

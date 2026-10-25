@@ -1,5 +1,13 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Phân cụm lại v1 — đã chạy thử, CHỜ OWNER DUYỆT, chưa thay mô hình web (25/10/2026)
+
+`scripts/run_clustering_rework_v1.py` (config `configs/experiments/clustering_rework_v1.json`) →
+`data/experiments/clustering_rework_v1/rework-c133b10371096e9c/report.md`. Mô hình đang phục vụ chỉ tách
+ngoại lai (A: 98% một cụm; B: 1170/1/1). Đề xuất (cụm nhỏ nhất ≥5%, ARI seed ≥0,8, không dùng lợi nhuận):
+A log+cắt đuôi k-means k=4; B2 (bộ chỉ số mới, phi tài chính) k-means k=3; C k-means k=3. MANUAL_REVIEW_REQUIRED.
+
+
 ## Indicators v1 — Giai đoạn 1–5 xong, local, chưa push (25/10/2026)
 
 Nhánh `feature/indicators-v1`. Input `data/financial/indicators_v1/inputs/inputs-5b4836454b70d737/`
