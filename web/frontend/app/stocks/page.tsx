@@ -126,7 +126,7 @@ export default function Stocks() {
                       <small>{g.kind === "market" ? "Nhóm giá" : g.kind === "financial" ? "Nhóm tài chính" : "Nhóm kết hợp"}</small>
                       {g.name}
                     </a>
-                    {g.description && <InfoTip label={g.name || ""} text={g.description} />}
+                    {g.description && <InfoTip label={g.name || ""} text={g.description} story />}
                   </li>
                 ))}
             </ul>

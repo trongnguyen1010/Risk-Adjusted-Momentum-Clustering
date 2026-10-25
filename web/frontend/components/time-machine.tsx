@@ -24,11 +24,13 @@ export function TimeMachine({
   return (
     <div className="date-controls">
       <button
-        aria-label={playing ? "Dừng dòng thời gian" : "Phát dòng thời gian"}
-        className="icon-button"
+        className="button ghost small play-button"
+        aria-pressed={playing}
+        title="Tự chuyển lần lượt sang các kỳ sau, mỗi kỳ khoảng 1,6 giây, để xem các nhóm thay đổi theo thời gian."
         onClick={() => play(!playing)}
       >
         {playing ? <Pause size={14} /> : <Play size={14} />}
+        {playing ? "Dừng" : "Tự chạy các kỳ"}
       </button>
       <button
         className="icon-button"
@@ -38,6 +40,9 @@ export function TimeMachine({
       >
         <ChevronLeft size={16} />
       </button>
+      <span className="period-label">
+        Kỳ {index + 1}/{dates.length}
+      </span>
       <select
         aria-label="Thời điểm dữ liệu"
         value={date}

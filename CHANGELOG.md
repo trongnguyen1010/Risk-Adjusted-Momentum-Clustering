@@ -1,5 +1,13 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Atlas: thiết kế lại phần giải thích mô hình (2026-10-25)
+
+Khung tóm tắt mô hình: 4 ô số liệu luôn hiện, chi tiết mở khi cần (dữ liệu dùng theo nhóm chỉ số có
+giải thích và nhãn "Mới" cho biến động giảm, cách chia nhóm, cách đọc). Tooltip hiển thị từng dòng
+(ý nghĩa / công thức; bảng chỉ số – giá trị nhóm – mức chung). Nút A/B/C không xuống dòng; nút
+"Tự chạy các kỳ" và "Kỳ x/y" thay icon play. Bỏ phần lặp (badge, ghi chú trùng, số thành viên ở chế độ bản đồ).
+
+
 ## Bundle v4: bản đồ mô hình, tên cụm, khung giải thích (2026-10-25)
 
 Lớp trình bày trên bundle v3: toạ độ PCA (`_map_x/_map_y`), `profiles.name/description`, `boundary_share`,
