@@ -16,7 +16,7 @@ ROOT=Path(__file__).resolve().parents[3]
 def create_app(repository=None,fundamentals=None):
     @asynccontextmanager
     async def lifespan(app):
-        app.state.repository=repository or TerminalRepository(os.environ.get('DELTA_BUNDLE',str(ROOT/'data/web/delta-intelligence-v2')))
+        app.state.repository=repository or TerminalRepository(os.environ.get('DELTA_BUNDLE',str(ROOT/'data/web/delta-intelligence-v4')))
         preview_config=ROOT/'configs/product/model_previews_v1.json'
         if repository is None and preview_config.is_file():
             # R1 previews are pinned to the v1 bundle; another bundle serves without them.

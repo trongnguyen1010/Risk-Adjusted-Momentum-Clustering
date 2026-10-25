@@ -10,8 +10,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# Served bundle (owner switched to v2 on 25/10/2026; v1 stays local, unchanged).
-BUNDLE = ROOT / 'data/web/delta-intelligence-v2'
+# Served bundle (owner switched to v4 on 25/10/2026; v1–v3 stay local, unchanged).
+BUNDLE = ROOT / 'data/web/delta-intelligence-v4'
 INDICATOR_CONFIG = ROOT / 'configs/product/indicator_reference_v1.json'
 DATA_FILES_LIST = ROOT / 'deploy/render/data-files.txt'
 

@@ -15,16 +15,16 @@ Build lại dữ liệu: `python scripts/build_indicator_inputs.py` → `python 
 Trang `/stocks?ticker=XXX` dùng 4 endpoint trên; tab: `overview`, `indicators`, `scores` (`&fy=2024`), `peers`.
 Kiểm tra trình duyệt: `PLAYWRIGHT_MODULE=... CHROMIUM_EXECUTABLE=... DELTA_UI_URL=http://127.0.0.1:3000 node scripts/verify_delta_ui.cjs`.
 
-Mặc định local, Render và `publish_hf_data.py` dùng bundle v2 (phân cụm mới). Muốn chạy lại v1:
+Mặc định local, Render và `publish_hf_data.py` dùng bundle v4 (phân cụm v3 + bản đồ PCA, tên/mô tả cụm). Muốn chạy lại v1:
 `DELTA_BUNDLE=data/web/delta-intelligence-v1 python scripts/start_delta_terminal.py`. Bản xem trước R1 chỉ có với v1.
 
-### Deploy bundle v2 (chưa thực hiện, chờ owner)
+### Deploy bundle v4 + giao diện Blueprint
 
-1. `python scripts/publish_hf_data.py --dry-run` → kiểm tra 14 file, hash khớp (≈ 655 MB).
+1. `python scripts/publish_hf_data.py --dry-run` → kiểm tra 14 file, hash khớp (≈ 662 MB).
 2. `huggingface-cli login` (token có quyền write), rồi `python scripts/publish_hf_data.py --repo ngyen/delta-intelligence-data`.
 3. Lấy commit hash Dataset vừa publish; đặt `DATA_BASE_URL=https://huggingface.co/datasets/ngyen/delta-intelligence-data/resolve/<commit>` cho Render build.
-4. Render: service build từ branch đã merge `feature/indicators-v1` (hoặc đổi branch trong Settings), bấm Manual Deploy; kiểm tra `/api/v2/health` và `/api/v2/catalog` (k = 4/3/3).
-5. Vercel: không đổi biến; Redeploy để có trang `/stocks` mới. Kiểm tra `/stocks?ticker=FPT`, `/atlas?kind=market`, `/financial?tab=compare`.
+4. Render: service build từ branch đã merge `feature/indicators-v1` (hoặc đổi branch trong Settings), bấm Manual Deploy; kiểm tra `/api/v2/health` và `/api/v2/catalog` (k = A 3 / B 3 / C 4).
+5. Vercel: không đổi biến; Redeploy để có giao diện Blueprint. Kiểm tra `/stocks?ticker=FPT`, `/atlas?kind=market`, `/financial?tab=compare`.
 
 Test API cần FastAPI: `python -m venv --system-site-packages .venv-web` rồi `pip install -r web/backend/requirements.txt`.
 

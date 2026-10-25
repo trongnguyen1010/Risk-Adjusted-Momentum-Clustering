@@ -18,7 +18,7 @@ def main():
     frontend=ROOT/'web/frontend'
     next_cli=frontend/'node_modules/next/dist/bin/next'
     if not next_cli.exists():raise SystemExit('Run npm ci in web/frontend first. See web/README.md.')
-    bundle=Path(os.environ.get('DELTA_BUNDLE',str(ROOT/'data/web/delta-intelligence-v2')))
+    bundle=Path(os.environ.get('DELTA_BUNDLE',str(ROOT/'data/web/delta-intelligence-v4')))
     if not (bundle/'manifest.json').exists():
         raise SystemExit('Build the presentation index: python scripts/export_delta_terminal.py')
     if args.production:
