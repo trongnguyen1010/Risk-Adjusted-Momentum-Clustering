@@ -59,7 +59,11 @@ function acquire(path: string, force: boolean) {
               ? vi(body.detail)
               : "Không thể hoàn tất yêu cầu.",
           );
-        const value = localizePayload(body);
+        // Indicator endpoints already speak Vietnamese and carry codes (e.g.
+        // sector_group=SECURITIES) that the legacy dictionary would rewrite.
+        const value = /^\/api\/v2\/stocks\/[^/?]+\/(overview|fundamentals|scores|peers)/.test(path)
+          ? body
+          : localizePayload(body);
         if (cache.size >= 80) cache.delete(cache.keys().next().value!);
         cache.set(key, { value, expires: Date.now() + 300000 });
         return value;

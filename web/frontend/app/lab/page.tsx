@@ -69,8 +69,8 @@ export default function Lab() {
             {s.data.variants && (
               <Panel
                 className="section-gap"
-                title="R1 · research preview chưa promote"
-                eyebrow="BASELINE VẪN LÀ MẶC ĐỊNH"
+                title="R1 · bản thử nghiệm"
+                eyebrow="MÔ HÌNH GỐC VẪN LÀ MẶC ĐỊNH"
               >
                 <div className="panel-body">
                   <p>
@@ -103,8 +103,7 @@ export default function Lab() {
                   quality metrics trong browser.
                 </li>
                 <li>
-                  A/B/C là các feature spaces/cohorts khác nhau; không chọn
-                  winner bằng silhouette giữa ba family.
+                  A/B/C dùng dữ liệu khác nhau; không so điểm chất lượng giữa ba mô hình.
                 </li>
                 <li>
                   Financial FY có thể công bố sau ngày market; C và ma trận
@@ -179,13 +178,13 @@ export default function Lab() {
                     </div>
                   ))}
                   <div className="status-row">
-                    <span>Full repository gate trong bundle</span>
+                    <span>Kiểm thử toàn bộ</span>
                     <Badge tone="amber">{m.full_suite.status}</Badge>
                   </div>
                   <p>{m.full_suite.reason}</p>
                 </div>
               </Panel>
-              <Panel title="Research readiness" eyebrow="KHÔNG TỰ MỞ GATES">
+              <Panel title="Mức sẵn sàng nghiên cứu" eyebrow="CHƯA DÙNG ĐỂ ĐẦU TƯ">
                 <div className="panel-body">
                   <p>
                     Publication timing: {number(m.financial_publication_rows)} /{" "}
@@ -196,11 +195,10 @@ export default function Lab() {
                     nghiệm thu.
                   </p>
                   <p>
-                    Seed stability và checksum PASS không mở research gates.
+                    Kết quả ổn định khi chạy lại, nhưng chưa đủ để kết luận đầu tư.
                   </p>
                   <p className="warning-line section-gap">
-                    Model có nhóm nhỏ hoặc bị một feature chi phối vẫn cần
-                    review nguồn và usefulness.
+                    Mô hình có nhóm quá nhỏ hoặc bị một đặc trưng chi phối cần kiểm tra thêm.
                   </p>
                 </div>
               </Panel>
@@ -217,7 +215,7 @@ export default function Lab() {
         {tab === "provenance" && (
           <Panel
             title="Nguồn và phiên bản"
-            eyebrow="ĐẦU VÀO GHIM SHA-256"
+            eyebrow="ĐẦU VÀO ĐÃ KHÓA PHIÊN BẢN"
             action={
               <input
                 aria-label="Lọc nguồn dữ liệu"

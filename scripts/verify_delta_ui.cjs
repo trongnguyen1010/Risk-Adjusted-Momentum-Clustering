@@ -28,7 +28,7 @@ fs.mkdirSync(output, { recursive: true });
   for (const width of [320, 390, 768, 1280, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     for (const route of ['/', '/stocks?ticker=FPT', '/atlas?kind=combined', '/financial', '/lab']) {
-      await open(route, route.startsWith('/stocks') ? '.indicator-card' : '.panel h2,.model-card');
+      await open(route, route.startsWith('/stocks') ? '.stock-card' : '.panel h2,.model-card');
       if(route!=='/lab') await page.locator('.chart[aria-busy="false"] canvas').first().waitFor({timeout:30000});
       const computed = await page.evaluate(() => ({
         width: innerWidth, scrollWidth: document.documentElement.scrollWidth,
@@ -42,49 +42,60 @@ fs.mkdirSync(output, { recursive: true });
   }
   await page.setViewportSize({ width: 1440, height: 1000 });
   requests.length = 0;
-  await open('/stocks?ticker=FPT', '.indicator-card');
-  assert.equal(await page.locator('.indicator-card').count(), 6);
-  assert.match(await page.locator('.indicator-cards').innerText(), /5.216,07/);
-  assert.match(await page.locator('.indicator-cards').innerText(), /2026-04-22/);
-  assert(!requests.some(u => /\/members\/|\/compare\?|\/migration\//.test(u)), 'Deep panels fetched on Stock overview');
-  assert.equal(await page.locator('.price-table tbody tr').count(), 0, 'Hidden full price table mounted on overview');
+  await open('/stocks?ticker=FPT', '.stock-card');
+  assert.equal(await page.locator('.stock-card').count(), 6);
+  assert.match(await page.locator('.stock-cards').innerText(), /5\.504 đ/);
+  assert.match(await page.locator('.stock-header').innerText(), /95\.800 đ/);
+  assert(!requests.some(u => /\/members\/|\/compare\?|\/migration\/|\/scores\/|\/peers/.test(u)), 'Deep panels fetched on Stock overview');
+  await page.locator('.stock-card[data-metric="pe"] .info-tip button').focus();
+  assert.match(await page.getByRole('tooltip').innerText(), /Giá \/ EPS/);
   await page.getByRole('tab', { name: 'Chỉ số tài chính', exact: true }).click();
-  await page.getByRole('heading', { name: 'Sáu ratios đầu vào B / C' }).waitFor();
+  await page.locator('.fundamentals-table').waitFor();
   assert.match(page.url(), /tab=indicators/);
+  assert.equal(await page.locator('.fundamentals-table tr[data-metric]').count(), 19);
   await page.goBack();
-  await page.locator('.indicator-card').first().waitFor();
+  await page.locator('.stock-card').first().waitFor();
   await page.getByRole('tab', { name: 'Tổng quan', exact: true }).focus();
   await page.keyboard.press('ArrowRight');
   await page.waitForURL(/tab=indicators/);
   assert.equal(await page.locator('#stock-indicators').getAttribute('aria-selected'), 'true');
-  await page.getByRole('tab', { name: 'Dữ liệu & nguồn', exact: true }).click();
-  await page.locator('.indicator-details select').selectOption({ label: 'Theo policy mặc định' });
-  await open('/stocks?ticker=VNM', '.indicator-card');
-  const vnm = page.locator('.indicator-card').filter({ hasText: 'F-Score' });
-  assert.match(await vnm.innerText(), /Thiếu input/);
-  assert.equal(await vnm.locator('strong').innerText(), '—');
-  await open('/stocks?ticker=HPG', '.indicator-card');
-  assert.equal(await page.locator('.indicator-card').count(), 6);
-  assert((await page.locator('.indicator-card strong').allTextContents()).every(x => x === '—'));
-  assert.match(await page.locator('#stock-panel').innerText(), /Chưa có bộ chỉ số đã review/);
+  await page.getByRole('tab', { name: 'Điểm sức khỏe', exact: true }).click();
+  await page.locator('.signal-list li').first().waitFor();
+  assert.equal(await page.locator('.signal-list li').count(), 9);
+  await page.getByRole('tab', { name: 'So sánh cùng nhóm', exact: true }).click();
+  await page.locator('.peers-table tr.is-current').waitFor();
+  assert.match(await page.locator('.peers-table tr.is-current').innerText(), /FPT/);
+  await open('/stocks?ticker=VCB', '.stock-card');
+  assert.match(await page.locator('.stock-cards').innerText(), /ROA[\s\S]*BVPS/);
+  await open('/stocks?ticker=VCB&tab=scores', '#stock-panel .state-box');
+  assert.match(await page.locator('#stock-panel').innerText(), /Không áp dụng/);
+  await open('/stocks?ticker=BHH&tab=indicators', '.fundamentals-table');
+  assert((await page.locator('.fundamentals-table .cell-missing').count()) > 0, 'Small ticker should show explicit gaps');
+  // No stock page view shows internal review/package wording.
+  for (const route of ['/stocks?ticker=FPT', '/stocks?ticker=FPT&tab=indicators', '/stocks?ticker=VCB&tab=scores']) {
+    await open(route, '.stock-card');
+    await page.waitForLoadState('networkidle');
+    assert.doesNotMatch(await page.locator('main').innerText(), /review|vintage|package|cohort|pilot|sha-?256/i, `Internal wording on ${route}`);
+  }
   // Resolve only the most recent ticker while earlier responses are delayed.
+  await open('/stocks?ticker=VNM', '.stock-card');
   let resolveDelayed;
   const delayedDone=new Promise(resolve=>{resolveDelayed=resolve;});
-  await page.route('**/api/v2/indicators/FPT*', async route => {
+  await page.route('**/api/v2/stocks/FPT/overview*', async route => {
     try { const response = await route.fetch(); await new Promise(resolve => setTimeout(resolve, 700)); await route.fulfill({ response }); }
     catch(error){if(!/already handled|cancelled|canceled|aborted|Request context disposed/.test(String(error)))throw error;}
     finally{resolveDelayed();}
   });
-  const delayedStarted=page.waitForRequest(request=>new URL(request.url()).pathname.endsWith('/api/v2/indicators/FPT'));
+  const delayedStarted=page.waitForRequest(request=>new URL(request.url()).pathname.endsWith('/api/v2/stocks/FPT/overview'));
   await page.getByLabel('Tra cứu mã cổ phiếu').fill('FPT');
   await page.getByRole('button', { name: 'Xem', exact: true }).click();
   await delayedStarted;
   await page.getByLabel('Tra cứu mã cổ phiếu').fill('HPG');
   await page.getByRole('button', { name: 'Xem', exact: true }).click();
   await page.waitForURL(/ticker=HPG/);
-  await page.locator('.indicator-card').first().waitFor();
+  await page.locator('.stock-card').first().waitFor();
   await delayedDone;
-  assert((await page.locator('.indicator-card strong').allTextContents()).every(x => x === '—'));
+  assert.match(await page.locator('.stock-title h1').innerText(), /^HPG/);
   await page.unrouteAll({behavior:'wait'});
   requests.length = 0;
   await open('/atlas?kind=combined&date=2025-12-31&cluster=2', '.size-bars');
@@ -120,13 +131,14 @@ fs.mkdirSync(output, { recursive: true });
   await dialog.waitFor({ state: 'hidden' });
   assert.equal(await page.evaluate(() => document.activeElement?.className), 'global-search');
   // Service errors must remain errors, with a working retry; never become missing coverage.
-  await page.route('**/api/v2/indicators/FPT*', route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ detail: 'Dịch vụ đang khởi động.' }) }));
-  await open('/stocks?ticker=FPT', '#stock-panel .error');
-  assert.match(await page.locator('#stock-panel').innerText(), /Dịch vụ đang khởi động/);
-  assert.equal(await page.locator('.indicator-card').count(), 0);
-  await page.unroute('**/api/v2/indicators/FPT*');
-  await page.locator('#stock-panel .error').getByRole('button', { name: 'Thử lại' }).click();
-  await page.locator('.indicator-card').first().waitFor();
+  await page.route('**/api/v2/stocks/FPT/overview*', route => route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ detail: 'Dịch vụ đang khởi động.' }) }));
+  await page.goto(base + '/stocks?ticker=FPT');
+  await page.locator('.state-box.error').first().waitFor({ timeout: 90000 });
+  assert.match(await page.locator('.state-box.error').first().innerText(), /Dịch vụ đang khởi động/);
+  assert.equal(await page.locator('.stock-card').count(), 0);
+  await page.unroute('**/api/v2/stocks/FPT/overview*');
+  await page.locator('.state-box.error').first().getByRole('button', { name: 'Thử lại' }).click();
+  await page.locator('.stock-card').first().waitFor();
   // Synthetic contract fixtures stay inside this isolated browser context, never in product data.
   await page.route('**/api/v2/snapshots/combined*',async route=>{
     const response=await route.fetch(),body=await response.json();
@@ -147,7 +159,7 @@ fs.mkdirSync(output, { recursive: true });
   assert.match(await page.locator('.matrix-table').innerText(),/B30/);
   assert.match(await page.locator('.matrix-table').innerText(),/A8/);
   await page.unrouteAll({behavior:'wait'});
-  await open('/stocks?ticker=FPT','.indicator-card');
+  await open('/stocks?ticker=FPT','.stock-card');
   await page.evaluate(() => { document.body.style.zoom = '2'; });
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Reflow overflow at CSS zoom 200%');
   await page.screenshot({ path: path.join(output, 'fpt-css-zoom-200.png'), fullPage: true });
@@ -178,12 +190,8 @@ fs.mkdirSync(output, { recursive: true });
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.screenshot({path:path.join(output,'atlas-r1-p3-390.png'),fullPage:true});
   await page.setViewportSize({width:1440,height:1000});
-  await open(`/stocks?ticker=FPT&kind=combined&date=2025-12-31&version=${encodeURIComponent(p3.value)}`,'.indicator-card');
-  assert.equal(await page.locator('.indicator-card').count(),6);
-  assert.match(await page.locator('.cluster-diagnostic').innerText(),/R1 P3/);
-  await page.getByRole('tab',{name:'Phân cụm',exact:true}).click();
-  await page.locator('.table-footer').waitFor();
-  assert.match(await page.locator('.table-footer').innerText(),/526/);
+  await open(`/stocks?ticker=FPT&kind=combined&date=2025-12-31&version=${encodeURIComponent(p3.value)}`,'.stock-card');
+  assert.equal(await page.locator('.stock-card').count(),6);
   await open(`/financial?year=2025&tab=compare&version=${encodeURIComponent(p3.value)}`,'.matrix-cell');
   assert.equal(await page.locator('.matrix-cell').count(),4);
   const intersection=(await page.locator('.matrix-cell strong').first().innerText()).replace(/\./g,'');
@@ -195,7 +203,20 @@ fs.mkdirSync(output, { recursive: true });
   assert(sizes.length > 0, 'No canvas typography was observed');
   assert(Math.min(...sizes) >= 12, `Canvas text below 12px: ${Math.min(...sizes)}`);
   assert.equal(errors.length, 0, errors.join('\n'));
-  const report = { status: 'PASS', base, responsive: results, canvasMinimumPx: Math.min(...sizes), errors, scenarios: ['FPT full6', 'VNM missing F', 'HPG six empty cards', 'URL Back/Forward and arrow tabs', 'stale ticker cancellation', 'deep panels not mounted/fetched', 'cluster filter and drawer keyboard', 'Financial missing years and dynamic matrix', 'command palette focus restore', '503 error/retry', 'CSS zoom 200% reflow', 'reduced motion context','mismatched bundle revision rejected','real R1 preview version selection, saved diagnostics/peers, mobile reflow, stock members, matrix membership, default baseline unchanged'],syntheticContractFixtures:['eight sparse positive labels plus separate negative/unassigned label palette','rectangular 3x2 matrix with sparse labels'], limitations: ['CSS zoom simulates reflow; browser chrome zoom and three-person usability need human acceptance.', 'Cold hosting start and public deployment not measured by this local test.'] };
+  // Owner screenshots: three tickers, four tabs, desktop and phone width.
+  for (const width of [1440, 390]) {
+    await page.setViewportSize({ width, height: 1000 });
+    for (const ticker of ['FPT', 'VCB', 'BHH']) {
+      for (const tab of ['overview', 'indicators', 'scores', 'peers']) {
+        await open(`/stocks?ticker=${ticker}&tab=${tab}`, '.stock-card');
+        await page.waitForLoadState('networkidle');
+        assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Overflow ${ticker} ${tab} ${width}`);
+        await page.screenshot({ path: path.join(output, `stock-${ticker}-${tab}-${width}.png`), fullPage: true });
+      }
+    }
+  }
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  const report = { status: 'PASS', base, responsive: results, canvasMinimumPx: Math.min(...sizes), errors, scenarios: ['FPT six cards + tooltip', 'VCB bank cards and NOT_APPLICABLE scores', 'BHH explicit gaps', 'no review/vintage wording on stock page', 'stock screenshots FPT/VCB/BHH at 1440 and 390', 'URL Back/Forward and arrow tabs', 'stale ticker cancellation', 'deep panels not mounted/fetched', 'cluster filter and drawer keyboard', 'Financial missing years and dynamic matrix', 'command palette focus restore', '503 error/retry', 'CSS zoom 200% reflow', 'reduced motion context','mismatched bundle revision rejected','real R1 preview version selection, saved diagnostics/peers, mobile reflow, stock members, matrix membership, default baseline unchanged'],syntheticContractFixtures:['eight sparse positive labels plus separate negative/unassigned label palette','rectangular 3x2 matrix with sparse labels'], limitations: ['CSS zoom simulates reflow; browser chrome zoom and three-person usability need human acceptance.', 'Cold hosting start and public deployment not measured by this local test.'] };
   fs.writeFileSync(path.join(output, 'verification.json'), JSON.stringify(report, null, 2));
   console.log(JSON.stringify({ status: report.status, responsiveCases: results.length, canvasMinimumPx: report.canvasMinimumPx, errors }, null, 2));
   await browser.close();

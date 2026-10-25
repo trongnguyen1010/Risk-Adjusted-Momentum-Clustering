@@ -87,6 +87,8 @@ def create_app(repository=None,fundamentals=None):
                 members=repo(request).query('SELECT ticker FROM observations WHERE kind=? AND date=? AND cluster=?',(kind,latest[0]['date'],own[0]['cluster']))
                 return [r['ticker'] for r in members],f'CLUSTER_{kind.upper()}:{latest[0]["date"]}'
         return None,None
+    @app.get('/api/v2/fundamentals-coverage')
+    def fundamentals_coverage(request:Request):return fund(request).coverage()
     @app.get('/api/v2/stocks/{ticker}/overview')
     def stock_overview(request:Request,ticker:str):
         source=fund(request);company=source.company(ticker)

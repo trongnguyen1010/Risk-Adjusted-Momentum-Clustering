@@ -100,7 +100,7 @@ export default function Atlas() {
         eyebrow="CẤU TRÚC / NHÓM DOANH NGHIỆP"
         title="Bản đồ phân cụm"
         description="Chọn mô hình và kỳ, rồi chọn một nhóm để khám phá đặc điểm và thành viên."
-        action={<Badge tone="amber">Exploratory · cần review</Badge>}
+        action={<Badge tone="amber">Khám phá</Badge>}
       />
       <div className="toolbar">
         <FamilyTabs
@@ -190,7 +190,7 @@ export default function Atlas() {
                     {p.size <
                     Math.max(10, Math.ceil(state.data!.snapshot.n * 0.01))
                       ? "Nhóm rất nhỏ · cần xem xét"
-                      : `${number((100 * p.size) / state.data!.snapshot.n, 1)}% cohort`}
+                      : `${number((100 * p.size) / state.data!.snapshot.n, 1)}% số mã`}
                   </small>
                 </button>
               ))}
@@ -347,7 +347,7 @@ export default function Atlas() {
               <Panel
                 className="section-gap"
                 title="Hồ sơ và đối chiếu các nhóm"
-                eyebrow="COHORT CÙNG MODEL / KỲ · RAW UNITS"
+                eyebrow="CÙNG MÔ HÌNH VÀ KỲ"
                 action={
                   <select
                     aria-label="Đặc trưng đối chiếu"

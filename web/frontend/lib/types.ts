@@ -154,3 +154,99 @@ export interface Comparison {
     missing_reason: string | null;
   }[];
 }
+
+// Indicators v1 (D-IND-01): /api/v2/stocks/{ticker}/overview|fundamentals|scores|peers
+export type CellStatus =
+  | "OK"
+  | "MISSING_INPUT"
+  | "NOT_APPLICABLE"
+  | "NEGATIVE_EARNINGS"
+  | "NEGATIVE_EQUITY"
+  | "NO_PRICE";
+export type MetricUnit = "vnd" | "percent" | "times" | "points" | "score";
+export interface IndicatorCell {
+  value: number | null;
+  status: CellStatus;
+  reason?: "NO_ANNUAL_REPORT";
+}
+export interface MetricDefinition {
+  group: string;
+  label: string;
+  unit: MetricUnit;
+  description: string;
+}
+export interface StockCard extends IndicatorCell, MetricDefinition {
+  metric: string;
+  year: number;
+  rating: string | null;
+}
+export interface StockOverview {
+  ticker: string;
+  name: string | null;
+  exchange: string | null;
+  sector_group: string;
+  sector_label: string;
+  financial_sector: boolean;
+  latest_fiscal_year: number | null;
+  price: {
+    close: number;
+    date: string;
+    change_1d: number | null;
+    change_1m: number | null;
+    change_ytd: number | null;
+  } | null;
+  market_cap: number | null;
+  shares: number | null;
+  cards: StockCard[];
+  summary: string[];
+}
+export interface StockFundamentals {
+  ticker: string;
+  financial_sector: boolean;
+  years: number[];
+  run_id: string | null;
+  price_basis: string | null;
+  metrics: Record<string, Record<string, IndicatorCell>>;
+  definitions: Record<string, MetricDefinition>;
+  groups: { name: string; metrics: string[] }[];
+}
+export interface ScoreHead {
+  value: number | null;
+  status: CellStatus;
+  rating: string | null;
+  missing: string[];
+  flags: string[];
+}
+export interface StockScores {
+  ticker: string;
+  year: number;
+  applicable: boolean;
+  f_score: ScoreHead & {
+    known_signals: number;
+    signals: { name: string; passed: boolean | null; text: string }[];
+  };
+  m_score: ScoreHead & {
+    variables: { name: string; value: number | null; text: string }[];
+  };
+  z_score: ScoreHead & {
+    components: { name: string; value: number | null; text: string }[];
+  };
+  z_score_dp: ScoreHead;
+}
+export interface PeerRow {
+  ticker: string;
+  name: string | null;
+  exchange: string | null;
+  sector_group: string;
+  latest_fiscal_year: number | null;
+  pe: number | null;
+  pb: number | null;
+  roe: number | null;
+  eps: number | null;
+  market_cap: number | null;
+}
+export interface StockPeers {
+  ticker: string;
+  basis: string;
+  items: PeerRow[];
+}

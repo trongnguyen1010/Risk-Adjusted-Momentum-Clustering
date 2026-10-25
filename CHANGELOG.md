@@ -1,5 +1,14 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Indicators v1 — Giai đoạn 5: trang cổ phiếu mới (2026-10-25)
+
+`web/frontend/app/stocks/page.tsx` viết lại theo kiểu trang tài chính: header, 6 thẻ (ngân hàng
+thay F/Z bằng ROA/BVPS), bảng chỉ số 2016–2025 có sparkline, điểm F/M/Z chi tiết, peers. Component
+mới ở `web/frontend/components/stock/`. Bỏ `financial-indicators.tsx`; tab "Độ phủ chỉ số" dùng
+`/api/v2/fundamentals-coverage`. Rút gọn chữ review/cohort/pilot ở Tổng quan/Atlas/Tài chính/Lab.
+`scripts/verify_delta_ui.cjs` chuyển sang selector mới và chụp ảnh cổ phiếu.
+
+
 ## Indicators v1 — Giai đoạn 4: backend API (2026-10-25)
 
 Thêm `web/backend/app/fundamentals.py` (đọc read-only, kiểm hash) và 4 endpoint

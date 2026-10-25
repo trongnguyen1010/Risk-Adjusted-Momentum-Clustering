@@ -30,9 +30,8 @@ export function ModelVersion({
 export function PreviewNote({ dataset }: { dataset: Dataset | undefined }) {
   return dataset?.status === "NOT_PROMOTED" ? (
     <p className="cluster-diagnostic">
-      <strong>{dataset.label}.</strong> Đây là research preview từ artifact R1
-      đã kiểm chứng; chưa promote, chưa đóng source/peer usefulness review hoặc
-      PIT. Baseline gốc vẫn chọn lại được.
+      <strong>{dataset.label}.</strong> Bản thử nghiệm, chưa thay mô hình gốc;
+      mô hình gốc vẫn chọn lại được.
     </p>
   ) : null;
 }

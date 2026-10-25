@@ -12,6 +12,9 @@ Build lại dữ liệu: `python scripts/build_indicator_inputs.py` → `python 
 | `GET /api/v2/stocks/{ticker}/scores/{year}` | 9 tín hiệu F, 8 biến M, 5 thành phần Z |
 | `GET /api/v2/stocks/{ticker}/peers` | Mã cùng cụm C (rồi A), gần vốn hóa nhất; không có cụm ⇒ cùng nhóm ngành |
 
+Trang `/stocks?ticker=XXX` dùng 4 endpoint trên; tab: `overview`, `indicators`, `scores` (`&fy=2024`), `peers`.
+Kiểm tra trình duyệt: `PLAYWRIGHT_MODULE=... CHROMIUM_EXECUTABLE=... DELTA_UI_URL=http://127.0.0.1:3000 node scripts/verify_delta_ui.cjs`.
+
 Test API cần FastAPI: `python -m venv --system-site-packages .venv-web` rồi `pip install -r web/backend/requirements.txt`.
 
 

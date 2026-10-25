@@ -24,7 +24,7 @@ import { IndicatorCoverage } from "@/components/indicator-reference";
 const tabs = [
   ["distribution", "Phân bố"],
   ["compare", "Đối chiếu A/B/C"],
-  ["coverage", "Coverage"],
+  ["coverage", "Độ phủ chỉ số"],
 ] as const;
 export default function Financial() {
   const s = useSelection("financial");
@@ -266,8 +266,7 @@ export default function Financial() {
                     </table>
                   </div>
                   <p className="panel-note">
-                    Cohort cố định đủ 10 năm, có survivorship bias. Nhãn không
-                    xếp hạng chất lượng hoặc an toàn đầu tư.
+                    Chỉ gồm doanh nghiệp đủ 10 năm báo cáo. Nhóm không phải xếp hạng đầu tư.
                   </p>
                   <Link
                     className="button ghost"
@@ -299,8 +298,8 @@ export default function Financial() {
                         <div className="data-table-wrap">
                           <table className="data-table matrix-table">
                             <caption>
-                              {number(matrix.data.total)} mã common cohort ·
-                              market {matrix.data.date}. Bấm một ô để xem thành
+                              {number(matrix.data.total)} mã có cả hai mô hình ·
+                              thị trường {matrix.data.date}. Bấm một ô để xem thành
                               viên.
                             </caption>
                             <thead>
@@ -361,9 +360,8 @@ export default function Financial() {
                   >
                     <div className="panel-body">
                       <p>
-                        C kết hợp tám features thị trường và sáu core ratios
-                        trên common cohort từng năm. Variance đầu vào hai block
-                        được cân bằng; không đảm bảo separation 50/50.
+                        C kết hợp tám đặc trưng thị trường và sáu tỷ số tài chính
+                        trên các mã có đủ cả hai loại dữ liệu mỗi năm.
                       </p>
                       {combinedDate ? (
                         <>
