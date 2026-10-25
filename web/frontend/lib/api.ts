@@ -136,6 +136,12 @@ export function useApi<T>(path: string | null) {
     retry: () => setRevision((x) => x + 1),
   };
 }
+/** Keep showing the last loaded value while a new request is in flight (`stale` = true meanwhile). */
+export function useStale<T>(value: T | null) {
+  const last = useRef<T | null>(null);
+  if (value !== null) last.current = value;
+  return { data: value ?? last.current, stale: value === null && last.current !== null };
+}
 export function useDebounced(value: string, delay = 250) {
   const [result, setResult] = useState(value);
   useEffect(() => {

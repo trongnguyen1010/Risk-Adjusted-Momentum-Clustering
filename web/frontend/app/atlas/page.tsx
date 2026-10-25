@@ -23,6 +23,7 @@ import { ModelExplainer } from "@/components/model-explainer";
 import { storyRows } from "@/lib/feature-help";
 import { MembersTable } from "@/components/members-table";
 import { StockDrawer } from "@/components/stock-drawer";
+import { TickerFinder } from "@/components/ticker-finder";
 import { Chart, baseChart, axis } from "@/components/chart";
 const tabs = [
   ["explore", "Khám phá"],
@@ -37,7 +38,8 @@ export default function Atlas() {
     : "explore";
   const cluster = s.params.get("cluster") || "";
   const ticker = s.params.get("ticker");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(""); // highlighted ticker (ring + fade the rest)
+  const focusTicker = query || ticker || "";
   const setCluster = (value: string) =>
     s.set({ cluster: value || null, page: null });
   const close = useCallback(
@@ -259,12 +261,18 @@ export default function Atlas() {
                       </option>
                     </select>
                     </>)}
-                    <input
-                      aria-label="Làm nổi bật mã trên biểu đồ"
-                      placeholder="Làm nổi bật mã…"
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                    />
+                    <div className="atlas-find">
+                      <TickerFinder
+                        points={state.data.points}
+                        placeholder="Làm nổi bật mã…"
+                        onSelect={(t) => setQuery(t)}
+                      />
+                      {focusTicker && (
+                        <button className="button small ghost" onClick={() => setQuery("")}>
+                          Bỏ chọn
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <Scatter
                     data={state.data}
@@ -272,11 +280,15 @@ export default function Atlas() {
                     y={mapView ? "_map_y" : y}
                     kind={s.kind}
                     selected={cluster}
-                    query={query}
+                    focus={focusTicker}
+                    dim={!!focusTicker}
                     symlog={symlog && !mapView}
                     map={mapView}
                     names={names}
-                    onSelect={(ticker) => s.set({ ticker })}
+                    onSelect={(ticker) => {
+                      setQuery(ticker);
+                      s.set({ ticker });
+                    }}
                   />
                   {mapView ? (
                   <p className="panel-note">
