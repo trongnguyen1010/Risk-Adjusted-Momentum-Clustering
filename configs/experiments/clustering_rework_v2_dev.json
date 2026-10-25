@@ -1,0 +1,139 @@
+{
+  "version": "clustering-rework-v2-dev",
+  "mode": "EX_POST_DESCRIPTIVE_SENSITIVITY_NOT_PIT",
+  "owner_approval": {
+    "status": "APPROVED_TO_RUN_NOT_TO_PROMOTE",
+    "date": "2026-10-25",
+    "evidence": "Owner asked in chat to rerun model selection on development only and compare fairly with the M2 K=2 handoff."
+  },
+  "liquidity_filter": {
+    "window_sessions": 63,
+    "definition": "zero_volume_share_63 = sessions with volume <= 0 or missing in the last 63 sessions up to the snapshot date / 63; liquidity_21 as served (mean traded value, VND)",
+    "levels": {
+      "light": {
+        "zero_volume_share_gt": 0.5,
+        "liquidity_21_lt": 10000000
+      },
+      "strict": {
+        "zero_volume_share_gt": 0.3,
+        "liquidity_21_lt": 100000000
+      }
+    },
+    "illiquid_label": -1,
+    "note": "Thresholds are an eligibility (business) choice set from the 2025-12-31 distribution only, never from cluster metrics. The owner picks the level."
+  },
+  "feature_sets": {
+    "A_base": [
+      "mom_21",
+      "mom_63",
+      "mom_126",
+      "mom_252",
+      "vol_63",
+      "mdd_126",
+      "beta_126",
+      "liquidity_21"
+    ],
+    "A_dvol": [
+      "mom_21",
+      "mom_63",
+      "mom_126",
+      "mom_252",
+      "vol_63",
+      "downside_vol_63",
+      "mdd_126",
+      "beta_126",
+      "liquidity_21"
+    ],
+    "B_base": [
+      "roe",
+      "roa",
+      "gross_margin",
+      "net_margin",
+      "debt_to_equity",
+      "current_ratio",
+      "asset_turnover",
+      "revenue_growth",
+      "cfo_to_ni"
+    ],
+    "B_value": [
+      "roe",
+      "roa",
+      "gross_margin",
+      "net_margin",
+      "debt_to_equity",
+      "current_ratio",
+      "asset_turnover",
+      "revenue_growth",
+      "cfo_to_ni",
+      "earnings_yield",
+      "book_to_price",
+      "log_market_cap"
+    ],
+    "C_base": "A_base on liquid tickers (December) + B_base same fiscal year, equal block variance"
+  },
+  "derived_features": {
+    "downside_vol_63": "sqrt(mean(min(r,0)^2)) * sqrt(252) over the last 63 adj_close daily returns",
+    "earnings_yield": "eps / year-end raw close (negative allowed)",
+    "book_to_price": "bvps / year-end raw close",
+    "log_market_cap": "ln(market_cap in VND)"
+  },
+  "transform": "T1: log1p(liquidity_21 and log_market_cap kept as is), winsorize p1/p99, z-score, fitted per snapshot",
+  "algorithms": {
+    "kmeans": {
+      "n_init": 10
+    },
+    "pca_kmeans": {
+      "variance": 0.8,
+      "n_init": 10
+    },
+    "ward": {
+      "linkage": "ward"
+    },
+    "gmm": {
+      "covariance_type": "full",
+      "n_init": 2,
+      "reg_covar": 0.0001,
+      "max_iter": 300
+    }
+  },
+  "k": [
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "seed": 42,
+  "stability": {
+    "subsample": 0.9,
+    "seeds": [
+      1,
+      2,
+      3
+    ],
+    "measure": "ARI between the full fit and a refit on the subsample, on subsample rows"
+  },
+  "screening": {
+    "A_months": [
+      "06",
+      "12"
+    ],
+    "B_years": "2017-2025",
+    "C": "December 2019-2025",
+    "until": "2023-12-29",
+    "note": "Same rules as clustering-rework-v2; only snapshots on or before 2023-12-29 (M2 development, FY<=2023) are screened, so 2024-2025 stays out of model selection."
+  },
+  "admissible": {
+    "min_cluster_share": 0.05,
+    "share_of_snapshots": 0.8,
+    "median_stability": 0.8
+  },
+  "selection_rule": "Within each (family, filter, feature set): among admissible configs, mean rank over five metrics - median silhouette (high), median Davies-Bouldin (low), median Calinski-Harabasz (high), median subsample stability (high), median temporal ARI between consecutive screening snapshots (high). Lowest mean rank wins; ties -> smaller k, then kmeans, pca_kmeans, ward, gmm. Metrics computed in the T1 space of that feature set. Illiquid tickers are excluded from all metrics and shares. Returns/Sharpe never used.",
+  "imputation": false,
+  "promotion": "No automatic promotion; served bundle v2 unchanged until owner approval.",
+  "dynamic_clustering": false,
+  "research_ready": false,
+  "strict_pit_ready": false,
+  "backtest_allowed": false
+}
