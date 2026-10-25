@@ -1,5 +1,16 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-26 — D-DIR-01: hướng chính thức M2/M3 và lưu trữ hướng cũ (owner duyệt)
+
+So sánh công bằng (`artifacts/reports/m2-vs-rework-v1/report.md`): trên cùng tập mã và không gian log, mô hình A v4
+có silhouette 0,24 so với 0,11 của M2 K=2, cụm nhỏ nhất 14% so với 3,7% (M2 dưới 5% ở 48/60 tháng development),
+phần tách cụm do thanh khoản 8% so với 63%; M2 chỉ hơn ở độ bền nhãn theo thời gian (ARI 0,74 so với 0,55).
+Chọn lại chỉ trên 2019–2023 vẫn ra k=3. Owner chốt: **A v4 là mô hình thị trường chính thức cho M2/M3**, B v4 là mô
+hình tài chính (giới hạn ổn định ghi rõ), bàn giao M2 K=2 thành đối chứng. Hướng cũ được lưu trữ theo nhãn LEGACY,
+không xóa: `M2/`, `Bao_cao_M2_Nhiem_vu_4.*`, `m3_dashboard.py`, web HTML/JS cũ giữ nguyên đường dẫn vì code/test cũ
+còn đọc; tệp rời không ai tham chiếu chuyển vào `artifacts/archives/legacy-root-20261026/`. Holdout 2024–2025 sạch
+về lựa chọn k nhưng mô hình đã được xem trên toàn bộ kỳ trước đó — ghi trong báo cáo M3.
+
 ## 2026-10-25 — D-CRAWL-02: quy trình crawl thực dụng (owner duyệt)
 
 Owner: quy định crawl trước đây quá nghiêm, ưu tiên lấy được kết quả. Bỏ latch toàn campaign; lỗi 403/429/5xx/
