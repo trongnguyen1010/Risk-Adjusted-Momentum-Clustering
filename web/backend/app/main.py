@@ -17,7 +17,10 @@ def create_app(repository=None,fundamentals=None):
     async def lifespan(app):
         app.state.repository=repository or TerminalRepository(os.environ.get('DELTA_BUNDLE',str(ROOT/'data/web/delta-intelligence-v1')))
         preview_config=ROOT/'configs/product/model_previews_v1.json'
-        if repository is None and preview_config.is_file():app.state.repository=PreviewRepository(app.state.repository,ROOT)
+        if repository is None and preview_config.is_file():
+            # R1 previews are pinned to the v1 bundle; another bundle serves without them.
+            try:app.state.repository=PreviewRepository(app.state.repository,ROOT)
+            except MissingData:pass
         app.state.indicators=IndicatorReferences(ROOT)
         app.state.fundamentals=fundamentals
         if fundamentals is None:

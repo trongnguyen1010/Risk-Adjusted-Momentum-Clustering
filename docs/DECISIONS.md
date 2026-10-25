@@ -1,5 +1,14 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-25 — Phân cụm lại v1 cho web (owner duyệt cấu hình, chưa duyệt deploy)
+
+Owner duyệt trong chat: A = log(thanh khoản) + cắt đuôi 1–99% + z-score, k-means k=4; B = bộ chỉ số
+D-IND-01 (9 chỉ số, chỉ phi tài chính, đủ dữ liệu năm đó), k-means k=3; C = A tháng 12 + B cùng năm,
+mỗi khối biến đổi riêng rồi cân phương sai 50/50, k-means k=3. Seed 42, n_init 10, nhãn đánh số theo cỡ
+cụm. Bằng chứng: `data/experiments/clustering_rework_v1/rework-c133b10371096e9c/report.md`. Bundle mới
+`data/web/delta-intelligence-v2/` (v1 giữ nguyên). Chưa deploy; vẫn là tham chiếu mô tả, không PIT/backtest.
+
+
 ## 2026-10-24 — D-IND-01: công thức chuẩn thị trường cho lớp chỉ số sản phẩm
 
 Owner duyệt (plan `docs/INDICATORS_PRODUCT_PLAN.md`). Chỉ áp dụng cho lớp

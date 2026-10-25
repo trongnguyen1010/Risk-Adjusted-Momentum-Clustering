@@ -1,12 +1,10 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
-## Phân cụm lại v1 — đã chạy thử, CHỜ OWNER DUYỆT, chưa thay mô hình web (25/10/2026)
+## Phân cụm lại v1 — owner duyệt, bundle v2 đã build, CHỜ KIỂM TRA TRƯỚC DEPLOY (25/10/2026)
 
-`scripts/run_clustering_rework_v1.py` (config `configs/experiments/clustering_rework_v1.json`) →
-`data/experiments/clustering_rework_v1/rework-c133b10371096e9c/report.md`. Mô hình đang phục vụ chỉ tách
-ngoại lai (A: 98% một cụm; B: 1170/1/1). Đề xuất (cụm nhỏ nhất ≥5%, ARI seed ≥0,8, không dùng lợi nhuận):
-A log+cắt đuôi k-means k=4; B2 (bộ chỉ số mới, phi tài chính) k-means k=3; C k-means k=3. MANUAL_REVIEW_REQUIRED.
-
+`scripts/build_delta_bundle_v2.py` → `data/web/delta-intelligence-v2/` (v1 giữ nguyên). Cỡ cụm 2025:
+A 634/324/323/129; B 705/279/216; C 733/291/115. Chạy local với `DELTA_BUNDLE=data/web/delta-intelligence-v2`.
+Bản xem trước R1 (ghim theo v1) tự tắt khi chạy v2. Chưa đổi `publish_hf_data.py`/Render sang v2.
 
 ## Indicators v1 — Giai đoạn 1–5 xong, local, chưa push (25/10/2026)
 

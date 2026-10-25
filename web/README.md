@@ -15,6 +15,9 @@ Build lại dữ liệu: `python scripts/build_indicator_inputs.py` → `python 
 Trang `/stocks?ticker=XXX` dùng 4 endpoint trên; tab: `overview`, `indicators`, `scores` (`&fy=2024`), `peers`.
 Kiểm tra trình duyệt: `PLAYWRIGHT_MODULE=... CHROMIUM_EXECUTABLE=... DELTA_UI_URL=http://127.0.0.1:3000 node scripts/verify_delta_ui.cjs`.
 
+Chạy với bundle phân cụm mới (v2): đặt `DELTA_BUNDLE=data/web/delta-intelligence-v2` trước khi chạy
+`python scripts/start_delta_terminal.py`; không đặt thì vẫn dùng v1.
+
 Test API cần FastAPI: `python -m venv --system-site-packages .venv-web` rồi `pip install -r web/backend/requirements.txt`.
 
 

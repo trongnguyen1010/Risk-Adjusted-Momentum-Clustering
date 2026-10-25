@@ -60,6 +60,9 @@ export function metric(value: number | null | undefined, field: string) {
       "net_margin",
       "operating_cashflow_to_assets",
       "mdd_126",
+      "roe",
+      "roa",
+      "revenue_growth",
     ].includes(field)
   )
     return `${number(value * 100, 2)}%`;

@@ -53,12 +53,16 @@ export default function Atlas() {
     [],
   );
   const features = s.dataset?.features || [];
-  const preset =
+  // First default pair whose features exist in the served model (bundles differ).
+  const candidates =
     s.kind === "financial"
-      ? ["net_margin", "liabilities_to_assets"]
+      ? [["roe", "debt_to_equity"], ["net_margin", "liabilities_to_assets"]]
       : s.kind === "combined"
-        ? ["mom_63", "net_margin"]
-        : ["mom_63", "vol_63"];
+        ? [["mom_63", "roe"], ["mom_63", "net_margin"]]
+        : [["mom_63", "vol_63"]];
+  const preset =
+    candidates.find((pair) => pair.every((f) => features.includes(f))) ||
+    (features.length > 1 ? features.slice(0, 2) : candidates[0]);
   const x = s.params.get("x") || preset[0],
     y = s.params.get("y") || preset[1];
   const state = useApi<SnapshotData>(
@@ -136,7 +140,8 @@ export default function Atlas() {
       </div>
       <ScopeNote kind={s.kind} />
       <PreviewNote dataset={s.dataset} />
-      {s.kind === "market" && s.dataset.status !== "NOT_PROMOTED" && (
+      {/* Diagnostic measured on the v1 market model only; v2 (rework) caps liquidity first. */}
+      {s.kind === "market" && s.dataset.version === "C8 V2 / M2 60+24" && (
         <p className="cluster-diagnostic">
           A: liquidity_21 chiếm trung vị 99,997% phần tách centroid qua 84 tháng
           theo fitted metric. Đổi trục/log hiển thị không sửa geometry hoặc
@@ -251,13 +256,11 @@ export default function Atlas() {
                     onSelect={(ticker) => s.set({ ticker })}
                   />
                   <p className="panel-note">
-                    Preset{" "}
-                    {s.kind === "market"
-                      ? "động lượng × biến động: so sánh hành vi và rủi ro"
-                      : s.kind === "financial"
-                        ? "biên lợi nhuận × nợ/tài sản: hai khía cạnh tài chính"
-                        : "động lượng × biên lợi nhuận: đối chiếu hai block"}
-                    . Hai trục không đại diện chất lượng toàn model.{" "}
+                    Trục mặc định:{" "}
+                    {[preset[0], preset[1]]
+                      .map((f) => s.data?.metadata.definitions[f]?.label || f)
+                      .join(" × ")}
+                    . Hai trục chỉ là một góc nhìn, không đại diện toàn bộ mô hình.{" "}
                     {symlog
                       ? "sign(x) × ln(1+|x|), tooltip giữ raw values; không transform model."
                       : "Giữ nguyên raw values và đơn vị."}
