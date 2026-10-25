@@ -1,5 +1,13 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Phân cụm lại v2 (lọc thanh khoản + Ward/PCA + chọn đa thước đo) — đã chạy, CHỜ OWNER DUYỆT (25/10/2026)
+
+`scripts/run_clustering_rework_v2.py` → `data/experiments/clustering_rework_v2/rework2-549f29de83924b07/report.md`.
+A lọc nhẹ (789 mã có giao dịch, 621 "Kém thanh khoản" 2025) K-Means k=3; lọc chặt (552/858) PCA+K-Means k=3.
+B: không cấu hình nào đạt ổn định lấy mẫu con ≥0,8 (B đang chạy chỉ 0,50). C: PCA+K-Means k=3/4. Ward không ổn định.
+Bundle v2 trên web chưa đổi.
+
+
 ## Phân cụm lại v1 — owner duyệt, bundle v2 đã build, CHỜ KIỂM TRA TRƯỚC DEPLOY (25/10/2026)
 
 `scripts/build_delta_bundle_v2.py` → `data/web/delta-intelligence-v2/` (v1 giữ nguyên). Cỡ cụm 2025:
