@@ -179,6 +179,7 @@ export default function Atlas() {
                 <button
                   key={p.cluster}
                   className={cluster === String(p.cluster) ? "selected" : ""}
+                  style={{ "--c": clusterColor(p.cluster, Object.keys(state.data!.snapshot.sizes).map(Number)) } as React.CSSProperties}
                   onClick={() => setCluster(String(p.cluster))}
                 >
                   <ClusterBadge

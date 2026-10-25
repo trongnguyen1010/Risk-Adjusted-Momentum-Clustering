@@ -10,6 +10,7 @@ const THEMED: Record<string, string> = {
   "#1c293b": "--line",
   "#152235": "--tooltip-bg",
   "#2a3b51": "--tooltip-bg",
+  "#ff5500": "--accent",
 };
 function paint<T>(value: T, vars: Record<string, string>): T {
   if (typeof value === "string") return (vars[value] ?? value) as T;

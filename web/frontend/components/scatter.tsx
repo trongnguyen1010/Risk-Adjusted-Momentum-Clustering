@@ -144,7 +144,7 @@ export function Scatter({
                 value: [transform(p.features[x]), transform(p.features[y])],
                 raw: [p.features[x], p.features[y]],
                 itemStyle: {
-                  ...(p.ticker === focus ? { borderColor: "#ff5500", borderWidth: 3 } : {}),
+                  ...(p.ticker === focus ? { borderColor: "#ff5500" /* themed: --accent */, borderWidth: 3 } : {}),
                   opacity: p.ticker === focus ? 1 :
                     (selected !== "" && Number(selected) !== cluster) ||
                     (query &&
