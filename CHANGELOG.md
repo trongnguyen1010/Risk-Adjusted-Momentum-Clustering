@@ -1,5 +1,12 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Bundle v3 và nhãn "Kém thanh khoản" (2026-10-25)
+
+`scripts/build_delta_bundle_v3.py`; `robust_transforms.fit_t1/apply_t1/nearest_centroid`; cột
+`observations.liquidity`; overview trả `liquidity`; UI hiện nhãn ở trang cổ phiếu, bảng thành viên và ghi chú
+mô hình trên Atlas. Tests: liquidity trong API và gán cụm gần nhất.
+
+
 ## Phân cụm lại v2 — thử nghiệm (2026-10-25)
 
 Thêm lọc thanh khoản (tỷ lệ phiên không khớp 63 phiên + giá trị giao dịch), nhãn riêng "Kém thanh khoản",

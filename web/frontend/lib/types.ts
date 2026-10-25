@@ -16,6 +16,7 @@ export interface Observation {
   scope: string;
   name?: string;
   exchange?: string;
+  liquidity?: "LIQUID" | "ILLIQUID" | null;
 }
 export interface Snapshot {
   kind: Kind;
@@ -47,6 +48,8 @@ export interface Dataset {
   features: string[];
   version: string;
   protocol?: Record<string, unknown>;
+  liquidity_filter?: string;
+  stability_note?: string;
 }
 export interface Catalog {
   metadata: {
@@ -199,6 +202,7 @@ export interface StockOverview {
   shares: number | null;
   cards: StockCard[];
   summary: string[];
+  liquidity?: { status: "LIQUID" | "ILLIQUID"; date: string } | null;
 }
 export interface StockFundamentals {
   ticker: string;

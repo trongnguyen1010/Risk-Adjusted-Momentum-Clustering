@@ -57,6 +57,38 @@ def transform(raw, features, recipe, baseline='zscore'):
     raise ValueError('Unknown recipe ' + recipe)
 
 
+def fit_t1(raw, features, lower=1.0, upper=99.0):
+    """T1 parameters learned on one cohort (e.g. liquid stocks), reusable via apply_t1."""
+    logged = log_columns(np.asarray(raw, dtype=float), features)
+    lo, hi = np.percentile(logged, [lower, upper], axis=0)
+    clipped = np.clip(logged, lo, hi)
+    sd = clipped.std(axis=0)
+    sd[sd == 0] = 1.0
+    return dict(features=tuple(features), lo=lo, hi=hi, mean=clipped.mean(axis=0), sd=sd)
+
+
+def apply_t1(raw, params):
+    """Same log + clip + z-score as the fitted cohort; NaN cells stay NaN."""
+    raw = np.asarray(raw, dtype=float)
+    logged = raw.copy()
+    for j, name in enumerate(params['features']):
+        if name in LOG_FEATURES:
+            logged[:, j] = np.log1p(np.where(raw[:, j] < 0, np.nan, raw[:, j]))
+    return (np.clip(logged, params['lo'], params['hi']) - params['mean']) / params['sd']
+
+
+def nearest_centroid(x, centroids):
+    """Nearest centroid on the dimensions each row actually has (NaN dimensions skipped)."""
+    x = np.asarray(x, dtype=float)
+    out = np.empty(len(x), dtype=int)
+    for i, row in enumerate(x):
+        ok = np.isfinite(row)
+        if not ok.any():
+            raise ValueError('row without any finite feature')
+        out[i] = int(np.argmin(((centroids[:, ok] - row[ok]) ** 2).sum(axis=1)))
+    return out
+
+
 def block_weights(values, widths, total=0.5):
     """Scale each feature block to equal total variance (C = market block + financial block)."""
     out = values.copy()

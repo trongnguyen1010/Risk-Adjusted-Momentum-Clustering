@@ -106,7 +106,14 @@ export function MembersTable({
               {row.original.ticker.slice(0, 2)}
             </span>
             <span>
-              <strong>{row.original.ticker}</strong>
+              <strong>
+                {row.original.ticker}
+                {row.original.liquidity === "ILLIQUID" && (
+                  <span className="illiquid-dot" title="Kém thanh khoản: được gán vào cụm gần nhất">
+                    Kém TK
+                  </span>
+                )}
+              </strong>
               <small className="company-cell">{row.original.name}</small>
             </span>
           </button>

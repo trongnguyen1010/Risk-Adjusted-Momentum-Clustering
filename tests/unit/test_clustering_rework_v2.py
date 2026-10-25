@@ -60,5 +60,18 @@ class SweepTests(unittest.TestCase):
         self.assertIsNone(cr2.select(summary, 'A'))
 
 
+class AssignmentTests(unittest.TestCase):
+    def test_fit_on_liquid_then_assign_rest(self):
+        from delta_t1.clustering import robust_transforms as rt
+        liquid = np.column_stack([np.r_[np.zeros(50), np.full(50, 10.0)] + np.random.default_rng(0).normal(size=100),
+                                  np.full(100, 1e9)])
+        params = rt.fit_t1(liquid, ('x', 'liquidity_21'))
+        x = rt.apply_t1(liquid, params)
+        centroids = np.array([x[:50].mean(axis=0), x[50:].mean(axis=0)])
+        others = rt.apply_t1(np.array([[0.5, 0.0], [9.5, 0.0], [12.0, np.nan]]), params)  # illiquid rows
+        self.assertEqual(list(rt.nearest_centroid(others, centroids)), [0, 1, 1])
+        self.assertEqual(rt.apply_t1(np.array([[1e6, 1e9]]), params)[0, 0], x.max(axis=0)[0])  # clipped like the fit
+
+
 if __name__ == '__main__':
     unittest.main()

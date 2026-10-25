@@ -1,5 +1,12 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Bundle v3 (học trên mã có giao dịch, gán phần còn lại) — đã build, CHỜ OWNER KIỂM TRA (25/10/2026)
+
+`scripts/build_delta_bundle_v3.py` → `data/web/delta-intelligence-v3/` (v1, v2 giữ nguyên; deploy vẫn trỏ v2).
+2025: A 1.410 mã = 789 có giao dịch + 621 "Kém thanh khoản", cụm 803/418/189; C 1.139 mã, cụm 605/242/181/111.
+Nhãn "Kém thanh khoản" trên trang cổ phiếu, bảng thành viên Atlas; ghi chú B chưa ổn định trên Atlas.
+
+
 ## Phân cụm lại v2 (lọc thanh khoản + Ward/PCA + chọn đa thước đo) — đã chạy, CHỜ OWNER DUYỆT (25/10/2026)
 
 `scripts/run_clustering_rework_v2.py` → `data/experiments/clustering_rework_v2/rework2-549f29de83924b07/report.md`.
