@@ -51,7 +51,8 @@ export function Chart({
         animation: !window.matchMedia("(prefers-reduced-motion: reduce)")
           .matches,
       },
-      { notMerge: true },
+      // Updates morph in place (points glide to their new position) instead of redrawing from scratch.
+      { replaceMerge: ["series", "xAxis", "yAxis", "grid", "dataZoom"] },
     );
   }, [option]);
   useEffect(() => {

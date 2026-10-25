@@ -1,11 +1,13 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, Search } from "lucide-react";
-import { useApi, url } from "@/lib/api";
+import { useApi, useStale, url } from "@/lib/api";
 import { useSelection } from "@/lib/selection";
 import { Skeleton, ErrorState } from "@/components/ui";
 import { Scatter } from "@/components/scatter";
+import { TickerFinder } from "@/components/ticker-finder";
+import { ClusterHeatmap, CorrelationMatrix, DriverLine, axisDrivers } from "@/components/factor-views";
 import { FAMILY, number, metric, dateLabel, clusterColor } from "@/lib/format";
 import { signedPercent } from "@/lib/indicator-format";
 import { FEATURE_HELP } from "@/lib/feature-help";
@@ -28,14 +30,14 @@ const featureLabel = (key: string) => {
 const pct = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? `${Math.round(v * 100)}%` : "—");
 const tagTone = (v: number | null | undefined) => (v == null ? "" : v > 0 ? "up" : v < 0 ? "down" : "");
 
-function Kpi({ index, kind, d }: { index: string; kind: Kind; d: Dataset }) {
+function Kpi({ kind, d }: { kind: Kind; d: Dataset }) {
   const m = d.latest.metrics as Record<string, unknown>;
   const clear = typeof m.boundary_share === "number" ? 1 - m.boundary_share : null;
   return (
     <Link className="bp-cell link" href={`/atlas?kind=${kind}&date=${d.latest.date}`}>
       <header>
         <span>
-          [{index} // {FAMILY[kind].letter} · {FAMILY[kind].label}]
+          Mô hình {FAMILY[kind].letter} · {FAMILY[kind].label}
         </span>
         <ArrowUpRight size={14} />
       </header>
@@ -62,35 +64,48 @@ function percentile(points: Observation[], key: string, value: number | null | u
   return values.filter((v) => v < value).length / values.length;
 }
 
-function Inspector({ kind, data, ticker }: { kind: Kind; data: SnapshotData; ticker: string }) {
+function Inspector({ kind, data, ticker, onSelect }: { kind: Kind; data: SnapshotData; ticker: string; onSelect: (t: string) => void }) {
   const point = data.points.find((p) => p.ticker === ticker);
-  const overview = useApi<StockOverview>(ticker ? url(`stocks/${encodeURIComponent(ticker)}/overview`) : null);
+  const fresh = useApi<StockOverview>(ticker ? url(`stocks/${encodeURIComponent(ticker)}/overview`) : null);
+  const overview = useStale(fresh.data);
   if (!point)
     return (
-      <div className="insp-section">
-        <p>Bấm một chấm trên bản đồ hoặc một dòng trong bảng để xem chi tiết.</p>
-      </div>
+      <>
+        <TickerFinder points={data.points} onSelect={onSelect} />
+        <div className="insp-section">
+          <p>Bấm một chấm trên bản đồ, một dòng trong bảng, hoặc gõ mã ở ô tìm kiếm.</p>
+        </div>
+      </>
     );
   const labels = Object.keys(data.snapshot.sizes).map(Number);
   const profile = data.profiles.find((p) => p.cluster === point.cluster);
-  const price = overview.data?.price;
+  const price = overview.data?.price ?? null;
   return (
     <>
-      <div className="insp-head">
+      <TickerFinder points={data.points} onSelect={onSelect} />
+      <div className={`insp-head ${overview.stale ? "is-refreshing" : ""}`}>
         <div className="insp-ticker">
           <strong>{ticker}</strong>
           <span>{point.exchange || overview.data?.exchange || ""}</span>
         </div>
         <p className="insp-name">{point.name || overview.data?.name || "—"}</p>
         <div className="insp-price">
-          {price ? (
+          {price && overview.data?.ticker === ticker ? (
             <>
               <b>{number(price.close)}</b>
               <span className={`tag ${tagTone(price.change_1d)}`}>1N {signedPercent(price.change_1d)}</span>
               <span className={`tag ${tagTone(price.change_ytd)}`}>YTD {signedPercent(price.change_ytd)}</span>
             </>
           ) : (
-            <span className="bp-tag">{overview.loading ? "Đang tải giá…" : "Chưa có giá"}</span>
+            fresh.loading && price ? (
+              <>
+                <b className="ghost">{number(price.close)}</b>
+                <span className="tag ghost">1N {signedPercent(price.change_1d)}</span>
+                <span className="tag ghost">YTD {signedPercent(price.change_ytd)}</span>
+              </>
+            ) : (
+              <span className="bp-tag">{fresh.loading ? "Đang tải giá…" : "Chưa có giá"}</span>
+            )
           )}
           {point.liquidity === "ILLIQUID" && <span className="tag warn">Kém thanh khoản</span>}
         </div>
@@ -134,7 +149,9 @@ function Inspector({ kind, data, ticker }: { kind: Kind; data: SnapshotData; tic
 export default function Overview() {
   const s = useSelection("market");
   const kind = s.kind;
-  const tab = s.params.get("tab") === "sizes" ? "sizes" : "map";
+  const VIEWS = ["sizes", "profile", "corr"] as const;
+  const rawTab = s.params.get("tab");
+  const tab = (VIEWS as readonly string[]).includes(rawTab || "") ? (rawTab as (typeof VIEWS)[number]) : "map";
   const d = s.data?.datasets;
   const snapshot = useApi<SnapshotData>(
     d ? url(`snapshots/${kind}`, { date: d[kind].latest.date, version: d[kind].version }) : null,
@@ -142,13 +159,36 @@ export default function Overview() {
   const [group, setGroup] = useState<string>("all");
   const [query, setQuery] = useState("");
   const [limit, setLimit] = useState(PAGE);
-  const data = snapshot.data;
+  const [bigOnly, setBigOnly] = useState(false);
+  const view = useStale(snapshot.data ? { kind, data: snapshot.data } : null);
+  const data = view.data?.data ?? null;
+  const vKind: Kind = view.data?.kind ?? kind;
+  // "Mã lớn" = the 30 most traded stocks of model A at its latest snapshot (also used to label B and C maps).
+  const marketSnap = useApi<SnapshotData>(
+    d && kind !== "market" && bigOnly ? url("snapshots/market", { date: d.market.latest.date, version: d.market.version }) : null,
+  );
+  const bigTickers = useMemo(() => {
+    const source = vKind === "market" ? data : marketSnap.data;
+    if (!source || !bigOnly) return [];
+    return [...source.points]
+      .filter((p) => p.liquidity !== "ILLIQUID" && p.features.liquidity_21 != null)
+      .sort((a, b) => (b.features.liquidity_21 as number) - (a.features.liquidity_21 as number))
+      .slice(0, 30)
+      .map((p) => p.ticker);
+  }, [vKind, data, marketSnap.data, bigOnly]);
+  const features = d ? d[vKind].features : [];
+  const drivers = useMemo(
+    () => (data && data.points.some((p) => p.features._map_x != null) ? axisDrivers(data, features) : null),
+    [data, features],
+  );
+  const [picked, setPicked] = useState(() => (s.params.get("t") || "").toUpperCase());
+  const [spotlight, setSpotlight] = useState(() => !!s.params.get("t")); // fade the other stocks on the map
   const ticker = useMemo(() => {
-    const wanted = (s.params.get("t") || "").toUpperCase();
+    const wanted = picked;
     if (!data) return wanted;
     if (data.points.some((p) => p.ticker === wanted)) return wanted;
     return data.points.find((p) => p.ticker === "FPT")?.ticker || data.points[0]?.ticker || "";
-  }, [data, s.params]);
+  }, [data, picked]);
   const rows = useMemo(() => {
     if (!data) return [];
     const q = query.trim().toUpperCase();
@@ -159,19 +199,32 @@ export default function Overview() {
       .filter((p) => !q || p.ticker.includes(q) || (p.name || "").toUpperCase().includes(q))
       .sort((a, b) => (b.features.liquidity_21 ?? -1) - (a.features.liquidity_21 ?? -1) || a.ticker.localeCompare(b.ticker));
   }, [data, group, query]);
+  const stage = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!stage.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Opacity only: the content stays in place (no slide), like the inspector.
+    stage.current.animate([{ opacity: 0.55 }, { opacity: 1 }], { duration: 220, easing: "ease-out" });
+  }, [vKind, tab]);
   if (s.error) return <ErrorState message={s.error} retry={s.retry} />;
   if (!d) return <Skeleton height={600} />;
   const labels = data ? Object.keys(data.snapshot.sizes).map(Number) : [];
   const names = data ? Object.fromEntries(data.profiles.map((p) => [p.cluster, p.name])) : {};
   const hasMap = !!data?.points.some((p) => p.features._map_x != null);
-  const select = (t: string) => s.set({ t });
-  const columns = KEY_FEATURES[kind].slice(0, 4);
+  // Selecting a stock only changes local state (no navigation): the map and inspector update in place.
+  const select = (t: string) => {
+    setPicked(t);
+    setSpotlight(true);
+    const next = new URL(window.location.href);
+    next.searchParams.set("t", t);
+    window.history.replaceState(window.history.state, "", next);
+  };
+  const columns = KEY_FEATURES[vKind].slice(0, 4);
   const illiquid = data?.points.filter((p) => p.liquidity === "ILLIQUID").length || 0;
   return (
     <>
       <header className="bp-hero">
         <div>
-          <span className="bp-tag">[00 // Tổng quan]</span>
+          <span className="bp-tag">Tổng quan</span>
           <h1>Toàn cảnh cổ phiếu Việt Nam</h1>
           <p>Ba mô hình phân nhóm trên {number(d.market.latest.n)} mã · dữ liệu lịch sử, không phải giá trực tiếp.</p>
         </div>
@@ -185,7 +238,7 @@ export default function Overview() {
       <section className="bp-grid bp-kpis" aria-label="Chỉ số chính">
         <div className="bp-cell">
           <header>
-            <span>[01 // Tập cổ phiếu]</span>
+            <span>Tập cổ phiếu</span>
             <i className="status-square" />
           </header>
           <div className="kpi-body">
@@ -199,52 +252,103 @@ export default function Overview() {
             Giá đến {dateLabel(d.market.latest.date)} · BCTC {d.financial.dates[0]}–{d.financial.latest.date}
           </footer>
         </div>
-        {KINDS.map((k, i) => (
-          <Kpi key={k} index={`0${i + 2}`} kind={k} d={d[k]} />
+        {KINDS.map((k) => (
+          <Kpi key={k} kind={k} d={d[k]} />
         ))}
       </section>
 
       <section className="bp-grid bp-work" aria-label="Bàn làm việc">
         <div className="bp-cell">
-          <div className="bp-tabs" role="tablist" aria-label="Mô hình">
-            {KINDS.map((k, i) => (
-              <button
-                key={k}
-                role="tab"
-                aria-selected={tab === "map" && kind === k}
-                onClick={() => {
-                  setGroup("all");
-                  setLimit(PAGE);
-                  s.set({ kind: k, tab: null });
-                }}
-              >
-                0{i + 1}. {FAMILY[k].letter} · {FAMILY[k].label}
+          <div className="bp-tabs" role="tablist" aria-label="Chế độ xem">
+            {(
+              [
+                ["map", "Bản đồ"],
+                ["profile", "Đặc điểm nhóm"],
+                ["corr", "Tương quan"],
+                ["sizes", "Quy mô"],
+              ] as const
+            ).map(([id, label]) => (
+              <button key={id} role="tab" aria-selected={tab === id} onClick={() => s.set({ tab: id === "map" ? null : id })}>
+                {label}
               </button>
             ))}
-            <button role="tab" aria-selected={tab === "sizes"} onClick={() => s.set({ tab: "sizes" })}>
-              04. Quy mô
-            </button>
-            <span className="spacer" />
-            <span className="hint">Fig {FAMILY[kind].letter}.1 · {dateLabel(d[kind].latest.date)}</span>
           </div>
-          {snapshot.error ? (
+          <div className={`bp-toolbar ${view.stale ? "is-loading" : ""}`}>
+            <span className="bp-tag">Mô hình</span>
+            <div className="mini-seg model-seg" role="group" aria-label="Mô hình">
+              {KINDS.map((k) => (
+                <button
+                  key={k}
+                  aria-pressed={kind === k}
+                  title={`Mô hình ${FAMILY[k].letter} · ${FAMILY[k].label}`}
+                  onClick={() => {
+                    setGroup("all");
+                    setLimit(PAGE);
+                    s.set({ kind: k });
+                  }}
+                >
+                  {FAMILY[k].letter}
+                  <span> · {FAMILY[k].label}</span>
+                </button>
+              ))}
+            </div>
+            <span className="toolbar-meta">
+              {view.stale ? (
+                <span className="stage-loading">Đang tải mô hình {FAMILY[kind].letter}…</span>
+              ) : (
+                dateLabel(d[vKind].latest.date)
+              )}
+            </span>
+          </div>
+          {snapshot.error && !data ? (
             <ErrorState message={snapshot.error} retry={snapshot.retry} />
           ) : !data ? (
             <Skeleton height={430} />
+          ) : (
+          <div ref={stage} className={`bp-stage ${view.stale ? "is-loading" : ""}`} aria-busy={view.stale}>
+          {tab === "profile" ? (
+            <ClusterHeatmap data={data} kind={vKind} features={features} />
+          ) : tab === "corr" ? (
+            <CorrelationMatrix key={vKind} data={data} kind={vKind} features={features} />
           ) : tab === "map" ? (
             <div className="bp-viewport">
+              <div className="map-tools">
+                <div className="mini-seg" role="group" aria-label="Điểm hiển thị">
+                  <button aria-pressed={!bigOnly} onClick={() => setBigOnly(false)}>
+                    Tất cả mã
+                  </button>
+                  <button aria-pressed={bigOnly} onClick={() => setBigOnly(true)}>
+                    30 mã lớn
+                  </button>
+                </div>
+                {spotlight && !bigOnly && (
+                  <button className="button small ghost" onClick={() => setSpotlight(false)}>
+                    Bỏ làm mờ
+                  </button>
+                )}
+              </div>
               <Scatter
                 data={data}
-                x={hasMap ? "_map_x" : KEY_FEATURES[kind][0]}
-                y={hasMap ? "_map_y" : KEY_FEATURES[kind][1]}
+                x={hasMap ? "_map_x" : KEY_FEATURES[vKind][0]}
+                y={hasMap ? "_map_y" : KEY_FEATURES[vKind][1]}
                 map={hasMap}
                 names={names}
-                kind={kind}
+                kind={vKind}
                 height={500}
                 focus={ticker}
+                labelled={bigTickers}
+                dim={spotlight && !bigOnly}
+                centroids={hasMap}
                 selected={group === "all" || group === "illiquid" ? "" : group}
                 onSelect={select}
               />
+              {drivers && (
+                <p className="map-drivers">
+                  <span className="bp-tag">Trục do chỉ số nào quyết định</span>
+                  <DriverLine label="Trục ngang:" drivers={drivers.x} />
+                  <DriverLine label="Trục dọc:" drivers={drivers.y} />
+                </p>
+              )}
             </div>
           ) : (
             <div className="bp-viewport">
@@ -254,7 +358,7 @@ export default function Overview() {
                   return (
                     <div key={id}>
                       <dt>
-                        {FAMILY[kind].letter}
+                        {FAMILY[vKind].letter}
                         {id} · {names[id] || "—"}
                       </dt>
                       <dd>
@@ -268,6 +372,8 @@ export default function Overview() {
                 })}
               </dl>
             </div>
+          )}
+          </div>
           )}
           {data && (
             <div className="bp-legend" aria-label="Lọc theo nhóm">
@@ -283,7 +389,7 @@ export default function Overview() {
                 >
                   <i style={{ background: clusterColor(id, labels) }} />
                   <b>
-                    {FAMILY[kind].letter}
+                    {FAMILY[vKind].letter}
                     {id}
                   </b>
                   <span>{names[id] || "—"}</span>
@@ -295,17 +401,17 @@ export default function Overview() {
         </div>
         <aside className="bp-cell inspector" aria-label="Chi tiết mã đang chọn">
           <header className="ruled">
-            <span>[05 // Soi mã]</span>
-            <span className="meta">Mô hình {FAMILY[kind].letter}</span>
+            <span>Soi mã</span>
+            <span className="meta">Mô hình {FAMILY[vKind].letter}</span>
           </header>
-          {data ? <Inspector kind={kind} data={data} ticker={ticker} /> : <Skeleton height={420} />}
+          {data ? <Inspector kind={vKind} data={data} ticker={ticker} onSelect={select} /> : <Skeleton height={420} />}
         </aside>
       </section>
 
       <section className="bp-grid" aria-label="Bảng lọc cổ phiếu">
         <div className="bp-cell">
           <header className="ruled">
-            <span>[06 // Bảng lọc cổ phiếu · mô hình {FAMILY[kind].letter}]</span>
+            <span>Bảng lọc cổ phiếu · mô hình {FAMILY[vKind].letter}</span>
             <span className="meta">{number(rows.length)} mã</span>
           </header>
           <div className="screener-bar">
@@ -314,7 +420,7 @@ export default function Overview() {
             </button>
             {labels.map((id) => (
               <button key={id} aria-pressed={group === String(id)} onClick={() => setGroup(String(id))}>
-                {FAMILY[kind].letter}
+                {FAMILY[vKind].letter}
                 {id}
               </button>
             ))}
@@ -359,7 +465,7 @@ export default function Overview() {
                     <td>
                       <span className="group">
                         <i style={{ background: clusterColor(p.cluster, labels) }} />
-                        {FAMILY[kind].letter}
+                        {FAMILY[vKind].letter}
                         {p.cluster}
                       </span>
                     </td>
