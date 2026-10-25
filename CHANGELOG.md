@@ -1,5 +1,15 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Giao diện mới: chế độ sáng/tối, menu, Phòng nghiên cứu (2026-10-25)
+
+Toàn bộ màu trong `globals.css` chuyển sang design token (nền, bề mặt, viền, chữ, 7 họ màu nhấn) với
+hai bộ giá trị sáng/tối; nút đổi giao diện ở thanh trên và menu (lưu localStorage, theo hệ điều hành
+lần đầu, không nháy màu khi tải). Biểu đồ đổi màu theo giao diện. Menu trái gọn: không đánh số, không
+xuống dòng, vạch nhấn mục đang chọn. Lớp style mới: bo góc 14px, bóng nhẹ, ô tìm kiếm dạng viên, bảng và
+tab đồng bộ. Phòng nghiên cứu viết lại: quy trình 4 bước, thẻ mô hình, từ điển chỉ số, độ tin cậy có thang
+Tốt/Trung bình/Yếu, danh sách nguồn gọn. Sửa lỗi hydration khi catalog tải trước trang.
+
+
 ## Atlas: thiết kế lại phần giải thích mô hình (2026-10-25)
 
 Khung tóm tắt mô hình: 4 ô số liệu luôn hiện, chi tiết mở khi cần (dữ liệu dùng theo nhóm chỉ số có
