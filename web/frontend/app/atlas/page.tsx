@@ -12,7 +12,6 @@ import {
   Skeleton,
   ErrorState,
   ClusterBadge,
-  Badge,
 } from "@/components/ui";
 import { ModelVersion, PreviewNote } from "@/components/model-version";
 import { WorkspaceTabs } from "@/components/workspace-tabs";
@@ -21,6 +20,7 @@ import { SnapshotMetrics } from "@/components/snapshot-metrics";
 import { TimeMachine } from "@/components/time-machine";
 import { Scatter } from "@/components/scatter";
 import { ModelExplainer } from "@/components/model-explainer";
+import { storyRows } from "@/lib/feature-help";
 import { MembersTable } from "@/components/members-table";
 import { StockDrawer } from "@/components/stock-drawer";
 import { Chart, baseChart, axis } from "@/components/chart";
@@ -108,8 +108,7 @@ export default function Atlas() {
       <PageHeading
         eyebrow="CẤU TRÚC / NHÓM DOANH NGHIỆP"
         title="Bản đồ phân cụm"
-        description="Chọn mô hình và kỳ, rồi chọn một nhóm để khám phá đặc điểm và thành viên."
-        action={<Badge tone="amber">Khám phá</Badge>}
+        description="Chọn mô hình và kỳ, rồi chọn một nhóm để xem đặc điểm và thành viên."
       />
       <div className="toolbar">
         <FamilyTabs
@@ -143,11 +142,7 @@ export default function Atlas() {
           onChange={(date) => s.set({ date, page: null, ticker: null })}
         />
       </div>
-      <ScopeNote kind={s.kind} />
-      {s.dataset.liquidity_filter && (
-        <p className="model-note">Nhóm được học trên mã có giao dịch. {s.dataset.liquidity_filter}.</p>
-      )}
-      {s.dataset.stability_note && <p className="model-note amber">{s.dataset.stability_note}</p>}
+      {!s.dataset.liquidity_filter && !state.data?.snapshot.metrics?.boundary_share && <ScopeNote kind={s.kind} />}
       <PreviewNote dataset={s.dataset} />
       {/* Diagnostic measured on the v1 market model only; v2 (rework) caps liquidity first. */}
       {s.kind === "market" && s.dataset.version === "C8 V2 / M2 60+24" && (
@@ -158,13 +153,7 @@ export default function Atlas() {
         </p>
       )}
       {state.data && (
-        <ModelExplainer
-          kind={s.kind}
-          dataset={s.dataset}
-          snapshot={state.data.snapshot}
-          profiles={state.data.profiles}
-          definitions={s.data.metadata.definitions}
-        />
+        <ModelExplainer kind={s.kind} dataset={s.dataset} snapshot={state.data.snapshot} />
       )}
       <WorkspaceTabs
         scope="atlas"
@@ -291,8 +280,8 @@ export default function Atlas() {
                   {mapView ? (
                   <p className="panel-note">
                     Mỗi chấm là một cổ phiếu; chấm gần nhau là cổ phiếu giống nhau trên toàn bộ{" "}
-                    {features.length} chỉ số mà mô hình dùng. Hai trục là trục tổng hợp nên không có đơn vị. Chấm mờ là
-                    mã kém thanh khoản.
+                    {features.length} chỉ số mà mô hình dùng. Hai trục là trục tổng hợp nên không có đơn vị.
+                    {state.data.points.some((p) => p.liquidity === "ILLIQUID") && " Chấm mờ là mã kém thanh khoản."}
                   </p>
                   ) : (
                   <p className="panel-note">
@@ -315,7 +304,7 @@ export default function Atlas() {
                 </Panel>
                 <Panel
                   title="Hồ sơ nhóm đang chọn"
-                  eyebrow="MEDIAN / IQR · RAW UNITS"
+                  eyebrow="TRUNG VỊ · KHOẢNG Q1–Q3"
                 >
                   <div className="panel-body">
                     <select
@@ -342,10 +331,20 @@ export default function Atlas() {
                     {profile?.name && (
                       <div className="profile-story">
                         <strong>{profile.name}</strong>
-                        <p>{profile.description}</p>
+                        <dl>
+                          {storyRows(profile.description).map((r) => (
+                            <div key={r.label}>
+                              <dt>{r.label}</dt>
+                              <dd>
+                                {r.value}
+                                {r.base && <small>chung {r.base}</small>}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
                       </div>
                     )}
-                    {profile && (
+                    {profile && !(mapView && profile.name) && (
                       <div className="profile-big">
                         {number(profile?.size)}
                         <small>
@@ -367,6 +366,7 @@ export default function Atlas() {
                         </p>
                       )}
                     {profile &&
+                      !mapView &&
                       [x, y]
                         .filter((f, i, a) => a.indexOf(f) === i)
                         .map((f) => (
