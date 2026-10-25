@@ -360,8 +360,9 @@ export default function Financial() {
                   >
                     <div className="panel-body">
                       <p>
-                        C kết hợp tám đặc trưng thị trường và sáu tỷ số tài chính
-                        trên các mã có đủ cả hai loại dữ liệu mỗi năm.
+                        C kết hợp {s.data.datasets.market.features.length} đặc trưng thị trường và{" "}
+                        {s.data.datasets.financial.features.length} chỉ số tài chính trên các mã có đủ
+                        cả hai loại dữ liệu mỗi năm.
                       </p>
                       {combinedDate ? (
                         <>

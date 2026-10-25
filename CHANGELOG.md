@@ -1,5 +1,12 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Bundle web v2 với phân cụm mới (2026-10-25)
+
+Thêm `scripts/build_delta_bundle_v2.py`: sao chép giá/mã từ v1, fit lại A (k=4), B bằng bộ chỉ số mới (k=3),
+C (k=3), ghi hồ sơ cụm, snapshot metrics và quan hệ A×B. Backend bỏ qua bản xem trước R1 khi bundle khác v1.
+Atlas/Tài chính: trục mặc định và mô tả theo đặc trưng thật của mô hình; ma trận A×B vừa 4 cột.
+
+
 ## Phân cụm lại v1 — thử nghiệm (2026-10-25)
 
 Thêm `src/delta_t1/clustering/robust_transforms.py` (log + winsorize, rank→normal, cân block),
