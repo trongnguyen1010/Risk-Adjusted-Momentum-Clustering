@@ -145,6 +145,8 @@ Supplemental acquisition cho 148 deferred rows là optional future stage, không
 
 ## M3 — Backtest + Product
 
+Kế hoạch chi tiết hiện hành: [M3_PLAN.md](M3_PLAN.md) (bảng quyết định Q1–Q16 chờ owner/mentor chốt).
+
 - [ ] Freeze methodology trước final backtest và dùng holdout đúng protocol; chỉ M3/frozen config bật `portfolio_evaluation.enabled=true`.
 - [ ] So sánh cluster strategy với VNINDEX, equal-weight universe và momentum-only.
 - [x] Transaction cost, turnover và return-space portfolio foundation.

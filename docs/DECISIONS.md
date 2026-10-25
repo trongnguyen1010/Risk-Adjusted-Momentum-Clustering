@@ -1,5 +1,15 @@
 # Các quyết định còn hiệu lực
 
+## 2026-10-25 — D-CRAWL-02: quy trình crawl thực dụng (owner duyệt)
+
+Owner: quy định crawl trước đây quá nghiêm, ưu tiên lấy được kết quả. Bỏ latch toàn campaign; lỗi 403/429/5xx/
+timeout retry 3 lần với backoff 30 giây/2 phút/10 phút rồi `DEFERRED` theo mã/trang, các mã khác chạy tiếp;
+smoke 20 mã thay cho pilot gate; budget theo config từng run. `CreateDate` của API Công bố thông tin CafeF
+(`ajaxcongbothongtin.ashx`) được chấp nhận làm ngày công bố DATE_ONLY cho lớp sản phẩm và M3, thay yêu cầu câu
+công bố trong PDF/khớp hash của evidence policy v2 cho mục đích này. Vẫn giữ raw/receipt/hash và bản ghi
+riêng cho từng bản (ban đầu, soát xét, kiểm toán). Vẫn cấm vượt CAPTCHA/JS challenge, giả đăng nhập, xoay
+IP/proxy hoặc giả vân tay trình duyệt. Chi tiết: `AGENTS.md` mục "Crawl thực dụng".
+
 ## 2026-10-25 — Bundle v3: học cụm trên mã có giao dịch, gán mã kém thanh khoản (owner duyệt build, chưa duyệt deploy)
 
 A: 9 đặc trưng (thêm downside_vol_63), lọc nhẹ (>50% phiên không khớp trong 63 phiên hoặc < 10 triệu đ/ngày),

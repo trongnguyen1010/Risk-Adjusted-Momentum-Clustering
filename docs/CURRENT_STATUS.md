@@ -1,5 +1,20 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## M3 giai đoạn 0 và lõi engine (25/10/2026)
+
+`scripts/m3_stage0.py`: manifest đầu vào có hash, đếm tập ứng viên từng tháng, kiểm cơ sở lợi suất (không tính lợi
+suất danh mục). Development: trung vị 8 ứng viên, 38/60 tháng dưới 10 → cần mentor chốt lại Q5/Q6. `adj_close` đã gồm
+cổ tức tiền mặt; 1.030 lỗi adj lệch một phiên (đề xuất Q17). Engine `src/delta_t1/m3/` + 16 test PASS.
+Chi tiết: `docs/M3_PLAN.md` mục 7.
+
+## Ngày công bố BCTC cho M3 — đã crawl (25/10/2026)
+
+Theo D-CRAWL-02: `scripts/crawl_cafef_disclosure_dates.py` lấy "Thời gian gửi" (`CreateDate`) từ API Công bố thông tin
+CafeF cho 1.362 mã có nhãn B (`data/financial/disclosure_dates_v1/full-20261025`, không bị chặn).
+`scripts/build_financial_availability.py` → `availability-0c412f60f7c21bd3/availability.csv`: FY ≥ 2022 dùng ngày CafeF
+(1.257–1.327 mã/năm), trước 2022 dùng quy tắc trễ 30/06 năm sau (CafeF nhập lại lịch sử ngày 26/11/2022).
+Đối chiếu 9 mã-năm kiểm tay: không ngày nào sớm hơn thực tế. Chi tiết: `docs/M3_PLAN.md` nhiệm vụ 0.2.
+
 ## Bundle v4 = v3 + giải thích (bản đồ mô hình, tên cụm) — đã build, CHỜ OWNER KIỂM TRA (25/10/2026)
 
 `scripts/build_delta_bundle_v4.py` → `data/web/delta-intelligence-v4/` (cụm giữ nguyên như v3, không học lại).
