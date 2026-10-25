@@ -15,6 +15,7 @@ export function Scatter({
   symlog = false,
   map = false,
   names = {},
+  focus = "",
 }: {
   data: SnapshotData;
   x: string;
@@ -29,6 +30,8 @@ export function Scatter({
   /** Model map: _map_x/_map_y are PCA axes without units. */
   map?: boolean;
   names?: Record<number, string | null | undefined>;
+  /** Ticker drawn enlarged with an accent ring (inspector selection). */
+  focus?: string;
 }) {
   const transform = (v: number | null) =>
     v === null ? null : symlog ? Math.sign(v) * Math.log1p(Math.abs(v)) : v;
@@ -137,11 +140,12 @@ export function Scatter({
                 ticker: p.ticker,
                 cluster,
                 illiquid: p.liquidity === "ILLIQUID",
-                symbolSize: mini ? 4 : p.liquidity === "ILLIQUID" ? 5 : 7,
+                symbolSize: p.ticker === focus ? 16 : mini ? 4 : p.liquidity === "ILLIQUID" ? 5 : 7,
                 value: [transform(p.features[x]), transform(p.features[y])],
                 raw: [p.features[x], p.features[y]],
                 itemStyle: {
-                  opacity:
+                  ...(p.ticker === focus ? { borderColor: "#ff5500", borderWidth: 3 } : {}),
+                  opacity: p.ticker === focus ? 1 :
                     (selected !== "" && Number(selected) !== cluster) ||
                     (query &&
                       !p.ticker.toLowerCase().includes(query.toLowerCase()))

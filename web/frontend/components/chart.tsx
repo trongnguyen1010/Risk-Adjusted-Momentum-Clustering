@@ -121,13 +121,14 @@ export const baseChart = {
   tooltip: {
     backgroundColor: "#152235",
     borderColor: "#2a3b51",
-    textStyle: { color: "#f1f5f9", fontSize: 13 },
+    textStyle: { color: "#f1f5f9", fontSize: 13, fontFamily: "JetBrains Mono, monospace" },
+    borderRadius: 2,
     confine: true,
   },
 };
 export const axis = {
   axisLine: { lineStyle: { color: "#29364a" } },
-  axisLabel: { color: "#aab6ca", fontSize: 12, hideOverlap: true },
+  axisLabel: { color: "#aab6ca", fontSize: 12, fontFamily: "JetBrains Mono, monospace", hideOverlap: true },
   nameTextStyle: { color: "#b8c2d4", fontSize: 12 },
   splitNumber: 3,
   splitLine: { lineStyle: { color: "#1c293b", type: "dashed" as const } },

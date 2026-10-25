@@ -1,5 +1,15 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Thử nghiệm giao diện Blueprint (nhánh `feature/ui-blueprint`, 2026-10-25)
+
+Lớp `web/frontend/app/blueprint.css` nạp sau `globals.css`: token Carbon (tối) / Paper (sáng), nhấn cam
+#FF5500, xanh/đỏ cho tăng/giảm; viền hairline, góc 0–2px, bỏ bóng; số liệu và nhãn dùng JetBrains Mono
+tabular; panel tự đánh chỉ mục `[01 // …]` bằng CSS counter, dấu `+` ở góc, nền chấm cho vùng biểu đồ;
+cỡ chữ tối thiểu 12px, bảng 14px. Thanh trên hiển thị trạng thái dữ liệu, ngày dữ liệu, mã bộ dữ liệu và
+công tắc Sáng/Tối. Trang Tổng quan dựng lại 3 tầng: 4 ô KPI → bàn làm việc (tab bản đồ A/B/C/quy mô +
+khung soi mã đồng bộ với mã đang chọn, thanh phân vị so với toàn thị trường) → bảng lọc cổ phiếu theo nhóm
+và mã. Không đổi dữ liệu, API hay mô hình.
+
 ## Giao diện mới: chế độ sáng/tối, menu, Phòng nghiên cứu (2026-10-25)
 
 Toàn bộ màu trong `globals.css` chuyển sang design token (nền, bề mặt, viền, chữ, 7 họ màu nhấn) với

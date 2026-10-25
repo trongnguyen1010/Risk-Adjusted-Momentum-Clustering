@@ -7,7 +7,6 @@ import {
   ArrowUpRight,
   Boxes,
   Check,
-  ChevronRight,
   Command,
   FlaskConical,
   Layers3,
@@ -130,7 +129,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
             DELTA<span className="brand-sub">Intelligence</span>
           </span>
         </Link>
-        <div className="nav-label">Khám phá</div>
+        <div className="nav-label">Điều hướng</div>
         <nav>
           {nav.map(({ href, icon: Icon, label }) => (
             <Link
@@ -155,11 +154,10 @@ export function Shell({ children }: { children: React.ReactNode }) {
             Giới hạn nghiên cứu
             <ArrowUpRight size={14} />
           </Link>
-          <ThemeToggle variant="segmented" />
           <div className="sidebar-footer">
             <span className="small-dot" />
             <div>
-              Dữ liệu lịch sử, chỉ đọc
+              Dữ liệu lịch sử · chỉ đọc
               <small>Cập nhật đến {data?.datasets.market.latest.date || "—"}</small>
             </div>
           </div>
@@ -177,8 +175,20 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <Menu size={20} />
             </button>
             <span className="crumb-root">DELTA</span>
-            <ChevronRight size={14} />
+            <span aria-hidden>//</span>
             <strong>{page}</strong>
+          </div>
+          <div className="telemetry" aria-label="Trạng thái dữ liệu">
+            <span>
+              <i className="status-square" />
+              <b>Dữ liệu sẵn sàng</b>
+            </span>
+            <span>
+              Đến <b>{data?.datasets.market.latest.date || "—"}</b>
+            </span>
+            <span className="opt">
+              Bộ <b>{data?.metadata.bundle_revision?.slice(0, 8) || "—"}</b>
+            </span>
           </div>
           <div className="topbar-actions">
             <button className="global-search" onClick={() => setSearch(true)}>
@@ -186,7 +196,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
               <span>Tìm cổ phiếu</span>
               <kbd>Ctrl K</kbd>
             </button>
-            <ThemeToggle />
+            <ThemeToggle variant="segmented" />
           </div>
         </header>
         <main id="main-content" className="main-content">
