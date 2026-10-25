@@ -275,6 +275,7 @@ export default function Overview() {
                 <button
                   key={id}
                   aria-pressed={group === String(id)}
+                  style={{ "--c": clusterColor(id, labels) } as React.CSSProperties}
                   onClick={() => {
                     setGroup(group === String(id) ? "all" : String(id));
                     setLimit(PAGE);
