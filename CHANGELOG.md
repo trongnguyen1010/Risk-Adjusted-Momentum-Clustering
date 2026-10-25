@@ -1,5 +1,13 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Phân cụm lại v1 — thử nghiệm (2026-10-25)
+
+Thêm `src/delta_t1/clustering/robust_transforms.py` (log + winsorize, rank→normal, cân block),
+`src/delta_t1/experiments/clustering_rework.py`, `scripts/run_clustering_rework_v1.py`, config và
+`tests/unit/test_clustering_rework.py`. Quét T0/T1/T2 × k-means/GMM × k=3–8 cho A, B, B2, C với ràng buộc
+cỡ cụm tối thiểu 5%. Không thay terminal.sqlite; chờ owner duyệt.
+
+
 ## Indicators v1 — Giai đoạn 5: trang cổ phiếu mới (2026-10-25)
 
 `web/frontend/app/stocks/page.tsx` viết lại theo kiểu trang tài chính: header, 6 thẻ (ngân hàng
