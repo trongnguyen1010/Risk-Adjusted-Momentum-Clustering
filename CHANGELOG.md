@@ -1,5 +1,12 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Hướng chính thức và M3 chuẩn bị (26/10/2026)
+
+D-DIR-01: mô hình thị trường chính thức = A bundle v4 (k=3; chọn lại trên 2019–2023 vẫn k=3), tài chính = B v4; M2 K=2
+thành đối chứng (`artifacts/reports/m2-vs-rework-v1`). Hướng cũ đánh dấu LEGACY, không xóa. D-CRAWL-02: crawl thực dụng,
+ngày gửi BCTC CafeF cho 1.362 mã. M3: `docs/M3_PLAN.md`, giai đoạn 0 (`scripts/m3_stage0.py`), lõi engine
+`src/delta_t1/m3` + 16 test.
+
 ## Thử nghiệm giao diện Blueprint (nhánh `feature/ui-blueprint`, 2026-10-25)
 
 Lớp `web/frontend/app/blueprint.css` nạp sau `globals.css`: token Carbon (tối) / Paper (sáng), nhấn cam
