@@ -1,5 +1,14 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Indicators v1 — Giai đoạn 4: backend API (2026-10-25)
+
+Thêm `web/backend/app/fundamentals.py` (đọc read-only, kiểm hash) và 4 endpoint
+`/api/v2/stocks/{ticker}/overview|fundamentals|scores/{year}|peers`. % thay đổi giá dùng
+adj_close, giá hiển thị dùng raw_close. Pointer `configs/product/indicators_v1.json`,
+thêm vào `publish_hf_data.py` và `deploy/render/data-files.txt` (chỉ dry-run, chưa upload).
+Tests: `FundamentalsApiTests` trong `tests/unit/test_terminal_api.py`.
+
+
 ## Indicators v1 — LCTT trực tiếp cho F/M (2026-10-25)
 
 Map CFO từ mẫu lưu chuyển tiền tệ trực tiếp (kiểm cân đối dòng tiền), khấu hao dự phòng từ

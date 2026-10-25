@@ -40,6 +40,13 @@ def collect():
             if not local.is_file() or sha256(local)!=item['sha256']:
                 raise SystemExit('Indicator supplementary evidence missing or checksum mismatch: '+item['file'])
             files[item['file']]=local
+    indicators=ROOT/'configs/product/indicators_v1.json'
+    if indicators.is_file():
+        pointer=json.loads(indicators.read_bytes())
+        for key in ('manifest','file'):
+            local=ROOT/pointer[key]
+            if not local.is_file() or sha256(local)!=pointer[key+'_sha256']:raise SystemExit('Indicators v1 source missing or checksum mismatch: '+pointer[key])
+            files[pointer[key]]=local
     preview=ROOT/'configs/product/model_previews_v1.json'
     if preview.is_file():
         pointer=json.loads(preview.read_bytes())

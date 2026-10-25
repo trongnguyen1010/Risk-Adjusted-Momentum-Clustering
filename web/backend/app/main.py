@@ -8,16 +8,21 @@ from .schemas import Kind, HealthResponse, CatalogResponse, SnapshotResponse, Me
 from .indicators import IndicatorReferences
 from .schemas import IndicatorResponse
 from .previews import PreviewRepository
+from .fundamentals import FundamentalsRepository
 
 ROOT=Path(__file__).resolve().parents[3]
 
-def create_app(repository=None):
+def create_app(repository=None,fundamentals=None):
     @asynccontextmanager
     async def lifespan(app):
         app.state.repository=repository or TerminalRepository(os.environ.get('DELTA_BUNDLE',str(ROOT/'data/web/delta-intelligence-v1')))
         preview_config=ROOT/'configs/product/model_previews_v1.json'
         if repository is None and preview_config.is_file():app.state.repository=PreviewRepository(app.state.repository,ROOT)
         app.state.indicators=IndicatorReferences(ROOT)
+        app.state.fundamentals=fundamentals
+        if fundamentals is None:
+            try:app.state.fundamentals=FundamentalsRepository.from_config(ROOT)
+            except (MissingData,FileNotFoundError):app.state.fundamentals=None  # Endpoints answer 404 until built.
         yield
     app=FastAPI(title='DELTA Intelligence · Read-only Research API',version='1.0.0',lifespan=lifespan)
     def repo(request:Request):return request.app.state.repository
@@ -66,6 +71,36 @@ def create_app(repository=None):
     def search(request:Request,q:str='',limit:int=Query(12,ge=1,le=30)):return dict(items=repo(request).search(q,limit))
     @app.get('/api/v2/stocks/{ticker}',response_model=StockResponse)
     def stock(request:Request,ticker:str,kind:Kind='market',date:str|None=None,version:str|None=None):return read(request,'stock',ticker,kind,date,version=version)
+    def fund(request):
+        found=request.app.state.fundamentals
+        if found is None:raise MissingData('Bộ chỉ số tài chính chưa sẵn sàng trên máy chủ này.')
+        return found
+    def closes(request,ticker):
+        rows=repo(request).query('SELECT date,raw_close,adj_close FROM prices WHERE ticker=? ORDER BY date DESC LIMIT 400',(ticker.upper(),))
+        return [(r['date'],r['raw_close'],r['adj_close']) for r in reversed(rows)]
+    def cluster_members(request,ticker):
+        for kind in ('combined','market'):
+            latest=repo(request).query('SELECT date FROM snapshots WHERE kind=? ORDER BY date DESC LIMIT 1',(kind,))
+            if not latest:continue
+            own=repo(request).query('SELECT cluster FROM observations WHERE kind=? AND date=? AND ticker=?',(kind,latest[0]['date'],ticker.upper()))
+            if own:
+                members=repo(request).query('SELECT ticker FROM observations WHERE kind=? AND date=? AND cluster=?',(kind,latest[0]['date'],own[0]['cluster']))
+                return [r['ticker'] for r in members],f'CLUSTER_{kind.upper()}:{latest[0]["date"]}'
+        return None,None
+    @app.get('/api/v2/stocks/{ticker}/overview')
+    def stock_overview(request:Request,ticker:str):
+        source=fund(request);company=source.company(ticker)
+        return source.overview(company['ticker'],closes(request,company['ticker']))
+    @app.get('/api/v2/stocks/{ticker}/fundamentals')
+    def stock_fundamentals(request:Request,ticker:str,start:int=Query(2016,alias='from'),end:int=Query(2025,alias='to')):
+        return fund(request).fundamentals(ticker,start,end)
+    @app.get('/api/v2/stocks/{ticker}/scores/{year}')
+    def stock_scores(request:Request,ticker:str,year:int):return fund(request).scores(ticker,year)
+    @app.get('/api/v2/stocks/{ticker}/peers')
+    def stock_peers(request:Request,ticker:str,limit:int=Query(9,ge=1,le=20)):
+        source=fund(request);company=source.company(ticker)
+        members,basis=cluster_members(request,company['ticker'])
+        return source.peers(company['ticker'],members,basis,limit)
     @app.get('/api/v2/prices/{ticker}')
     def prices(request:Request,ticker:str,end:str|None=None,basis:str='adj_close'):return repo(request).prices(ticker,end,basis)
     @app.get('/api/v2/indicator-coverage')
