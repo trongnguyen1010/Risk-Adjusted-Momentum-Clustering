@@ -35,6 +35,8 @@ export interface Profile {
   means: Values;
   medians: Values;
   quartiles: Record<string, number[] | null>;
+  name?: string | null;
+  description?: string | null;
 }
 export interface Dataset {
   label?: string;
@@ -203,6 +205,7 @@ export interface StockOverview {
   cards: StockCard[];
   summary: string[];
   liquidity?: { status: "LIQUID" | "ILLIQUID"; date: string } | null;
+  groups?: { kind: Kind; date: string; cluster: number; name: string | null; description: string | null }[];
 }
 export interface StockFundamentals {
   ticker: string;

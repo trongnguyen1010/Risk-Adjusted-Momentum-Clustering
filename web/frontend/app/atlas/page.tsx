@@ -20,6 +20,7 @@ import { SavedPeers } from "@/components/saved-peers";
 import { SnapshotMetrics } from "@/components/snapshot-metrics";
 import { TimeMachine } from "@/components/time-machine";
 import { Scatter } from "@/components/scatter";
+import { ModelExplainer } from "@/components/model-explainer";
 import { MembersTable } from "@/components/members-table";
 import { StockDrawer } from "@/components/stock-drawer";
 import { Chart, baseChart, axis } from "@/components/chart";
@@ -86,6 +87,10 @@ export default function Atlas() {
       : null,
   );
   const symlog = s.params.get("scale") === "symlog";
+  // Model map (bundle v4+): PCA of the space the model used. Raw axes remain an option.
+  const hasMap = !!state.data?.points.some((p) => p.features._map_x != null);
+  const mapView = hasMap && s.params.get("view") !== "axes";
+  const names = Object.fromEntries((state.data?.profiles || []).map((p) => [p.cluster, p.name]));
   const profile = state.data?.profiles.find(
     (p) => cluster !== "" && p.cluster === Number(cluster),
   );
@@ -152,6 +157,15 @@ export default function Atlas() {
           nhãn. Không tự kết luận input sai.
         </p>
       )}
+      {state.data && (
+        <ModelExplainer
+          kind={s.kind}
+          dataset={s.dataset}
+          snapshot={state.data.snapshot}
+          profiles={state.data.profiles}
+          definitions={s.data.metadata.definitions}
+        />
+      )}
       <WorkspaceTabs
         scope="atlas"
         tabs={tabs}
@@ -184,6 +198,7 @@ export default function Atlas() {
                     labels={Object.keys(state.data!.snapshot.sizes).map(Number)}
                   />
                   <strong>{number(p.size)}</strong>
+                  {p.name && <em className="cluster-name">{p.name}</em>}
                   <span className="size-track">
                     <i
                       style={{
@@ -207,10 +222,21 @@ export default function Atlas() {
             {tab === "explore" && (
               <div className="atlas-grid section-gap">
                 <Panel
-                  title="Không gian đặc trưng"
-                  eyebrow={`${dateLabel(s.date)} · ${number(state.data.snapshot.n)} MÃ · NHÃN GỐC`}
+                  title={mapView ? "Bản đồ mô hình" : "Không gian đặc trưng"}
+                  eyebrow={`${dateLabel(s.date)} · ${number(state.data.snapshot.n)} MÃ`}
                 >
                   <div className="atlas-toolbar">
+                    {hasMap && (
+                      <select
+                        aria-label="Cách xem biểu đồ"
+                        value={mapView ? "map" : "axes"}
+                        onChange={(e) => s.set({ view: e.target.value === "axes" ? "axes" : null })}
+                      >
+                        <option value="map">Bản đồ mô hình (gộp mọi chỉ số)</option>
+                        <option value="axes">Chọn 2 chỉ số để xem</option>
+                      </select>
+                    )}
+                    {!mapView && (<>
                     <div className="axis-controls">
                       {[
                         ["Trục X", x, "x"],
@@ -242,6 +268,7 @@ export default function Atlas() {
                         Log1p có dấu · chỉ hiển thị
                       </option>
                     </select>
+                    </>)}
                     <input
                       aria-label="Làm nổi bật mã trên biểu đồ"
                       placeholder="Làm nổi bật mã…"
@@ -251,14 +278,23 @@ export default function Atlas() {
                   </div>
                   <Scatter
                     data={state.data}
-                    x={x}
-                    y={y}
+                    x={mapView ? "_map_x" : x}
+                    y={mapView ? "_map_y" : y}
                     kind={s.kind}
                     selected={cluster}
                     query={query}
-                    symlog={symlog}
+                    symlog={symlog && !mapView}
+                    map={mapView}
+                    names={names}
                     onSelect={(ticker) => s.set({ ticker })}
                   />
+                  {mapView ? (
+                  <p className="panel-note">
+                    Mỗi chấm là một cổ phiếu; chấm gần nhau là cổ phiếu giống nhau trên toàn bộ{" "}
+                    {features.length} chỉ số mà mô hình dùng. Hai trục là trục tổng hợp nên không có đơn vị. Chấm mờ là
+                    mã kém thanh khoản.
+                  </p>
+                  ) : (
                   <p className="panel-note">
                     Trục mặc định:{" "}
                     {[preset[0], preset[1]]
@@ -269,6 +305,7 @@ export default function Atlas() {
                       ? "sign(x) × ln(1+|x|), tooltip giữ raw values; không transform model."
                       : "Giữ nguyên raw values và đơn vị."}
                   </p>
+                  )}
                   <button
                     className="button ghost"
                     onClick={() => s.set({ tab: "members" })}
@@ -290,7 +327,8 @@ export default function Atlas() {
                       {state.data.profiles.map((p) => (
                         <option key={p.cluster} value={p.cluster}>
                           {FAMILY[s.kind].letter}
-                          {p.cluster} · {number(p.size)} mã
+                          {p.cluster}
+                          {p.name ? ` · ${p.name}` : ""} · {number(p.size)} mã
                         </option>
                       ))}
                     </select>
@@ -300,6 +338,12 @@ export default function Atlas() {
                         median/IQR. Biểu đồ và bảng thành viên dùng cùng lựa
                         chọn.
                       </p>
+                    )}
+                    {profile?.name && (
+                      <div className="profile-story">
+                        <strong>{profile.name}</strong>
+                        <p>{profile.description}</p>
+                      </div>
                     )}
                     {profile && (
                       <div className="profile-big">

@@ -1,5 +1,12 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Bundle v4: bản đồ mô hình, tên cụm, khung giải thích (2026-10-25)
+
+Lớp trình bày trên bundle v3: toạ độ PCA (`_map_x/_map_y`), `profiles.name/description`, `boundary_share`,
+`map_variance`; overview trả `groups`; Atlas có bản đồ mô hình mặc định (chế độ chọn trục vẫn giữ), tên cụm trên
+thanh quy mô/hồ sơ/tooltip, `ModelExplainer`; trang cổ phiếu hiện nhóm của mã. Tests: `test_cluster_story`, groups.
+
+
 ## Bundle v3 và nhãn "Kém thanh khoản" (2026-10-25)
 
 `scripts/build_delta_bundle_v3.py`; `robust_transforms.fit_t1/apply_t1/nearest_centroid`; cột
