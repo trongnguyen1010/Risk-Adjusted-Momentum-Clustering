@@ -1,5 +1,12 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Phân cụm lại v2 — thử nghiệm (2026-10-25)
+
+Thêm lọc thanh khoản (tỷ lệ phiên không khớp 63 phiên + giá trị giao dịch), nhãn riêng "Kém thanh khoản",
+Ward và PCA+K-Means, độ ổn định lấy mẫu con, ARI theo thời gian và xếp hạng 5 thước đo
+(`src/delta_t1/experiments/clustering_rework_v2.py`, `scripts/run_clustering_rework_v2.py`, config v2, tests).
+
+
 ## Chuyển deploy sang bundle v2 (2026-10-25)
 
 `publish_hf_data.py`, `deploy/render/Dockerfile`, backend và `start_delta_terminal.py` mặc định dùng
