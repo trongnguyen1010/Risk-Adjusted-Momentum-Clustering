@@ -189,6 +189,11 @@ class FundamentalsApiTests(unittest.TestCase):
         try:
             with self.assertRaises(sqlite3.OperationalError):db.execute('DELETE FROM company')
         finally:db.close()
+    def test_coverage_counts_only_ok_cells(self):
+        body=self.client.get('/api/v2/fundamentals-coverage').json()
+        self.assertEqual(body['total_tickers'],3)
+        rows={m['metric']:m['counts'] for m in body['metrics']}
+        self.assertEqual(rows['roe']['2025'],2);self.assertNotIn('2024',rows['pe'])  # NEGATIVE_EARNINGS is not a value
     def test_price_summary_handles_empty(self):
         self.assertIsNone(price_summary([]))
 

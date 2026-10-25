@@ -33,7 +33,7 @@ export default function Overview() {
       <PageHeading
         eyebrow="DELTA / KHÁM PHÁ DOANH NGHIỆP"
         title="Bắt đầu từ một doanh nghiệp."
-        description="Tra cứu chỉ số đã review, rồi khám phá các nhóm từ dữ liệu lịch sử."
+        description="Tra cứu chỉ số tài chính của doanh nghiệp, rồi khám phá các nhóm cổ phiếu."
       />
       <button
         className="home-search"
@@ -55,7 +55,7 @@ export default function Overview() {
       </div>
       <section
         className="model-cards section-gap"
-        aria-label="Ba cohort tại kỳ cuối"
+        aria-label="Ba mô hình tại kỳ cuối"
       >
         {(Object.keys(FAMILY) as Kind[]).map((kind) => (
           <Link
@@ -74,8 +74,8 @@ export default function Overview() {
               {kind === "market"
                 ? "Mã đủ điều kiện thị trường"
                 : kind === "financial"
-                  ? "Doanh nghiệp · cohort cố định đủ 10 năm"
-                  : "Mã trong common cohort A × B"}
+                  ? "Doanh nghiệp có đủ 10 năm báo cáo"
+                  : "Mã có cả dữ liệu A và B"}
             </p>
             <small>{dateLabel(d[kind].latest.date)}</small>
           </Link>
@@ -147,13 +147,12 @@ export default function Overview() {
                 <small>
                   {n < Math.max(10, Math.ceil(0.01 * d.combined.latest.n))
                     ? "Nhóm rất nhỏ · cần xem xét"
-                    : `${number((100 * n) / d.combined.latest.n, 1)}% common cohort`}
+                    : `${number((100 * n) / d.combined.latest.n, 1)}% số mã`}
                 </small>
               </Link>
             ))}
             <p className="warning-line section-gap">
-              Baseline còn cần review chất lượng. Cụm nhỏ không mặc định là bất
-              thường; nhãn không phải thứ hạng đầu tư.
+              Nhóm là kết quả thống kê, không phải xếp hạng đầu tư.
             </p>
             <Link className="text-link" href="/lab?tab=quality">
               Đọc giới hạn và bằng chứng ↗

@@ -192,6 +192,19 @@ class FundamentalsRepository:
             return None
         return 100 * sum(v < value for v in values) / len(values)
 
+    @lru_cache(maxsize=1)
+    def coverage(self):
+        """Tickers with a value per metric and year (whole universe)."""
+        rows = self.rows("select metric, fiscal_year, count(*) as n from indicator_values where status = 'OK' "
+                         "group by metric, fiscal_year")
+        total = self.rows('select count(*) as n from company')[0]['n']
+        counts = {}
+        for r in rows:
+            counts.setdefault(r['metric'], {})[str(r['fiscal_year'])] = r['n']
+        return dict(total_tickers=total, years=list(range(YEARS[0], YEARS[1] + 1)),
+                    metrics=[dict(metric=m, label=METRICS[m][1], group=METRICS[m][0], counts=counts.get(m, {}))
+                             for m in METRICS])
+
     def fundamentals(self, ticker, start=YEARS[0], end=YEARS[1]):
         if not (YEARS[0] <= start <= end <= YEARS[1]):
             raise InvalidQuery(f'Năm phải trong {YEARS[0]}–{YEARS[1]} và from ≤ to.')
@@ -201,6 +214,7 @@ class FundamentalsRepository:
         metrics = {m: {str(y): cells.get(m, {}).get(y, dict(value=None, status='MISSING_INPUT')) for y in years}
                    for m in METRICS}
         return dict(ticker=c['ticker'], financial_sector=c['financial_sector'], years=years, metrics=metrics,
+                    run_id=self.metadata.get('run_id'), price_basis=self.metadata.get('price_basis'),
                     definitions={m: dict(group=g, label=l, unit=u, description=d) for m, (g, l, u, d) in METRICS.items()},
                     groups=[dict(name=g, metrics=[m for m, v in METRICS.items() if v[0] == g]) for g in GROUPS])
 

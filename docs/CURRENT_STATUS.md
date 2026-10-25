@@ -1,6 +1,6 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
-## Indicators v1 — Giai đoạn 1–4 xong, local (25/10/2026)
+## Indicators v1 — Giai đoạn 1–5 xong, local, chưa push (25/10/2026)
 
 Nhánh `feature/indicators-v1`. Input `data/financial/indicators_v1/inputs/inputs-5b4836454b70d737/`
 (1.510 mã, 14.738 mã-năm; ngân hàng/CK/bảo hiểm từ raw CafeF; DStock lấp 616 mã-năm CafeF thiếu;
@@ -10,7 +10,10 @@ EPS 92,5%, P/E 91,8%, P/B 91,5%, ROE 99,9%, F 88,4%, M 80,0% (sát ngưỡng; 11
 dự phòng từ hao mòn lũy kế), Z 91,2%. EPS khớp EPS công bố ±10%: 75%.
 Giai đoạn 4 xong: 4 endpoint `/api/v2/stocks/{ticker}/{overview,fundamentals,scores/{year},peers}`
 (`web/backend/app/fundamentals.py`, pointer `configs/product/indicators_v1.json`), 7 API tests mới PASS.
-Tiếp theo: Giai đoạn 5 (UI trang cổ phiếu).
+Giai đoạn 5 xong: trang `/stocks` mới (header giá/vốn hóa, 6 thẻ + tooltip 1 câu, 4 tab Tổng quan /
+Chỉ số tài chính / Điểm sức khỏe / So sánh cùng nhóm, modal "Cách tính"); bỏ chữ review/vintage/cohort/pilot
+khỏi giao diện chính; `npm run build` PASS; screenshots FPT/VCB/BHH 1440 + 390 tại `.tmp/indicators-ui/`.
+Còn lại: deploy public chờ owner duyệt; phân cụm lại bằng chỉ số mới (ROADMAP).
 
 ## Bổ sung EPS theo kỳ và UX chỉ số — local, chưa release (24/10/2026)
 
