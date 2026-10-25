@@ -1,6 +1,6 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
-## Indicators v1 — Giai đoạn 1–3 xong, chờ owner duyệt QA (25/10/2026)
+## Indicators v1 — Giai đoạn 1–4 xong, local (25/10/2026)
 
 Nhánh `feature/indicators-v1`. Input `data/financial/indicators_v1/inputs/inputs-5b4836454b70d737/`
 (1.510 mã, 14.738 mã-năm; ngân hàng/CK/bảo hiểm từ raw CafeF; DStock lấp 616 mã-năm CafeF thiếu;
@@ -8,7 +8,9 @@ CFO của 181 mã từ LCTT trực tiếp). Kết quả `data/financial/indicato
 (`indicators.sqlite`, 319.620 ô, `qa-report.md`). QA độc lập 800 ô PASS. Mục tiêu 2025 đạt hết:
 EPS 92,5%, P/E 91,8%, P/B 91,5%, ROE 99,9%, F 88,4%, M 80,0% (sát ngưỡng; 114 ô dùng khấu hao
 dự phòng từ hao mòn lũy kế), Z 91,2%. EPS khớp EPS công bố ±10%: 75%.
-Dừng chờ owner trước Giai đoạn 4 (API).
+Giai đoạn 4 xong: 4 endpoint `/api/v2/stocks/{ticker}/{overview,fundamentals,scores/{year},peers}`
+(`web/backend/app/fundamentals.py`, pointer `configs/product/indicators_v1.json`), 7 API tests mới PASS.
+Tiếp theo: Giai đoạn 5 (UI trang cổ phiếu).
 
 ## Bổ sung EPS theo kỳ và UX chỉ số — local, chưa release (24/10/2026)
 

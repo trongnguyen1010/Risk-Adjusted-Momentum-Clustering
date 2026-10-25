@@ -1,5 +1,20 @@
 # DELTA Intelligence — web demo
 
+## API chỉ số tài chính (Indicators v1, D-IND-01)
+
+Backend đọc `indicators.sqlite` đã pin bởi `configs/product/indicators_v1.json` (sai/thiếu hash ⇒ 404, không phục vụ số chưa xác minh).
+Build lại dữ liệu: `python scripts/build_indicator_inputs.py` → `python scripts/build_indicators.py` → `python scripts/verify_indicators.py`, rồi cập nhật pointer.
+
+| Endpoint | Nội dung |
+|---|---|
+| `GET /api/v2/stocks/{ticker}/overview` | Tên, sàn, nhóm ngành, giá đóng cửa (raw) + % 1 ngày/1 tháng/YTD (giá điều chỉnh), vốn hóa, 6 thẻ chính + đánh giá, tóm tắt 3 dòng |
+| `GET /api/v2/stocks/{ticker}/fundamentals?from=2016&to=2025` | `{metric: {year: {value, status}}}`, nhóm và đơn vị, mô tả 1 câu + công thức |
+| `GET /api/v2/stocks/{ticker}/scores/{year}` | 9 tín hiệu F, 8 biến M, 5 thành phần Z |
+| `GET /api/v2/stocks/{ticker}/peers` | Mã cùng cụm C (rồi A), gần vốn hóa nhất; không có cụm ⇒ cùng nhóm ngành |
+
+Test API cần FastAPI: `python -m venv --system-site-packages .venv-web` rồi `pip install -r web/backend/requirements.txt`.
+
+
 ## Bổ sung EPS theo năm/quý và trải nghiệm chỉ số
 
 Owner yêu cầu tính/hiển thị chỉ số rộng hơn và bỏ UX gói review nội bộ. Đã thực
