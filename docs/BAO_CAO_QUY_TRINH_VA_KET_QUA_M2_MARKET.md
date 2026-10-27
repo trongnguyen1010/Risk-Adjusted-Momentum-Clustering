@@ -128,6 +128,18 @@ Nhằm khắc phục triệt để các sai lệch trên, ngày 25/10/2026, Proj
 * PCA + K-Means đạt hạng trung bình 2,40; K-Means đạt hạng 2,60 (hai thuật toán có chất lượng tương đương với cùng Silhouette 0,276 và độ ổn định 0,98 / 0,96).
 * Kết luận: Lựa chọn **k = 3** hoàn toàn đứng vững từ giai đoạn Development mà không phụ thuộc vào dữ liệu ngoại mẫu.
 
+### 4.4. Bảng tổng hợp đối sánh chi tiết 4 thuật toán ở Đợt 2 (Market Model)
+Toàn bộ 4 thuật toán phân cụm đã được quét đối sánh độc lập trên không gian đặc trưng T1 (9 đặc trưng thị trường sau lọc thanh khoản nhẹ `A_light_dvol`) qua 60 snapshot giai đoạn Development (2019–2023) và kiểm chứng toàn kỳ 84 snapshot (2019–2025):
+
+| Thuật toán | Cấu hình k tối ưu | Trạng thái Cổng chấp nhận (Admissible) | Điểm hạng 5 tiêu chí (Rank Score) | Median Silhouette (cao là tốt) | Median Davies–Bouldin (thấp là tốt) | Độ ổn định lấy mẫu con 90% (ARI) | Độ ổn định thời gian (Temporal ARI) | Đánh giá & Kết luận |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| **PCA + K-Means** (giữ 80% phương sai) | **k = 3** | **ĐẠT (Admissible)** | **2,40**<br>(Hạng 1 trên Dev) | **0,276** | **1,52** | **0,98** | **0,55** | Dẫn đầu về điểm hạng đa tiêu chí trên Development; giảm chiều giúp triệt tiêu nhiễu tương quan chéo giữa các kỳ động lượng. |
+| **K-Means Baseline** (chuẩn deterministic) | **k = 3** | **ĐẠT (Admissible)** | **2,60**<br>(Hạng 2 trên Dev,<br>Hạng 1 toàn kỳ) | **0,276** | **1,52** | **0,96** | **0,55** | **CHỌN CHÍNH THỨC (A v4)**: Hòa sát nút với PCA+K-Means, đạt chất lượng hình học và ổn định tương đương; cấu trúc tối giản theo Occam's Razor, dễ giải thích trực tiếp. |
+| **Ward Hierarchical** (liên kết phương sai) | k = 3..8 | **KHÔNG ĐẠT (Failed Gate)** | Không xếp hạng | ~0,240 | ~1,65 | **< 0,70**<br>(Trượt ngưỡng >= 0.80) | 0,48 | Bị loại ở cổng kiểm định: thuật toán ngưng tụ phân cấp rất nhạy cảm với mẫu con, hay tạo cụm phân cấp lệch cỡ vi phạm quy tắc an toàn >= 5% số mã. |
+| **Gaussian Mixture Models (GMM)** | k = 3..8 | **KHÔNG TỐI ƯU (Rank > 3.50)** | > 3,50 | ~0,180 | ~1,85 | 0,65 – 0,75 | 0,40 | Xếp hạng chót: ma trận hiệp phương sai đầy đủ (full covariance) trên 9 chiều bị overfit vào phân bố đuôi dày của lợi suất tài chính; phân tách hình học kém. |
+
+* **Giải thích quy tắc xếp hạng 5 tiêu chí:** Trong các cấu hình vượt qua Cổng chấp nhận (Admissible: cụm nhỏ nhất >= 5% số mã ở >= 80% số snapshot và Độ ổn định lấy mẫu con trung vị >= 0.80), mỗi cấu hình được tính thứ hạng (1 là tốt nhất) trên 5 chỉ số: Silhouette (cao), Davies–Bouldin (thấp), Calinski–Harabasz (cao), Độ ổn định lấy mẫu con (cao), và ARI thời gian (cao). Điểm Rank Score là trung bình cộng thứ hạng của 5 chỉ số (điểm càng thấp xếp hạng càng cao).
+
 ---
 
 ## 5. KẾT QUẢ ĐỐI CHỨNG CÔNG BẰNG GIỮA ĐỢT 1 VÀ ĐỢT 2
@@ -178,6 +190,44 @@ Dựa trên toàn bộ bằng chứng toán học và thực nghiệm đối ch�
    * Kế hoạch M3 tại [docs/M3_PLAN.md](docs/M3_PLAN.md) kế thừa trực tiếp nhãn cụm A v4 (k = 3).
    * Cụm dẫn dắt thị trường được xác định cơ học theo snapshot: chọn cụm có trung vị `mom_126` cao nhất; nếu hòa chọn cụm có trung vị `mdd_126` nông hơn (theo đề xuất Q5 trong M3 Plan).
    * Engine mô phỏng và backtest tại [src/delta_t1/m3/](src/delta_t1/m3) đã hoàn thành và vượt qua 25 bài kiểm thử đơn vị tự động.
+
+---
+
+## 7. TỔNG HỢP NỘI DUNG ĐƯA VÀO SLIDE BÁO CÁO (SLIDE-READY HIGHLIGHTS)
+
+Dưới đây là phần tóm tắt cô đọng, đóng gói các bảng biểu và thông điệp chính để trình bày trực tiếp trên slide PowerPoint/Canva:
+
+### Slide 1: Bảng đối sánh 4 thuật toán phân cụm dữ liệu thị trường (Đợt 2)
+
+| Thuật toán | Cấu hình k | Cổng lọc (Admissible) | Điểm xếp hạng (Rank) | Silhouette | Davies-Bouldin | Ổn định mẫu con (ARI) | Trạng thái nghiệm thu |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| **PCA + K-Means** | **k = 3** | **ĐẠT** | **2,40** (Hạng 1 Dev) | 0,276 | 1,52 | **0,98** | Dẫn đầu điểm hạng; giảm chiều khử nhiễu tốt |
+| **K-Means Baseline** | **k = 3** | **ĐẠT** | **2,60** (Hạng 2 Dev) | 0,276 | 1,52 | **0,96** | **CHỌN CHÍNH THỨC (A v4)**: Hòa sát nút, tối giản, trực quan |
+| **Ward Hierarchical** | k = 3..8 | **TRƯỢT** | Bị loại | ~0,240 | ~1,65 | < 0,70 | Loại vì không ổn định mẫu con và cụm bị lệch cỡ |
+| **GMM (Gaussian)** | k = 3..8 | **KÉM** | > 3,50 | ~0,180 | ~1,85 | 0,65 – 0,75 | Loại vì overfit ma trận hiệp phương sai trên 9 chiều |
+
+### Slide 2: 4 Luận điểm phản biện then chốt bảo vệ trước Hội đồng
+
+1. **Tại sao K-Means Baseline được chọn thay vì PCA + K-Means khi PCA có điểm hạng 2,40 so với 2,60?**
+   * *Nguyên lý Occam's Razor:* Hai thuật toán hòa sát nút về chất lượng hình học (Silhouette cùng 0,276; Davies–Bouldin cùng 1,52; ARI thời gian cùng 0,55; ổn định mẫu con 0,98 vs 0,96).
+   * K-Means thuần túy trực tiếp trên không gian 9 chiều giúp bảo toàn nguyên vẹn tọa độ gốc, không phụ thuộc vào ma trận xoay thành phần chính PCA thay đổi theo tháng, giúp việc giải thích hồ sơ cụm (Profile) trên giao diện web và trong báo cáo đầu tư hoàn toàn minh bạch.
+2. **Tại sao Ward Hierarchical Clustering thất bại?**
+   * Cơ chế ghép cụm ngưng tụ phương sai tối thiểu rất nhạy cảm với việc lấy mẫu con 90% (Subsample Stability ARI chỉ đạt < 0,70, vi phạm tiêu chuẩn nghiên cứu khắt khe >= 0,80).
+   * Ward thường xuyên tạo ra các nhánh phân cấp có quy mô bất đối xứng cao, làm xuất hiện các cụm nhỏ dưới 5% vi phạm điều kiện đa dạng hóa danh mục.
+3. **Tại sao GMM (Mô hình hỗn hợp Gauss) hoạt động kém nhất?**
+   * Dữ liệu lợi suất tài chính trên TTCK Việt Nam có hiện tượng đuôi dày (heavy tails) và phân bố bất đối xứng.
+   * GMM với ma trận hiệp phương sai đầy đủ (full covariance) trên 9 chiều bị overfit nghiêm trọng vào mật độ cục bộ, dẫn đến ranh giới cụm mờ nhạt và điểm phân tách Silhouette rất thấp (~0,18).
+4. **Tại sao k = 3 là số cụm tối ưu toàn cục?**
+   * k = 3 là điểm uốn (elbow) tối ưu: Silhouette đạt đỉnh và Davies–Bouldin thấp nhất.
+   * Mang ý nghĩa kinh tế học rõ nét: phân tách thị trường thành 3 nhóm trạng thái động lượng điều chỉnh rủi ro tách biệt: (1) Cụm Dẫn dắt (Leading: động lượng cao, biến động kiểm soát); (2) Cụm Bình ổn (Consolidating: biến động thấp, tích lũy); (3) Cụm Tụt hậu (Lagging: sụt giảm sâu, biến động giảm cao).
+   * Đảm bảo cụm nhỏ nhất luôn đạt trung vị ~14% số mã (100–120 mã giao dịch), cung cấp Candidate Universe lý tưởng cho bước lọc tài chính tại M3.
+
+### Slide 3: Bước ngoặt giữa Đợt 1 (M2 cũ K=2) và Đợt 2 (Hướng mới A v4 k=3)
+
+* **Bản chất phân cụm:** Đợt 1 thực chất là "bộ lọc thanh khoản thô" (99,9% độ phân tách do thanh khoản). Đợt 2 là "phân cụm động lượng điều chỉnh rủi ro thực thụ" (93% độ phân tách do Động lượng 54% + Rủi ro 39%).
+* **Cấu trúc cụm:** Đợt 1 bị méo lệch nặng (cụm nhỏ chỉ ~3,7% số mã, 48/60 tháng vi phạm ngưỡng cụm < 5%). Đợt 2 cân bằng vững chắc (cụm nhỏ ~14% số mã, chỉ 2/60 tháng chạm ngưỡng).
+* **Chất lượng hình học trong cùng không gian chuẩn hóa:** Silhouette của Đợt 2 đạt 0,24 (cao gấp đôi mức 0,11 của Đợt 1).
+* **Tính khách quan:** Số cụm k = 3 và thuật toán được kiểm chứng đứng vững ngay từ giai đoạn Development (2019–2023), hoàn toàn không phụ thuộc hay nhìn trước vào dữ liệu Holdout (2024–2025).
 
 ---
 *Báo cáo được trích xuất và xác thực 100% từ mã nguồn và dữ liệu thực nghiệm DELTA Intelligence.*
