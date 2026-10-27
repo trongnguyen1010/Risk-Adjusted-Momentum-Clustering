@@ -2,99 +2,76 @@
 
 **Dự án:** Phân cụm động lượng điều chỉnh rủi ro TTCK Việt Nam (DELTA)  
 **Tác giả:** Đội ngũ Nghiên cứu & Phát triển DELTA  
-**Thời điểm hoàn thành & cập nhật chính thức:** 26/10/2026 (theo Quyết định D-IND-01, D-CRAWL-02 và D-DIR-01)  
+**Thời điểm hoàn thành & cập nhật chính thức:** 26/10/2026 (theo Quyết định D-DIR-01)  
 **Cơ sở dữ liệu & mã nguồn:** 100% đối chiếu từ kho mã nguồn, cấu hình thực nghiệm và các artifact đã thực thi trong repository.
 
 ---
 
-## 1. TỔNG QUAN VÀ NGUYÊN TẮC NGHIÊN CỨU
+## 1. TỔNG QUAN VÀ BỐI CẢNH NGHIÊN CỨU
 
 ### 1.1. Mục tiêu của Hệ Dữ liệu Tài chính (Hệ B)
 Hệ dữ liệu tài chính trong dự án DELTA đảm nhận hai vai trò chiến lược:
 1. **Lớp phân cụm mô tả (Descriptive Clustering - Hệ B):** Phân nhóm các doanh nghiệp phi tài chính theo các tỷ số tài chính cốt lõi nhằm xác định các cụm doanh nghiệp có chất lượng cơ bản lành mạnh, khả năng sinh lời cao và đòn bẩy an toàn.
-2. **Lớp chỉ số sản phẩm và bộ lọc chất lượng (Indicators & Quality Overlay):** Cung cấp hệ thống 15 chỉ số tài chính chuẩn hóa (P/E, P/B, ROE, ROA...) và 3 hệ thống điểm sức khỏe tài chính chuyên sâu (Piotroski F-score, Beneish M-score, Altman Z-score) để sàng lọc và xếp hạng cổ phiếu trong bài toán xây dựng danh mục đầu tư tại Milestone M3.
+2. **Lớp chỉ số sản phẩm và bộ lọc chất lượng (Indicators & Quality Overlay):** Cung cấp hệ thống chỉ số tài chính chuẩn hóa và các hệ thống điểm sức khỏe tài chính chuyên sâu (Piotroski F-score, Altman Z-score, Beneish M-score) để làm chốt chặn an toàn khi lựa chọn danh mục đầu tư tại Milestone M3.
 
-### 1.2. Các nguyên tắc nghiên cứu bất biến (Research Invariants)
-Theo quy định tại [AGENTS.md](AGENTS.md) và [docs/DATA_CONTRACT.md](docs/DATA_CONTRACT.md):
-1. **Nguyên tắc Point-In-Time (PIT):** Tại ngày ra quyết định `decision_date` t, chỉ được sử dụng các báo cáo tài chính đã thực sự công bố và sẵn sàng trên thị trường (`usable_from_date <= t`). Tuyệt đối không lấy ngày kết thúc kỳ kế toán (`period_end`) làm ngày ra quyết định để tránh rò rỉ thông tin tương lai (Look-ahead bias).
-2. **Không làm đẹp dữ liệu (No Imputation / No Distortion):** Dữ liệu tài chính thiếu bắt buộc phải để `null`, tuyệt đối không điền 0, không forward-fill giữa các năm tài chính, không xóa bỏ các giá trị cực đoan một cách tùy tiện.
-3. **Phân định rõ ranh giới ngành:** Các định chế tài chính (Ngân hàng, Công ty Chứng khoán, Công ty Bảo hiểm) có cấu trúc BCTC đặc thù, không áp dụng công thức của doanh nghiệp thông thường và không đưa vào mô hình phân cụm của doanh nghiệp phi tài chính.
+### 1.2. Tập dữ liệu đầu vào và phân định thời gian
+* **Dữ liệu đầu vào:** Ma trận các tỷ số tài chính của 1.172 doanh nghiệp phi tài chính niêm yết có đầy đủ báo cáo tài chính qua 9 năm tài chính (2017–2025), gồm 2 không gian khảo sát:
+  * `B_base` (9 chỉ số cốt lõi): ROE, ROA, Biên gộp, Biên ròng, Nợ/VCSH, Thanh toán hiện hành, Vòng quay tài sản, Tăng trưởng doanh thu, CFO/LNST.
+  * `B_value` (12 chỉ số): Bộ 9 chỉ số trên kết hợp thêm E/P (Earnings Yield), B/P (Book-to-Price) và log vốn hóa thị trường.
+* **Nguyên tắc nghiên cứu bất biến:**
+  1. *Nguyên tắc Point-In-Time (PIT):* Chỉ sử dụng báo cáo tài chính đã thực sự công bố ra thị trường (`usable_from_date <= decision_date`). Tuyệt đối không lấy ngày kết thúc niên độ kế toán (`period_end`) để tránh rò rỉ thông tin tương lai.
+  2. *Không làm đẹp dữ liệu:* Dữ liệu thiếu giữ nguyên null, không điền 0, không forward-fill giữa các năm tài chính, không xóa bỏ giá trị cực đoan tùy tiện.
+  3. *Phân định ranh giới ngành:* Chỉ phân cụm trên nhóm doanh nghiệp phi tài chính; các định chế tài chính (Ngân hàng, Chứng khoán, Bảo hiểm) có cấu trúc tài sản đặc thù được tách riêng.
 
 ---
 
-## 2. CÁC BƯỚC THỰC HIỆN (QUY TRÌNH DỮ LIỆU VÀ PHÂN CỤM TÀI CHÍNH)
+## 2. CÁC BƯỚC THỰC HIỆN (QUY TRÌNH PHÂN CỤM TÀI CHÍNH)
 
-Quy trình xây dựng hệ dữ liệu và phân cụm tài chính được thực thi tuần tự qua 5 bước có cấu trúc chặt chẽ:
+Quy trình phân cụm tài chính tập trung vào chuỗi xử lý học máy từ tiền xử lý không gian tỷ số, huấn luyện thuật toán đến đánh giá độ ổn định và lựa chọn mô hình:
 
 ```
-[Bước 1: Thu thập & Chuẩn hóa BCTC 10 năm (2016–2025)] 
-       ↓ 
-[Bước 2: Xây dựng Lớp chỉ số Indicators v1 & Điểm F/M/Z (D-IND-01)] 
-       ↓ 
-[Bước 3: Thu thập Ngày công bố BCTC phục vụ PIT (D-CRAWL-02)] 
-       ↓ 
-[Bước 4: Thiết lập không gian phân cụm T1 (B_base & B_value)] 
-       ↓ 
-[Bước 5: Quét thực nghiệm đối sánh 4 thuật toán (k = 3 đến 8)]
+[Bước 1: Tiền xử lý dữ liệu tài chính (Transform T1 per fiscal year)]
+                           ↓
+[Bước 2: Huấn luyện & Quét 4 thuật toán (K-Means, PCA, Ward, GMM với k = 3..8)]
+                           ↓
+[Bước 3: Đánh giá & So sánh các thuật toán (Cổng kiểm định độ ổn định mẫu con)]
+                           ↓
+[Bước 4: Chọn mô hình mô tả & Thiết lập chốt chặn chất lượng sang Milestone M3]
 ```
 
-### Bước 1: Thu thập và chuẩn hóa dữ liệu BCTC 10 năm liên tục (2016–2025)
-* **Khảo sát nguồn và Pilot đối soát:** Thử nghiệm Pilot 5 mã (BRC, FPT, MWG, GMD, VNM) đối chiếu chi tiết 100% số liệu API với báo cáo tài chính kiểm toán gốc định dạng PDF (đạt 29/30 bộ chỉ số đối chứng chính xác).
-* **Mở rộng toàn thị trường:** Triển khai qua mẫu 20 mã, 50 mã và mở rộng lên toàn bộ 1.522 mã cổ phiếu ứng viên (Securities Registry).
-* **Kết quả làm sạch:** Thu thập thành công **1.172 mã cổ phiếu phi tài chính có đầy đủ BCTC cả 10 năm liên tục (2016–2025)**, tạo thành tập mẫu chuẩn 11.720 dòng quan sát (chi tiết tại [artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md](artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md)).
+### Bước 1: Tiền xử lý dữ liệu tài chính (Transform T1)
+1. **Thiết lập không gian tỷ số tài chính:**
+   * Khảo sát độc lập 2 bộ đặc trưng: `B_base` (9 chỉ số tài chính thuần túy) và `B_value` (12 chỉ số kết hợp yếu tố định giá thị trường).
+2. **Quy trình chuẩn hóa T1 (Transform T1 per fiscal year):**
+   * *Log quy mô:* Lấy log tự nhiên các biến quy mô: `log(market_cap)`.
+   * *Cắt đuôi ngoại lai (Winsorization):* Cắt đuôi tại phân vị 1% và 99% theo từng năm để triệt tiêu ảnh hưởng của các trường hợp âm vốn chủ sở hữu nặng hoặc tỷ lệ nợ/tài sản đột biến dị biệt.
+   * *Chuẩn hóa Z-Score per-snapshot:* Chuẩn hóa trung bình và độ lệch chuẩn độc lập theo từng năm tài chính, không trộn lẫn dữ liệu giữa các năm để bảo đảm nguyên tắc Point-In-Time.
 
-### Bước 2: Xây dựng Lớp chỉ số sản phẩm Indicators v1 (Quyết định D-IND-01)
-Theo Quyết định D-IND-01 ngày 24/10/2026, nhóm nghiên cứu đã xây dựng engine tính toán chỉ số độc lập tại [src/delta_t1/indicators/compute.py](src/delta_t1/indicators/compute.py) và cơ sở dữ liệu `indicators.sqlite`:
-1. **Quy tắc chuẩn thị trường Việt Nam:**
-   * Số lượng cổ phiếu lưu hành: `shares = Vốn góp cổ phiếu phổ thông / 10.000 đ` (mệnh giá luật định).
-   * Lợi nhuận trước lãi vay và thuế: `ebit = LNTT + Chi phí lãi vay`.
-   * Giá thị trường tính P/E, P/B: Giá đóng cửa thực tế (`raw_close`) của phiên giao dịch cuối cùng <= 31/12 của năm tài chính đó.
-2. **Hệ thống 15 chỉ số tài chính cơ bản:** Gồm đầy đủ các nhóm Định giá (EPS, BVPS, P/E, P/B, Vốn hóa), Sinh lời (ROE, ROA, Biên gộp, Biên ròng), Tăng trưởng (Doanh thu, Lợi nhuận), và An toàn tài chính (Nợ/VCSH, Thanh toán hiện hành, Vòng quay tài sản, CFO/LNST).
-3. **Ba hệ thống điểm chất lượng chuyên sâu:**
-   * **Piotroski F-Score (Thang điểm 0–9):** Đánh giá toàn diện 9 tín hiệu về khả năng sinh lời, đòn bẩy, thanh khoản và hiệu quả hoạt động. 7–9 điểm: Rất mạnh; 4–6: Trung bình; 0–3: Yếu.
-   * **Beneish M-Score:** Mô hình 8 biến số phát hiện bất thường kế toán. Ngưỡng M > -1.78 cảnh báo rủi ro thao túng BCTC cao.
-   * **Altman Z-Score:** Dự báo nguy cơ kiệt quệ tài chính. Z > 2.99: An toàn; 1.81 <= Z <= 2.99: Cảnh báo; Z < 1.81: Nguy hiểm.
-
-### Bước 3: Thu thập Ngày công bố BCTC phục vụ Point-In-Time (Quyết định D-CRAWL-02)
-Để loại bỏ hoàn toàn hiện tượng rò rỉ thông tin tương lai (Look-ahead bias) khi đưa dữ liệu vào Milestone M3:
-* **Thu thập API CafeF CreateDate:** Thực thi script [scripts/crawl_cafef_disclosure_dates.py](scripts/crawl_cafef_disclosure_dates.py), trích xuất trường thời gian gửi tài liệu (`CreateDate`) của các BCTC năm đã kiểm toán cho 1.362 mã cổ phiếu.
-* **Quy tắc xác định ngày sử dụng thông tin (`usable_from_date`):**
-  * *Năm tài chính từ 2022 trở đi (`CAFEF_DISCLOSURE`):* Sử dụng ngày gửi sớm nhất từ CafeF. `usable_from_date` là phiên giao dịch đầu tiên **sau** ngày gửi tài liệu.
-  * *Năm tài chính trước 2022 (`LAG_RULE`):* Do CafeF nhập lại dữ liệu lịch sử vào 26/11/2022, hệ thống áp dụng nguyên tắc bảo thủ: `usable_from_date` là phiên giao dịch đầu tiên sau ngày **30/06 của năm tiếp theo** (t+1).
-* Tạo lập bảng dữ liệu khả dụng `availability.csv` với 13.620 bản ghi mã - năm tài chính.
-
-### Bước 4: Thiết lập không gian phân cụm T1 (Transform T1)
-Khảo sát phân cụm trên 2 bộ không gian đặc trưng:
-* `B_base` (9 chỉ số cốt lõi): ROE, ROA, Biên gộp, Biên ròng, Nợ/VCSH, Thanh toán hiện hành, Vòng quay tài sản, Tăng trưởng doanh thu, CFO/LNST.
-* `B_value` (12 chỉ số): Bộ 9 chỉ số trên kết hợp thêm E/P (Earnings Yield), B/P (Book-to-Price) và log vốn hóa thị trường.
-* **Quy trình tiền xử lý T1:** Lấy log các biến quy mô, cắt đuôi ngoại lai (Winsorization) 1%–99%, chuẩn hóa z-score độc lập theo từng năm tài chính (không trộn lẫn các năm).
-
-### Bước 5: Thiết kế thực nghiệm và Khảo sát 4 thuật toán (k = 3 đến 8)
-Quét đồng thời cả 4 thuật toán trên dải k từ 3 đến 8 (k = 3, 4, 5, 6, 7, 8) qua các năm tài chính từ 2017 đến 2025:
-1. **K-Means Baseline:** deterministic, `n_init = 10`, `seed = 42`.
-2. **PCA + K-Means:** Giảm chiều PCA giữ 80% phương sai, sau đó fit K-Means.
+### Bước 2: Huấn luyện và Quét 4 thuật toán phân cụm (Algorithm Training)
+Quét đồng thời 4 thuật toán phân cụm trên dải số cụm k từ 3 đến 8 (k = 3, 4, 5, 6, 7, 8) qua 9 năm tài chính (2017–2025), thực hiện độc lập trên cả giai đoạn Development (<= 2023) và toàn kỳ:
+1. **K-Means Baseline:** K-Means++ deterministic, `seed = 42`, `n_init = 10`, `max_iter = 300`.
+2. **PCA + K-Means:** Giảm chiều PCA giữ 80% tổng phương sai giải thích, sau đó fit K-Means (`seed = 42`, `n_init = 10`).
 3. **Ward Hierarchical Clustering:** Phân cụm ngưng tụ phân cấp phương sai tối thiểu (`linkage = 'ward'`).
-4. **Gaussian Mixture Models (GMM):** Mô hình hỗn hợp Gauss đa biến (`covariance_type = 'full'`, `n_init = 2`, `reg_covar = 0.0001`).
-* **Cổng kiểm định chất lượng:** Yêu cầu độ ổn định lấy mẫu con 90% (Subsample Stability ARI qua 3 random seeds) phải đạt trung vị >= 0.80.
+4. **Gaussian Mixture Models (GMM):** Mô hình hỗn hợp Gauss đa biến xác suất (`covariance_type = 'full'`, `n_init = 2`, `reg_covar = 0.0001`, `max_iter = 300`).
+
+### Bước 3: Đánh giá và So sánh các thuật toán (Comparison Framework)
+1. **Cổng kiểm định độ ổn định (Admissibility Gate):**
+   * Yêu cầu độ ổn định khi lấy mẫu con 90% (Subsample Stability): Lấy ngẫu nhiên 90% số doanh nghiệp qua 3 random seeds; trung vị chỉ số Adjusted Rand Index (ARI) giữa mô hình fit lại trên mẫu con và nhãn gốc phải đạt >= 0.80.
+   * Cụm nhỏ nhất phải chiếm >= 5% số doanh nghiệp ở >= 80% số năm tài chính (không chấp nhận cụm rỗng hoặc cụm ngoại lai).
+2. **Hệ thống thước đo so sánh:**
+   * *Subsample Stability ARI (cao là tốt):* Đo lường tính vững chắc của ranh giới cụm trước các biến động chọn mẫu.
+   * *Silhouette Score (cao là tốt):* Đo độ nén nội cụm và mức độ phân tách giữa các cụm tài chính.
+   * *Davies–Bouldin Index (thấp là tốt):* Đo tỷ lệ khoảng cách nội cụm trên khoảng cách tâm cụm.
+   * *Tỷ lệ cân bằng cụm:* Kiểm tra sự xuất hiện của các cụm thiểu số dị biệt.
 
 ---
 
-## 3. KẾT QUẢ ĐẠT ĐƯỢC
+## 3. KẾT QUẢ ĐẠT ĐƯỢC VÀ CHỌN THUẬT TOÁN TỐT NHẤT
 
-### 3.1. Kết quả làm sạch dữ liệu BCTC và Lớp chỉ số sản phẩm
-* **Độ phủ dữ liệu (Coverage):** Đạt trên **88% – 90%** số mã cổ phiếu có đầy đủ bộ chỉ số cơ bản và điểm F/M/Z hoàn chỉnh trong các năm tài chính 2024–2025.
-* **Kiểm định QA độc lập:** Kiểm tra tính toán lại độc lập trên 500 ô giá trị ngẫu nhiên, đạt độ khớp tuyệt đối 100%. Tỷ lệ sai lệch EPS tự tính toán so với EPS CafeF công bố dưới 10% đạt trên 92%.
-* Cơ sở dữ liệu `indicators.sqlite` đã được đóng gói và xác thực hash bất biến tại [configs/product/indicators_v1.json](configs/product/indicators_v1.json).
-
-### 3.2. Kết quả thu thập ngày công bố BCTC phục vụ Point-In-Time
-* Hoàn thành 100% trên toàn bộ **1.362 / 1.362 mã cổ phiếu** (13.620 bản ghi mã-năm).
-* Phân phối độ trễ công bố (2022–2025): Trung vị 91 ngày, phân vị 95% là 169 ngày, phân vị 99% là 374 ngày.
-* Đối chiếu thực tế với văn bản công bố gốc của UBCKNN/Sở GDCK trên 9 mã-năm: **100% các trường hợp đều không sớm hơn ngày công bố thực tế**, bảo đảm không rò rỉ dữ liệu trước khi thị trường biết.
-
-### 3.3. Bảng kết quả đối sánh toàn diện 4 thuật toán trên Dữ liệu Tài chính (Hệ B)
+### 3.1. Bảng kết quả đối sánh toàn diện 4 thuật toán trên Hệ B (k = 3..8)
 Kết quả thực nghiệm quét sweep trên 9 năm tài chính (2017–2025) tại [configs/experiments/clustering_rework_v2.json](configs/experiments/clustering_rework_v2.json) và script [scripts/run_clustering_rework_v2.py](scripts/run_clustering_rework_v2.py):
 
-| Thuật toán | Cấu hình k khảo sát | Độ ổn định mẫu con 90% (ARI) | Median Silhouette Score | Median Davies–Bouldin | Cân bằng tỷ lệ cụm (>= 5% số mã) | Trạng thái Cổng lọc (Admissible) | Đánh giá & Phân loại |
+| Thuật toán | Cấu hình k khảo sát | Độ ổn định mẫu con 90% (ARI) | Median Silhouette Score | Median Davies–Bouldin | Cân bằng tỷ lệ cụm (>= 5% số mã) | Trạng thái Cổng lọc (Admissible) | Đánh giá kỹ thuật |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|---|
 | **K-Means Baseline** (deterministic) | **k = 3** | **~0,50**<br>(Trượt ngưỡng >= 0.80) | ~0,18 – 0,22 | ~1,65 – 1,80 | **Đạt**<br>(Không có cụm rỗng) | **KHÔNG ĐẠT (None Admissible)** | **Chọn làm Baseline mô tả (B v4)**: Đạt độ ổn định cao nhất trong 4 thuật toán; cụm phân bố tương đối đều, có ý nghĩa phân loại cơ bản. |
 | **PCA + K-Means** (giữ 80% phương sai) | k = 3 | ~0,48<br>(Trượt ngưỡng >= 0.80) | ~0,19 – 0,21 | ~1,68 – 1,82 | **Đạt** | **KHÔNG ĐẠT (None Admissible)** | Giảm chiều PCA không giúp tăng độ ổn định do phương sai tài chính phân tán đều giữa các nhóm sinh lời, thanh toán và đòn bẩy. |
@@ -103,30 +80,34 @@ Kết quả thực nghiệm quét sweep trên 9 năm tài chính (2017–2025) t
 
 * **Kết luận khoa học chính thức:** **Không có cấu hình nào đạt ngưỡng chấp nhận (None admissible)** ở cả 2 bộ chỉ số (`B_base` và `B_value`), trên cả toàn kỳ (2017–2025) lẫn khi chỉ sàng lọc giai đoạn Development (<= 2023).
 
-### 3.4. Phân tích bản chất kinh tế học của dữ liệu tài chính Việt Nam
+### 3.2. Phân tích nguyên nhân kinh tế học tại sao BCTC không đạt ARI >= 0.80
 1. **Độ phân tán liên ngành tự nhiên:** Các doanh nghiệp thuộc các ngành khác nhau (sản xuất công nghiệp, bất động sản, bán lẻ, công nghệ) có mô hình kinh doanh hoàn toàn khác biệt. Tỷ số nợ, vòng quay tài sản hay biên lợi nhuận phân bố rất rộng và không tạo thành các cụm hình cầu tự nhiên.
 2. **Cú sốc kinh tế vĩ mô qua các năm:** Giai đoạn 2017–2025 chứng kiến nhiều biến cố lớn (COVID-19 2020–2021, đóng băng trái phiếu doanh nghiệp và bất động sản 2022–2023, biến động lãi suất). Cấu trúc tài chính của cùng một doanh nghiệp có thể thay đổi đột ngột giữa 2 năm tài chính kế tiếp.
 3. **Tính trung thực khoa học của DELTA:** Dự án kiên quyết tuân thủ nguyên tắc không "nắn chỉnh dữ liệu" (không forward-fill, không điền số 0 giả tạo, không cherry-pick mã tốt). Kết quả ARI ~ 0,50 phản ánh đúng bản chất biến động thực tế của nền kinh tế Việt Nam.
 
-### 3.5. Quyết định kiến trúc của DELTA và Bàn giao sang Milestone M3
+### 3.3. Quyết định kiến trúc và Chọn thuật toán tốt nhất (Architectural Decision)
 Dựa trên kết quả thực nghiệm và Quyết định D-DIR-01:
-1. **Mô hình tài chính phục vụ thực tế (Model B trong Bundle v4):**
-   * Lựa chọn **K-Means Baseline (k = 3, bộ đặc trưng B_base)** làm mô hình phân nhóm tài chính mô tả cơ sở (Descriptive Baseline).
-   * Gắn nhãn minh bạch trên giao diện web và tài liệu: *"Mô hình tài chính cơ sở mang tính mô tả, độ ổn định lấy mẫu con đạt ARI 0,50 (chưa đạt ngưỡng tối ưu 0,80)"*.
-2. **Chốt chặn chất lượng độc lập tại Milestone M3:**
-   * Không dựa duy nhất vào nhãn cụm B để ra quyết định đầu tư.
-   * Milestone M3 tích hợp bổ sung hệ thống chỉ số chuẩn hóa D-IND-01 làm bộ lọc chất lượng: yêu cầu cổ phiếu đạt điểm sức khỏe tài chính Piotroski F-Score >= 7 và Altman Z-Score >= 1.81.
-3. **Cơ chế xác định Cụm dẫn dắt tài chính (Financial Leading Cluster):**
-   * Được chọn cơ học theo từng snapshot: Chọn cụm có **trung vị ROE cao nhất**; nếu hòa điểm chọn cụm có **trung vị Nợ/VCSH thấp hơn**.
-4. **Kết hợp danh mục đa tài sản:** Candidate Universe là phần giao giữa Cụm dẫn dắt thị trường (Hệ A) và Cụm dẫn dắt tài chính (Hệ B) sau khi kiểm tra tính sẵn sàng `usable_from_date <= decision_date`.
+1. **Thuật toán được chọn:** **K-Means Baseline (k = 3, bộ đặc trưng B_base)**.
+2. **Vai trò mô hình:** Đóng vai trò là **Mô hình phân cụm tài chính mô tả cơ sở (Descriptive Baseline - Model B v4)**.
+3. **Gắn nhãn minh bạch:** Ghi chú rõ ràng trên giao diện web và tài liệu: *"Mô hình tài chính cơ sở mang tính mô tả, độ ổn định lấy mẫu con đạt ARI 0,50 (chưa đạt ngưỡng tối ưu 0,80)"*.
+4. **Giải pháp bù đắp chất lượng cho Milestone M3:**
+   * Không phụ thuộc duy nhất vào nhãn cụm tài chính để ra quyết định đầu tư.
+   * Milestone M3 tích hợp bổ sung hệ thống chỉ số chuẩn hóa độc lập (D-IND-01) làm chốt chặn chất lượng: yêu cầu cổ phiếu đạt điểm sức khỏe tài chính Piotroski F-Score >= 7 (đà tăng trưởng mạnh) và Altman Z-Score >= 1.81 (vùng an toàn tài chính, phòng tránh kiệt quệ).
+
+### 3.4. Bàn giao sang Milestone M3
+1. **Xác định Cụm dẫn dắt tài chính (Financial Leading Cluster):** Được chọn cơ học theo từng snapshot dựa vào hồ sơ trung vị: Chọn cụm có **trung vị ROE cao nhất**; nếu hòa điểm chọn cụm có **trung vị Nợ/VCSH thấp hơn**.
+2. **Kết hợp danh mục:** Candidate Universe là phần giao giữa Cụm dẫn dắt thị trường (Hệ A) và Cụm dẫn dắt tài chính (Hệ B) đã thỏa mãn kiểm tra tính sẵn sàng `usable_from_date <= decision_date`.
 
 ---
 
 ## 4. TÓM TẮT TRỌNG TÂM ĐƯA VÀO SLIDE THUYẾT TRÌNH (SLIDE-READY HIGHLIGHTS)
 
-Dưới đây là phần tóm tắt cô đọng, đóng gói các bảng biểu và thông điệp chính về hệ dữ liệu tài chính để đưa vào slide thuyết trình:
+### Slide 1: Quy trình phân cụm dữ liệu tài chính (Financial Pipeline)
+* **Tiền xử lý Transform T1:** Lấy log quy mô, cắt đuôi ngoại lai (Winsorize 1%–99%), chuẩn hóa z-score độc lập từng năm tài chính (giữ vững nguyên tắc Point-In-Time).
+* **Huấn luyện thuật toán:** Quét đồng thời 4 thuật toán (K-Means, PCA+K-Means, Ward, GMM) với k từ 3 đến 8 trên 1.172 doanh nghiệp phi tài chính qua 9 năm tài chính (2017–2025).
+* **Đánh giá & Kết luận:** Kiểm định độ ổn định lấy mẫu con 90% (ngưỡng chuẩn ARI >= 0.80).
 
-### Slide 1: Bảng đối sánh 4 thuật toán trên Dữ liệu Tài chính (Hệ B)
+### Slide 2: Bảng đối sánh 4 thuật toán trên Dữ liệu Tài chính (Hệ B)
 
 | Thuật toán | Cấu hình k | Ổn định mẫu con (ARI) | Silhouette Score | Davies–Bouldin | Cân bằng cụm | Kết luận nghiệm thu |
 |---|:---:|:---:|:---:|:---:|:---:|---|
@@ -137,44 +118,15 @@ Dưới đây là phần tóm tắt cô đọng, đóng gói các bảng biểu 
 
 * **Kết luận chung:** **Không có thuật toán nào đạt ngưỡng nghiên cứu chuẩn (ARI >= 0.80)**. K-Means k=3 đạt kết quả tốt nhất trong 4 phương án (~0,50).
 
-### Slide 2: Bản chất kinh tế học — Tại sao BCTC không đạt ARI >= 0.80?
-
+### Slide 3: Bản chất kinh tế học — Tại sao BCTC không đạt ARI >= 0.80?
 1. **Độ phân tán liên ngành tự nhiên:** Các doanh nghiệp thuộc các ngành khác nhau (sản xuất công nghiệp, bất động sản, bán lẻ, công nghệ) có mô hình kinh doanh hoàn toàn khác biệt. Tỷ số nợ, vòng quay tài sản hay biên lợi nhuận phân bố rất rộng và không tạo thành các cụm hình cầu tự nhiên.
 2. **Cú sốc kinh tế vĩ mô qua các năm:** Giai đoạn 2017–2025 chứng kiến nhiều biến cố lớn (COVID-19 2020–2021, biến động trái phiếu doanh nghiệp và bất động sản 2022–2023, biến động lãi suất). Cấu trúc tài chính của cùng một doanh nghiệp có thể thay đổi đột ngột giữa 2 năm tài chính kế tiếp.
 3. **Tính trung thực khoa học của DELTA:** Dự án kiên quyết tuân thủ nguyên tắc không "nắn chỉnh dữ liệu" (không forward-fill, không điền số 0 giả tạo, không cherry-pick mã tốt). Kết quả ARI ~ 0,50 phản ánh đúng bản chất biến động thực tế của nền kinh tế Việt Nam.
 
-### Slide 3: Giải pháp kiến trúc của DELTA và Ứng dụng thực tiễn cho M3
-
-1. **Phân tách ranh giới rõ ràng:**
-   * Mô hình phân cụm tài chính Hệ B (K-Means k=3) chỉ đóng vai trò **phân cụm mô tả sơ bộ (Descriptive Clustering)**.
-   * Hệ thống hiển thị minh bạch cảnh báo độ ổn định ARI = 0,50 trên giao diện web và tài liệu kỹ thuật.
-2. **Chốt chặn an toàn với Lớp chỉ số sản phẩm (Indicators v1):**
-   * Không dựa duy nhất vào nhãn cụm tài chính để ra quyết định đầu tư.
-   * Xây dựng độc lập hệ thống chỉ số chuẩn hóa thị trường (D-IND-01) với 15 chỉ số cốt lõi và 3 hệ thống điểm chuyên sâu:
-     * **Piotroski F-score:** Sàng lọc chất lượng và đà cải thiện hoạt động (thang điểm 0–9).
-     * **Altman Z-score:** Ngăn ngừa rủi ro kiệt quệ tài chính và phá sản.
-     * **Beneish M-score:** Cảnh báo gian lận và bóp méo số liệu kế toán.
-3. **Chiến lược đầu tư tích hợp tại Milestone M3:**
-   * Candidate Universe = Cụm dẫn dắt thị trường (Hệ A) giao với Cụm dẫn dắt tài chính (Hệ B) sau khi kiểm tra tính khả dụng PIT (`usable_from_date <= decision_date`).
-   * Xếp hạng cuối cùng kết hợp điểm kỹ thuật và điểm cơ bản vững chắc (ROE + F-score + Z-score) để chọn top 30% cổ phiếu tốt nhất thị trường.
-
----
-
-## 5. BẢN ĐỒ MÃ NGUỒN VÀ ARTIFACT TÁI LẬP (REPRODUCIBILITY MAP)
-
-Toàn bộ hệ thống dữ liệu tài chính của DELTA đã được hoàn thiện khép kín và có thể tái lập hoàn toàn từ mã nguồn:
-
-| Thành phần | Đường dẫn mã nguồn / Cấu hình | Trách nhiệm |
-|---|---|---|
-| **Engine tính chỉ số** | [src/delta_t1/indicators/compute.py](src/delta_t1/indicators/compute.py) | Tính toán 15 chỉ số cơ bản và 3 bộ điểm F/M/Z |
-| **Pipeline nạp chỉ số** | [scripts/build_indicators.py](scripts/build_indicators.py) | Tạo cơ sở dữ liệu `indicators.sqlite` |
-| **Kiểm định QA** | [scripts/verify_indicators.py](scripts/verify_indicators.py) | Kiểm tra tính toán lại độc lập và đối chiếu EPS |
-| **Crawl ngày công bố** | [scripts/crawl_cafef_disclosure_dates.py](scripts/crawl_cafef_disclosure_dates.py) | Thu thập ngày gửi BCTC từ CafeF cho 1.362 mã |
-| **Tính khả dụng PIT** | [scripts/build_financial_availability.py](scripts/build_financial_availability.py) | Tạo bảng `usable_from_date` phục vụ backtest M3 |
-| **Huấn luyện phân cụm** | [scripts/run_clustering_rework_v2.py](scripts/run_clustering_rework_v2.py) | Chạy đối sánh 4 thuật toán (KMeans, PCA, Ward, GMM) |
-| **Lõi phân cụm tài chính**| [src/delta_t1/experiments/clustering_rework_v2.py](src/delta_t1/experiments/clustering_rework_v2.py) | Xử lý ma trận `financial_snapshots` và hàm fit |
-| **Cấu hình thực nghiệm** | [configs/experiments/clustering_rework_v2.json](configs/experiments/clustering_rework_v2.json) | Cấu hình tham số thực nghiệm phân cụm tài chính |
-| **Cấu hình sản phẩm** | [configs/product/indicators_v1.json](configs/product/indicators_v1.json) | Khóa hash và liên kết file `indicators.sqlite` |
+### Slide 4: Giải pháp kiến trúc của DELTA và Ứng dụng thực tiễn cho M3
+1. **Phân tách ranh giới rõ ràng:** Mô hình B (K-Means k=3) chỉ đóng vai trò phân cụm mô tả (Descriptive Clustering) với cảnh báo minh bạch trên hệ thống.
+2. **Chốt chặn an toàn với Lớp chỉ số sản phẩm:** Tích hợp độc lập hệ thống điểm sức khỏe tài chính Piotroski F-score (>= 7) và Altman Z-score (>= 1.81) làm chốt chặn an toàn tại M3.
+3. **Chiến lược đầu tư tích hợp:** Candidate Universe là giao giữa Cụm dẫn dắt thị trường (Hệ A) và Cụm dẫn dắt tài chính (Hệ B) sau khi kiểm tra tính khả dụng PIT (`usable_from_date <= decision_date`).
 
 ---
 *Báo cáo được trích xuất và xác thực 100% từ mã nguồn và dữ liệu thực nghiệm DELTA Intelligence.*
