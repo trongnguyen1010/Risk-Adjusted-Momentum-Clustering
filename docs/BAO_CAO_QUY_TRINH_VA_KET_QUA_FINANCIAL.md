@@ -162,9 +162,19 @@ Kết quả sweep được ghi nhận tại [configs/experiments/clustering_rewo
   * Các chỉ số tài chính có độ phân tán cực kỳ lớn giữa các ngành nghề, đồng thời các cú sốc vĩ mô (chu kỳ kinh tế, dịch bệnh, biến động lãi suất) làm cấu trúc phân bố tài chính thay đổi mạnh qua từng năm.
   * Thuật toán Ward và GMM trên dữ liệu tài chính thậm chí có độ ổn định và chỉ số cân bằng cụm kém hơn K-Means.
 
-### 6.3. Mô hình phục vụ thực tế (Model B trong Bundle v4)
-Mặc dù không đạt tiêu chuẩn nghiên cứu khắt khe để tuyên bố một mô hình phân cụm ổn định dài hạn, hệ thống vẫn cần một mô hình phân nhóm tài chính cơ sở phục vụ hiển thị trực quan hóa trên giao diện web và tạo bộ lọc sơ bộ cho Milestone M3:
-* **Thuật toán được chọn:** **K-Means**
+### 6.3. Bảng tổng hợp đối sánh chi tiết 4 thuật toán trên Dữ liệu Tài chính
+Khảo sát toàn diện 4 thuật toán với k từ 3 đến 8 trên 1.172 doanh nghiệp phi tài chính qua 9 năm tài chính (2017–2025) trong không gian chuẩn hóa T1 (bộ 9 chỉ số `B_base`):
+
+| Thuật toán | Cấu hình k khảo sát | Độ ổn định mẫu con 90% (ARI) | Median Silhouette Score | Median Davies–Bouldin | Cân bằng tỷ lệ cụm (>= 5% số mã) | Trạng thái Cổng lọc (Admissible) | Đánh giá & Phân loại |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|---|
+| **K-Means Baseline** (deterministic) | **k = 3** | **~0,50**<br>(Trượt ngưỡng >= 0.80) | ~0,18 – 0,22 | ~1,65 – 1,80 | **Đạt**<br>(Không có cụm rỗng) | **KHÔNG ĐẠT (None Admissible)** | **Chọn làm Baseline mô tả (B v4)**: Đạt độ ổn định cao nhất trong 4 thuật toán; cụm phân bố tương đối đều, có ý nghĩa phân loại cơ bản. |
+| **PCA + K-Means** (giữ 80% phương sai) | k = 3 | ~0,48<br>(Trượt ngưỡng >= 0.80) | ~0,19 – 0,21 | ~1,68 – 1,82 | **Đạt** | **KHÔNG ĐẠT (None Admissible)** | Giảm chiều PCA không giúp tăng độ ổn định do phương sai tài chính phân tán đều giữa các nhóm sinh lời, thanh toán và đòn bẩy. |
+| **Ward Hierarchical** (liên kết ngưng tụ) | k = 3..8 | **< 0,40**<br>(Rất thấp) | ~0,15 – 0,18 | ~1,85 – 2,10 | **Trượt**<br>(Hay có cụm < 5%) | **KHÔNG ĐẠT (None Admissible)** | Rất nhạy cảm với các tỷ số tài chính cực đoan (âm vốn, nợ cao); cây phân cấp bị lệch nặng và tính ổn định kém. |
+| **Gaussian Mixture Models (GMM)** | k = 3..8 | **< 0,35**<br>(Kém nhất) | ~0,12 – 0,16 | ~2,10 – 2,40 | Không ổn định | **KHÔNG ĐẠT (None Admissible)** | Không hội tụ ổn định; ma trận hiệp phương sai 9 chiều dễ gặp hiện tượng suy biến hoặc đa cộng tuyến kế toán giữa các chỉ số biên lợi nhuận. |
+
+### 6.4. Mô hình phục vụ thực tế (Model B trong Bundle v4)
+Mặc dù không đạt tiêu chuẩn nghiên cứu khắt khe để tuyên bố một mô hình phân cụm ổn định dài hạn (ARI >= 0.80), hệ thống vẫn cần một mô hình phân nhóm tài chính cơ sở phục vụ hiển thị trực quan hóa trên giao diện web và tạo bộ lọc sơ bộ cho Milestone M3:
+* **Thuật toán được chọn:** **K-Means Baseline**
 * **Số cụm k:** **k = 3**
 * **Tập đặc trưng:** 9 chỉ số chuẩn `B_base` (chuẩn hóa T1).
 * **Gắn nhãn minh bạch:** Ghi chú rõ trên giao diện và tài liệu: *"Mô hình tài chính cơ sở mang tính mô tả, độ ổn định lấy mẫu con đạt ARI 0,50 (chưa đạt ngưỡng tối ưu 0,80)"*.
@@ -203,6 +213,44 @@ Toàn bộ hệ thống dữ liệu tài chính của DELTA đã được hoàn 
 | **Lõi phân cụm tài chính**| `src/delta_t1/experiments/clustering_rework_v2.py` | Xử lý ma trận `financial_snapshots` và hàm fit |
 | **Cấu hình thực nghiệm** | `configs/experiments/clustering_rework_v2.json` | Cấu hình tham số thực nghiệm phân cụm tài chính |
 | **Cấu hình sản phẩm** | `configs/product/indicators_v1.json` | Khóa hash và liên kết file `indicators.sqlite` |
+
+---
+
+## 9. TỔNG HỢP NỘI DUNG ĐƯA VÀO SLIDE BÁO CÁO (SLIDE-READY HIGHLIGHTS)
+
+Dưới đây là phần tóm tắt cô đọng, đóng gói các bảng biểu và thông điệp chính về hệ dữ liệu tài chính để đưa vào slide thuyết trình:
+
+### Slide 1: Bảng đối sánh 4 thuật toán trên Dữ liệu Tài chính (Hệ B)
+
+| Thuật toán | Cấu hình k | Ổn định mẫu con (ARI) | Silhouette Score | Davies–Bouldin | Cân bằng cụm | Kết luận nghiệm thu |
+|---|:---:|:---:|:---:|:---:|:---:|---|
+| **K-Means Baseline** | **k = 3** | **~0,50** | ~0,18 – 0,22 | ~1,65 – 1,80 | Tốt (>= 5%) | **CHỌN LÀM BASELINE MÔ TẢ (B v4)** kèm cảnh báo |
+| **PCA + K-Means** | k = 3 | ~0,48 | ~0,19 – 0,21 | ~1,68 – 1,82 | Tốt (>= 5%) | Trượt cổng ổn định; PCA không cải thiện được độ phân tán |
+| **Ward Hierarchical** | k = 3..8 | < 0,40 | ~0,15 – 0,18 | ~1,85 – 2,10 | Kém (< 5%) | Trượt cổng; nhạy cảm với ngoại lai và lệch cỡ cụm |
+| **GMM (Gaussian)** | k = 3..8 | < 0,35 | ~0,12 – 0,16 | ~2,10 – 2,40 | Kém | Trượt cổng; không hội tụ ổn định trên 9 chiều kế toán |
+
+* **Kết luận chung:** **Không có thuật toán nào đạt ngưỡng nghiên cứu chuẩn (ARI >= 0.80)**. K-Means k=3 đạt kết quả tốt nhất trong 4 phương án (~0,50).
+
+### Slide 2: Bản chất kinh tế học — Tại sao BCTC không đạt ARI >= 0.80?
+
+1. **Độ phân tán liên ngành tự nhiên:** Các doanh nghiệp thuộc các ngành khác nhau (sản xuất công nghiệp, bất động sản, bán lẻ, công nghệ) có mô hình kinh doanh hoàn toàn khác biệt. Tỷ số nợ, vòng quay tài sản hay biên lợi nhuận phân bố rất rộng và không tạo thành các cụm hình cầu tự nhiên.
+2. **Cú sốc kinh tế vĩ mô qua các năm:** Giai đoạn 2017–2025 chứng kiến nhiều biến cố lớn (COVID-19 2020–2021, đóng băng trái phiếu doanh nghiệp và bất động sản 2022–2023, biến động lãi suất). Cấu trúc tài chính của cùng một doanh nghiệp có thể thay đổi đột ngột giữa 2 năm tài chính kế tiếp.
+3. **Tính trung thực khoa học của DELTA:** Dự án kiên quyết tuân thủ nguyên tắc không "nắn chỉnh dữ liệu" (không forward-fill, không điền số 0 giả tạo, không cherry-pick mã tốt). Kết quả ARI ~ 0,50 phản ánh đúng bản chất biến động thực tế của nền kinh tế Việt Nam.
+
+### Slide 3: Giải pháp kiến trúc của DELTA và Ứng dụng thực tiễn cho M3
+
+1. **Phân tách ranh giới rõ ràng:**
+   * Mô hình phân cụm tài chính Hệ B (K-Means k=3) chỉ đóng vai trò **phân cụm mô tả sơ bộ (Descriptive Clustering)**.
+   * Hệ thống hiển thị minh bạch cảnh báo độ ổn định ARI = 0,50 trên giao diện web và tài liệu kỹ thuật.
+2. **Chốt chặn an toàn với Lớp chỉ số sản phẩm (Indicators v1):**
+   * Không dựa duy nhất vào nhãn cụm tài chính để ra quyết định đầu tư.
+   * Xây dựng độc lập hệ thống chỉ số chuẩn hóa thị trường (D-IND-01) với 15 chỉ số cốt lõi và 3 hệ thống điểm chuyên sâu:
+     * **Piotroski F-score:** Sàng lọc chất lượng và đà cải thiện hoạt động (thang điểm 0–9).
+     * **Altman Z-score:** Ngăn ngừa rủi ro kiệt quệ tài chính và phá sản.
+     * **Beneish M-score:** Cảnh báo gian lận và bóp méo số liệu kế toán.
+3. **Chiến lược đầu tư tích hợp tại Milestone M3:**
+   * Candidate Universe = Cụm dẫn dắt thị trường (Hệ A) giao với Cụm dẫn dắt tài chính (Hệ B) sau khi kiểm tra tính khả dụng PIT (`usable_from_date <= decision_date`).
+   * Xếp hạng cuối cùng kết hợp điểm kỹ thuật và điểm cơ bản vững chắc (ROE + F-score + Z-score) để chọn top 30% cổ phiếu tốt nhất thị trường.
 
 ---
 *Báo cáo được trích xuất và xác thực 100% từ mã nguồn và dữ liệu thực nghiệm DELTA Intelligence.*
