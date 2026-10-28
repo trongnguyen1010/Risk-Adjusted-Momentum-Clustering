@@ -47,12 +47,17 @@ Quy trình phân cụm tài chính tập trung vào chuỗi xử lý học máy 
    * *Cắt đuôi ngoại lai (Winsorization):* Cắt đuôi tại phân vị 1% và 99% theo từng năm để triệt tiêu ảnh hưởng của các trường hợp âm vốn chủ sở hữu nặng hoặc tỷ lệ nợ/tài sản đột biến dị biệt.
    * *Chuẩn hóa Z-Score per-snapshot:* Chuẩn hóa trung bình và độ lệch chuẩn độc lập theo từng năm tài chính, không trộn lẫn dữ liệu giữa các năm để bảo đảm nguyên tắc Point-In-Time.
 
-### Bước 2: Huấn luyện và Quét 4 thuật toán phân cụm (Algorithm Training)
+### Bước 2: Khảo sát số cụm k và Huấn luyện 4 thuật toán phân cụm (Algorithm Training)
 Quét đồng thời 4 thuật toán phân cụm trên dải số cụm k từ 3 đến 8 (k = 3, 4, 5, 6, 7, 8) qua 9 năm tài chính (2017–2025), thực hiện độc lập trên cả giai đoạn Development (<= 2023) và toàn kỳ:
-1. **K-Means Baseline:** K-Means++ deterministic, `seed = 42`, `n_init = 10`, `max_iter = 300`.
-2. **PCA + K-Means:** Giảm chiều PCA giữ 80% tổng phương sai giải thích, sau đó fit K-Means (`seed = 42`, `n_init = 10`).
-3. **Ward Hierarchical Clustering:** Phân cụm ngưng tụ phân cấp phương sai tối thiểu (`linkage = 'ward'`).
-4. **Gaussian Mixture Models (GMM):** Mô hình hỗn hợp Gauss đa biến xác suất (`covariance_type = 'full'`, `n_init = 2`, `reg_covar = 0.0001`, `max_iter = 300`).
+1. **Khảo sát số cụm k (k = 3 đến 8):**
+   * *Mức k = 3:* Đạt độ ổn định tương đối cao nhất (ARI ~ 0,50) và là mức k duy nhất duy trì được tính cân bằng cụm (tỷ lệ cụm nhỏ nhất luôn >= 5% số mã qua các năm, không có cụm rác).
+   * *Mức k >= 4:* Độ ổn định suy giảm mạnh (ARI < 0,40); bắt đầu xuất hiện các cụm manh mún dưới 5% số doanh nghiệp do dữ liệu tài chính bị kéo lệch bởi các trường hợp cá biệt.
+   -> **Lựa chọn k = 3** làm số cụm cơ sở cho mô hình phân cụm tài chính.
+2. **Huấn luyện 4 họ thuật toán tại k khảo sát:**
+   * **K-Means Baseline:** K-Means++ deterministic, `seed = 42`, `n_init = 10`, `max_iter = 300`.
+   * **PCA + K-Means:** Giảm chiều PCA giữ 80% tổng phương sai giải thích, sau đó fit K-Means (`seed = 42`, `n_init = 10`).
+   * **Ward Hierarchical Clustering:** Phân cụm ngưng tụ phân cấp phương sai tối thiểu (`linkage = 'ward'`).
+   * **Gaussian Mixture Models (GMM):** Mô hình hỗn hợp Gauss đa biến xác suất (`covariance_type = 'full'`, `n_init = 2`, `reg_covar = 0.0001`, `max_iter = 300`).
 
 ### Bước 3: Đánh giá và So sánh các thuật toán (Comparison Framework)
 1. **Cổng kiểm định độ ổn định (Admissibility Gate):**
