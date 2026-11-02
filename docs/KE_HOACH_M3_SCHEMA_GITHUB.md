@@ -12,126 +12,34 @@
 
 Các decision M3-A đã được owner phê duyệt có ưu tiên cao hơn các proposal hoặc mô tả cũ trong tài liệu.
 
+Từ ngày 02/11/2026, decision queue Q1–Q17 và Q-date được coi là đã khóa về methodology theo nội dung chi tiết tại Mục 3, Mục 13, Mục 17 và Mục 36. Việc methodology đã khóa không đồng nghĩa implementation/input đã READY; các dependency kỹ thuật vẫn phải PASS trước official run.
+
 Các điểm chính hiện hành:
-
-- A v4 là Market model chính thức cho M2/M3; B v4 là Financial model hiện hành; M2 K=2 giữ làm legacy/research control.
+- A v4, k=3, là Market model chính thức; M2 K=2 giữ làm legacy/research control.
+- Financial clustering chính thức cho official M3 là B-PIT; hiện CHƯA READY cho tới khi build + audit + pin hoàn tất.
 - Market và Financial là hai hệ clustering độc lập; M3 chỉ kết hợp ở tầng strategy/portfolio.
-- Combined Candidate Universe sử dụng `Market Eligible Pool ∩ Financial Eligible Pool`.
-- Leading/allowed cluster phải xác định từ profile/semantic theo rule đã khóa; không suy trực tiếp từ numeric label.
-- Financial data phải tuân theo PIT tại `decision_date`; dữ liệu chưa usable không được sử dụng.
-- Execution sử dụng phiên giao dịch hợp lệ kế tiếp; BUY/SELL failure và scaling tuân theo execution contract đã khóa.
-- Development = 60 snapshots `2019-01-31 → 2023-12-29`; Holdout = 24 snapshots `2024-01-31 → 2025-12-31`.
+- Combined Candidate Universe sử dụng Market leading cluster ∩ Financial not-weakest clusters sau các PIT/eligibility gate.
+- ILLIQUID bị loại khỏi traded universe của M3.
+- MC1 = động lượng 6 tháng (mom_126); MC2 = biến động giảm 63 phiên (downside_vol_63, thấp hơn tốt hơn); MC3 = Log của thanh khoản/giá trị giao dịch 21 phiên (log(liquidity_21)).
+- FC1 = ROE; FC2 = Piotroski F-score; FC3 = Z-score; missing một phần → percentile 0.5 + flag, thiếu cả ba → loại khỏi Financial scoring.
+- Combined score = 0.5 × S_market + 0.5 × S_fin; hòa điểm → liquidity_21 cao hơn → ticker A→Z.
+- N_min = 10 cho Combined, Market-only và Financial-only; không áp cho Equal-weight/Momentum-only theo strategy contract hiện tại.
+- Financial runtime PIT: lọc usable_from_date <= decision_date, sau đó chọn max(fiscal_year).
+- FY >= 2022 dùng disclosure date CafeF đã audit; FY < 2022 dùng lag rule phiên đầu tiên sau 30/06 năm t+1; mốc 30/04 chỉ là sensitivity check.
+- Financial staleness: FY t hết hiệu lực khi FY t+1 usable hoặc vượt hard cap 18 tháng sau period_end, điều kiện nào đến trước.
+- Execution sử dụng phiên giao dịch hợp lệ kế tiếp; volume 0 chặn hai chiều; close = ceiling chặn BUY; close = floor chặn SELL.
+- Q17 dùng derived adjusted-price repair cho one-session glitch, không sửa source data.
+- Main return basis = adj_close; VNINDEX là price index và phải disclosure basis mismatch.
+- Secondary price-only = NOT_READY do chưa có corporate-action readiness; không block main adj_close backtest.
+- Main transaction cost = 0, slippage = 0. Cost sensitivity 15/30 bps chuyển sang PHẦN MỞ RỘNG.
+- Segment boundary dùng strict isolation: Target vẫn tạo/lưu nếu decision_date nằm trong segment; nếu execution_date > segment_end thì không execution và không dùng giá ngoài segment.
+- Missing valuation price dùng PRICE_STALE. DELISTED_EXIT là PHẦN MỞ RỘNG, chưa implement.
+- Development = 60 snapshots 2019-01-31 → 2023-12-29; Holdout = 24 snapshots 2024-01-31 → 2025-12-31.
+- Holdout chỉ được coi là sạch đối với portfolio-rule/return-based evaluation; không tuyên bố hoàn toàn unseen đối với toàn bộ upstream model-selection history.
 - VNINDEX là benchmark chính thức.
-- Final Evaluation chỉ dùng dữ liệu sau `2025-12-31` và exact window phải được khóa trước khi xem Final performance.
+- Final Evaluation bắt đầu từ snapshot cuối tháng 01/2026; exact end date phải được khóa sau readiness audit và trước khi xem Final performance. Sharpe chỉ báo cáo ở Final.
 
-Các proposal chưa có owner/mentor decision vẫn giữ trạng thái `OPEN/PROPOSED` và không được tự coi là methodology đã khóa.
-
-Chi tiết decision status xem **Mục 36 — Trạng thái hiện tại**; methodology chi tiết xem các mục tương ứng phía dưới.
-
-## CẬP NHẬT OUTPUT CONTRACT M3-A
-
-M3-A sử dụng bộ output theo kiến trúc GitHub hiện hành làm **canonical output contract**.
-
-Mỗi run được lưu tại:
-
-```text
-data/experiments/m3/<segment>/<run_id>/
-```
-
-Canonical outputs gồm:
-
-```text
-targets_<strategy>.csv
-trade_ledger_<strategy>.csv
-holdings_<strategy>.csv
-turnover_<strategy>.csv
-nav_<strategy>.csv
-benchmark_vnindex.csv
-metrics.json
-manifest.json
-```
-
-Các phép PIT, eligibility, ranking, current-vs-target, valuation và rebalance vẫn được thực hiện trong engine nhưng không nhất thiết persist thành file riêng.
-
-Các extension/semantics hiện hành gồm:
-
-- `holdings_<strategy>.csv` sử dụng schema theo GitHub hiện hành:
-
-```text
-date
-ticker
-weight
-```
-
-- turnover sử dụng:
-
-```text
-(executed BUY + executed SELL)
-/
-(2 × pre_trade_NAV)
-```
-
-với trạng thái:
-
-```text
-OWNER DECISION — PENDING GIT SYNC
-```
-
-- manifest.json phải tuân theo schema GitHub hiện hành và ghi đúng metadata của run.
-- M3-B và M3-C chỉ được dựa vào canonical/sealed outputs.
-
-Schema chi tiết của tám output xem **Mục 16 — Canonical Output Schema**; execution semantics xem **Mục 10**.
-
-## CẬP NHẬT INPUT CONTRACT M3-A
-
-Main M3-A runtime sử dụng sáu logical input artifact theo implementation GitHub hiện hành:
-
-```text
-1. data/web/delta-intelligence-v4/terminal.sqlite
-
-2. data/financial/indicators_v1/results/
-   indicators-2c4a24e3830d325f/indicators.sqlite
-
-3. data/financial/disclosure_dates_v1/
-   availability-4f0f83108e761dae/availability.csv
-
-4. artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/
-   prices_daily.jsonl
-
-5. artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/
-   trading_calendar.jsonl
-
-6. artifacts/cafef_primary/cafef-c8-complete-only-v2/canonical/
-   benchmark_daily.jsonl
-```
-
-Vai trò tổng quát:
-
-```text
-terminal.sqlite
-→ Market/Financial states + market prices
-
-indicators.sqlite
-→ Financial indicators/sector metadata
-
-availability.csv
-→ Financial PIT usable_from_date
-
-prices_daily.jsonl
-→ price-limit/tradability information
-
-trading_calendar.jsonl
-→ valid trading sessions
-
-benchmark_daily.jsonl
-→ VNINDEX benchmark
-```
-
-Các M2 handoff CSV cũ chỉ còn là reference/research control khi strategy/config yêu cầu; chúng không phải main runtime prerequisite của M3-A.
-
-Runtime config không phải dataset input nhưng phải được version/hash và pin trong `manifest.json` trước official run.
-
-Schema, field requirements, PIT semantics và coverage requirements chi tiết xem **Mục 5 — Khung dữ liệu chung**. Điều kiện để M3-A bắt đầu xem **Mục 6**.
+Các decision trên phải được sync vào docs/DECISIONS.md, config và code tương ứng trước official run. Chi tiết trạng thái xem Mục 36 — Trạng thái hiện tại.
 
 ---
 
@@ -192,13 +100,14 @@ Hiện đã có:
 D-DIR-01 — 26/10/2026
 ```
 
-Theo đó:
-
+Theo D-DIR-01 hiện đang có trên Git:
 - A v4 là Market clustering model chính thức cho M2/M3;
-- B v4 là Financial clustering model hiện hành;
+- B v4 được ghi là Financial clustering model hiện hành tại thời điểm 26/10/2026;
 - M2 K=2 được giữ làm legacy/research control;
 - historical artifacts cũ không bị xóa;
 - các giới hạn của model phải được báo cáo minh bạch.
+
+Owner decision ngày 02/11/2026 đã chọn B-PIT cho official M3 để xử lý timing leakage. Decision mới này phải được ghi thành ADR/decision mới trên Git; cho tới khi Git sync, D-DIR-01 vẫn là historical Git record nhưng không được dùng để phủ quyết owner decision mới hơn.
 
 Một nội dung đã được ghi thành owner decision trong `DECISIONS.md` không được tiếp tục trình bày như một câu hỏi chưa chốt trong kế hoạch M3.
 
@@ -220,45 +129,54 @@ Các nội dung trong `M3_PLAN.md` có trạng thái proposal/open không đư�
 
 ## 1.3. `docs/M3_MENTOR_QUESTIONS.md`
 
-Tài liệu này chứa các câu hỏi còn cần mentor/owner quyết định trước official backtest có return.
+Tài liệu này là nguồn của các proposal Q1–Q17/Q-date trước khi owner chốt.
+
+Từ decision ngày 02/11/2026, các proposal được chọn trong decision queue đã trở thành methodology đã khóa theo kế hoạch này. Các câu trả lời/decision vẫn phải được ghi đồng bộ vào `docs/DECISIONS.md`/ADR và config trên Git để repository trở thành authority thực thi.
 
 Phải phân biệt:
 
 ```text
-Proposal
+owner decision đã chốt
 ≠
-Approved decision
+config/code đã sync
+≠
+runtime/input đã READY
 ```
 
-Khi một câu được chốt:
-
-```text
-Mentor/Owner answer
-        ↓
-DECISIONS.md / ADR
-        ↓
-config
-        ↓
-status = LOCKED
-```
-
-Không được lấy phương án đề xuất trong file này làm methodology chính thức khi chưa có decision tương ứng.
+Official backtest chỉ được chạy khi cả decision, implementation/config và readiness gate tương ứng đều PASS.
 
 ## 1.4. `configs/experiments/m3_strategy_v1.json`
 
 Đây là config thực thi của strategy M3.
 
-Config phải phản ánh các decision đã được khóa.
-
-Nếu:
+Decision queue đã được owner khóa về methodology, nhưng config Git hiện tại vẫn cần được sync theo các quyết định mới. Nếu config checkout hiện vẫn có:
 
 ```text
 status = PROPOSED
 ```
 
-thì không được chạy official backtest có return.
+thì đây là implementation/config-sync blocker, không còn là governance blocker.
 
-Chỉ khi:
+Trước official Development/Holdout run, config phải tối thiểu phản ánh:
+
+```text
+market_model = A v4, k=3
+financial_model = B-PIT đã pin
+market_rule = leading
+financial_rule = not_weakest
+n_min = 10
+stale_months = 18
+combined_weight_market = 0.5
+top_share = 0.3
+main price basis = adj_close
+main transaction cost = 0
+main slippage = 0
+segment boundary = strict isolation
+```
+
+Các scenario 15/30 bps không thuộc main config/run hiện tại; chuyển sang phần mở rộng.
+
+Chỉ khi config đã sync, chuyển sang:
 
 ```text
 status = LOCKED
@@ -352,9 +270,9 @@ Nhãn phân cụm tài chính mới nhất đã thực sự có tại ngày t
         ↓
 Căn chỉnh theo thời gian và PIT
         ↓
-Chọn Market cluster dẫn dắt / giá trị cao theo profile
+Chọn Market leading cluster theo profile
         +
-Chọn Financial cluster dẫn dắt / giá trị cao theo profile
+Chọn Financial allowed clusters = tất cả trừ weakest cluster
         ↓
 Market Eligible Pool ∩ Financial Eligible Pool
         ↓
@@ -448,13 +366,13 @@ Bảng này giải thích các khái niệm xuất hiện xuyên suốt M3-A. C�
 | `usable_from_date` | Ngày sớm nhất Financial state của một `fiscal_year` được phép sử dụng trong M3 theo PIT. | Ngày |
 | `selected_fiscal_year` | Năm tài chính được M3 chọn trong số các năm đã thỏa `usable_from_date <= decision_date`; theo implementation hiện tại là `max(usable_financial_years)`. | Năm |
 | `financial_cluster` | Cụm tài chính của ticker tương ứng với `selected_fiscal_year`. | Nhãn cụm |
-| `ILLIQUID` | Trạng thái upstream gắn cho mã có thanh khoản thấp. Rule Git hiện mô tả mã là kém thanh khoản khi trong cửa sổ 63 phiên có **hơn 50% phiên không khớp lệnh hoặc giá trị giao dịch dưới 10 triệu đồng/ngày**. Việc `ILLIQUID` bị loại khỏi strategy universe phải theo decision Q2. | Trạng thái thanh khoản |
-| `traded universe` | Tập ticker cơ sở được phép tham gia bước selection tại `decision_date`. Theo implementation/proposal hiện tại, tập này được tạo từ Market snapshot và loại các ticker `ILLIQUID`. Đây là **selection-time universe**, không có nghĩa một lệnh BUY/SELL chắc chắn thực hiện được tại `execution_date`. | Tập ticker |
+| `ILLIQUID` | Trạng thái upstream gắn cho mã có thanh khoản thấp. Rule Git hiện mô tả mã là kém thanh khoản khi trong cửa sổ 63 phiên có hơn 50% phiên không khớp lệnh hoặc giá trị giao dịch dưới 10 triệu đồng/ngày. Theo decision Q2 đã khóa, ILLIQUID bị loại khỏi traded universe của M3. | Trạng thái thanh khoản |
+| `traded universe` | Tập ticker cơ sở được phép tham gia bước selection tại `decision_date`. Theo decision Q2 đã khóa, tập này được tạo từ Market snapshot và loại các ticker `ILLIQUID`. Đây là selection-time universe, không có nghĩa một lệnh BUY/SELL chắc chắn thực hiện được tại `execution_date`. | Tập ticker |
 | `Market Eligible Pool` | Tập ticker thỏa các điều kiện của nhánh Market, gồm liquidity/eligibility và Market cluster rule tương ứng. | Tập ticker |
 | `Financial Eligible Pool` | Tập ticker có Financial state hợp lệ theo PIT và thỏa các điều kiện Financial eligibility/cluster rule tương ứng. | Tập ticker |
 | `Candidate Universe` | Tập ticker thực tế được một strategy đưa vào bước ranking/selection. Universe này phụ thuộc strategy; ví dụ Combined dùng `Market Eligible Pool ∩ Financial Eligible Pool`. | Tập ticker |
 | `N_candidates` / `candidates` | Số ticker trong Candidate Universe của strategy tại kỳ tương ứng. | Số nguyên |
-| `Target Portfolio` / `target` | Danh mục mà strategy **muốn nắm giữ** sau rebalance, biểu diễn bằng mapping `ticker → target_weight`. | Mapping |
+| `Target Portfolio` / `target` | Danh mục mà strategy muốn nắm giữ sau rebalance, biểu diễn bằng mapping `ticker → target_weight`. | Mapping |
 | `Current Portfolio` | Danh mục thực tế đang được engine nắm giữ trước rebalance của kỳ hiện tại, gồm `cash`, `values[ticker]` và `marks[ticker]`. | State |
 | `Actual Holdings` | Trạng thái danh mục thực tế sau khi các BUY/SELL executable đã được xử lý; có thể khác Target Portfolio do failed trade hoặc scaling. | State / output weight |
 | `tradable(ticker, date, side)` | Kiểm tra tại `execution_date` xem một lệnh BUY hoặc SELL cụ thể có thực hiện được hay không theo price, volume và ceiling/floor rule. Khác với `traded universe`, vốn được dùng ở bước selection tại `decision_date`. | Boolean |
@@ -472,7 +390,6 @@ tradable(...)
 → execution_date
 → một lệnh BUY/SELL cụ thể có thực hiện được hay không
 ```
-
 ---
 
 # 3. CÁC QUY TẮC
@@ -586,93 +503,178 @@ selected_fiscal_year = 2023
 
 Không dùng `period_end` thay cho `usable_from_date` để xác định Financial data đã được phép sử dụng tại `decision_date` hay chưa.
 
+### 3.1.4. Quy tắc xác định usable_from_date của BCTC năm — Q-date
+
+Canonical rule:
+- FY >= 2022: dùng disclosure date CafeF đã audit; usable_from_date là phiên giao dịch hợp lệ đầu tiên sau ngày công bố hợp lệ.
+- FY < 2022: không dùng historical CafeF disclosure date làm canonical; BCTC năm t usable từ phiên giao dịch hợp lệ đầu tiên sau 30/06 năm t+1.
+- Mốc 30/04 chỉ dùng cho sensitivity/robustness check riêng, không thay canonical rule 30/06.
+
+Rule này ưu tiên tránh look-ahead. Với doanh nghiệp có fiscal year khác 31/12, lag rule có thể conservative hơn thực tế nhưng không được tự rút ngắn nếu chưa có authority dataset tốt hơn.
+
+### 3.1.5. Financial clustering PIT — Q3
+
+Official M3 sử dụng B-PIT thay cho việc dùng trực tiếp Financial B centers đã fit bằng toàn bộ báo cáo của fiscal year.
+
+Với fiscal year t:
+
+```text
+cutoff(t) = 30/04/(t+1)
+```
+
+Tại cutoff:
+
+```text
+chỉ dùng report có usable_from_date <= cutoff(t)
+↓
+fit preprocessing/scaling + clustering
+↓
+đóng băng model/centers
+```
+
+Report của cùng fiscal year xuất hiện sau cutoff:
+
+```text
+KHÔNG refit centers
+↓
+transform bằng frozen preprocessing/model
+↓
+assign vào frozen centers
+```
+
+B-PIT giữ cùng feature space, thuật toán, k và scaling methodology của Financial model đã chọn; thay đổi nhằm loại timing leakage ở cấp cluster centers.
+
+B-PIT hiện là **ĐÃ KHÓA — CHỜ BUILD + AUDIT + PIN**. Official Combined/Financial-only backtest phụ thuộc Financial clustering bị **BLOCKED** cho tới khi B-PIT artifact/version/hash và PIT audit PASS.
+
+Financial runtime PIT ở mỗi decision_date vẫn là:
+
+```text
+usable_from_date <= decision_date
+↓
+lọc fiscal_year đã usable
+↓
+selected_fiscal_year = max(fiscal_year)
+```
+
+B-PIT quyết định cluster state được xây như thế nào; runtime PIT quyết định fiscal year nào được phép sử dụng tại decision_date.
+
 ---
 
-## 3.2. Quy tắc về độ cũ của dữ liệu tài chính (Financial Staleness — CHỜ QUYẾT ĐỊNH)
+## 3.2. Quy tắc về độ cũ của dữ liệu tài chính (Financial Staleness — Q10)
 
-Một nhãn tài chính không được mặc định có hiệu lực vô hạn.
+Canonical parameter:
 
-Proposal hiện tại trên Git:
-- stale_months = 18
-- FY t không được sử dụng quá 18 tháng sau period_end
-- proposal này hiện có trong config nhưng chưa phải quyết định LOCKED.
+```text
+stale_months = 18
+```
 
-Runtime official phải đọc giá trị từ config đã khóa,
-không hard-code 18 tháng trong implementation.
+Financial state của fiscal year t hết hiệu lực khi xảy ra điều kiện nào đến trước:
+1. fiscal year t+1 đã trở nên usable tại `decision_date`; hoặc
+2. Financial state của FY t đã vượt hard cap 18 tháng kể từ `period_end`.
+
+Nếu vượt hard cap:
+
+```text
+FINANCIAL_STALE
+→ Financial ineligible
+```
+
+Official runtime phải đọc `stale_months = 18` từ config đã khóa; không giữ một giá trị hard-code khác config trong implementation.
 
 ---
 
 ## 3.3. Quy tắc thanh khoản / ILLIQUID — Q2
 
-Một mã được upstream gắn trạng thái:
+Một mã được upstream gắn trạng thái `ILLIQUID` theo liquidity rule hiện hành khi trong cửa sổ 63 phiên có hơn 50% phiên không khớp lệnh hoặc giá trị giao dịch dưới 10 triệu đồng/ngày.
+
+Decision Q2 đã khóa:
 
 ```text
 ILLIQUID
+→ loại khỏi traded universe của M3
+→ reason = MARKET_ILLIQUID
 ```
 
-theo liquidity rule hiện hành.
+Do traded universe là universe cơ sở của các strategy, `ILLIQUID` không tham gia selection của:
+- Combined
+- Market-only
+- Financial-only
+- Equal-weight
+- Momentum-only
 
-ILLIQUID trực tiếp ảnh hưởng đến Market Eligible Pool.
-
-Do đó, nếu Q2 được khóa theo proposal hiện hành:
-
-```text
-Combined
-→ Market leg sử dụng Market Eligible Pool
-→ ILLIQUID không thuộc Market Eligible Pool
-
-Market-only
-→ sử dụng Market Eligible Pool
-→ ILLIQUID không thuộc Market Eligible Pool
-```
-
-Tuy nhiên không được tự suy rằng cùng Market eligibility filter phải được áp cho tất cả strategy.
-
-Đối với:
+Cần phân biệt:
 
 ```text
-Financial-only
-Equal-weight
-Momentum-only
-```
-
-universe phải tuân theo definition riêng của strategy:
-
-```text
-Financial-only
-→ Financial Eligible Pool ∩ traded universe
-
-Equal-weight
-→ traded universe
-
-Momentum-only
-→ traded universe ∩ mom_126 hợp lệ
-```
-
-Do đó:
-
-```text
-Market Eligible Pool
+ILLIQUID
 ≠
-traded universe
+không có cluster label
 ```
+
+Ticker có thể vẫn có label kỹ thuật từ upstream nhưng không đủ điều kiện tham gia M3 traded universe.
+
+Market Eligible Pool và traded universe vẫn là hai khái niệm khác nhau: Market Eligible còn áp thêm Market cluster rule; traded universe là universe cơ sở đã loại `ILLIQUID`.
 
 ---
 
 ## 3.4. Quy tắc eligibility theo từng strategy
 
-Các strategy M3 không bắt buộc sử dụng cùng một eligibility universe.
+Các strategy M3 không bắt buộc sử dụng cùng một eligibility universe. Mỗi strategy dùng đúng universe của strategy contract.
 
-Mỗi strategy sử dụng đúng universe được định nghĩa trong strategy contract.
+### 3.4.1. Allowed-cluster rule chính thức — Q5
 
-### 3.4.1. Combined
+**Market branch**
+Market chỉ chấp nhận leading cluster tại snapshot tương ứng.
 
-Combined yêu cầu cả hai nhánh:
+Selector:
+- primary: `median(mom_126)` cao nhất
+- nếu hòa: `median(mdd_126)` cao hơn → drawdown nông hơn
+
+Không suy leading cluster từ numeric label. Nếu selector không xác định được duy nhất theo profile/tie rule đã khóa:
+
+```text
+CLUSTER_PROFILE_AMBIGUOUS
+→ fail closed
+```
+
+**Financial branch**
+Financial clusters được order theo:
+- primary: `median(ROE)` cao hơn
+- nếu hòa: `median(debt_to_equity)` thấp hơn
+
+Canonical Q5 dùng Va:
+
+```text
+Market
+→ chỉ leading cluster
+
+Financial
+→ chấp nhận mọi cluster TRỪ weakest cluster
+```
+
+Tức:
+
+```text
+market_rule = leading
+financial_rule = not_weakest
+```
+
+Không còn dùng Market strongest ∩ Financial strongest làm canonical Combined rule.
+
+### 3.4.2. Combined
 
 ```text
 Market Eligible Pool
-+
+=
+traded universe
+∩ Market leading cluster
+
 Financial Eligible Pool
+=
+Financial PIT-safe state
+∩ not stale
+∩ B-PIT supported
+∩ Financial cluster != weakest cluster
+∩ Financial data-quality/coverage requirements
 ```
 
 Candidate Universe:
@@ -685,54 +687,18 @@ Market Eligible Pool
 Financial Eligible Pool
 ```
 
-Financial Eligible Pool phải tuân theo:
+Candidate Universe được tạo trước khi tính MC/FC ranking.
 
-- Financial PIT;
-- Financial availability;
-- Financial staleness nếu rule đã khóa;
-- Financial B coverage;
-- Financial data-quality requirements;
-- Financial cluster/selection rule tương ứng.
+### 3.4.3. Market-only
 
-Nếu Financial B không hỗ trợ:
-
-```text
-Bank
-Securities
-Insurance
-```
-
-thì các mã thuộc nhóm đó không thể vào Combined trong cấu hình yêu cầu Financial B.
-
-### 3.4.2. Market-only
-
-Market-only sử dụng:
-
-```text
-Market Eligible Pool
-```
-
-Market-only không yêu cầu:
-
-- Financial B label;
-- Financial PIT state;
-- Financial staleness;
-- Financial sector coverage;
-- ROE;
-- F-score;
-- Z-score;
-- Financial ranking.
-
-Do đó Bank / Securities / Insurance vẫn có thể tham gia Market-only nếu thỏa Market eligibility.
+Market-only sử dụng: `Market Eligible Pool` và không yêu cầu Financial B-PIT label, Financial PIT state, Financial staleness, Financial sector coverage hoặc Financial indicators.
 
 Luồng:
 
 ```text
-Market snapshot
+traded universe
 ↓
-Market eligibility
-↓
-Market allowed/leading cluster
+Market leading cluster
 ↓
 Market ranking
 ↓
@@ -741,7 +707,7 @@ Top 30%
 Equal weight
 ```
 
-### 3.4.3. Financial-only
+### 3.4.4. Financial-only
 
 Financial-only sử dụng:
 
@@ -751,20 +717,16 @@ Financial Eligible Pool
 traded universe
 ```
 
-Financial-only yêu cầu Financial PIT và Financial state hợp lệ.
-
-Market leading cluster không được dùng làm điều kiện chọn mã.
+Không yêu cầu ticker nằm trong Market leading cluster và không dùng MC1–MC3 để ranking.
 
 Luồng:
 
 ```text
 traded universe
 +
-Financial PIT-safe state
+Financial PIT-safe/B-PIT state
 ↓
-Financial eligibility
-↓
-Financial allowed cluster
+Financial not-weakest eligibility
 ↓
 Financial ranking
 ↓
@@ -773,92 +735,53 @@ Top 30%
 Equal weight
 ```
 
-Nếu một sector không có Financial B state cần thiết thì sector đó không thể tham gia Financial-only theo definition này.
+### 3.4.5. Equal-weight
 
-### 3.4.4. Equal-weight
+Equal-weight sử dụng toàn bộ: `traded universe`.
 
-Equal-weight sử dụng:
+Không dùng Market/Financial cluster eligibility, Financial PIT hoặc ranking; không chọn top 30%.
 
-```text
-traded universe
-```
-
-Không yêu cầu:
-
-- Financial B coverage;
-- Financial PIT;
-- Financial eligibility;
-- Market leading cluster;
-- Financial leading cluster;
-- Market ranking;
-- Financial ranking.
-
-Luồng:
-
-```text
-traded universe
-↓
-lấy toàn bộ ticker hợp lệ
-↓
-Equal weight
-```
-
-Không chọn top 30%.
-
-Bank / Securities / Insurance không bị loại chỉ vì không có Financial B.
-
-### 3.4.5. Momentum-only
+### 3.4.6. Momentum-only
 
 Momentum-only sử dụng:
 
 ```text
 traded universe
-∩
-mom_126 hợp lệ
+∩ mom_126 hợp lệ
 ```
 
-Luồng:
+Rank `mom_126` giảm dần, chọn top 30%, equal weight. Không dùng Financial branch.
 
-```text
-traded universe
-↓
-loại mã không có mom_126 hợp lệ
-↓
-rank mom_126 giảm dần
-↓
-Top 30%
-↓
-Equal weight
-```
+### 3.4.7. Nguyên tắc sector coverage — Q4
 
-Không yêu cầu Financial B coverage hoặc Financial PIT.
+Do Financial B/B-PIT hiện không có coverage phù hợp cho:
+- Bank
+- Securities
+- Insurance
 
-Bank / Securities / Insurance không bị loại chỉ vì không có Financial B.
-
-### 3.4.6. Nguyên tắc sector coverage
-
-Khi Financial B không hỗ trợ Bank / Securities / Insurance:
+Xử lý canonical:
 
 ```text
 Combined
-→ không thể sử dụng mã đó nếu Financial B là requirement
+→ loại nếu không có Financial B-PIT state
+→ reason = FINANCIAL_SECTOR_NO_B
 
 Financial-only
-→ không thể sử dụng mã đó nếu không có Financial state cần thiết
+→ không thể sử dụng nếu Financial state bắt buộc không tồn tại
 
 Market-only
-→ không bị loại chỉ vì thiếu Financial B
+→ không bị loại chỉ vì thiếu Financial B-PIT
 
 Equal-weight
-→ không bị loại chỉ vì thiếu Financial B
+→ không bị loại chỉ vì thiếu Financial B-PIT
 
 Momentum-only
-→ không bị loại chỉ vì thiếu Financial B
+→ không bị loại chỉ vì thiếu Financial B-PIT
 ```
 
-Financial coverage không được dùng để thu hẹp Market-only, Equal-weight hoặc Momentum-only.
+Phải báo cáo tỷ lệ ticker bị loại bởi `FINANCIAL_SECTOR_NO_B` theo kỳ cho Combined.
 
-### 3.4.7. Nguyên tắc tổng quát
+### 3.4.8. Nguyên tắc tổng quát
 
 ```text
 decision_date
@@ -879,31 +802,25 @@ decision_date
           → traded universe ∩ mom_126 available
 ```
 
+Financial coverage không được dùng để thu hẹp Market-only, Equal-weight hoặc Momentum-only.
+
 ---
 
 ## 3.5. Sáu tiêu chí chọn mã và xếp hạng kết hợp
 
-Các giá trị cụ thể của Q7–Q9 hiện vẫn thuộc decision queue.
-
-Config hiện tại có:
-
-```text
-status = PROPOSED
-```
-
-Các criterion và rule dưới đây mô tả proposal/implementation hiện tại.
+Q7–Q9 đã được owner khóa. Các criterion dưới đây là official methodology.
 
 ### 3.5.1. Ba tiêu chí thị trường — Q7
 
 ```text
 MC1 = mom_126
-→ higher is better
+→ Động lượng giá khoảng 126 phiên, higher is better
 
 MC2 = downside_vol_63
-→ lower is better
+→ Biến động giảm 63 phiên, lower is better
 
-MC3 = liquidity_21
-→ higher is better
+MC3 = log(liquidity_21)
+→ Log của thanh khoản / giá trị giao dịch 21 phiên, higher is better
 ```
 
 Các giá trị được lấy từ Market snapshot tại `decision_date`.
@@ -912,13 +829,13 @@ Các giá trị được lấy từ Market snapshot tại `decision_date`.
 
 ```text
 FC1 = ROE
-→ higher is better
+→ Khả năng sinh lời trên vốn chủ sở hữu, higher is better
 
 FC2 = F-score
-→ higher is better
+→ Điểm sức khỏe tài chính 0–9, higher is better
 
 FC3 = Z-score
-→ higher is better
+→ Chỉ báo an toàn/rủi ro tài chính, higher is better
 ```
 
 Financial criteria của ticker được lấy theo:
@@ -936,82 +853,58 @@ Nếu thiếu một hoặc một phần FC1–FC3:
 ```text
 missing criterion
 → percentile trung tính = 0.5
-→ ghi missing flag
+→ flag = FC_MISSING
 ```
-
-Nếu toàn bộ:
-
-```text
-ROE
-F-score
-Z-score
-```
-
-đều thiếu:
-
-```text
-ticker bị loại khỏi Financial scoring result
-```
-
 Không biến missing thành 0.
 
-### 3.5.4. Tiêu chuẩn mô tả tiêu chí
+Nếu cả ba đều thiếu:
 
-| Trường | Ý nghĩa |
-|---|---|
-| `criterion_id` | mã criterion, ví dụ `MC1`–`MC3`, `FC1`–`FC3` |
-| `name` | tên criterion |
-| `description` | criterion đo điều gì |
-| `formula` | công thức chính xác |
-| `source_fields` | các field đầu vào |
-| `source_artifact` | artifact nguồn |
-| `direction` | `higher` / `lower is better` |
-| `missing_rule` | cách xử lý missing |
-| `tie_rule` | cách xử lý hòa |
+```text
+ROE missing
+AND F-score missing
+AND Z-score missing
+→ FINANCIAL_CRITERIA_MISSING
+→ loại khỏi Financial scoring
+```
+
+Ticker này không thể đi tiếp ở strategy cần Financial scoring tại kỳ đó.
 
 ### 3.5.5. Hai kết quả xếp hạng riêng
 
-Market:
+Market score:
 
 ```text
-MC1 + MC2 + MC3
-↓
-percentile theo từng criterion
-↓
 S_market
+=
+mean(
+  percentile(MC1),
+  percentile(MC2),
+  percentile(MC3)
+)
 ```
 
-Financial:
+Financial score:
 
 ```text
-FC1 + FC2 + FC3
-↓
-percentile theo từng criterion
-↓
-áp missing rule
-↓
 S_fin
+=
+mean(
+  percentile(FC1),
+  percentile(FC2),
+  percentile(FC3)
+)
 ```
 
-Đối với one-sided strategy:
+sau khi áp missing rule 0.5.
+
+One-sided strategy:
 
 ```text
-Market-only
-→ score = S_market
-
-Financial-only
-→ score = S_fin
+Market-only    → score = S_market
+Financial-only → score = S_fin
 ```
 
 ### 3.5.6. Quy tắc xếp hạng Combined — Q9
-
-Config hiện tại sử dụng:
-
-```text
-combined_weight_market = 0.5
-```
-
-nên:
 
 ```text
 Combined Score
@@ -1021,7 +914,7 @@ Combined Score
 0.5 × S_fin
 ```
 
-Tie-break hiện tại:
+Tie-break:
 
 ```text
 Combined Score cao hơn
@@ -1031,13 +924,13 @@ liquidity_21 cao hơn
 ticker A → Z
 ```
 
-Các rule Q7–Q9 chỉ trở thành official methodology khi decision tương ứng được khóa và config chuyển sang:
+Sau ranking:
 
 ```text
-status = LOCKED
+n_select = ceil(0.30 × N_candidates)
 ```
 
-Khi config còn `PROPOSED`, chúng có thể được dùng trong `--targets-only` để audit universe, ranking và picks.
+Chọn đúng `n_select`; không mở rộng số lượng chỉ vì score ở cutoff bằng nhau. Các ticker được chọn nhận equal weight theo Mục 3.6.
 
 ---
 
@@ -1110,122 +1003,67 @@ Equal-weight
 
 ## 3.7. Quy tắc ngưỡng quy mô danh mục tối thiểu (`UNIVERSE_TOO_SMALL` — Q6)
 
-Q6 hiện vẫn thuộc **decision queue** và chưa được coi là official methodology đã khóa.
-
-Config/code Git hiện tại đang hiện thực proposal:
+Q6 đã khóa:
 
 ```text
 n_min = 10
 ```
 
-Proposal này hiện áp dụng cho các strategy đi qua `_finish()`:
+Áp dụng cho:
+- Combined
+- Market-only
+- Financial-only
 
-- `Combined`
-- `Market-only`
-- `Financial-only`
-
-Hiện **không áp dụng** cho:
-
-- `Equal-weight`
-- `Momentum-only`
-
-vì hai strategy này không đi qua `_finish()` trong implementation hiện tại.
+Không áp dụng cho:
+- Equal-weight
+- Momentum-only
 
 ### Khi Candidate Universe quá nhỏ
 
-Nếu Q6 được khóa theo proposal hiện hành và:
+Nếu:
 
 ```text
-N_candidates < n_min
+N_candidates < 10
 ```
 
-thì strategy:
-
-- không tạo Target Portfolio mới theo ranking;
-- không mở vị thế mới.
-
-Cơ chế hiện tại:
+thì strategy không mở vị thế mới.
 
 ```text
-mã đang nắm
-+
-vẫn còn trong Candidate Universe
+mã đang nắm + vẫn còn trong Candidate Universe
 → HOLD
-```
 
-```text
-mã đang nắm
-+
-đã rời Candidate Universe
+mã đang nắm + đã rời Candidate Universe
 → SELL
-```
 
-```text
-candidate mới
-+
-chưa nắm giữ
+candidate mới + chưa nắm giữ
 → không BUY
 ```
 
-Tiền thu được từ các lệnh SELL thực hiện thành công được giữ ở:
-
-```text
-CASH
-```
-
-và **không được phân bổ lại cho candidate mới**.
+Tiền thu được từ SELL thành công giữ ở CASH, không phân bổ cho candidate mới.
 
 ### Trường hợp kỳ đầu tiên
 
-Nếu ngay tại kỳ đầu tiên:
+Nếu ngay kỳ đầu:
 
 ```text
-N_candidates < n_min
+N_candidates < 10
 ```
 
-thì strategy giữ:
+thì giữ:
 
 ```text
 100% CASH
 ```
 
-cho đến kỳ đầu tiên mà Candidate Universe đủ điều kiện theo Q6.
+cho tới kỳ đầu tiên `N_candidates >= 10`.
 
-### Lý do của proposal
-
-Candidate Universe quá nhỏ có thể khiến danh mục:
-
-- tập trung vào quá ít cổ phiếu;
-- thiếu khả năng phân tán rủi ro;
-- và làm kết quả bị chi phối quá mạnh bởi một số lượng rất nhỏ ticker.
-
-### Trạng thái governance hiện tại
-
-Khi config vẫn là:
+Status audit:
 
 ```text
-status = PROPOSED
+UNIVERSE_TOO_SMALL
 ```
 
-logic Q6 có thể được sử dụng trong:
-
-```text
---targets-only
-```
-
-để audit:
-
-- `candidate count`;
-- trạng thái `UNIVERSE_TOO_SMALL`;
-- hành vi hiện tại của implementation.
-
-Tuy nhiên, kết quả này **không được diễn giải là Q6 đã được owner/mentor khóa**.
-
-Official Development/Holdout backtest chỉ được sử dụng Q6 sau khi decision tương ứng được khóa và config chuyển sang:
-
-```text
-status = LOCKED
-```
+Lý do: tránh danh mục bị chi phối bởi một số lượng ticker quá nhỏ và duy trì minimum diversification gate đã khóa.
 
 ---
 
@@ -1258,38 +1096,114 @@ Nếu vì `SELL_FAILED` mà Cash thực có không đủ cho các lệnh BUY cò
   ```
 - Không dùng margin, không thay mã, không đổi ranking.
 
+### 3.8.6. Tradability / ceiling-floor — Q12
+
+Tại `execution_date`, một lệnh chỉ executable khi có execution price hợp lệ, volume > 0 và không vi phạm ceiling/floor rule.
+
+```text
+volume = 0
+→ BUY_FAILED
+→ SELL_FAILED
+
+raw_close = ceiling
+→ BUY_FAILED
+
+raw_close = floor
+→ SELL_FAILED
+```
+
+Không có đủ order-book/dư mua-dư bán nên M3 không giả định lệnh vẫn khớp khi đóng cửa ở giá trần/sàn.
+
+Ceiling/floor được kiểm tra trên raw market price của đúng phiên; portfolio valuation/return basis vẫn theo Q11.
+
 ---
 
 ## 3.9. Quy tắc kết thúc segment/run (Đề xuất)
 
-Quy tắc này xác định cách M3 xử lý điểm cuối của một segment/run và phân biệt với trường hợp hệ thống đang được cập nhật liên tục.
+Quy tắc này xác định cách M3 xử lý điểm cuối của một segment/run và tránh sử dụng execution, valuation hoặc dữ liệu giá ngoài phạm vi segment.
 
-### A. Segment/run hữu hạn
+### A. Target tại boundary
 
-Một segment/run hữu hạn phải có `segment_end_date` được xác định trước.
+`segment_end_date` là **ngày biên kết thúc theo lịch của một segment backtest**, dùng để giới hạn phạm vi thời gian mà segment đó được phép sử dụng cho execution, valuation và dữ liệu giá.
 
-Không được coi snapshot mới nhất hiện có là snapshot cuối chỉ vì chưa có dữ liệu của kỳ tiếp theo.
+`segment_end_date` không phải là decision_date cuối cùng; decision cuối cùng có thể xảy ra trước ngày này.
 
-Khi runner đã tới điểm kết thúc của run:
+Cần phân biệt:
 
 ```text
-Actual Holdings đang tồn tại
-↓
-không mở rebalance mới nếu execution/valuation
-sẽ vượt segment_end_date
-↓
-giữ danh mục tới end_date
-↓
-revalue tại end_date
-↓
-PRICE_STALE nếu thiếu giá
-↓
-tính NAV cuối segment
-↓
-kết thúc run
+last_decision_date
+= decision_date cuối cùng của segment
+= ngày cuối cùng strategy được phép tạo Target Portfolio
+
+segment_end_date
+= ngày biên kết thúc của toàn segment
+= giới hạn thời gian tối đa mà execution, valuation
+  và dữ liệu giá được phép thuộc về segment đó
 ```
 
-Trong đó:
+Do đó:
+
+```text
+last_decision_date
+không mặc định bằng
+segment_end_date
+```
+
+Decision snapshot cuối cùng có thể xảy ra trước `segment_end_date`.
+
+Ví dụ, nếu một segment có:
+
+```text
+last_decision_date = 29/12
+segment_end_date   = 31/12
+```
+
+thì Target Portfolio vẫn được tạo tại decision ngày 29/12. Tuy nhiên, nếu phiên giao dịch hợp lệ kế tiếp để thực hiện Target đó nằm sau ngày 31/12 thì execution đã vượt ra ngoài segment và không được phép thực hiện.
+
+Về mặt runtime, nếu:
+
+```text
+decision_date <= segment_end_date
+```
+
+thì Bước 1 vẫn được chạy đầy đủ:
+
+```text
+Candidate Universe
+→ score/ranking
+→ Target Portfolio
+→ lưu targets_<strategy>.csv
+```
+
+Việc một Target được tạo trong segment không có nghĩa Target đó chắc chắn được thực thi trong cùng segment.
+
+Sau khi Target được tạo, engine phải kiểm tra `execution_date`.
+
+Nếu:
+
+```text
+execution_date > segment_end_date
+```
+
+thì Target vẫn được lưu để phục vụ audit và reproducibility, nhưng không được thực thi:
+
+```text
+status = NOT_EXECUTED_SEGMENT_END
+
+→ không đưa vào execution schedule
+→ không chạy Bước 2
+→ không BUY
+→ không SELL
+→ không tạo turnover
+→ không thay đổi Actual Holdings
+→ không sử dụng price nằm sau segment_end_date
+```
+
+Quy tắc này nhằm bảo đảm một decision được tạo sát cuối segment không khiến backtest sử dụng execution price hoặc dữ liệu giá thuộc segment kế tiếp.
+
+### B. Segment/run hữu hạn
+
+Một segment hữu hạn phải có `segment_end_date` xác định trước.
 
 ```text
 end_date
@@ -1297,83 +1211,66 @@ end_date
   không vượt segment_end_date
 ```
 
+Actual Holdings đang tồn tại được giữ tới `end_date`, revalue tại `end_date`, dùng `PRICE_STALE` nếu thiếu giá và chốt NAV cuối segment.
+
 Tại `end_date`:
+- không mở rebalance mới
+- không BUY
+- không SELL
+- không sử dụng dữ liệu giá sau `segment_end_date`
 
-```text
-không mở rebalance mới
-không tính delta_weight mới
-không BUY
-không SELL
-không sử dụng dữ liệu giá sau segment_end_date
-```
+### C. Rolling/live update chưa có ngày kết thúc
 
-### B. Rolling/live update chưa có ngày kết thúc
-
-Nếu chưa có `segment_end_date`, snapshot mới nhất hiện tại không được coi là snapshot cuối.
-
-Runner tiếp tục xử lý bình thường:
-
-```text
-snapshot mới
-↓
-Bước 1 tạo Target
-↓
-lưu Target/state
-↓
-chờ execution_date
-↓
-tiếp tục chu trình ở kỳ sau
-```
-
-Do đó, việc chưa có snapshot tháng tiếp theo không được tự động kích hoạt logic kết thúc run.
+Nếu chưa có `segment_end_date`, snapshot mới nhất hiện tại không tự động được coi là snapshot cuối. Target vẫn được tạo/lưu và chờ execution theo chu trình bình thường.
 
 ---
 
-# 4. CÁC QUYẾT ĐỊNH ĐÃ KHÓA VÀ CÒN MỞ
+# 4. CÁC QUYẾT ĐỊNH ĐÃ KHÓA VÀ DEPENDENCY CÒN MỞ
 
 | Hạng mục | Trạng thái |
-|---|---|
+| :--- | :--- |
 | Chỉ mua, không bán khống | ĐÃ KHÓA |
 | Không dùng đòn bẩy | ĐÃ KHÓA |
-| Thị trường và tài chính phân cụm riêng | ĐÃ DUYỆT |
-| Kết hợp ở bước ra quyết định danh mục, không phân cụm lại đặc trưng thô | ĐÃ DUYỆT |
-| Market model authority: A v4, k=3, là mô hình Market chính thức cho M2/M3; M2 K=2 giữ làm legacy/control | ĐÃ KHÓA — D-DIR-01 ngày 26/10/2026 |
-| Market cluster: chọn cluster dẫn dắt / giá trị cao theo profile/semantic, không theo số label | ĐÃ DUYỆT 24/10/2026 |
-| Financial cluster: chọn cluster dẫn dắt / giá trị cao theo profile/semantic, không theo số label | ĐÃ DUYỆT 24/10/2026 |
-| Exact leading-cluster selector: field/profile criterion dùng để chọn Market/Financial leading cluster, tie rule và ambiguity handling | CHỜ MENTOR/OWNER |
-| Financial PIT: lọc các `fiscal_year` có `usable_from_date <= decision_date`, sau đó chọn `max(fiscal_year)` | OWNER DECISION — PENDING GIT SYNC |
-| Candidate Universe = Market Eligible Pool ∩ Financial Eligible Pool | ĐÃ DUYỆT 24/10/2026 |
-| Có 3 tiêu chí thị trường | ĐÃ DUYỆT VỀ CẤU TRÚC; EXACT Q7 CHỜ CHỐT |
-| Có 3 tiêu chí tài chính khác 3 tiêu chí thị trường | ĐÃ DUYỆT VỀ CẤU TRÚC; EXACT Q8 CHỜ CHỐT |
-| Missing một phần Financial criteria → percentile 0.5 + flag; thiếu toàn bộ → loại khỏi Financial scoring | PROPOSED Q8 / IMPLEMENTED |
-| Chọn 30% sau khi đã có Candidate Universe đối với strategy có top-selection | ĐÃ DUYỆT |
-| 30% làm tròn lên | ĐÃ KHÓA |
-| Trọng số bằng nhau | ĐÃ KHÓA |
+| Thị trường và tài chính phân cụm riêng | ĐÃ KHÓA |
+| Kết hợp ở tầng strategy/portfolio, không phân cụm lại đặc trưng thô | ĐÃ KHÓA |
+| Q1: Market model = A v4, k=3; M2 K=2 giữ legacy/research control | ĐÃ KHÓA |
+| Q2: ILLIQUID loại khỏi traded universe | ĐÃ KHÓA |
+| Q3: Financial clustering chính thức = B-PIT | ĐÃ KHÓA — CHỜ BUILD/AUDIT/PIN |
+| Q4: Bank/CK/Bảo hiểm không vào Combined nếu không có Financial B-PIT state; vẫn có thể vào Market-only/Equal-weight/Momentum-only | ĐÃ KHÓA |
+| Q5: Market = leading cluster; Financial = not-weakest; Combined dùng Va | ĐÃ KHÓA |
+| Q6: N_min = 10 cho Combined/Market-only/Financial-only | ĐÃ KHÓA |
+| Q7: MC1 = mom_126; MC2 = downside_vol_63; MC3 = log(liquidity_21) | ĐÃ KHÓA |
+| Q8: FC1 = ROE; FC2 = F-score; FC3 = Z-score; partial missing → 0.5 + flag; all missing → loại | ĐÃ KHÓA |
+| Q9: 0.5 × S_market + 0.5 × S_fin; tie → liquidity cao hơn → ticker A→Z | ĐÃ KHÓA |
+| Financial PIT runtime: usable_from_date <= decision_date rồi chọn max(fiscal_year) | ĐÃ KHÓA |
+| Q-date: FY>=2022 dùng CafeF disclosure; FY<2022 dùng lag sau 30/06 t+1; 30/04 sensitivity | ĐÃ KHÓA |
+| Q10: Financial staleness = FY kế tiếp usable hoặc hard cap 18 tháng sau period_end | ĐÃ KHÓA |
+| Chọn top 30%, làm tròn lên, equal weight | ĐÃ KHÓA |
 | Tái cân bằng hàng tháng | ĐÃ KHÓA |
 | Giao dịch ở giá đóng cửa phiên hợp lệ kế tiếp | ĐÃ KHÓA |
-| Execution boundary cuối segment: Target vẫn tạo và lưu; nếu `execution_date > segment_end` thì không đưa vào execution schedule, không chạy Bước 2 | ĐỀ XUẤT |
-| BUY_FAILED: phần vốn dự kiến mua tiếp tục ở Cash, không thay mã/không chia lại | ĐÃ KHÓA |
-| SELL_FAILED: mã vẫn nằm trong holdings và không tạo Cash | ĐÃ KHÓA |
-| SELL_FAILED làm thiếu Cash cho BUY: scale toàn bộ BUY còn lại theo `execution_scale` | ĐÃ DUYỆT 24/10/2026 |
-| Missing-price/SELL_FAILED theo engine GitHub: price thiếu khi valuation → stale mark; price thiếu/non-tradable khi SELL → SELL_FAILED; không bắt buộc external verification gate | ĐÃ ĐƯỢC CHỦ DỰ ÁN CHỌN 26/10/2026 |
-| Output canonical M3-A dùng bộ `targets/trade_ledger/holdings/turnover/nav/benchmark/metrics/manifest` theo GitHub | ĐÃ ĐƯỢC CHỦ DỰ ÁN CHỌN 26/10/2026 |
+| Q12: volume 0 chặn hai chiều; close=ceiling chặn BUY; close=floor chặn SELL | ĐÃ KHÓA |
+| BUY_FAILED giữ vốn ở Cash; không thay mã/không chia lại | ĐÃ KHÓA |
+| SELL_FAILED giữ position và không tạo Cash | ĐÃ KHÓA |
+| SELL_FAILED gây thiếu Cash → proportional scaling toàn bộ BUY còn lại | ĐÃ KHÓA |
+| Segment boundary: Target vẫn tạo/lưu; execution_date > segment_end → NOT_EXECUTED_SEGMENT_END, không execution | ĐỀ XUẤT |
+| Missing valuation price → PRICE_STALE stale mark semantics | ĐÃ KHÓA |
+| DELISTED_EXIT | PHẦN MỞ RỘNG — CHƯA IMPLEMENT |
+| Q11 main return basis = adj_close adjusted-return proxy | ĐÃ KHÓA |
+| Secondary price-only | NOT_READY — CHƯA CÓ CORPORATE-ACTION READINESS — KHÔNG BLOCK MAIN |
 | Lợi suất tiền mặt = 0 | ĐÃ KHÓA |
-| Chi phí giao dịch chính = 0 | ĐÃ KHÓA |
-| Trượt giá chính = 0 | ĐÃ KHÓA |
-| Historical schedule/coverage = 84 snapshots: Development 2019–2023, Holdout 2024–2025; runtime Market input đọc từ `terminal.sqlite` theo GitHub | ĐÃ DUYỆT 24/10/2026 |
-| Benchmark chính thức: VNINDEX | ĐÃ DUYỆT |
-| Sharpe chỉ tính trên Final Evaluation để báo cáo cuối | ĐÃ DUYỆT 24/10/2026 |
-| Final Evaluation dùng dữ liệu sau 31/12/2025 nếu pass readiness + unseen-status audit | ĐÃ KHÓA NGUYÊN TẮC |
-| Công thức MC1..MC3 | CHỜ Q7 / MENTOR |
-| Công thức FC1..FC3 và final missing rule | CHỜ Q8 / MENTOR |
-| Cách gộp hai nhánh thành thứ hạng cuối + tie rule | CHỜ Q9 |
-| Quy tắc về độ cũ của dữ liệu tài chính | CHỜ Q10 |
-| Return basis cho security/portfolio/VNINDEX | CHỜ Q11 |
-| Turnover = `(executed_buy_value + executed_sell_value) / (2 × pre_trade_NAV)` | OWNER DECISION — PENDING GIT SYNC |
-| Financial clustering handoff và coverage đủ cho Combined | CHỜ UPSTREAM / Q3 |
-| Exact start/end của Final Evaluation | CHỜ DATA READINESS + UNSEEN AUDIT |
-| Q17: Adjusted-price one-session glitch handling | CHỜ OWNER/MENTOR |
-| Quy tắc xác định usable_from_date cho BCTC năm: FY >= 2022 dùng ngày công bố CafeF; FY < 2022 dùng lag rule 30/06 năm t+1 | CHỜ OWNER/MENTOR |
+| Main transaction cost = 0 | ĐÃ KHÓA |
+| Main slippage = 0 | ĐÃ KHÓA |
+| Cost sensitivity 15/30 bps | PHẦN MỞ RỘNG |
+| Q13 one-way turnover = (executed BUY + executed SELL)/(2 × pre_trade_NAV) | ĐÃ KHÓA — CHỜ GIT SYNC NẾU CẦN |
+| Q14 benchmark = VNINDEX; controls = Market-only, Financial-only, Equal-weight, Momentum-only, M2 K=2 | ĐÃ KHÓA — CONTROL IMPLEMENTATION PHẢI SYNC |
+| Q15 Holdout sạch về portfolio-rule/return-based evaluation nhưng không tuyên bố hoàn toàn unseen về upstream model selection | ĐÃ KHÓA |
+| Q16 Final bắt đầu từ snapshot cuối 01/2026; exact end khóa sau readiness audit trước khi xem performance | ĐÃ KHÓA NGUYÊN TẮC — EXACT END CHỜ READINESS |
+| Q17 adjusted-price one-session glitch → derived repair + flag, source immutable | ĐÃ KHÓA / IMPLEMENTED — GIỮ TEST |
+| Historical schedule = Development 2019–2023, Holdout 2024–2025 | ĐÃ KHÓA |
+| Sharpe chỉ báo cáo ở Final Evaluation | ĐÃ KHÓA |
+| Canonical outputs = targets/ledger/holdings/turnover/nav/benchmark/metrics/manifest | ĐÃ KHÓA |
+
+Các mục CHỜ còn lại sau bảng này chỉ được phép là readiness/implementation dependency, không phải methodology decision chưa chốt.
 
 ---
 
@@ -1436,6 +1333,80 @@ volume
 
 Vai trò cụ thể của raw/adjusted price đối với return phải tuân theo return-basis decision đã khóa.
 
+### Adjusted-price one-session glitch handling — Q17
+
+Trước khi `adj_close` được sử dụng trong `PriceBook`/runtime, M3 áp dụng detector/repair Q17 cho lỗi giá điều chỉnh lệch đúng một phiên.
+
+Với mỗi ticker, xét tỷ lệ:
+
+```text
+adj_close / raw_close
+```
+
+của ba phiên liên tiếp: phiên trước, phiên hiện tại và phiên kế tiếp.
+
+Phiên hiện tại được coi là **one-session adjusted-price glitch** khi đồng thời thỏa:
+
+```text
+| ratio_current / ratio_previous - 1 | > 3%
+```
+
+và:
+
+```text
+| ratio_next / ratio_previous - 1 | < 0.5%
+```
+
+Trong đó:
+
+```text
+ratio
+=
+adj_close / raw_close
+```
+
+Nếu thỏa điều kiện trên, `adj_close` của phiên hiện tại không được dùng trực tiếp. Thay vào đó, runtime tạo giá điều chỉnh đã repair:
+
+```text
+repaired_adj_close
+=
+raw_close_current
+×
+(adj_close_next / raw_close_next)
+```
+
+và gắn cờ:
+
+```text
+ADJ_GLITCH_REPAIRED
+```
+
+Nguyên tắc xử lý:
+
+```text
+source artifact
+→ không sửa
+
+raw_close nguồn
+→ không sửa
+
+adj_close nguồn
+→ không overwrite
+
+repair
+→ chỉ tạo derived/runtime adjusted price
+```
+
+`PriceBook` sử dụng `repaired_adj_close` thay cho `adj_close` gốc tại đúng phiên bị phát hiện glitch.
+
+Detector/repair phải deterministic và auditable; cùng một input và cùng version code phải tạo cùng kết quả repair.
+
+Q17 không được dùng để tùy ý làm mượt giá hoặc sửa các biến động lớn thông thường. Chỉ những phiên thỏa chính xác detector nêu trên mới được gắn:
+
+```text
+ADJ_GLITCH_REPAIRED
+```
+
 ### B. C8 canonical Market artifacts
 
 ```text
@@ -1467,19 +1438,36 @@ Các file này không được tự dùng thay thế lẫn nhau nếu semantic k
 
 M3-A sử dụng ba thành phần Financial chính.
 
-### A. Financial B state
+### A. Financial B-PIT state
 
-Financial observations nằm trong:
+Official Combined/Financial-only backtest sử dụng Financial clustering state từ B-PIT đã build/audit/version/hash/pin.
+
+Current B v4 state có thể làm source/reference để xây B-PIT nhưng không đủ để chạy official Financial-dependent backtest nếu B-PIT chưa READY.
+
+B-PIT phải bảo đảm:
 
 ```text
-data/web/delta-intelligence-v4/terminal.sqlite
+cutoff FY t = 30/04/(t+1)
+chỉ các báo cáo đã đủ điều kiện sử dụng tại cutoff
+→ được dùng để khớp mô hình và xác định tâm cụm cố định
+
+các báo cáo của cùng FY xuất hiện sau cutoff
+→ chỉ được gán vào các tâm cụm đã đóng băng
+
+báo cáo xuất hiện trong tương lai
+→ không được dùng để khớp lại hoặc làm thay đổi
+   các tâm cụm lịch sử
 ```
 
-và cung cấp Financial state/cluster theo fiscal year.
+Trạng thái hiện tại:
 
-M3-A không fit lại Financial B trong quá trình backtest.
+```text
+B-PIT = NOT_READY
+```
 
-Financial state được sử dụng phải tuân theo Financial PIT tại `decision_date`.
+cho tới khi build + PIT audit + pin PASS.
+
+M3-A không refit B-PIT trong backtest; nó đọc upstream B-PIT state đã pin và sau đó áp Financial runtime PIT tại `decision_date`.
 
 ### B. Financial indicators
 
@@ -1504,7 +1492,7 @@ sector_group
 
 khi strategy/eligibility rule yêu cầu.
 
-Theo Q8 proposal hiện tại:
+Theo Q8 đã khóa:
 
 ```text
 missing một hoặc một phần Financial criteria
@@ -1659,7 +1647,7 @@ M3-A không chạy lại:
 
 ```text
 Market A clustering
-Financial B clustering
+Financial B-PIT clustering
 ```
 
 trong backtest.
@@ -1739,41 +1727,48 @@ Ghi chú:
 
 | Bước | Biến / trường | Ý nghĩa | Đơn vị / dạng |
 | :---: | :--- | :--- | :--- |
-| 1 | `usable_financial_years` | Tập các năm tài chính thỏa `usable_from_date <= decision_date`. | Tập năm |
-| 1 | `MC1`, `MC2`, `MC3` | Ba tiêu chí thị trường dùng để ranking theo config/decision tương ứng. | Theo contract |
-| 1 | `FC1`, `FC2`, `FC3` | Ba tiêu chí tài chính dùng để ranking theo config/decision tương ứng. | Theo contract |
+| 1 | `usable_financial_years` | Tập các năm tài chính thỏa usable_from_date <= decision_date. | Tập năm |
+| 1 | `MC1 / mom_126` | Động lượng 6 tháng; higher is better. | Feature / percentile |
+| 1 | `MC2 / downside_vol_63` | Biến động giảm 63 phiên; lower is better. | Feature / percentile |
+| 1 | `MC3 / liquidity_21` | Thanh khoản/GTGD 21 phiên; higher is better. | Feature / percentile |
+| 1 | `FC1 / ROE` | Return on Equity; higher is better. | Indicator / percentile |
+| 1 | `FC2 / F-score` | Piotroski F-score 0–9; higher is better. | Indicator / percentile |
+| 1 | `FC3 / Z-score` | Chỉ báo an toàn/rủi ro tài chính; higher is better. | Indicator / percentile |
+| 1 | `S_market` | Trung bình percentile của MC1–MC3. | 0–1 |
+| 1 | `S_fin` | Trung bình percentile của FC1–FC3 sau missing rule. | 0–1 |
+| 1 | `combined_score` | 0.5 × S_market + 0.5 × S_fin. | 0–1 |
+| 1 | `n_min` | Minimum candidate gate = 10 cho Combined/Market-only/Financial-only. | Số nguyên |
 | 1 | `rank` | Thứ hạng ticker theo ranking rule của strategy. | Số nguyên |
-| 1 | `n_select` | Số mã được chọn đối với strategy có top-selection: `ceil(0.30 × N_candidates)`. | Số nguyên |
+| 1 | `n_select` | Số mã được chọn đối với strategy có top-selection: ceil(0.30 × N_candidates). | Số nguyên |
 | 1 | `target_weight` | Tỷ trọng mục tiêu của ticker trong Target Portfolio. | Tỷ lệ 0–1 |
-| 1 | `status` trong targets | Trạng thái tạo Target Portfolio, ví dụ trạng thái bình thường hoặc `UNIVERSE_TOO_SMALL`. | Chuỗi |
-| 1–4 | `segment_end_date` | Biên kết thúc của segment/run dùng để kiểm soát execution/valuation theo segment-boundary rule đã khóa. | Ngày |
-| 2–4 | `pf` / `Portfolio` | Object danh mục được engine giữ xuyên suốt các kỳ. | Object |
+| 1 | `status trong targets` | Trạng thái Target, gồm normal/`UNIVERSE_TOO_SMALL`/`NOT_EXECUTED_SEGMENT_END` khi phù hợp. | Chuỗi |
+| 1–4 | `segment_end_date` | Ngày biên kết thúc theo lịch của một evaluation segment/run; được xác định độc lập với decision_date và decision snapshot cuối cùng, đồng thời là giới hạn thời gian tối đa được phép dùng cho execution, valuation và dữ liệu giá. Không mặc định bằng decision snapshot cuối cùng. | Ngày |
+| 2–4 | `pf / Portfolio` | Object danh mục được engine giữ xuyên suốt các kỳ. | Object |
 | 2–4 | `cash` | Giá trị tiền mặt hiện có trong Portfolio. | Value space |
 | 2–4 | `values[ticker]` | Giá trị phần vốn hiện đang nắm giữ ở ticker trong internal Portfolio state. | Value space |
 | 2–4 | `marks[ticker]` | Giá gần nhất được dùng để định giá ticker. | Giá |
 | 2 | `current_price` | Giá ticker tại thời điểm revalue/execution theo price basis được sử dụng. | Giá |
-| 2 | `price(ticker, date)` | Hàm trả price được sử dụng cho valuation/execution tại một ngày. | Giá hoặc `None` |
-| 2 | `PRICE_STALE` | Trạng thái khi thiếu giá mới để revalue; engine giữ `values[ticker]` và `marks[ticker]` theo stale-mark semantics. | Cờ |
-| 2 | `pre_trade_NAV` / `nav` | NAV sau khi revalue Current Portfolio nhưng trước rebalance. | Value space |
-| 2 | `pre_weight` | Tỷ trọng ticker trước giao dịch; đối với cổ phiếu: `values[ticker] / pre_trade_NAV`. | Tỷ lệ 0–1 |
-| 2 | `delta_weight` / `d` | Chênh lệch giữa tỷ trọng mục tiêu và tỷ trọng trước giao dịch: `target_weight - pre_weight`. | Tỷ lệ |
-| 2 | `side` | Hướng hành động được sinh từ `delta_weight`: BUY, SELL hoặc HOLD. | Chuỗi |
+| 2 | `price(ticker, date)` | Hàm trả price được sử dụng cho valuation/execution tại một ngày. | Giá hoặc None |
+| 2 | `PRICE_STALE` | Trạng thái khi thiếu giá mới để revalue; engine giữ values[ticker] và marks[ticker] theo stale-mark semantics. | Cờ |
+| 2 | `pre_trade_NAV / nav` | NAV sau khi revalue Current Portfolio nhưng trước rebalance. | Value space |
+| 2 | `pre_weight` | Tỷ trọng ticker trước giao dịch; đối với cổ phiếu: values[ticker] / pre_trade_NAV. | Tỷ lệ 0–1 |
+| 2 | `delta_weight / d` | Chênh lệch giữa tỷ trọng mục tiêu và tỷ trọng trước giao dịch: target_weight - pre_weight. | Tỷ lệ |
+| 2 | `side` | Hướng hành động được sinh từ delta_weight: BUY, SELL hoặc HOLD. | Chuỗi |
 | 2 | `intended` | Giá trị giao dịch mà engine dự kiến thực hiện trước khi xét failed trade/scaling. | Value space |
 | 2 | `available_cash` | Cash thực tế có thể sử dụng cho BUY sau khi xử lý SELL. | Value space |
-| 2 | `required_buy_cash` / `required` | Tổng giá trị `intended` của các BUY có khả năng thực thi trước scaling. | Value space |
-| 2 | `execution_scale` / `scale` | Hệ số thu nhỏ đồng đều các BUY khi Cash không đủ; tối đa bằng 1. | Tỷ lệ 0–1 |
+| 2 | `required_buy_cash / required` | Tổng giá trị intended của các BUY có khả năng thực thi trước scaling. | Value space |
+| 2 | `execution_scale / scale` | Hệ số thu nhỏ đồng đều các BUY khi Cash không đủ; tối đa bằng 1. | Tỷ lệ 0–1 |
 | 2 | `executed` | Giá trị giao dịch thực tế được thực hiện sau tradability check và scaling. | Value space |
-| 2 | `status` trong ledger | Trạng thái execution của row, gồm `EXECUTED`, `BUY_FAILED`, `SELL_FAILED`, `SCALED`, `HOLD`. | Chuỗi |
+| 2 | `status trong ledger` | Trạng thái execution của row, gồm EXECUTED, BUY_FAILED, SELL_FAILED, SCALED, HOLD. | Chuỗi |
 | 2 | `traded` | Tổng giá trị BUY và SELL thực sự được executed tại kỳ. | Value space |
-| 2 | `turnover` | One-way turnover theo contract hiện tại: `traded / (2 × pre_trade_NAV)`. | Tỷ lệ |
-| 2 | `weight` | Tỷ trọng output từ `pf.weights()`; cổ phiếu = `values[ticker] / NAV`, CASH = `cash / NAV`. | Tỷ lệ 0–1 |
+| 2 | `turnover` | One-way turnover theo contract hiện tại: traded / (2 × pre_trade_NAV). | Tỷ lệ |
+| 2 | `weight` | Tỷ trọng output từ pf.weights(); cổ phiếu = values[ticker] / NAV, CASH = cash / NAV. | Tỷ lệ 0–1 |
 | 3 | `nav` | Giá trị toàn bộ Portfolio tại các valuation date được engine ghi nhận. | Value space |
-| 3 | `stale` | Danh sách các cặp `(date, ticker)` gặp `PRICE_STALE`. | Danh sách |
+| 3 | `stale` | Danh sách các cặp (date, ticker) gặp PRICE_STALE. | Danh sách |
 | 3 | `end_date` | Ngày dùng để chốt valuation/NAV cuối segment theo segment-end rule đã khóa. | Ngày |
-| 4 | `schedule` | Chuỗi các kỳ `(decision_date, execution_date, target)` mà engine xử lý lần lượt. | Danh sách |
+| 4 | `schedule` | Chuỗi các kỳ (decision_date, execution_date, target) mà engine xử lý lần lượt. | Danh sách |
 | 4 | `goal` | Target Portfolio thực tế được engine sử dụng cho kỳ rebalance hiện tại. | Dict |
-| 4 | `Target Portfolio mới` | Target được Bước 1 tính lại tại `decision_date` của kỳ kế tiếp; không carry Target cũ sang kỳ mới. | State |
-
+| 4 | `Target Portfolio mới` | Target được Bước 1 tính lại tại decision_date của kỳ kế tiếp; không carry Target cũ sang kỳ mới. | State |
 ---
 
 # 8. TỔNG QUAN NHIỆM VỤ NẰM TRONG 4 BƯỚC
@@ -1962,22 +1957,6 @@ Financial-only
 ```
 
 có sử dụng Financial state, nên ticker phải đáp ứng các yêu cầu tài chính được quy định cho từng strategy.
-
-### Trạng thái quyết định hiện tại
-
-Config trên Git hiện vẫn ở trạng thái:
-
-```text id="fzyp70"
-status = PROPOSED
-```
-
-nghĩa là các rule đang ở **trạng thái đề xuất**, chưa được coi là methodology chính thức đã khóa.
-
-Các rule chỉ được sử dụng cho official Development/Holdout backtest sau khi các decision liên quan được chốt và config chuyển sang:
-
-```text id="55v7vl"
-status = LOCKED
-```
 
 ---
 
@@ -2314,17 +2293,10 @@ Tại `execution_date`, cập nhật lại giá trị của từng mã đang n�
 
 ```text
 nếu current_price hợp lệ:
-
-    values[ticker]
-    *=
-    current_price / marks[ticker]
-
-    marks[ticker]
-    =
-    current_price
+    values[ticker] *= current_price / marks[ticker]
+    marks[ticker] = current_price
 
 nếu current_price is None:
-
     values[ticker] giữ nguyên
     marks[ticker] giữ nguyên
     ghi nhận PRICE_STALE
@@ -2456,21 +2428,34 @@ executed
 
 ## 10.5. Kiểm tra executability và thực hiện rebalance
 
-### 10.5.1. Điều kiện executable
+### 10.5.1. Điều kiện executable — Q12
 
-Một BUY hoặc SELL executable khi:
+Một BUY hoặc SELL chỉ executable khi:
 
 ```text
-tradable(ticker, execution_date, side) = True
-AND
 price(ticker, execution_date) is not None
+AND
+volume > 0
+AND
+ceiling/floor rule PASS
 ```
 
-Theo PriceBook hiện hành, tradability kiểm tra:
-1. có adjusted price hợp lệ;
-2. volume > 0;
-3. BUY không ở/tại trên giá trần;
-4. SELL không ở/tại dưới giá sàn.
+Canonical tradability:
+
+```text
+volume = 0
+→ BUY_FAILED và SELL_FAILED
+
+raw_close = ceiling
+→ BUY_FAILED
+
+raw_close = floor
+→ SELL_FAILED
+```
+
+Không có đủ order-book/dư mua-dư bán nên không giả định lệnh vẫn khớp tại giá trần/sàn.
+
+Ceiling/floor được xác định từ C8 raw market information của đúng ticker/phiên. Execution/valuation price basis của portfolio vẫn theo Q11 adj_close.
 
 ### 10.5.2. Thực hiện SELL trước
 
@@ -2487,21 +2472,13 @@ intended_sell_value
 Nếu executable:
 
 ```text
-values[ticker]
--=
-intended_sell_value
+values[ticker] -= intended_sell_value
 
-cash
-+=
-intended_sell_value
+cash += intended_sell_value
 
-executed
-=
-intended_sell_value
+executed = intended_sell_value
 
-status
-=
-EXECUTED
+status = EXECUTED
 ```
 
 Nếu sau SELL:
@@ -2570,10 +2547,7 @@ BUY_FAILED:
 Chỉ BUY executable mới được tính vào:
 
 ```text
-required_buy_cash
-=
-Σ intended_buy_value
-của các BUY executable
+required_buy_cash = Σ intended_buy_value của các BUY executable
 ```
 
 ### 10.5.5. Proportional scaling
@@ -2599,20 +2573,13 @@ required_buy_cash > available_cash
 thì:
 
 ```text
-execution_scale
-=
-available_cash / required_buy_cash
+execution_scale = available_cash / required_buy_cash
 ```
 
 Tổng quát:
 
 ```text
-execution_scale
-=
-min(
-    1,
-    available_cash / required_buy_cash
-)
+execution_scale = min(1, available_cash / required_buy_cash)
 ```
 
 Tất cả BUY executable dùng cùng một execution_scale.
@@ -2801,13 +2768,9 @@ turnover
 Công thức:
 
 ```text
-traded
-=
-executed_buy_value + executed_sell_value
+traded = executed_buy_value + executed_sell_value
 
-turnover
-=
-traded / (2 × pre_trade_NAV)
+turnover = traded / (2 × pre_trade_NAV)
 ```
 
 Đây là one-way turnover theo owner decision hiện hành.
@@ -2934,6 +2897,26 @@ không SELL
 ```
 
 `end_date` chỉ dùng để chốt giá trị cuối danh mục.
+
+## 11.5. Delisting — phần mở rộng
+
+Main M3 không suy `missing price → delisted`. Runtime hiện dùng `PRICE_STALE` khi không có valuation price mới.
+
+```text
+DELISTED_EXIT
+= FUTURE EXTENSION
+= CHƯA IMPLEMENT
+```
+
+Chỉ xem xét `DELISTED_EXIT` sau khi có PIT-safe historical security-status/delisting contract tối thiểu gồm:
+- `event_type`
+- `available_at`
+- `announcement_date`
+- `last_trading_date`
+- `effective_date`
+- `source` / provenance
+
+Không được retroactively giả định đã biết phiên cuối chỉ vì ticker biến mất khỏi dữ liệu giá.
 
 ---
 
@@ -3360,7 +3343,8 @@ N_candidates = 11
 
 ## 1.3. Combined Ranking
 
-Do công thức MC1–MC3, FC1–FC3 và Combined Ranking vẫn phải được khóa riêng, ví dụ này không tự đặt công thức.
+Ví dụ sau sử dụng công thức MC1–MC3, FC1–FC3
+và Combined Ranking đã khóa tại Mục 3.
 
 Giả sử sau khi chạy rule chính thức, kết quả ranking là:
 
@@ -6436,9 +6420,37 @@ VNINDEX là benchmark chính thức hiện hành. Market-only, Financial-only, E
 
 VNINDEX phải được căn đúng các evaluation/execution dates của từng segment, không tạo gap legacy và không dùng ngày tương lai để thay cho quan sát thiếu.
 
-## 17.3. Return basis
+## 17.3. Return basis — Q11
 
-Q11 vẫn phải được khóa/certify. Nếu main portfolio dùng adjusted total-return proxy trong khi VNINDEX là price index thì báo cáo phải ghi rõ basis mismatch và, nếu proposal được duyệt, có secondary price-only scenario.
+Main canonical M3 sử dụng:
+
+```text
+price basis = adj_close
+transaction cost = 0
+slippage = 0
+cash return = 0
+```
+
+`adj_close` được mô tả là adjusted total-return proxy theo input hiện hành.
+
+VNINDEX là price index. Do đó mọi bảng/biểu so sánh phải ghi rõ basis mismatch; không mô tả hai chuỗi là hoàn toàn tương đương về return basis.
+
+### Secondary price-only
+
+Secondary price-only scenario được giữ như một validation/sensitivity concept nhưng hiện:
+
+```text
+SECONDARY_PRICE_ONLY = NOT_READY
+```
+
+Lý do: project hiện chưa có corporate-action dataset/readiness đủ để tái dựng canonical price-only series một cách reproducible.
+
+Do đó:
+- không chạy price-only
+- không tự coi `raw_close` là canonical price-only
+- không block main `adj_close` backtest
+
+Khi sau này có corporate-action readiness, price-only phải mở qua readiness gate riêng.
 
 ## 17.4. Metrics
 
@@ -6492,14 +6504,6 @@ Sharpe chỉ ở Final Evaluation.
 Kịch bản chính có transaction cost = 0 và slippage = 0,
 do đó gross return và net return của base scenario là tương đương.
 
-Nếu chạy cost-sensitivity scenario, báo cáo phải phân biệt rõ:
-- gross return trước chi phí;
-- transaction cost / slippage;
-- net return sau chi phí.
-
-Cost-sensitivity chỉ là secondary reporting;
-không overwrite base scenario và không được dùng để tune strategy.
-
 ---
 
 # 19. CHECKLIST TOÀN BỘ M3-A THEO 4 BƯỚC
@@ -6508,12 +6512,26 @@ không overwrite base scenario và không được dùng để tune strategy.
 
 ```text
 [ ] Market input/version/hash validated
+[ ] B-PIT built + audited + pinned
 [ ] Financial input/version/hash validated
-[ ] PIT rule frozen
-[ ] Candidate rule frozen
-[ ] MC1–MC3 frozen
-[ ] FC1–FC3 frozen
-[ ] Combined ranking/tie frozen
+[ ] Financial runtime PIT = usable filter → max(fiscal_year) frozen
+[ ] Q-date availability rule frozen
+[ ] Financial stale_months = 18 frozen
+[ ] ILLIQUID exclusion frozen
+[ ] Market leading selector = median mom_126; tie median mdd_126 frozen
+[ ] Financial allowed clusters = not_weakest; order ROE then D/E frozen
+[ ] MC1 = mom_126 / động lượng 6 tháng frozen
+[ ] MC2 = downside_vol_63 / biến động giảm 63 phiên frozen
+[ ] MC3 = liquidity_21 / thanh khoản 21 phiên frozen
+[ ] FC1 = ROE frozen
+[ ] FC2 = F-score frozen
+[ ] FC3 = Z-score frozen
+[ ] Financial missing rule 0.5 + all-missing exclusion frozen
+[ ] S_market formula frozen
+[ ] S_fin formula frozen
+[ ] Combined = 0.5 × S_market + 0.5 × S_fin frozen
+[ ] tie = liquidity_21 desc → ticker asc frozen
+[ ] n_min = 10 frozen
 [ ] targets_<strategy>.csv created
 ```
 
@@ -6521,14 +6539,18 @@ không overwrite base scenario và không được dùng để tune strategy.
 
 ```text
 [ ] execution_date > decision_date
-[ ] execution_date phải nằm trong boundary của segment hiện tại
+[ ] execution_date phải nằm trong boundary của segment để được execution
+[ ] Target boundary vẫn persist với NOT_EXECUTED_SEGMENT_END
 [ ] Current Portfolio revalued
 [ ] Current-vs-Target calculated
 [ ] SELL executed before BUY
-[ ] missing price/non-tradable classified by GitHub semantics
+[ ] volume=0 blocks BUY+SELL
+[ ] raw_close=ceiling blocks BUY
+[ ] raw_close=floor blocks SELL
 [ ] BUY_FAILED / SELL_FAILED / SCALED handled
+[ ] Q17 adjusted-price repair test PASS
 [ ] trade_ledger_<strategy>.csv created
-[ ] holdings_<strategy>.csv có đúng schema date + ticker + weight
+[ ] holdings_<strategy>.csv đúng schema date + ticker + weight
 [ ] CASH được biểu diễn như một row trong holdings
 [ ] turnover_<strategy>.csv uses / (2 × pre_trade_NAV)
 ```
@@ -6537,11 +6559,12 @@ không overwrite base scenario và không được dùng để tune strategy.
 
 ```text
 [ ] portfolio state carried, not reset
-[ ] missing valuation price uses stale mark
+[ ] missing valuation price uses PRICE_STALE / stale mark
+[ ] không suy missing price thành delisting
 [ ] price_stale counted
 [ ] NAV revalued at next execution/end date
 [ ] nav_<strategy>.csv created
-[ ] valuation_end_date phải nằm trong boundary của segment hiện tại
+[ ] valuation_end_date không vượt segment_end
 ```
 
 ## Bước 4 — Tái cân bằng
@@ -6556,9 +6579,23 @@ không overwrite base scenario và không được dùng để tune strategy.
 ## Segment boundary validation
 
 ```text
+[ ] decision_date trong segment vẫn tạo/lưu Target
+[ ] execution_date > segment_end → NOT_EXECUTED_SEGMENT_END
+[ ] boundary Target không tạo trade/turnover/holding change
 [ ] Development không sử dụng execution/valuation price sau 31/12/2023
 [ ] Holdout không sử dụng execution/valuation price sau 31/12/2025
 [ ] segment trước không sử dụng dữ liệu giá của segment kế tiếp để hoàn tất return
+```
+
+## Return/benchmark validation
+```
+[ ] main price basis = adj_close
+[ ] VNINDEX documented as price index
+[ ] basis mismatch disclosed
+[ ] secondary price-only = NOT_READY và không block main
+[ ] main transaction cost = 0
+[ ] main slippage = 0
+[ ] cost sensitivity không nằm trong main run
 ```
 
 ## Reproducibility
@@ -6567,6 +6604,7 @@ không overwrite base scenario và không được dùng để tune strategy.
 [ ] benchmark_vnindex.csv created
 [ ] metrics.json created
 [ ] manifest.json được tạo đúng schema GitHub hiện hành
+[ ] config = LOCKED và hash pinned trước official run
 ```
 
 ---
@@ -6865,8 +6903,6 @@ Báo cáo không được:
 
 # 30. HƯỚNG DẪN TÁI LẬP
 
-Tài liệu `HUONG_DAN_THUC_HIEN_M3.md` phục vụ yêu cầu **tái lập và kiểm chứng được kết quả M3**.
-
 Mục tiêu là để một người mới có thể đi từ:
 
 ```text
@@ -6978,7 +7014,7 @@ Phải DỪNG nếu xảy ra ít nhất một trường hợp:
 - Market/Financial/PIT input chưa đạt readiness;
 - code commit không xác định được;
 - config cần cho official backtest chưa ở trạng thái `LOCKED`;
-- decision ảnh hưởng Candidate/Ranking/Execution/Return chưa được khóa;
+- owner decision đã khóa nhưng ADR/config/code tương ứng chưa được sync hoặc không khớp decision;
 - canonical backtest artifact chưa tồn tại hoặc chưa được verify;
 - notebook tái lập không khớp canonical output mà chưa giải thích được;
 - VNINDEX không có đúng segment/window;
@@ -7119,13 +7155,16 @@ Hướng dẫn phải xác định loại run trước khi kiểm tra output.
 
 Mục này chỉ quy định **thứ tự thực hiện**. Chi tiết methodology, input contract, output contract và execution semantics được định nghĩa tại các mục tương ứng phía trên và không lặp lại tại đây.
 
-## Giai đoạn 0 — Khóa decision queue và config
+## Giai đoạn 0 — Sync decision đã khóa vào Git/config
 
-Trước official backtest có return:
+Decision queue Q1–Q17/Q-date đã được owner khóa về methodology.
 
-- resolve toàn bộ decision còn ảnh hưởng Candidate Universe, Ranking, Target Portfolio, Execution, Return và Benchmark;
-- ghi quyết định vào decision record/ADR;
-- cập nhật config;
+Trước official backtest có return còn phải:
+- ghi decision vào `docs/DECISIONS.md`/ADR;
+- cập nhật plan/config/code theo các rule đã khóa;
+- build/audit/pin B-PIT;
+- sync strict segment boundary;
+- sync Q14 controls nếu implementation còn thiếu;
 - chuyển `status = LOCKED`;
 - pin config hash.
 
@@ -7149,6 +7188,7 @@ Trước official run phải bảo đảm:
 
 - canonical output contract đã sẵn sàng;
 - `holdings_<strategy>.csv` được tạo đúng schema GitHub hiện hành:
+  
   ```text
   date
   ticker
@@ -7359,108 +7399,42 @@ Mục này chỉ theo dõi trạng thái decision/dependency.
 
 Không định nghĩa methodology mới.
 
-## 36.1. Đã khóa / đã có owner decision
+## 36.1. Methodology đã khóa / đã có owner decision
 
-Market và Financial là hai hệ clustering độc lập.
+- Market và Financial là hai hệ clustering độc lập.
+- Q1: A v4, k=3, là Market model chính thức; M2 K=2 giữ legacy/research control.
+- Q2: ILLIQUID bị loại khỏi traded universe.
+- Q3: Financial clustering chính thức = B-PIT.
+- Q4: Financial sectors không có B-PIT coverage không vào Combined/Financial-only; không làm thu hẹp Market-only/Equal-weight/Momentum-only.
+- Q5: Market = leading cluster; Financial = not-weakest; Combined dùng Va.
+- Q6: N_min = 10 cho Combined/Market-only/Financial-only.
+- Q7: MC1 mom_126; MC2 downside_vol_63; MC3 log(liquidity_21).
+- Q8: FC1 ROE; FC2 F-score; FC3 Z-score; partial missing → 0.5 + flag; all missing → exclude.
+- Q9: Combined = 0.5 × S_market + 0.5 × S_fin; tie → liquidity → ticker.
+- Financial runtime PIT = usable filter → max(fiscal_year).
+- Q-date: FY>=2022 CafeF disclosure; FY<2022 lag sau 30/06 t+1; 30/04 sensitivity.
+- Q10: stale = next FY usable hoặc 18 tháng sau period_end.
+- Long-only, no leverage, monthly rebalance.
+- Top share = 30%, ceil(0.30 × N), equal weight.
+- Q11: main return basis = adj_close; VNINDEX = price index; price-only NOT_READY không block main.
+- Q12: volume0 blocks both; ceiling blocks BUY; floor blocks SELL.
+- BUY_FAILED/SELL_FAILED/scaling contract đã khóa.
+- Q13: one-way turnover = (executed BUY + executed SELL)/(2 × pre_trade_NAV).
+- Q14: VNINDEX benchmark; research controls = Market-only, Financial-only, Equal-weight, Momentum-only, M2 K=2.
+- Q15: Holdout sạch về portfolio-rule/return-based evaluation, không tuyên bố hoàn toàn unseen về upstream model-selection history.
+- Q16: Final bắt đầu từ snapshot cuối 01/2026; exact end khóa sau readiness trước performance; Sharpe chỉ ở Final.
+- Q17: adjusted-price one-session glitch dùng derived repair + flag; source immutable.
+- Strict segment isolation: Target boundary vẫn lưu; execution vượt segment_end bị chặn.
+- Missing valuation price dùng PRICE_STALE.
+- Main cost/slippage = 0.
+- Canonical outputs = targets/ledger/holdings/turnover/nav/benchmark/metrics/manifest.
 
-A v4 là Market clustering model chính thức cho M2/M3 theo D-DIR-01 ngày 26/10/2026.
-
-B v4 là Financial clustering model hiện hành; giới hạn của B phải được báo cáo.
-
-M2 K=2 giữ làm legacy/research control.
-
-Long-only.
-
-Không leverage.
-
-Monthly rebalance.
-
-Top share = 30% đối với strategy có top-selection.
-
-Số mã được chọn dùng:
-
-```text
-ceil(0.30 × N)
-```
-
-Target Portfolio dùng equal weight sau selection.
-
-Execution dùng phiên hợp lệ kế tiếp sau `decision_date`.
-
-BUY_FAILED không chọn mã thay thế; phần vốn tương ứng ở Cash.
-
-SELL_FAILED không tạo Cash; position chưa bán vẫn được giữ.
-
-Missing valuation price sử dụng stale-mark semantics hiện hành.
-
-Turnover:
-
-```text
-(executed BUY + executed SELL)
-/
-(2 × pre_trade_NAV)
-```
-
-Trạng thái:
-
-```text
-OWNER DECISION — PENDING GIT SYNC
-```
-
-Canonical outputs:
-
-```text
-targets
-trade_ledger
-holdings
-turnover
-nav
-benchmark_vnindex
-metrics
-manifest
-```
-
-`holdings_<strategy>.csv` theo Git hiện hành có:
-
-```text
-date
-ticker
-weight
-```
-
-`CASH` được biểu diễn như một row trong holdings.
-
-Giá trị vị thế tuyệt đối được engine giữ trong internal state `pf.values` và `pf.cash`, không phải field canonical của holdings output.
-
-Cash return base scenario = 0.
-
-Main transaction cost/slippage = 0.
-
-Development:
-
-```text
-2019-01-31 → 2023-12-29
-60 snapshots
-```
-
-Holdout:
-
-```text
-2024-01-31 → 2025-12-31
-24 snapshots
-```
-
-VNINDEX là benchmark.
-
-Final Evaluation chỉ mở sau readiness audit và exact-window lock.
-
-## 36.2. Strategy universe theo Git Q14 — hiện phải theo dõi trạng thái proposal/decision
-
-Definition hiện hành trên Git:
+## 36.2. Strategy universe đã khóa
 
 ```text
 Combined
 → Market Eligible ∩ Financial Eligible
+→ Market leading ∩ Financial not-weakest
 
 Market-only
 → Market Eligible Pool
@@ -7477,91 +7451,92 @@ Momentum-only
 
 Sector treatment:
 
+```text
 Bank / Securities / Insurance
 
-```text
 Combined
-→ bị loại nếu Financial B là requirement và B không có coverage
+→ loại nếu không có Financial B-PIT state
+→ FINANCIAL_SECTOR_NO_B
 
 Financial-only
-→ không thể sử dụng nếu Financial state bắt buộc không tồn tại
+→ không dùng nếu Financial state bắt buộc không tồn tại
 
-Market-only
-→ không bị loại chỉ vì thiếu Financial B
-
-Equal-weight
-→ không bị loại chỉ vì thiếu Financial B
-
-Momentum-only
-→ không bị loại chỉ vì thiếu Financial B
+Market-only / Equal-weight / Momentum-only
+→ không bị loại chỉ vì thiếu Financial B-PIT
 ```
 
-Nếu Q14/Q4 chưa được owner/mentor lock:
+## 36.3. Leading/allowed-cluster rule đã khóa
 
 ```text
-status = PROPOSED / OPEN
+Market leading selector
+→ median(mom_126) cao nhất
+→ tie: median(mdd_126) cao hơn
+
+Financial cluster order
+→ median(ROE) cao hơn
+→ tie: median(debt_to_equity) thấp hơn
+
+Financial allowed
+→ not_weakest
 ```
 
-không được tự ghi thành LOCKED.
+Không suy semantic từ numeric label; ambiguity → fail closed.
 
-## 36.3. Leading-cluster rule
+## 36.4. Methodology đã khóa nhưng readiness/implementation còn phải hoàn tất
 
-Nguyên tắc đã xác định:
+Không còn Q1–Q17/Q-date nào chờ mentor/owner duyệt về methodology.
+
+Official full backtest còn phụ thuộc:
+- B-PIT build + audit + pin PASS;
+- docs/DECISIONS.md/ADR sync;
+- config/code sync theo decision mới;
+- config chuyển LOCKED và hash pinned;
+- stale_months đọc từ config;
+- financial_rule = not_weakest sync;
+- strict segment-boundary code/test PASS;
+- Q12/Q17 execution-price tests PASS;
+- M2 K=2 research-control path được implement/sync nếu report yêu cầu;
+- runtime inputs PASS;
+- output writer/manifest PASS;
+- exact Final end date readiness lock trước Final run.
+
+Không block main nhưng chưa READY:
 
 ```text
-không suy leading/weak cluster chỉ từ numeric label
+secondary price-only
+→ NOT_READY do chưa có corporate-action readiness
 ```
 
-Cluster phải được xác định từ profile/semantic theo rule đã khóa.
-
-Exact mechanical selector, tie rule và ambiguity handling phải theo decision/config cuối cùng.
-
-## 36.4. Còn phải quyết định trước full official Combined backtest
-
-Tối thiểu kiểm tra trạng thái mới nhất của:
-
-- Q2 ILLIQUID / Market eligibility;
-- Q3 Financial B vs B-PIT / timing leakage;
-- Q4 Financial-sector treatment;
-- Q5 exact leading/allowed-cluster rule;
-- Q6 N_min / UNIVERSE_TOO_SMALL;
-- Q-date — quy tắc xác định usable_from_date / availability lag trước FY2022;
-- MC1–MC3;
-- FC1–FC3;
-- Combined score / weights / tie rule;
-- Financial staleness;
-- Q11 return basis;
-- Q12 tradability / ceiling-floor rule;
-- Q14 exact control-strategy definitions;
-- Q17 adjusted-price one-session glitch handling;
-- Financial handoff/coverage readiness;
-- exact Final Evaluation window.
-
-Không để implementation tự quyết một mục vẫn OPEN.
+Phần mở rộng, không thuộc main blocker:
+- DELISTED_EXIT
+- cost sensitivity 15/30 bps
 
 ## 36.5. Dependency kỹ thuật trước official run
 
-Official run còn yêu cầu:
-
+Official run yêu cầu:
 - runtime inputs PASS;
-- config chuyển LOCKED;
-- config hash được pin;
+- B-PIT READY;
+- config/code/ADR sync PASS;
+- config = LOCKED;
+- config hash pinned;
 - output writer PASS;
-- `holdings_<strategy>.csv` đúng schema date/ticker/weight theo Git hiện hành;
-- `manifest.json` đúng schema GitHub hiện hành;
-- execution/turnover tests PASS;
+- holdings_<strategy>.csv đúng schema date/ticker/weight;
+- manifest.json đúng schema GitHub hiện hành;
+- execution/turnover/Q12/Q17 tests PASS;
 - segment boundary PASS.
 
 Luồng trạng thái:
 
 ```text
-DECISION QUEUE
+OWNER DECISIONS LOCKED
       +
-INPUT READINESS
+IMPLEMENTATION / CONFIG SYNC
+      +
+INPUT READINESS (bao gồm B-PIT)
       +
 OUTPUT READINESS
       ↓
-TARGETS-ONLY
+TARGETS-ONLY AUDIT
       ↓
 LOCKED CONFIG
       ↓
@@ -7573,16 +7548,18 @@ HOLDOUT
       ↓
 VERIFY / SEAL
       ↓
+FINAL READINESS + WINDOW LOCK
+      ↓
 FINAL EVALUATION
 ```
 
 # 37. KẾT LUẬN
 
-M3 giữ **Market Clustering** và **Financial Clustering** là hai hệ upstream độc lập; việc kết hợp chỉ diễn ra tại tầng strategy/portfolio.
+M3 giữ Market Clustering và Financial Clustering là hai hệ upstream độc lập; việc kết hợp chỉ diễn ra tại tầng strategy/portfolio.
 
 M3-A sử dụng các state upstream đã được tạo, áp dụng đúng PIT, eligibility, strategy, ranking và execution contract đã được khóa để tạo và backtest danh mục.
 
-Mỗi strategy phải sử dụng đúng universe và rule của chính strategy đó. Proposal hoặc decision còn `OPEN/PROPOSED` không được tự coi là official methodology.
+Mỗi strategy phải sử dụng đúng universe và rule đã khóa của chính strategy đó. Nếu config/code Git còn PROPOSED hoặc chưa sync, đó là implementation/config blocker và không được dùng cho official return backtest.
 
 M3-B là read-only product/presentation layer; không fit lại model và không recompute research methodology.
 
@@ -7592,4 +7569,4 @@ Development, Holdout và Final Evaluation phải tuân theo evaluation/readiness
 
 Chi tiết methodology, input contract, output contract, execution semantics, decision status, trình tự triển khai và acceptance criteria được định nghĩa tại các mục canonical phía trên.
 
-**Mục 37 chỉ tổng kết phạm vi M3 và không tạo thêm methodology, rule hoặc decision mới.**
+Mục 37 chỉ tổng kết phạm vi M3 và không tạo thêm methodology, rule hoặc decision mới.
