@@ -12,7 +12,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-import m3_dashboard as dashboard
+if importlib.util.find_spec("m3_dashboard") is None:
+    # LEGACY Streamlit dashboard (D-DIR-01) was removed from the repo root in commit 1330765; M3-B now lives in
+    # web/frontend + web/backend. Skip instead of failing collection.
+    raise unittest.SkipTest("legacy m3_dashboard.py is no longer in the repository")
+import m3_dashboard as dashboard  # noqa: E402
 
 STREAMLIT = importlib.util.find_spec("streamlit") is not None
 

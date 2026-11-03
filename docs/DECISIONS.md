@@ -1,5 +1,39 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-03 — D-M3-01: methodology M3 đã khóa và các điểm làm rõ (Nguyenex chốt)
+
+Ghi lại các quyết định owner ngày 02/11/2026 trong `docs/KE_HOACH_M3_SCHEMA_GITHUB.md` (bản chuẩn cho M3) và các điểm
+làm rõ R1–R8 của bản rà soát 03/11/2026. Kể từ ADR này, `docs/M3_PLAN.md` và `docs/M3_MENTOR_QUESTIONS.md` chỉ còn là
+lịch sử đề xuất; khi mâu thuẫn, kế hoạch + ADR này được ưu tiên.
+
+- **Mô hình:** thị trường = A v4 (k=3). Tài chính = **B-PIT**: cùng công thức B v4 (9 chỉ số, T1, K-Means k=3) nhưng
+  mỗi năm tài chính t chỉ fit trên báo cáo có `usable_from_date <= cutoff(t)`, với
+  `cutoff(t) = max(30/04/(t+1), usable_from_date sớm nhất của FY t)`; báo cáo đến sau gán vào tâm cụm đã đóng băng
+  (R1). Với FY < 2022 (quy tắc trễ 30/06) cutoff là phiên đầu sau 30/06/(t+1) và mọi báo cáo được fit — không rò rỉ
+  vì trước ngày đó không quyết định nào dùng FY t. Thứ tự cụm tài chính (trung vị ROE giảm, hòa thì trung vị D/E
+  tăng) tính trên tập fit và đóng băng trong artifact (R2).
+- **Tập ứng viên (Q2, Q4, Q5, Q6):** loại ILLIQUID; Combined = cụm dẫn dắt thị trường ∩ tài chính không thuộc cụm yếu
+  nhất (Va); ngân hàng/chứng khoán/bảo hiểm không vào Combined/Financial-only; `N_min = 10` cho Combined, Market-only,
+  Financial-only, đếm SAU khi loại mã thiếu cả 3 chỉ tiêu tài chính (R4).
+- **Xếp hạng (Q7–Q9):** MC = mom_126 (cao tốt), downside_vol_63 (thấp tốt), liquidity_21 (cao tốt); FC = ROE, F-score,
+  Z-score; thiếu một phần → percentile 0,5 + cờ; thiếu cả ba → loại. Điểm = 0,5·S_market + 0,5·S_fin; top 30% làm tròn
+  lên, tỷ trọng bằng nhau.
+- **PIT/độ cũ (Q-date, Q10):** FY ≥ 2022 dùng ngày CafeF, FY < 2022 dùng phiên đầu sau 30/06 năm sau; hết hiệu lực khi
+  FY sau dùng được hoặc quá 18 tháng sau kết thúc năm (`stale_months` đọc từ config).
+- **Thực thi (Q11–Q13, Q17):** giá đóng cửa phiên kế tiếp, cơ sở `adj_close` (sửa lỗi lệch một phiên); volume 0 chặn
+  hai chiều, trần chặn mua, sàn chặn bán; **thiếu dữ liệu trần/sàn → chặn lệnh, cờ `LIMIT_DATA_MISSING`** (R5); chi
+  phí và trượt giá = 0 theo ý kiến mentor, kịch bản 15/30 bps là phần mở rộng.
+- **Ranh giới đoạn:** strict isolation; `segment_end_dates` development = 2023-12-29, holdout = 2025-12-31; quyết định
+  có phiên thực hiện sau ranh giới được lưu với `NOT_EXECUTED_SEGMENT_END` (R3). Tháng 1/2024 không thuộc NAV đoạn nào.
+- **Đối chứng (Q14):** VNINDEX; Market-only, Financial-only, Equal-weight, Momentum-only. **M2 K=2 chỉ báo cáo số ứng
+  viên, không backtest** (R7; 42/60 tháng development dưới 10 ứng viên).
+- **Đầu ra:** thêm `universe_audit_<strategy>.csv`; manifest có git commit và hash mọi input (R6).
+- **Trình tự (R8):** build + audit + pin B-PIT → đếm lại feasibility với B-PIT (không xem lợi suất) → targets-only →
+  `LOCKED` → Development → seal → Holdout → seal. Nếu số tháng dưới 10 ứng viên tăng mạnh với B-PIT, chốt lại N_min/Q5
+  tại bước đếm, trước khi có bất kỳ con số lợi suất nào.
+
+Triển khai và hướng dẫn chạy: `docs/M3_READINESS.md`.
+
 ## 2026-10-26 — D-DIR-01: hướng chính thức M2/M3 và lưu trữ hướng cũ (owner duyệt)
 
 So sánh công bằng (`artifacts/reports/m2-vs-rework-v1/report.md`): trên cùng tập mã và không gian log, mô hình A v4

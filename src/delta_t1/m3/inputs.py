@@ -15,6 +15,7 @@ BENCHMARK = C8 / 'benchmark_daily.jsonl'
 CALENDAR = C8 / 'trading_calendar.jsonl'
 PRICES_C8 = C8 / 'prices_daily.jsonl'
 M2_LABELS_REF = 'origin/m2-clustering-experiment:M2/artifacts/m2-final-handoff-v1/m2_cluster_labels_for_m3.csv'
+BPIT_BASE = ROOT / 'data/financial/b_pit_v1'
 
 
 def sha256(path, chunk=1 << 22):
@@ -84,3 +85,22 @@ def m2_labels(text):
     for r in csv.DictReader(text.lstrip('﻿').splitlines()):
         out[r['snapshot_date']][r['ticker']] = int(r['cluster_label'])
     return dict(out)
+
+
+def bpit(artifact_dir):
+    """Read a B-PIT artifact (scripts/build_financial_pit_clusters.py).
+
+    Returns (labels, order, manifest): labels = {fiscal_year: {ticker: (cluster, {})}} in the same shape as
+    financial_labels(); order = {fiscal_year: [cluster best → worst]} frozen at the cutoff (plan §3.1.5).
+    """
+    artifact_dir = Path(artifact_dir)
+    if not artifact_dir.is_absolute():
+        artifact_dir = ROOT / artifact_dir
+    manifest = json.loads((artifact_dir / 'manifest.json').read_text(encoding='utf-8'))
+    models = json.loads((artifact_dir / 'models.json').read_text(encoding='utf-8'))
+    labels = defaultdict(dict)
+    with open(artifact_dir / 'labels.csv', encoding='utf-8') as f:
+        for r in csv.DictReader(f):
+            labels[int(r['fiscal_year'])][r['ticker']] = (int(r['cluster']), {})
+    order = {int(y): m['cluster_order'] for y, m in models.items()}
+    return dict(labels), order, manifest

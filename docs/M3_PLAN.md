@@ -1,5 +1,10 @@
 # Kế hoạch M3 — Danh mục, backtest, dashboard và báo cáo tái lập
 
+> **Lịch sử đề xuất (03/11/2026).** Methodology M3 đã khóa trong ADR D-M3-01 (`docs/DECISIONS.md`) và kế hoạch chuẩn
+> `docs/KE_HOACH_M3_SCHEMA_GITHUB.md`. Khi tài liệu này khác hai tài liệu đó (ví dụ Q5 tài chính "không thuộc cụm yếu
+> nhất", chi phí 15/30 bps chỉ là phần mở rộng, B-PIT), hai tài liệu đó được ưu tiên. Trạng thái chạy:
+> `docs/M3_READINESS.md`.
+
 **Phiên bản:** v1.0 (25/10/2026). Viết lại từ bản "Kế hoạch tổng thể M3 V5.1" của nhóm, đối chiếu với trạng thái
 thật của nhánh `feature/indicators-v1` (bundle web v4, Indicators v1).
 **Trạng thái:** KẾ HOẠCH — chưa chạy backtest. Giai đoạn 0 và 2 có thể bắt đầu ngay; giai đoạn 3 trở đi chờ khóa
@@ -389,7 +394,7 @@ PASS: một người khác chạy runbook trên máy sạch ra đúng hash artif
 - `combined = market_eligible ∧ financial_eligible` cho mọi dòng audit.
 - Mỗi mã bị loại có đúng một lý do chính trong: `MARKET_STATE_MISSING`, `MARKET_ILLIQUID`,
   `MARKET_NOT_IN_LEADING_CLUSTER`, `FINANCIAL_SECTOR_NO_B`, `FINANCIAL_NOT_AVAILABLE`, `FINANCIAL_STALE`,
-  `FINANCIAL_NOT_IN_LEADING_CLUSTER`, `FINANCIAL_CRITERIA_MISSING`, `ID_MAPPING_FAILED`, `CLUSTER_PROFILE_AMBIGUOUS`.
+  `FINANCIAL_NOT_IN_ALLOWED_CLUSTER`, `FINANCIAL_CRITERIA_MISSING`, `ID_MAPPING_FAILED`, `CLUSTER_PROFILE_AMBIGUOUS`.
 
 ### 8.3. Engine
 
