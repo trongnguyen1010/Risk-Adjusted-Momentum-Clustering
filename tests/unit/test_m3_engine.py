@@ -65,7 +65,7 @@ class PitTests(unittest.TestCase):
         self.assertEqual(lead, {0})
         self.assertEqual([c['ticker'] for c in cands], ['AAA'])
         reasons = {a['ticker']: a['reason'] for a in audit}
-        self.assertEqual(reasons, dict(AAA='', BBB='FINANCIAL_NOT_IN_LEADING_CLUSTER', CCC='MARKET_NOT_IN_LEADING_CLUSTER',
+        self.assertEqual(reasons, dict(AAA='', BBB='FINANCIAL_NOT_IN_ALLOWED_CLUSTER', CCC='MARKET_NOT_IN_LEADING_CLUSTER',
                                        DDD='MARKET_ILLIQUID', VCB='FINANCIAL_SECTOR_NO_B'))
         self.assertTrue(all(a['combined'] == (a['market_eligible'] and a['financial_eligible']) for a in audit))
 
@@ -173,10 +173,19 @@ class PriceTests(unittest.TestCase):
         book.adj = {('A', 'd'): 10.0, ('B', 'd'): 10.0, ('C', 'd'): 10.0}
         book.volume = {('A', 'd'): 100, ('B', 'd'): 100, ('C', 'd'): 0}
         book.limits = {('A', 'd'): (10.7, 10.7, 9.3), ('B', 'd'): (9.3, 10.7, 9.3)}
+        book.limit_missing = set()
         self.assertFalse(book.tradable('A', 'd', 'BUY'))
         self.assertTrue(book.tradable('A', 'd', 'SELL'))
         self.assertFalse(book.tradable('B', 'd', 'SELL'))
         self.assertFalse(book.tradable('C', 'd', 'BUY'))  # zero volume
+
+    def test_missing_limit_data_fails_closed(self):
+        book = PriceBook.__new__(PriceBook)
+        book.adj, book.volume, book.limit_missing = {('D', 'd'): 10.0}, {('D', 'd'): 100}, set()
+        book.limits = {}
+        self.assertFalse(book.tradable('D', 'd', 'BUY'))
+        self.assertFalse(book.tradable('D', 'd', 'SELL'))
+        self.assertEqual(book.limit_missing, {('D', 'd')})
 
 
 class PlanV51ExampleTests(unittest.TestCase):

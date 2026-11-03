@@ -1,12 +1,15 @@
 {
   "version": "m3-strategy-v1",
-  "status": "PROPOSED",
-  "status_note": "Rules below are the M3_PLAN proposals. Only --targets-only runs are allowed until the owner/mentor answer docs/M3_MENTOR_QUESTIONS.md and status becomes LOCKED (no return is computed before that).",
+  "status": "READY_TO_LOCK_AFTER_BPIT",
+  "status_note": "Methodology locked (ADR D-M3-01, 03/11/2026). Only --targets-only runs are allowed until B-PIT is built and pinned below, feasibility is re-counted with B-PIT, and status is set to LOCKED (docs/M3_READINESS.md).",
+  "decision": "D-M3-01",
   "market_model": "bundle v4 model A (k=3, liquid stocks only)",
-  "financial_model": "bundle v4 model B (k=3, non-financial sector)",
+  "financial_model": "B-PIT (scripts/build_financial_pit_clusters.py): B v4 recipe, cutoff = max(30/04/(t+1), earliest usable_from_date)",
+  "financial_pit": {"artifact": null, "labels_sha256": null},
   "market_rule": "leading",
-  "financial_rule": "leading",
+  "financial_rule": "not_weakest",
   "market_criteria": {"mom_126": true, "downside_vol_63": false, "liquidity_21": true},
+  "market_criteria_note": "value = higher_is_better; downside_vol_63 false means lower is better (Q7)",
   "financial_criteria": {"roe": true, "f_score": true, "z_score": true},
   "combined_weight_market": 0.5,
   "top_share": 0.3,
@@ -18,6 +21,12 @@
     "development": ["2019-01-31", "2023-12-29"],
     "holdout": ["2024-01-31", "2025-12-31"]
   },
-  "costs_bps_one_way": [0, 15, 30],
+  "segment_end_dates": {
+    "development": "2023-12-29",
+    "holdout": "2025-12-31"
+  },
+  "costs_bps_one_way": [0],
+  "cost_note": "Main run: cost 0, slippage 0 (mentor). 15/30 bps sensitivity is an extension, not part of the main run.",
+  "m2_k2_control": "candidate counts only (m3_stage0.py), no backtest",
   "sharpe_allowed_segments": ["final"]
 }

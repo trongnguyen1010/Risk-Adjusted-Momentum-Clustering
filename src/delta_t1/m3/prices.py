@@ -5,6 +5,8 @@
   ±0.5 % the next session gets adj = raw × next-session ratio, flagged ADJ_GLITCH_REPAIRED. Source rows unchanged.
 - Q12 tradability: needs a price and volume > 0; BUY fails when the close is at the ceiling price, SELL fails when
   it is at the floor price (no order-book data, so a limit close counts as unfillable).
+- Missing ceiling/floor data for a (ticker, execution date) is fail-closed: the order fails and the pair is recorded
+  as LIMIT_DATA_MISSING (plan §3.8.6). limits=None disables limit checks entirely (synthetic tests only).
 """
 import json
 import sqlite3
@@ -61,6 +63,7 @@ class PriceBook:
                 if flag:
                     self.flags.append((t, d, flag))
         self.limits = limits
+        self.limit_missing = set()  # (ticker, date) pairs where an order was blocked for lack of limit data
 
     def price(self, ticker, date):
         return self.adj.get((ticker, date))
@@ -71,8 +74,9 @@ class PriceBook:
         if self.limits is None:
             return True
         raw, ceiling, floor = self.limits.get((ticker, date), (None, None, None))
-        if raw is None:
-            return True
+        if raw is None or (side == 'BUY' and not ceiling) or (side == 'SELL' and not floor):
+            self.limit_missing.add((ticker, date))
+            return False
         if side == 'BUY' and ceiling and raw >= ceiling:
             return False
         if side == 'SELL' and floor and raw <= floor:

@@ -4,9 +4,24 @@
 **Kho mã nguồn:** `trongnguyen1010/Risk-Adjusted-Momentum-Clustering`
 **Nhánh M3 tham chiếu:** `feature/indicators-v1`
 **Nhánh M2/handoff tham chiếu:** `m2-clustering-experiment`
-**Phiên bản kế hoạch:** cập nhật output contract + input contract theo GitHub và các quyết định của chủ dự án ngày 26/10/2026
+**Phiên bản kế hoạch:** cập nhật output contract + input contract theo GitHub và các quyết định của chủ dự án ngày 26/10/2026; bản rà soát + sync code 03/11/2026 (xem "Ghi chú rà soát 03/11/2026" ngay bên dưới)
 **Trạng thái:** KẾ HOẠCH CHI TIẾT — ENGINE/TARGETS-ONLY ĐÃ CÓ; CHƯA CHẠY OFFICIAL M3 BACKTEST CÓ RETURN
 **Phạm vi:** M3-A Danh mục và backtest + M3-B Dashboard + M3-C Báo cáo và khả năng tái lập
+
+## GHI CHÚ RÀ SOÁT 03/11/2026
+
+Bản này sửa trên commit `f507a3e`. Các thay đổi gồm làm rõ hoặc bổ sung. R1 và R7 thay đổi nội dung quyết định và đã được Nguyenex chốt ngày 03/11/2026 theo đề xuất rà soát; tất cả R1–R8 được ghi thành ADR `D-M3-01` trong `docs/DECISIONS.md`. Code/config đã sync cùng commit với bản này; trạng thái chạy và hướng dẫn cho nhóm trưởng nằm ở `docs/M3_READINESS.md`.
+
+| # | Mục | Thay đổi | Lý do |
+|---|---|---|---|
+| R1 | 3.1.5, 5.2.A, 36.1 | `cutoff(t) = max(30/04/(t+1), ngày usable theo Q-date)` — **ĐÃ KHÓA (D-M3-01)** | Với cutoff 30/04 cố định, FY < 2022 (usable sau 30/06/(t+1)) không có báo cáo nào để fit → B-PIT không xây được cho Development |
+| R2 | 3.4.1, 5.2.A, 36.3 | Thứ tự Financial cluster (median ROE, tie D/E) tính trên tập fit B-PIT tại cutoff và đóng băng trong artifact | Tránh tính profile bằng báo cáo chưa usable tại decision_date |
+| R3 | 3.9, 4, 36.4 | Segment boundary chuyển ĐỀ XUẤT → ĐÃ KHÓA; ghi hệ quả của `segment_end_date` Development = 2023-12-29 | Đầu tài liệu và Mục 36 đã ghi là khóa; Mục 3.9/Mục 4 chưa sync |
+| R4 | 3.5.3, 3.7 | `N_candidates` đếm SAU khi loại `FINANCIAL_CRITERIA_MISSING`; N_min và `n_select` dùng cùng một N | Trước đây không nói rõ, có thể mở vị thế khi thực tế < 10 mã được chấm điểm |
+| R5 | 3.8.6, 10.5.1 | Thiếu dữ liệu trần/sàn → fail-closed, flag `LIMIT_DATA_MISSING` | Tránh mặc định khớp lệnh khi không kiểm tra được Q12 |
+| R6 | 3.4.7, 3.5.3, 5.3, 16.10 | Persist `universe_audit_<strategy>.csv` | Cần cho báo cáo tỷ lệ loại theo lý do, giải thích `UNIVERSE_TOO_SMALL`, và cho Notebook 01/02 của M3-C |
+| R7 | 4, 31, 36 | M2 K=2: chỉ báo cáo số ứng viên, không chạy backtest — **ĐÃ KHÓA (D-M3-01)** | Development 42/60 tháng < 10 ứng viên → backtest gần như luôn `UNIVERSE_TOO_SMALL` |
+| R8 | 31 (Giai đoạn 0, 3), 36.4 | ADR là bước đầu tiên; chạy lại feasibility (chỉ đếm) với B-PIT trước LOCKED | Các số Va (13/60 tháng < 10) đều đo trên B v4 |
 
 ## CẬP NHẬT QUYẾT ĐỊNH M3-A
 
@@ -15,8 +30,8 @@ Các decision M3-A đã được owner phê duyệt có ưu tiên cao hơn các 
 Từ ngày 02/11/2026, decision queue Q1–Q17 và Q-date được coi là đã khóa về methodology theo nội dung chi tiết tại Mục 3, Mục 13, Mục 17 và Mục 36. Việc methodology đã khóa không đồng nghĩa implementation/input đã READY; các dependency kỹ thuật vẫn phải PASS trước official run.
 
 Các điểm chính hiện hành:
-- A v4, k=3, là Market model chính thức; M2 K=2 giữ làm legacy/research control.
-- Financial clustering chính thức cho official M3 là B-PIT; hiện CHƯA READY cho tới khi build + audit + pin hoàn tất.
+- A v4, k=3, là Market model chính thức; M2 K=2 giữ làm legacy/research control, chỉ báo cáo số ứng viên, không chạy backtest (R7, D-M3-01).
+- Financial clustering chính thức cho official M3 là B-PIT; hiện CHƯA READY cho tới khi build + audit + pin hoàn tất. Cutoff B-PIT = max(30/04/(t+1), ngày usable theo Q-date) (R1, D-M3-01).
 - Market và Financial là hai hệ clustering độc lập; M3 chỉ kết hợp ở tầng strategy/portfolio.
 - Combined Candidate Universe sử dụng Market leading cluster ∩ Financial not-weakest clusters sau các PIT/eligibility gate.
 - ILLIQUID bị loại khỏi traded universe của M3.
@@ -107,7 +122,7 @@ Theo D-DIR-01 hiện đang có trên Git:
 - historical artifacts cũ không bị xóa;
 - các giới hạn của model phải được báo cáo minh bạch.
 
-Owner decision ngày 02/11/2026 đã chọn B-PIT cho official M3 để xử lý timing leakage. Decision mới này phải được ghi thành ADR/decision mới trên Git; cho tới khi Git sync, D-DIR-01 vẫn là historical Git record nhưng không được dùng để phủ quyết owner decision mới hơn.
+Owner decision ngày 02/11/2026 đã chọn B-PIT cho official M3 để xử lý timing leakage. Decision mới này phải được ghi thành ADR/decision mới trên Git, và đây là bước đầu tiên của Giai đoạn 0 (Mục 31) vì theo thứ tự precedence ở trên, `DECISIONS.md` có ưu tiên cao nhất; cho tới khi Git sync, D-DIR-01 vẫn là historical Git record nhưng không được dùng để phủ quyết owner decision mới hơn.
 
 Một nội dung đã được ghi thành owner decision trong `DECISIONS.md` không được tiếp tục trình bày như một câu hỏi chưa chốt trong kế hoạch M3.
 
@@ -149,13 +164,13 @@ Official backtest chỉ được chạy khi cả decision, implementation/config
 
 Đây là config thực thi của strategy M3.
 
-Decision queue đã được owner khóa về methodology, nhưng config Git hiện tại vẫn cần được sync theo các quyết định mới. Nếu config checkout hiện vẫn có:
+Config đã được sync theo các quyết định đã khóa (03/11/2026) và đang ở:
 
 ```text
-status = PROPOSED
+status = READY_TO_LOCK_AFTER_BPIT
 ```
 
-thì đây là implementation/config-sync blocker, không còn là governance blocker.
+Nghĩa là mọi rule đã đúng methodology; chỉ còn thiếu B-PIT artifact được build, audit và pin vào `financial_pit` (artifact + labels_sha256). Chừng nào status chưa là `LOCKED`, `run_m3.py` chỉ cho chạy `--targets-only`.
 
 Trước official Development/Holdout run, config phải tối thiểu phản ánh:
 
@@ -520,8 +535,25 @@ Official M3 sử dụng B-PIT thay cho việc dùng trực tiếp Financial B ce
 Với fiscal year t:
 
 ```text
-cutoff(t) = 30/04/(t+1)
+cutoff(t) = max(30/04/(t+1), usable_date_QDATE(t))
 ```
+
+Trong đó `usable_date_QDATE(t)` là ngày usable chung theo Q-date (Mục 3.1.4):
+
+```text
+FY >= 2022
+→ cutoff(t) = 30/04/(t+1)
+→ báo cáo nộp sau 30/04 (khoảng 9–15% mã-năm theo dữ liệu 2022–2025) được gán vào centers đã đóng băng
+
+FY < 2022
+→ mọi báo cáo usable từ phiên đầu tiên sau 30/06/(t+1)
+→ cutoff(t) = phiên đầu tiên sau 30/06/(t+1)
+→ B-PIT fit trên toàn bộ báo cáo FY t
+```
+
+Lý do: nếu giữ cutoff cố định 30/04, FY2017–FY2021 không có báo cáo nào có `usable_from_date <= cutoff`, nên B-PIT không fit được và Combined/Financial-only của Development bị chặn hoàn toàn. Với FY < 2022, fit tại phiên đầu sau 30/06 không tạo leakage vì trước ngày đó không decision nào được dùng FY t. Hệ quả cần ghi trong báo cáo: B-PIT chỉ khác B v4 ở FY >= 2022.
+
+**Trạng thái:** làm rõ Q3 — ĐÃ KHÓA (Nguyenex chốt 03/11/2026 theo đề xuất rà soát, ADR D-M3-01). Implementation: `src/delta_t1/m3/bpit.py` + `scripts/build_financial_pit_clusters.py`. Mốc 30/04 cho FY < 2022 có thể giữ làm sensitivity cùng kịch bản Q-date 30/04.
 
 Tại cutoff:
 
@@ -544,6 +576,16 @@ assign vào frozen centers
 ```
 
 B-PIT giữ cùng feature space, thuật toán, k và scaling methodology của Financial model đã chọn; thay đổi nhằm loại timing leakage ở cấp cluster centers.
+
+Thứ tự cluster dùng cho Financial allowed rule (Mục 3.4.1) cũng được tính tại cutoff, trên đúng tập fit, rồi lưu trong artifact B-PIT cùng centers:
+
+```text
+cluster_order(t)
+= sắp xếp cluster theo median(ROE) giảm dần, tie: median(debt_to_equity) tăng dần
+= tính trên tập report dùng để fit tại cutoff(t)
+→ đóng băng cùng centers
+→ runtime chỉ đọc, không tính lại trên toàn bộ ticker của fiscal year
+```
 
 B-PIT hiện là **ĐÃ KHÓA — CHỜ BUILD + AUDIT + PIN**. Official Combined/Financial-only backtest phụ thuộc Financial clustering bị **BLOCKED** cho tới khi B-PIT artifact/version/hash và PIT audit PASS.
 
@@ -641,6 +683,8 @@ CLUSTER_PROFILE_AMBIGUOUS
 Financial clusters được order theo:
 - primary: `median(ROE)` cao hơn
 - nếu hòa: `median(debt_to_equity)` thấp hơn
+
+Median được tính trên tập fit của B-PIT tại `cutoff(t)` và đóng băng trong artifact B-PIT (Mục 3.1.5). Không tính lại profile tại decision_date bằng toàn bộ ticker của fiscal year, vì tập đó có thể gồm báo cáo chưa usable tại decision_date.
 
 Canonical Q5 dùng Va:
 
@@ -780,7 +824,9 @@ Momentum-only
 → không bị loại chỉ vì thiếu Financial B-PIT
 ```
 
-Lý do loại trừ `FINANCIAL_SECTOR_NO_B` được xử lý nội bộ trong bộ nhớ (`in-memory audit`) khi xác định candidate universe. Theo triển khai thực tế của mã nguồn (`run_m3.py`) và schema Mục 16, thông tin audit này phục vụ mục đích kiểm tra/chẩn đoán nội bộ khi chạy, không bắt buộc xuất thành file canonical artifact riêng trong output contract chính thức (khớp với Mục 5.3: kết quả persist đầu tiên trên đĩa là `targets_<strategy>.csv`).
+Lý do loại trừ `FINANCIAL_SECTOR_NO_B` (và mọi lý do loại khác) được ghi vào `universe_audit_<strategy>.csv` (Mục 16.10). Báo cáo M3 phải nêu tỷ lệ ticker bị loại bởi `FINANCIAL_SECTOR_NO_B` theo kỳ cho Combined, tính trực tiếp từ file này.
+
+Implementation: `strategies.py` tạo audit, `run_m3.py` ghi `universe_audit_<strategy>.csv` cho mọi run (kể cả targets-only).
 
 ### 3.4.8. Nguyên tắc tổng quát
 
@@ -870,7 +916,22 @@ AND Z-score missing
 
 Ticker này không thể đi tiếp ở strategy cần Financial scoring tại kỳ đó.
 
-Triển khai theo mã nguồn: Quy tắc trên được thực thi nội bộ trong `strategies.py`. Cờ `FC_MISSING` và trạng thái `FINANCIAL_CRITERIA_MISSING` chỉ tồn tại trong bộ nhớ trong quá trình tính điểm và lọc cổ phiếu; script thực thi `run_m3.py` không persist file audit hay scores riêng rẽ mà xuất trực tiếp kết quả cuối cùng vào `targets_<strategy>.csv` theo đúng canonical schema Mục 16.
+`FINANCIAL_CRITERIA_MISSING` là một lý do loại khỏi Candidate Universe của strategy cần Financial scoring, giống các lý do eligibility khác:
+
+```text
+Candidate Universe
+= các ticker đã qua eligibility
+  VÀ không bị FINANCIAL_CRITERIA_MISSING (với strategy cần Financial scoring)
+
+N_candidates
+= số ticker của Candidate Universe SAU bước loại này
+```
+
+`N_candidates` này được dùng chung cho kiểm tra `N_min` (Mục 3.7) và cho `n_select = ceil(0.30 × N_candidates)` (Mục 3.6.1).
+
+Cờ `FC_MISSING` và lý do `FINANCIAL_CRITERIA_MISSING` được ghi vào `universe_audit_<strategy>.csv` (Mục 16.10).
+
+Implementation: `Strategies._finish` loại `FINANCIAL_CRITERIA_MISSING` (ghi lý do vào audit) rồi mới kiểm tra `N_min` và tính `n_select` trên cùng N.
 
 ### 3.5.4. Hai kết quả xếp hạng riêng
 
@@ -1021,6 +1082,8 @@ Không áp dụng cho:
 - Equal-weight
 - Momentum-only
 
+`N_candidates` ở mục này là số ticker của Candidate Universe sau khi đã loại `FINANCIAL_CRITERIA_MISSING` (Mục 3.5.3), tức đúng số ticker được đưa vào ranking.
+
 ### 3.7.1. Khi Candidate Universe quá nhỏ
 
 Nếu:
@@ -1119,9 +1182,20 @@ Không có đủ order-book/dư mua-dư bán nên M3 không giả định lệnh
 
 Ceiling/floor được kiểm tra trên raw market price của đúng phiên; portfolio valuation/return basis vẫn theo Q11.
 
+Nếu không có dữ liệu ceiling/floor/raw_close cho ticker tại `execution_date`, lệnh **không** được coi là executable (fail-closed):
+
+```text
+ceiling/floor data missing
+→ BUY_FAILED hoặc SELL_FAILED
+→ flag = LIMIT_DATA_MISSING
+→ đếm trong metrics.json (limit_data_missing)
+```
+
+Implementation: `PriceBook.tradable` trả `False` và ghi nhận cặp (ticker, date) khi thiếu dữ liệu trần/sàn; `trade_ledger` có cột `flag`. Readiness audit (Giai đoạn 1) phải báo số cặp (ticker, execution_date) thiếu dữ liệu trần/sàn trước official run.
+
 ---
 
-## 3.9. Quy tắc kết thúc segment/run (Đề xuất)
+## 3.9. Quy tắc kết thúc segment/run
 
 Quy tắc này xác định cách M3 xử lý điểm cuối của một segment/run và tránh sử dụng execution, valuation hoặc dữ liệu giá ngoài phạm vi segment.
 
@@ -1222,6 +1296,30 @@ Tại `end_date`:
 - không SELL
 - không sử dụng dữ liệu giá sau `segment_end_date`
 
+### Giá trị canonical và hệ quả
+
+```text
+segment_end_dates
+development = 2023-12-29
+holdout     = 2025-12-31
+```
+
+Hệ quả phải ghi trong báo cáo:
+
+```text
+Development
+→ last_decision_date = segment_end_date = 2023-12-29
+→ execution_date của decision 29/12/2023 là 02/01/2024 > segment_end_date
+→ decision này luôn NOT_EXECUTED_SEGMENT_END
+→ end_date = 2023-12-29; NAV cuối Development chốt tại phiên này
+
+Khoảng 30/12/2023 → 01/02/2024
+→ không thuộc NAV của segment nào
+→ Holdout bắt đầu từ 100% CASH và giao dịch lần đầu ngày 01/02/2024
+```
+
+Đây là chủ ý của strict isolation, không phải lỗi dữ liệu. Không nối NAV Development và Holdout thành một chuỗi liên tục khi báo cáo.
+
 ### C. Rolling/live update chưa có ngày kết thúc
 
 Nếu chưa có `segment_end_date`, snapshot mới nhất hiện tại không tự động được coi là snapshot cuối. Target vẫn được tạo/lưu và chờ execution theo chu trình bình thường.
@@ -1239,6 +1337,7 @@ Nếu chưa có `segment_end_date`, snapshot mới nhất hiện tại không t�
 | Q1: Market model = A v4, k=3; M2 K=2 giữ legacy/research control | ĐÃ KHÓA |
 | Q2: ILLIQUID loại khỏi traded universe | ĐÃ KHÓA |
 | Q3: Financial clustering chính thức = B-PIT | ĐÃ KHÓA — CHỜ BUILD/AUDIT/PIN |
+| Q3 làm rõ: cutoff B-PIT = max(30/04/(t+1), ngày usable theo Q-date); cluster order đóng băng tại cutoff | ĐÃ KHÓA (Nguyenex chốt 03/11/2026 theo đề xuất rà soát, ADR D-M3-01) |
 | Q4: Bank/CK/Bảo hiểm không vào Combined nếu không có Financial B-PIT state; vẫn có thể vào Market-only/Equal-weight/Momentum-only | ĐÃ KHÓA |
 | Q5: Market = leading cluster; Financial = not-weakest; Combined dùng Va | ĐÃ KHÓA |
 | Q6: N_min = 10 cho Combined/Market-only/Financial-only | ĐÃ KHÓA |
@@ -1255,7 +1354,7 @@ Nếu chưa có `segment_end_date`, snapshot mới nhất hiện tại không t�
 | BUY_FAILED giữ vốn ở Cash; không thay mã/không chia lại | ĐÃ KHÓA |
 | SELL_FAILED giữ position và không tạo Cash | ĐÃ KHÓA |
 | SELL_FAILED gây thiếu Cash → proportional scaling toàn bộ BUY còn lại | ĐÃ KHÓA |
-| Segment boundary: Target vẫn tạo/lưu; execution_date > segment_end → NOT_EXECUTED_SEGMENT_END, không execution | ĐỀ XUẤT |
+| Segment boundary: Target vẫn tạo/lưu; execution_date > segment_end → NOT_EXECUTED_SEGMENT_END, không execution; Development segment_end = 2023-12-29 | ĐÃ KHÓA — CODE PHẢI SYNC |
 | Missing valuation price → PRICE_STALE stale mark semantics | ĐÃ KHÓA |
 | DELISTED_EXIT | PHẦN MỞ RỘNG — CHƯA IMPLEMENT |
 | Q11 main return basis = adj_close adjusted-return proxy | ĐÃ KHÓA |
@@ -1265,13 +1364,16 @@ Nếu chưa có `segment_end_date`, snapshot mới nhất hiện tại không t�
 | Main slippage = 0 | ĐÃ KHÓA |
 | Cost sensitivity 15/30 bps | PHẦN MỞ RỘNG |
 | Q13 one-way turnover = (executed BUY + executed SELL)/(2 × pre_trade_NAV) | ĐÃ KHÓA — CHỜ GIT SYNC NẾU CẦN |
-| Q14 benchmark = VNINDEX; controls = Market-only, Financial-only, Equal-weight, Momentum-only, M2 K=2 | ĐÃ KHÓA — CONTROL IMPLEMENTATION PHẢI SYNC |
+| Q14 benchmark = VNINDEX; controls = Market-only, Financial-only, Equal-weight, Momentum-only | ĐÃ KHÓA |
+| M2 K=2: chỉ báo cáo số ứng viên theo kỳ làm bằng chứng so sánh, không chạy backtest | ĐÃ KHÓA (Nguyenex chốt 03/11/2026 theo đề xuất rà soát, ADR D-M3-01) |
+| Thiếu dữ liệu trần/sàn → fail-closed, flag LIMIT_DATA_MISSING | ĐÃ KHÓA (Nguyenex chốt 03/11/2026 theo đề xuất rà soát, ADR D-M3-01) |
 | Q15 Holdout sạch về portfolio-rule/return-based evaluation nhưng không tuyên bố hoàn toàn unseen về upstream model selection | ĐÃ KHÓA |
 | Q16 Final bắt đầu từ snapshot cuối 01/2026; exact end khóa sau readiness audit trước khi xem performance | ĐÃ KHÓA NGUYÊN TẮC — EXACT END CHỜ READINESS |
 | Q17 adjusted-price one-session glitch → derived repair + flag, source immutable | ĐÃ KHÓA / IMPLEMENTED — GIỮ TEST |
 | Historical schedule = Development 2019–2023, Holdout 2024–2025 | ĐÃ KHÓA |
 | Sharpe chỉ báo cáo ở Final Evaluation | ĐÃ KHÓA |
 | Canonical outputs = targets/ledger/holdings/turnover/nav/benchmark/metrics/manifest | ĐÃ KHÓA |
+| Bổ sung canonical output `universe_audit_<strategy>.csv` | ĐÃ KHÓA (Nguyenex chốt 03/11/2026 theo đề xuất rà soát, ADR D-M3-01) |
 
 Các mục CHỜ còn lại sau bảng này chỉ được phép là readiness/implementation dependency, không phải methodology decision chưa chốt.
 
@@ -1450,9 +1552,10 @@ Current B v4 state có thể làm source/reference để xây B-PIT nhưng khôn
 B-PIT phải bảo đảm:
 
 ```text
-cutoff FY t = 30/04/(t+1)
+cutoff FY t = max(30/04/(t+1), ngày usable theo Q-date)   (Mục 3.1.5)
 chỉ các báo cáo đã đủ điều kiện sử dụng tại cutoff
 → được dùng để khớp mô hình và xác định tâm cụm cố định
+→ cùng tập này dùng để tính và đóng băng cluster_order
 
 các báo cáo của cùng FY xuất hiện sau cutoff
 → chỉ được gán vào các tâm cụm đã đóng băng
@@ -1461,6 +1564,21 @@ báo cáo xuất hiện trong tương lai
 → không được dùng để khớp lại hoặc làm thay đổi
    các tâm cụm lịch sử
 ```
+
+Artifact B-PIT tối thiểu phải chứa, theo từng fiscal year:
+
+```text
+fiscal_year
+cutoff_date
+n_fit (số report dùng để fit)
+n_assigned_after_cutoff
+preprocessing params + centers
+cluster_order (best → worst)
+labels: ticker, fiscal_year, cluster, fitted_or_assigned
+sha256
+```
+
+Audit bắt buộc: không report nào có `usable_from_date > cutoff_date` nằm trong tập fit; báo cáo ARI giữa B-PIT và B v4 theo từng năm.
 
 Trạng thái hiện tại:
 
@@ -1569,9 +1687,10 @@ Target Portfolio
 
 Không bắt buộc persist riêng toàn bộ bảng intermediate nếu canonical implementation không yêu cầu.
 
-Kết quả persist đầu tiên của portfolio-selection stage là:
+Kết quả persist của portfolio-selection stage là:
 
 ```text
+universe_audit_<strategy>.csv   (eligibility + lý do loại, Mục 16.10)
 targets_<strategy>.csv
 ```
 
@@ -1677,13 +1796,7 @@ Rebalance
 Canonical outputs
 ```
 
-Nếu config còn:
-
-```text
-status = PROPOSED
-```
-
-thì chỉ được thực hiện các bước readiness/targets-only được protocol cho phép.
+Nếu config chưa `LOCKED` (ví dụ `PROPOSED` hoặc `READY_TO_LOCK_AFTER_BPIT`) thì chỉ được thực hiện các bước readiness/targets-only được protocol cho phép.
 
 Official backtest có return chỉ chạy sau khi:
 
@@ -2440,8 +2553,12 @@ price(ticker, execution_date) is not None
 AND
 volume > 0
 AND
+ceiling/floor data tồn tại
+AND
 ceiling/floor rule PASS
 ```
+
+Thiếu ceiling/floor data → không executable, flag `LIMIT_DATA_MISSING` (Mục 3.8.6).
 
 Canonical tradability:
 
@@ -5879,6 +5996,9 @@ Schema:
 decision_date
 → ngày strategy tạo Target Portfolio bằng thông tin hợp lệ tại thời điểm đó
 
+execution_date
+→ phiên giao dịch hợp lệ kế tiếp (có thể > segment_end_date; khi đó status = NOT_EXECUTED_SEGMENT_END)
+
 ticker
 → mã cổ phiếu được chọn vào Target Portfolio
 → có thể để trống nếu kỳ đó chỉ ghi status và không có pick
@@ -5899,6 +6019,11 @@ status
 → ví dụ:
    OK
    UNIVERSE_TOO_SMALL
+   NO_CANDIDATES (Equal-weight/Momentum-only không còn mã hợp lệ → giữ 100% CASH)
+   NOT_EXECUTED_SEGMENT_END (Mục 3.9)
+
+candidates
+→ được đếm SAU khi loại FINANCIAL_CRITERIA_MISSING (Mục 3.5.3)
 ```
 
 Ví dụ:
@@ -5966,6 +6091,9 @@ status
 → SELL_FAILED
 → SCALED
 → HOLD
+
+flag
+→ LIMIT_DATA_MISSING khi lệnh FAILED vì thiếu dữ liệu trần/sàn (Mục 3.8.6); trống trong trường hợp khác
 ```
 
 Quan hệ:
@@ -6277,6 +6405,9 @@ scaled_buys
 → số BUY row có:
    status = SCALED
 
+limit_data_missing
+→ số cặp (ticker, execution_date) bị chặn vì thiếu dữ liệu trần/sàn
+
 price_stale
 → số lần xuất hiện cặp:
    (date, ticker)
@@ -6354,8 +6485,18 @@ inputs_sha256
    terminal_sha256: hash của data/web/delta-intelligence-v4/terminal.sqlite
    indicators_sha256: hash của indicators.sqlite
    availability_sha256: hash của availability.csv
-   b_pit_sha256: hash của B-PIT artifact
-   c8_sha256: hash của C8 canonical bundle (benchmark, calendar, limits/prices)
+   b_pit_labels_sha256: hash của labels.csv trong B-PIT artifact (null nếu targets-only chạy bằng B v4 reference)
+   c8_benchmark_sha256 / c8_calendar_sha256 / c8_prices_sha256: hash của từng file C8
+   (c8_prices_sha256 = null với targets-only hoặc khi chạy --skip-c8-prices-hash)
+
+financial_source
+→ B_PIT (bắt buộc cho full run) hoặc B_V4_REFERENCE_NOT_PIT (chỉ targets-only readiness)
+
+segment_start / segment_end_date / end_date
+→ ranh giới segment và phiên định giá cuối (Mục 3.9)
+
+git_dirty
+→ true nếu src/scripts/configs có thay đổi chưa commit lúc chạy
 ```
 
 Bên trong:
@@ -6366,16 +6507,21 @@ counts
     ├── decisions
     │   → tổng số decision_date được xử lý
     │
-    └── too_small
-        → số kỳ có:
-          status = UNIVERSE_TOO_SMALL
+    ├── executed
+    │   → số decision có execution_date <= segment_end_date
+    ├── too_small
+    │   → số kỳ có status = UNIVERSE_TOO_SMALL
+    └── not_executed_segment_end
+        → số kỳ có status = NOT_EXECUTED_SEGMENT_END
 
 inputs_sha256
 ├── terminal_sha256
 ├── indicators_sha256
 ├── availability_sha256
-├── b_pit_sha256
-└── c8_sha256
+├── b_pit_labels_sha256
+├── c8_benchmark_sha256
+├── c8_calendar_sha256
+└── c8_prices_sha256
 ```
 
 Canonical manifest đầy đủ gồm:
@@ -6384,15 +6530,20 @@ Canonical manifest đầy đủ gồm:
 config
 config_sha256
 git_commit
+git_dirty
 status
 segment
+segment_start
+segment_end_date
+end_date
 run_id
 targets_only
+financial_source
 counts
 inputs_sha256
 ```
 
-Đồng bộ provenance: Theo yêu cầu của Mục 5.3 và Mục 6, manifest bắt buộc phải ghim provenance gồm commit hash và toàn bộ runtime inputs. Trước khi chuyển sang trạng thái `LOCKED` và thực thi official run, script `scripts/run_m3.py` phải gọi hàm `inputs.sha256()` đã có sẵn để ghi nhận đầy đủ các mã băm này vào `manifest.json`.
+Đồng bộ provenance: Theo yêu cầu của Mục 5.3 và Mục 6, manifest bắt buộc phải ghim provenance gồm commit hash và toàn bộ runtime inputs. `scripts/run_m3.py` ghi đầy đủ các trường trên (commit 03/11/2026).
 
 ---
 
@@ -6431,6 +6582,35 @@ Run metadata
 ↓
 manifest.json
 ```
+
+---
+
+## 16.10. `universe_audit_<strategy>.csv`
+
+Ý nghĩa:
+
+> Tại mỗi `decision_date`, ticker nào được xét, có vào Candidate Universe không, và nếu không thì vì sao.
+
+Schema:
+
+```text
+decision_date
+ticker
+market_cluster
+market_eligible          (true/false)
+financial_year           (selected_fiscal_year hoặc trống)
+financial_cluster
+financial_eligible       (true/false hoặc trống với strategy không dùng Financial)
+in_candidate_universe    (true/false)
+reason                   (một primary reason, trống nếu được chọn vào Candidate Universe)
+flags                    (ví dụ FC_MISSING:roe)
+```
+
+`reason` dùng đúng tập lý do của Mục 3: `MARKET_ILLIQUID`, `MARKET_NOT_IN_LEADING_CLUSTER`, `CLUSTER_PROFILE_AMBIGUOUS`, `FINANCIAL_SECTOR_NO_B`, `FINANCIAL_NOT_AVAILABLE`, `FINANCIAL_STALE`, `FINANCIAL_STATE_MISSING`, `FINANCIAL_NOT_IN_ALLOWED_CLUSTER`, `FINANCIAL_CRITERIA_MISSING`.
+
+Kiểm tra: số dòng `in_candidate_universe = true` tại mỗi kỳ phải bằng `candidates` trong `targets_<strategy>.csv`.
+
+Equal-weight và Momentum-only có thể chỉ ghi `MARKET_ILLIQUID` / thiếu `mom_126`.
 
 ---
 
@@ -7183,14 +7363,13 @@ Mục này chỉ quy định **thứ tự thực hiện**. Chi tiết methodolog
 
 Decision queue Q1–Q17/Q-date đã được owner khóa về methodology.
 
-Trước official backtest có return còn phải:
-- ghi decision vào `docs/DECISIONS.md`/ADR;
-- cập nhật plan/config/code theo các rule đã khóa;
-- build/audit/pin B-PIT;
-- sync strict segment boundary;
-- sync Q14 controls nếu implementation còn thiếu;
-- chuyển `status = LOCKED`;
-- pin config hash.
+Trước official backtest có return còn phải, theo đúng thứ tự:
+1. ghi decision vào `docs/DECISIONS.md`/ADR, gồm cả các điểm R1, R2, R7 đã được owner xác nhận (làm trước tiên vì `DECISIONS.md` đứng đầu thứ tự precedence ở Mục 1);
+2. cập nhật plan/config/code theo các rule đã khóa (config theo Mục 36.4; code: `stale_months` đọc từ config, strict segment boundary, fail-closed trần/sàn, N_min sau `FINANCIAL_CRITERIA_MISSING`, persist `universe_audit`, manifest provenance);
+3. build/audit/pin B-PIT;
+4. chạy lại feasibility với B-PIT (Giai đoạn 3);
+5. chuyển `status = LOCKED`;
+6. pin config hash.
 
 Không thay strategy rule dựa trên return sau khi đã khóa.
 
@@ -7232,6 +7411,16 @@ Khi input đã sẵn sàng nhưng config còn `PROPOSED`, chỉ chạy targets-o
 - picks;
 - target weights;
 - trạng thái như `UNIVERSE_TOO_SMALL`.
+
+Trước khi LOCKED, chạy lại `scripts/m3_feasibility_variants.py` (chỉ đếm, không tính return) với B-PIT thay cho B v4 và báo cáo:
+
+```text
+trung vị / min N_candidates theo segment
+số tháng N_candidates < 10
+tỷ lệ loại theo reason (từ universe_audit)
+```
+
+Các con số hiện có (Va: Development trung vị 26, 13/60 tháng < 10) đều đo trên B v4. Nếu số tháng < 10 tăng đáng kể với B-PIT, owner quyết định lại N_min/Q5 tại bước này, trước khi có bất kỳ con số return nào.
 
 Targets-only không tính return và không được coi là official backtest.
 
@@ -7428,7 +7617,7 @@ Không định nghĩa methodology mới.
 - Market và Financial là hai hệ clustering độc lập.
 - Q1: A v4, k=3, là Market model chính thức; M2 K=2 giữ legacy/research control.
 - Q2: ILLIQUID bị loại khỏi traded universe.
-- Q3: Financial clustering chính thức = B-PIT.
+- Q3: Financial clustering chính thức = B-PIT; cutoff = max(30/04/(t+1), ngày usable theo Q-date), cluster order đóng băng tại cutoff (R1, R2, D-M3-01).
 - Q4: Financial sectors không có B-PIT coverage không vào Combined/Financial-only; không làm thu hẹp Market-only/Equal-weight/Momentum-only.
 - Q5: Market = leading cluster; Financial = not-weakest; Combined dùng Va.
 - Q6: N_min = 10 cho Combined/Market-only/Financial-only.
@@ -7444,7 +7633,7 @@ Không định nghĩa methodology mới.
 - Q12: volume0 blocks both; ceiling blocks BUY; floor blocks SELL.
 - BUY_FAILED/SELL_FAILED/scaling contract đã khóa.
 - Q13: one-way turnover = (executed BUY + executed SELL)/(2 × pre_trade_NAV).
-- Q14: VNINDEX benchmark; research controls = Market-only, Financial-only, Equal-weight, Momentum-only, M2 K=2.
+- Q14: VNINDEX benchmark; research controls = Market-only, Financial-only, Equal-weight, Momentum-only. M2 K=2 chỉ báo cáo số ứng viên (R7, D-M3-01).
 - Q15: Holdout sạch về portfolio-rule/return-based evaluation, không tuyên bố hoàn toàn unseen về upstream model-selection history.
 - Q16: Final bắt đầu từ snapshot cuối 01/2026; exact end khóa sau readiness trước performance; Sharpe chỉ ở Final.
 - Q17: adjusted-price one-session glitch dùng derived repair + flag; source immutable.
@@ -7502,6 +7691,9 @@ Financial cluster order
 
 Financial allowed
 → not_weakest
+
+Financial cluster order
+→ tính trên tập fit B-PIT tại cutoff(t), đóng băng trong artifact
 ```
 
 Không suy semantic từ numeric label; ambiguity → fail closed.
@@ -7519,11 +7711,16 @@ Official full backtest còn phụ thuộc:
   + `market_criteria`: `mom_126: true`, `downside_vol_63: false` (MC2, lower is better theo Q7), `liquidity_21: true`;
   + `financial_criteria`: `roe: true`, `f_score: true`, `z_score: true`;
   + `costs_bps_one_way = [0]` (baseline run dùng cost = 0, slippage = 0; các kịch bản 15/30 bps chuyển sang phần mở rộng);
-  + `segments` và `segment_end_dates`: định rõ ranh giới phân đoạn (`segment_end_dates` Development kết thúc tại `"2023-12-29"`, áp dụng strict isolation theo Mục 3.9);
+  + `segments` và `segment_end_dates`: định rõ ranh giới phân đoạn (`segment_end_dates` Development = `"2023-12-29"`, Holdout = `"2025-12-31"`, áp dụng strict isolation theo Mục 3.9);
+  + `financial_model`: trỏ tới B-PIT artifact đã pin (version + sha256);
   + `stale_months = 18` (đọc từ config runtime);
 - strict segment-boundary code/test PASS (không để lệnh và định giá kỳ cuối Development tràn sang tháng 2/2024);
 - Q12/Q17 execution-price tests PASS;
-- M2 K=2 research-control path được implement/sync nếu report yêu cầu;
+- M2 K=2: chỉ báo cáo số ứng viên theo kỳ (R7), không cần backtest path;
+- `run_m3.py` ghi `universe_audit_<strategy>.csv` (Mục 16.10);
+- tradability fail-closed khi thiếu dữ liệu trần/sàn (Mục 3.8.6);
+- N_min tính sau khi loại `FINANCIAL_CRITERIA_MISSING` (Mục 3.5.3, 3.7);
+- chạy lại feasibility với B-PIT trước LOCKED (Mục 31, Giai đoạn 3);
 - runtime inputs PASS;
 - output writer/manifest PASS (đồng bộ hash đầu vào và commit hash vào `manifest.json`);
 - exact Final end date readiness lock trước Final run.

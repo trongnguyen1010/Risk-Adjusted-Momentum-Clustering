@@ -62,23 +62,24 @@ def stale_after(fiscal_year, months=STALE_MONTHS):
     return date(year, month, 30 if month != 2 else 28).isoformat()
 
 
-def financial_state(ticker, decision_date, availability, years):
+def financial_state(ticker, decision_date, availability, years, stale_months=STALE_MONTHS):
     """Latest fiscal year usable at decision_date, or (None, reason). Never reads a row with usable_from > t."""
     usable = [y for y in years if (row := availability.get((ticker, y))) and row['usable_from_date']
               and row['usable_from_date'] <= decision_date]
     if not usable:
         return None, 'FINANCIAL_NOT_AVAILABLE'
     year = max(usable)
-    if decision_date > stale_after(year):
+    if decision_date > stale_after(year, stale_months):
         return None, 'FINANCIAL_STALE'
     return year, None
 
 
 def candidate_universe(market_rows, decision_date, fin_labels, availability, sector, leading_fin, *,
-                       include_illiquid=False, leading_market=None, market_rule='leading'):
+                       include_illiquid=False, leading_market=None, market_rule='leading', stale_months=STALE_MONTHS):
     """Market Eligible Pool ∩ Financial Eligible Pool with one primary exclusion reason per ticker.
 
-    leading_fin: {fiscal_year: allowed B cluster(s)} (an int or a set). leading_market: allowed A cluster(s), or None
+    leading_fin: {fiscal_year: allowed B cluster(s)} (an int or a set); with B-PIT these come from the cluster order
+    frozen at the B-PIT cutoff (never recomputed on the whole fiscal year at decision time). leading_market: allowed A cluster(s), or None
     to derive them from this snapshot's profile with `market_rule`. Returns (candidates, audit, allowed market set).
     """
     as_set = lambda v: None if v is None else (set(v) if isinstance(v, (set, frozenset, list, tuple)) else {v})  # noqa: E731
@@ -103,7 +104,7 @@ def candidate_universe(market_rows, decision_date, fin_labels, availability, sec
         if sector.get(t) in ('BANK', 'SECURITIES', 'INSURANCE'):
             fin_reason = 'FINANCIAL_SECTOR_NO_B'
         else:
-            year, fin_reason = financial_state(t, decision_date, availability, years)
+            year, fin_reason = financial_state(t, decision_date, availability, years, stale_months)
             if fin_reason is None:
                 label = fin_labels.get(year, {}).get(t)
                 if label is None:
@@ -111,7 +112,7 @@ def candidate_universe(market_rows, decision_date, fin_labels, availability, sec
                 elif leading_fin.get(year) is None:
                     fin_reason = 'CLUSTER_PROFILE_AMBIGUOUS'
                 elif label[0] not in leading_fin[year]:
-                    fin_reason = 'FINANCIAL_NOT_IN_LEADING_CLUSTER'
+                    fin_reason = 'FINANCIAL_NOT_IN_ALLOWED_CLUSTER'
         fin_ok = fin_reason is None
         audit.append(dict(decision_date=decision_date, ticker=t, market_cluster=r['cluster'], market_eligible=market_ok,
                           financial_year=year, financial_eligible=fin_ok, combined=market_ok and fin_ok,

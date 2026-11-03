@@ -5,13 +5,18 @@
 - **Phân cụm thị trường (M2):** mô hình A của bundle web v4 — 9 đặc trưng, lọc thanh khoản nhẹ, log + cắt đuôi +
   z-score, K-Means k=3 học trên mã có giao dịch (chọn bằng `clustering_rework_v2`; chọn lại chỉ trên 2019–2023 vẫn k=3).
 - **Phân cụm tài chính:** mô hình B của bundle v4 (9 chỉ số, k=3, chưa đạt ngưỡng ổn định — giới hạn đã ghi).
-- **M3:** `docs/M3_PLAN.md`, đọc A/B v4 + Indicators v1 + ngày công bố CafeF.
+- **M3:** `docs/KE_HOACH_M3_SCHEMA_GITHUB.md` + ADR D-M3-01 (03/11/2026); đọc A v4 + B-PIT + Indicators v1 + ngày công bố CafeF. `docs/M3_PLAN.md` là lịch sử đề xuất.
 - **Hướng cũ (LEGACY, chỉ làm đối chứng/tái lập):** bàn giao M2 K=2 trong `M2/`, báo cáo `Bao_cao_M2_Nhiem_vu_4.*`,
   dashboard Streamlit `m3_dashboard.py`, web cũ `web/index.html|app.js|styles.css`. Giữ nguyên đường dẫn vì code/test
   cũ còn đọc; không dùng làm input cho việc mới.
 - Bằng chứng: `artifacts/reports/m2-vs-rework-v1/report.md`.
 
 Các mục bên dưới là lịch sử theo thời gian; khi mâu thuẫn, mục này được ưu tiên.
+
+## M3 — methodology khóa, code sync, chờ build B-PIT trên máy có dữ liệu (03/11/2026)
+
+ADR D-M3-01; kế hoạch chuẩn `docs/KE_HOACH_M3_SCHEMA_GITHUB.md`. Code/config đã sync; B-PIT đã có code nhưng chưa
+build (cần `data/` local). Việc tiếp theo và lệnh chạy: `docs/M3_READINESS.md`.
 
 ## M3 giai đoạn 0 và lõi engine (25/10/2026)
 

@@ -1,5 +1,13 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## M3 sẵn sàng chạy, chờ B-PIT (03/11/2026)
+
+ADR D-M3-01. Config `m3_strategy_v1` sync theo methodology đã khóa (`not_weakest`, chi phí 0, `segment_end_dates`,
+trạng thái `READY_TO_LOCK_AFTER_BPIT`). Mới: `src/delta_t1/m3/bpit.py` + `scripts/build_financial_pit_clusters.py`
+(B-PIT, audit không rò rỉ, ARI so với B v4). `run_m3.py`: strict segment boundary, `universe_audit_<strategy>.csv`,
+manifest có git commit + hash input, B-PIT bắt buộc cho full run. Chiến lược: N_min sau khi loại mã thiếu FC, thứ tự
+cụm tài chính đóng băng, chặn lệnh khi thiếu dữ liệu trần/sàn. 35 test M3. Hướng dẫn: `docs/M3_READINESS.md`.
+
 ## Hướng chính thức và M3 chuẩn bị (26/10/2026)
 
 D-DIR-01: mô hình thị trường chính thức = A bundle v4 (k=3; chọn lại trên 2019–2023 vẫn k=3), tài chính = B v4; M2 K=2
