@@ -780,7 +780,7 @@ Momentum-only
 → không bị loại chỉ vì thiếu Financial B-PIT
 ```
 
-Phải báo cáo tỷ lệ ticker bị loại bởi `FINANCIAL_SECTOR_NO_B` theo kỳ cho Combined.
+Lý do loại trừ `FINANCIAL_SECTOR_NO_B` được xử lý nội bộ trong bộ nhớ (`in-memory audit`) khi xác định candidate universe. Theo triển khai thực tế của mã nguồn (`run_m3.py`) và schema Mục 16, thông tin audit này phục vụ mục đích kiểm tra/chẩn đoán nội bộ khi chạy, không bắt buộc xuất thành file canonical artifact riêng trong output contract chính thức (khớp với Mục 5.3: kết quả persist đầu tiên trên đĩa là `targets_<strategy>.csv`).
 
 ### 3.4.8. Nguyên tắc tổng quát
 
@@ -870,7 +870,9 @@ AND Z-score missing
 
 Ticker này không thể đi tiếp ở strategy cần Financial scoring tại kỳ đó.
 
-### 3.5.5. Hai kết quả xếp hạng riêng
+Triển khai theo mã nguồn: Quy tắc trên được thực thi nội bộ trong `strategies.py`. Cờ `FC_MISSING` và trạng thái `FINANCIAL_CRITERIA_MISSING` chỉ tồn tại trong bộ nhớ trong quá trình tính điểm và lọc cổ phiếu; script thực thi `run_m3.py` không persist file audit hay scores riêng rẽ mà xuất trực tiếp kết quả cuối cùng vào `targets_<strategy>.csv` theo đúng canonical schema Mục 16.
+
+### 3.5.4. Hai kết quả xếp hạng riêng
 
 Market score:
 
@@ -905,7 +907,7 @@ Market-only    → score = S_market
 Financial-only → score = S_fin
 ```
 
-### 3.5.6. Quy tắc xếp hạng Combined — Q9
+### 3.5.5. Quy tắc xếp hạng Combined — Q9
 
 ```text
 Combined Score
@@ -1019,7 +1021,7 @@ Không áp dụng cho:
 - Equal-weight
 - Momentum-only
 
-### Khi Candidate Universe quá nhỏ
+### 3.7.1. Khi Candidate Universe quá nhỏ
 
 Nếu:
 
@@ -1042,7 +1044,7 @@ candidate mới + chưa nắm giữ
 
 Tiền thu được từ SELL thành công giữ ở CASH, không phân bổ cho candidate mới.
 
-### Trường hợp kỳ đầu tiên
+### 3.7.2. Trường hợp kỳ đầu tiên
 
 Nếu ngay kỳ đầu:
 
@@ -1774,7 +1776,7 @@ Ghi chú:
 
 # 8. TỔNG QUAN NHIỆM VỤ NẰM TRONG 4 BƯỚC
 
-## BƯỚC 1 — CHỌN CỔ PHIẾU
+## 8.1. BƯỚC 1 — CHỌN CỔ PHIẾU
 
 ```text
 1.1  Xác minh dữ liệu Market
@@ -1792,7 +1794,7 @@ Các bước 1.1–1.6 là internal computation/validation. Output persist chín
 targets_<strategy>.csv
 ```
 
-## BƯỚC 2 — GIẢ LẬP MUA/BÁN
+## 8.2. BƯỚC 2 — GIẢ LẬP MUA/BÁN
 
 ```text
 2.1  Map decision_date → execution_date
@@ -1812,7 +1814,7 @@ holdings_<strategy>.csv
 turnover_<strategy>.csv
 ```
 
-## BƯỚC 3 — GIỮ VÀ TÍNH LỜI/LỖ
+## 8.3. BƯỚC 3 — GIỮ VÀ TÍNH LỜI/LỖ
 
 Portfolio state được giữ trong engine. Tại execution date kế tiếp hoặc `end_date`, engine revalue holdings bằng price basis đã được khóa. Missing price dùng last valid mark và ghi `PRICE_STALE`.
 
@@ -1824,7 +1826,7 @@ nav_<strategy>.csv
 
 Các security return/contribution và pre-rebalance-weight có thể được tính nội bộ hoặc suy từ state nhưng không còn là canonical file riêng.
 
-## BƯỚC 4 — THÁNG SAU TÁI CÂN BẰNG
+## 8.4. BƯỚC 4 — THÁNG SAU TÁI CÂN BẰNG
 
 Không tạo handoff CSV riêng. Portfolio state được carry trực tiếp trong engine:
 
@@ -1981,7 +1983,7 @@ có sử dụng Financial state, nên ticker phải đáp ứng các yêu cầu 
 
 ```text
 Universe / eligibility
-→ Mục 3.4.1 — Combined
+→ Mục 3.4.2 — Combined
 
 Market criteria
 → Mục 3.5.1
@@ -1993,10 +1995,10 @@ Missing Financial criteria
 → Mục 3.5.3
 
 S_market / S_fin
-→ Mục 3.5.5
+→ Mục 3.5.4
 
 Combined ranking / tie-break
-→ Mục 3.5.6
+→ Mục 3.5.5
 
 Top-selection + equal weight
 → Mục 3.6
@@ -2035,13 +2037,13 @@ Mọi rule còn ở trạng thái `PROPOSED/OPEN` tại Mục 3 vẫn giữ nguy
 
 ```text
 Universe / eligibility
-→ Mục 3.4.2 — Market-only
+→ Mục 3.4.3 — Market-only
 
 Market criteria
 → Mục 3.5.1
 
 Market ranking
-→ Mục 3.5.5
+→ Mục 3.5.4
 → score = S_market
 
 Top-selection + equal weight
@@ -2079,7 +2081,7 @@ Mọi rule còn ở trạng thái `PROPOSED/OPEN` tại Mục 3 vẫn giữ nguy
 
 ```text
 Universe / eligibility
-→ Mục 3.4.3 — Financial-only
+→ Mục 3.4.4 — Financial-only
 
 Financial criteria
 → Mục 3.5.2
@@ -2088,7 +2090,7 @@ Missing Financial criteria
 → Mục 3.5.3
 
 Financial ranking
-→ Mục 3.5.5
+→ Mục 3.5.4
 → score = S_fin
 
 Top-selection + equal weight
@@ -2130,7 +2132,7 @@ Mọi rule còn ở trạng thái `PROPOSED/OPEN` tại Mục 3 vẫn giữ nguy
 
 ```text
 Universe / eligibility
-→ Mục 3.4.4 — Equal-weight
+→ Mục 3.4.5 — Equal-weight
 
 Equal-weight allocation
 → Mục 3.6.2
@@ -2998,7 +3000,7 @@ Chu trình tiếp tục theo Mục 7 cho tới hết segment; xử lý kỳ cu�
 
 # 13. CHẠY 4 BƯỚC TRÊN DEVELOPMENT VÀ HOLDOUT HIỆN HÀNH
 
-## Development
+## 13.1. Development
 
 ```text
 2019-01-31 → 2023-12-29
@@ -3007,7 +3009,7 @@ Chu trình tiếp tục theo Mục 7 cho tới hết segment; xử lý kỳ cu�
 
 Chạy cùng frozen config/engine. Sharpe không được báo cáo.
 
-## Holdout
+## 13.2. Holdout
 
 ```text
 2024-01-31 → 2025-12-31
@@ -3163,7 +3165,7 @@ Việc dùng `100 triệu đồng` chỉ giúp minh họa dễ đọc hơn; tỷ
 
 ---
 
-## 1. Lịch 3 kỳ
+## 15.1. Lịch 3 kỳ
 
 ```text
 Kỳ 1:
@@ -6305,7 +6307,7 @@ adj_glitches_repaired
 
 Ý nghĩa:
 
-> Metadata nhận diện và mô tả lần chạy M3.
+> Metadata nhận diện, mô tả lần chạy M3 và ghim nguồn gốc (provenance) để bảo đảm khả năng tái lập (reproducibility) theo Mục 5.3 và Mục 6.
 
 Schema:
 
@@ -6316,6 +6318,10 @@ config
 config_sha256
 → SHA-256 của nội dung config
 → dùng để xác định chính xác config đã chạy
+
+git_commit
+→ mã băm SHA git commit tại thời điểm thực thi run
+→ bảo đảm tính tái lập của thuật toán và mã nguồn
 
 status
 → trạng thái config tại thời điểm run
@@ -6342,6 +6348,14 @@ targets_only
 
 counts
 → thống kê target-generation theo từng strategy
+
+inputs_sha256
+→ mã băm SHA-256 của toàn bộ runtime inputs bắt buộc để đảm bảo tính tái lập:
+   terminal_sha256: hash của data/web/delta-intelligence-v4/terminal.sqlite
+   indicators_sha256: hash của indicators.sqlite
+   availability_sha256: hash của availability.csv
+   b_pit_sha256: hash của B-PIT artifact
+   c8_sha256: hash của C8 canonical bundle (benchmark, calendar, limits/prices)
 ```
 
 Bên trong:
@@ -6355,21 +6369,30 @@ counts
     └── too_small
         → số kỳ có:
           status = UNIVERSE_TOO_SMALL
+
+inputs_sha256
+├── terminal_sha256
+├── indicators_sha256
+├── availability_sha256
+├── b_pit_sha256
+└── c8_sha256
 ```
 
-Canonical manifest hiện tại chỉ gồm:
+Canonical manifest đầy đủ gồm:
 
 ```text
 config
 config_sha256
+git_commit
 status
 segment
 run_id
 targets_only
 counts
+inputs_sha256
 ```
 
-Không tự bổ sung các field provenance khác nếu implementation Git hiện hành chưa persist chúng.
+Đồng bộ provenance: Theo yêu cầu của Mục 5.3 và Mục 6, manifest bắt buộc phải ghim provenance gồm commit hash và toàn bộ runtime inputs. Trước khi chuyển sang trạng thái `LOCKED` và thực thi official run, script `scripts/run_m3.py` phải gọi hàm `inputs.sha256()` đã có sẵn để ghi nhận đầy đủ các mã băm này vào `manifest.json`.
 
 ---
 
@@ -6509,7 +6532,7 @@ do đó gross return và net return của base scenario là tương đương.
 
 # 19. CHECKLIST TOÀN BỘ M3-A THEO 4 BƯỚC
 
-## Bước 1 — Chọn cổ phiếu
+## 19.1. Bước 1 — Chọn cổ phiếu
 
 ```text
 [ ] Market input/version/hash validated
@@ -6536,7 +6559,7 @@ do đó gross return và net return của base scenario là tương đương.
 [ ] targets_<strategy>.csv created
 ```
 
-## Bước 2 — Giả lập mua/bán
+## 19.2. Bước 2 — Giả lập mua/bán
 
 ```text
 [ ] execution_date > decision_date
@@ -6556,7 +6579,7 @@ do đó gross return và net return của base scenario là tương đương.
 [ ] turnover_<strategy>.csv uses / (2 × pre_trade_NAV)
 ```
 
-## Bước 3 — Giữ và tính lời/lỗ
+## 19.3. Bước 3 — Giữ và tính lời/lỗ
 
 ```text
 [ ] portfolio state carried, not reset
@@ -6568,7 +6591,7 @@ do đó gross return và net return của base scenario là tương đương.
 [ ] valuation_end_date không vượt segment_end
 ```
 
-## Bước 4 — Tái cân bằng
+## 19.4. Bước 4 — Tái cân bằng
 
 ```text
 [ ] next Target recomputed with same frozen rules
@@ -6577,7 +6600,7 @@ do đó gross return và net return của base scenario là tương đương.
 [ ] loop continues to segment end
 ```
 
-## Segment boundary validation
+## 19.5. Segment boundary validation
 
 ```text
 [ ] decision_date trong segment vẫn tạo/lưu Target
@@ -6588,7 +6611,7 @@ do đó gross return và net return của base scenario là tương đương.
 [ ] segment trước không sử dụng dữ liệu giá của segment kế tiếp để hoàn tất return
 ```
 
-## Return/benchmark validation
+## 19.6. Return/benchmark validation
 ```
 [ ] main price basis = adj_close
 [ ] VNINDEX documented as price index
@@ -6599,7 +6622,7 @@ do đó gross return và net return của base scenario là tương đương.
 [ ] cost sensitivity không nằm trong main run
 ```
 
-## Reproducibility
+## 19.7. Reproducibility
 
 ```text
 [ ] benchmark_vnindex.csv created
@@ -7490,15 +7513,19 @@ Không còn Q1–Q17/Q-date nào chờ mentor/owner duyệt về methodology.
 Official full backtest còn phụ thuộc:
 - B-PIT build + audit + pin PASS;
 - docs/DECISIONS.md/ADR sync;
-- config/code sync theo decision mới;
-- config chuyển LOCKED và hash pinned;
-- stale_months đọc từ config;
-- financial_rule = not_weakest sync;
-- strict segment-boundary code/test PASS;
+- Khóa toàn bộ các tham số cấu hình chính thức (`configs/experiments/m3_strategy_v1.json`):
+  + `status = "LOCKED"` (chính thức cho official run kèm SHA-256 pin);
+  + `financial_rule = "not_weakest"` (chính thức theo Q5);
+  + `market_criteria`: `mom_126: true`, `downside_vol_63: false` (MC2, lower is better theo Q7), `liquidity_21: true`;
+  + `financial_criteria`: `roe: true`, `f_score: true`, `z_score: true`;
+  + `costs_bps_one_way = [0]` (baseline run dùng cost = 0, slippage = 0; các kịch bản 15/30 bps chuyển sang phần mở rộng);
+  + `segments` và `segment_end_dates`: định rõ ranh giới phân đoạn (`segment_end_dates` Development kết thúc tại `"2023-12-29"`, áp dụng strict isolation theo Mục 3.9);
+  + `stale_months = 18` (đọc từ config runtime);
+- strict segment-boundary code/test PASS (không để lệnh và định giá kỳ cuối Development tràn sang tháng 2/2024);
 - Q12/Q17 execution-price tests PASS;
 - M2 K=2 research-control path được implement/sync nếu report yêu cầu;
 - runtime inputs PASS;
-- output writer/manifest PASS;
+- output writer/manifest PASS (đồng bộ hash đầu vào và commit hash vào `manifest.json`);
 - exact Final end date readiness lock trước Final run.
 
 Không block main nhưng chưa READY:
