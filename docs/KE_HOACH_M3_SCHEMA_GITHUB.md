@@ -20,7 +20,7 @@ Các điểm chính hiện hành:
 - Market và Financial là hai hệ clustering độc lập; M3 chỉ kết hợp ở tầng strategy/portfolio.
 - Combined Candidate Universe sử dụng Market leading cluster ∩ Financial not-weakest clusters sau các PIT/eligibility gate.
 - ILLIQUID bị loại khỏi traded universe của M3.
-- MC1 = động lượng 6 tháng (mom_126); MC2 = biến động giảm 63 phiên (downside_vol_63, thấp hơn tốt hơn); MC3 = Log của thanh khoản/giá trị giao dịch 21 phiên (log(liquidity_21)).
+- MC1 = động lượng 6 tháng (mom_126); MC2 = biến động giảm 63 phiên (downside_vol_63, thấp hơn tốt hơn); MC3 = thanh khoản/giá trị giao dịch 21 phiên (liquidity_21).
 - FC1 = ROE; FC2 = Piotroski F-score; FC3 = Z-score; missing một phần → percentile 0.5 + flag, thiếu cả ba → loại khỏi Financial scoring.
 - Combined score = 0.5 × S_market + 0.5 × S_fin; hòa điểm → liquidity_21 cao hơn → ticker A→Z.
 - N_min = 10 cho Combined, Market-only và Financial-only; không áp cho Equal-weight/Momentum-only theo strategy contract hiện tại.
@@ -820,8 +820,8 @@ MC1 = mom_126
 MC2 = downside_vol_63
 → Biến động giảm 63 phiên, lower is better
 
-MC3 = log(liquidity_21)
-→ Log của thanh khoản / giá trị giao dịch 21 phiên, higher is better
+MC3 = liquidity_21
+→ Thanh khoản / giá trị giao dịch 21 phiên (dùng giá trị thô, xếp hạng bằng hàm phân vị percentile là phép biến đổi đơn điệu nên không cần lấy log; tránh lỗi toán học khi thanh khoản bằng 0), higher is better
 ```
 
 Các giá trị được lấy từ Market snapshot tại `decision_date`.
@@ -1242,7 +1242,7 @@ Nếu chưa có `segment_end_date`, snapshot mới nhất hiện tại không t�
 | Q4: Bank/CK/Bảo hiểm không vào Combined nếu không có Financial B-PIT state; vẫn có thể vào Market-only/Equal-weight/Momentum-only | ĐÃ KHÓA |
 | Q5: Market = leading cluster; Financial = not-weakest; Combined dùng Va | ĐÃ KHÓA |
 | Q6: N_min = 10 cho Combined/Market-only/Financial-only | ĐÃ KHÓA |
-| Q7: MC1 = mom_126; MC2 = downside_vol_63; MC3 = log(liquidity_21) | ĐÃ KHÓA |
+| Q7: MC1 = mom_126; MC2 = downside_vol_63; MC3 = liquidity_21 | ĐÃ KHÓA |
 | Q8: FC1 = ROE; FC2 = F-score; FC3 = Z-score; partial missing → 0.5 + flag; all missing → loại | ĐÃ KHÓA |
 | Q9: 0.5 × S_market + 0.5 × S_fin; tie → liquidity cao hơn → ticker A→Z | ĐÃ KHÓA |
 | Financial PIT runtime: usable_from_date <= decision_date rồi chọn max(fiscal_year) | ĐÃ KHÓA |
@@ -7432,7 +7432,7 @@ Không định nghĩa methodology mới.
 - Q4: Financial sectors không có B-PIT coverage không vào Combined/Financial-only; không làm thu hẹp Market-only/Equal-weight/Momentum-only.
 - Q5: Market = leading cluster; Financial = not-weakest; Combined dùng Va.
 - Q6: N_min = 10 cho Combined/Market-only/Financial-only.
-- Q7: MC1 mom_126; MC2 downside_vol_63; MC3 log(liquidity_21).
+- Q7: MC1 mom_126; MC2 downside_vol_63; MC3 liquidity_21.
 - Q8: FC1 ROE; FC2 F-score; FC3 Z-score; partial missing → 0.5 + flag; all missing → exclude.
 - Q9: Combined = 0.5 × S_market + 0.5 × S_fin; tie → liquidity → ticker.
 - Financial runtime PIT = usable filter → max(fiscal_year).
