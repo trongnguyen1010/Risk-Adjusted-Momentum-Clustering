@@ -458,7 +458,8 @@ lấy Financial state tương ứng
 
 ```text
 usable_from_date
-→ xác định fiscal_year đã được phép sử dụng tại decision_date hay chưa
+→ xác định record tài chính của từng fiscal_year
+  đã hợp lệ để sử dụng tại decision_date hay chưa
 
 fiscal_year
 → xác định năm tài chính mới nhất
