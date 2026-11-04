@@ -162,7 +162,8 @@ def main():
     if not args.targets_only:
         exec_dates = sorted({e for s in schedules.values() for _, e, _ in s} | {end_date})
         assert exec_dates[-1] <= segment_end, 'a valuation date fell after segment_end_date'
-        book = PriceBook(exec_dates, calendar, limits=load_limits(exec_dates, cache=ROOT / 'data/experiments/m3/inputs/limits.json'))
+        book = PriceBook(exec_dates, calendar, segment_start=start, segment_end=segment_end,
+                         limits=load_limits(exec_dates, cache=ROOT / 'data/experiments/m3/inputs/limits.json'))
         allow = args.segment in cfg['sharpe_allowed_segments']
         bench = benchmark_nav(inputs.benchmark(), exec_dates)
         summary = dict(vnindex=metrics(bench, [], [], [], allow), adj_glitches_repaired=len(book.flags))

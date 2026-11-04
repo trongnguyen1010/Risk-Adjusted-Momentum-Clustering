@@ -73,6 +73,18 @@ Quyết định này cho phép sử dụng snapshot Indicators v1 trong M3 với
 hạn vintage/revision của dữ liệu đầu vào khi trình bày tính PIT. Artifact B-PIT hiện có
 `bpit-4a9d2e87f0de84ec` là bản build từ đúng snapshot được chấp nhận, chờ pin vào config theo quy trình.
 
+### 2026-11-04 — Thực thi strict isolation Q17 và khóa config M3
+
+Hoàn tất gate đã khóa ở Mục 3.9 của kế hoạch: `PriceBook` chỉ query phiên trong `segment_start` đến
+`segment_end_date`, gồm cả các phiên lân cận dùng cho Q17. Phiên thiếu một trong hai lân cận trong đoạn
+không được repair bằng giá ngoài đoạn. Không đổi detector 3%/0,5%, source data, eligibility hoặc portfolio rule.
+Giữ kiểm thử sửa lỗi trong đoạn, future append ngoài đoạn và full runner bằng dữ liệu giả.
+
+B-PIT audit/pin, feasibility và targets-only hai đoạn đã PASS; config chuyển sang `LOCKED` sau kiểm tra
+ranh giới trên dữ liệu thật. SHA256 và bằng chứng kiểm thử ghi tại Mục 3.11 của [báo cáo](REPORT_BACKTEST.md).
+Code/config vẫn cần commit trước official Development để đạt `git_dirty=false`. Development phải verify/seal
+trước khi chạy Holdout bằng cùng code, config và input đã đóng băng. Chưa chạy official backtest tại bước khóa.
+
 ## 2026-10-26 — D-DIR-01: hướng chính thức M2/M3 và lưu trữ hướng cũ (owner duyệt)
 
 So sánh công bằng (`artifacts/reports/m2-vs-rework-v1/report.md`): trên cùng tập mã và không gian log, mô hình A v4
