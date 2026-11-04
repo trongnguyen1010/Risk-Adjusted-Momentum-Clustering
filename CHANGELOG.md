@@ -1,5 +1,26 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## M3-C — notebook tái lập và báo cáo Dev/Holdout, 04/11/2026
+
+Thêm ba notebook thực thi bằng kernel sạch, pin source/seal, kiểm tra input hash và tái sử dụng
+PIT/strategy/engine/metrics chính thức để đối chiếu hai segment. Báo cáo kỹ thuật, bảng kết quả và
+biểu đồ NAV/drawdown sinh từ nguồn đã seal; có hướng dẫn và lock phụ thuộc notebook riêng trong workspace.
+Thêm negative controls cho cổng đối chiếu và bảng minh họa percentile. Không sửa methodology,
+engine/config hoặc canonical artifacts. Notebook 04 ghi `NOT_READY`; tổng thể M3-C còn `PARTIAL`
+do chưa đủ dữ liệu Final 2026. Xem `M3/HUONG_DAN_THUC_HIEN_M3.md` và báo cáo tiến độ.
+
+Biểu đồ M3-C tách Combined/VNINDEX khỏi bốn đối chứng; mỗi ô chỉ hai đường, đối chứng dùng chung
+thang đo theo cột. Đã cập nhật notebook/báo cáo và tái lập, giữ nguyên kết quả backtest.
+
+Thêm phân tích đợt giảm Holdout 2024 theo từng mã, target/actual allocation và cơ hội bị loại.
+Phân rã goal trên cùng NAV thực tế, không tạo shadow strategy hoặc tune rule; đóng góp được đối chiếu
+bằng sổ lượng độc lập và giữ nguyên canonical artifacts. Xem `M3/reports/PHAN_TICH_BUOC_1_HOLDOUT_2024.md`.
+
+Chuyển toàn bộ điều phối/sinh báo cáo/phân tích vào các cell notebook 01–03, migrate đủ bảy negative controls.
+Gỡ năm helper `.py` trong `M3` sau khi lưu bản cũ trong ZIP evidence. Chạy lại từ kernel sạch khi helper đã
+không còn: các đối chiếu đạt, bốn PNG/nội dung CSV và canonical outputs giữ nguyên. Hướng dẫn dùng Run All;
+source/config M3-A không đổi, Final tiếp tục NOT_READY.
+
 ## Rà soát trước Holdout, sửa Q17 khi bảng giá được nạp thưa — 04/11/2026
 
 Q17 kiểm tra ba phiên liền kề theo trading calendar. Thêm regression cho ngày lân cận được nạp thưa,

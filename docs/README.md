@@ -1,5 +1,14 @@
 # Documentation — START HERE
 
+## M3-C — tái lập Dev/Holdout và báo cáo kỹ thuật, 04/11/2026
+
+[Hướng dẫn chạy notebook](../M3/HUONG_DAN_THUC_HIEN_M3.md),
+[báo cáo kỹ thuật](../M3/reports/BAO_CAO_KY_THUAT_M3.md) và
+[tiến độ thực hiện](REPORT_BACKTEST.md) dùng hai run M3-A đã seal.
+Notebook 01–03 tái lập dữ liệu/PIT, lựa chọn danh mục, backtest và VNINDEX bằng module chính thức.
+Mã điều phối nằm trực tiếp trong notebook: chọn kernel theo hướng dẫn rồi Run All, không cần helper `.py` trong `M3`.
+Notebook 04 chưa chạy vì Final thiếu dữ liệu 2026; M3-C tổng thể còn `PARTIAL`.
+
 ## Corporate actions trên nhánh Indicators — 04/11/2026
 
 CLI hiện hành là `scripts/corporate_actions/collect_vsdc_recovery_supervisor_v7.py`,
