@@ -1,5 +1,24 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Chuyển corporate action sang feature/indicators-v1 — 04/11/2026
+
+Đưa nguyên nội dung code/config/schema/fixtures/tests và các đường dẫn tương thích của
+corporate action từ `m3-backtest@8827ebf` sang nhánh hiện tại. Stage chuyển bộ thu thập.
+Dữ liệu local và preparation V6 tiếp tục dùng đúng đường dẫn cũ. Runtime 89 file khớp
+SHA-256 đã pin. Prefix có 616 query hoàn tất, còn 456 query trong scope V6 và ORS HOLD.
+Việc thu thập tiếp chạy local theo [hướng dẫn V6](../M3/CORPORATE_ACTIONS_V1_COLLECTION_GUIDE.md).
+
+Stage chuyển nhánh PASS. Đã đối chiếu 438 file được đưa sang với source branch, 89 runtime
+hash và 91 protected code/config hash. V6 `--check` đạt `OFFLINE_CHECK_PASS`, gồm kiểm
+24.585 raw file đã freeze, 616 checkpoint dùng lại được và 456 query còn lại. Bộ tests
+corporate action đạt 397 test, gồm 1 skip cho integration Windows opt-in. Compileall và
+synthetic smoke đạt. Kiểm tra offline có 0 source request và không mở browser.
+Evidence kiểm thử ở `tmp/ca_branch_transfer_20261104_v1/`.
+
+Bước tiếp theo là chạy public supervisor V6 local theo hướng dẫn, rồi gửi `OUTPUT_ZIP`
+khi hoàn tất, pause hoặc gặp lỗi để review. ORS còn HOLD. Budget batch 032 còn khoảng
+103 giây active theo preparation đã pin, vượt cap sẽ STOP để review.
+
 ## Hướng chính thức (D-DIR-01, 26/10/2026)
 
 - **Phân cụm thị trường (M2):** mô hình A của bundle web v4 — 9 đặc trưng, lọc thanh khoản nhẹ, log + cắt đuôi +
