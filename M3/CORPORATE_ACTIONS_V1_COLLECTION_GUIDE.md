@@ -1,5 +1,29 @@
 # Hướng dẫn thu thập corporate actions V1 cho M3 Q11
 
+## Lệnh hiện hành dùng supervisor V7 — 04/11/2026
+
+Supervisor V6 tạo thư mục phiên mới trước khi worker kiểm tra lịch sử, khiến worker
+yêu cầu manifest của chính phiên chưa bắt đầu. Phiên lỗi `run-20261104T040725938706Z`
+đã được review, cả hai PID đã thoát, chưa tạo state hoặc gọi VSDC. Thư mục lỗi và lock
+được giữ nguyên nội dung trong `data/corporate_actions/work/vsdc_supervisor_v7_incident_review_20261104_v1/`.
+
+V7 ghi metadata supervisor vào `.supervisors_v7/`, để worker tạo thư mục `run-*` sau
+khi kiểm tra lịch sử. Dùng public CLI mới bên dưới. Worker, preparation, raw, runtime
+hash và định dạng checkpoint V6 tiếp tục được dùng nguyên byte. Output vẫn nằm trong
+`data/corporate_actions/work/vsdc_recovery_pausefix_v6/`.
+
+```powershell
+& "C:\Users\HP\Downloads\Phân cụm động lượng TTCK\.venv\Scripts\python.exe" -X utf8 "C:\Users\HP\Downloads\Phân cụm động lượng TTCK\scripts\corporate_actions\collect_vsdc_recovery_supervisor_v7.py"
+```
+
+Ctrl+C một lần gửi yêu cầu pause, kể cả lúc preflight. Chờ `OUTPUT_ZIP` và terminal
+trở về dấu nhắc. Dùng cùng CLI với `--pause` từ terminal khác hoặc `--check` để kiểm
+tra offline. Prefix 616 query được giữ, còn 456 trong scope và ORS HOLD. Interval 4s,
+headless, một worker và các cap đã pin tiếp tục áp dụng. Batch 032 còn khoảng 103 giây
+active budget, vượt cap cần review. Bước tiếp theo là user chạy local và gửi `OUTPUT_ZIP`.
+
+Các mục V6 bên dưới ghi lại lịch sử triển khai.
+
 ## Lệnh hiện hành V6: phục hồi616mã, còn456mã, pause tách khỏi Playwright
 
 V5 lỗi đã khép đúng PythonPID12040, bảo toàn616query đã đạt và PLCpartial;

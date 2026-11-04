@@ -2,6 +2,9 @@
 
 ## Corporate actions trên nhánh Indicators — 04/11/2026
 
+CLI hiện hành là `scripts/corporate_actions/collect_vsdc_recovery_supervisor_v7.py`,
+supervisor V7 chạy worker V6 đã freeze. Xem hướng dẫn bên dưới cho lệnh chạy và pause.
+
 Code/config và tests corporate action được chuyển từ `m3-backtest@8827ebf` sang
 `feature/indicators-v1`. [Hướng dẫn chạy V6](../M3/CORPORATE_ACTIONS_V1_COLLECTION_GUIDE.md)
 và [nhật ký thu thập](../M3/NHAT_KY_THU_THAP_VA_XU_LY_CORPORATE_ACTIONS_20261102.md)
