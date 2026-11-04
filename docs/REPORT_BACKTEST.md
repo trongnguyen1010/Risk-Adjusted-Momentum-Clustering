@@ -1003,40 +1003,7 @@ Nhận xét biểu đồ trong Notebook 03 đã được tập trung vào Combin
 diễn biến NAV, giai đoạn giảm/phục hồi và đánh đổi lợi suất/drawdown trong từng segment.
 Chỉ chỉnh Markdown, giữ nguyên code, hình và kết quả; `M3/reproduction/latest.json` trỏ đến bản cập nhật cùng evidence.
 
-### 3.27. Phân tích Bước 1, mã gây lỗ và thực thi trong đợt giảm Holdout 2024
-
-Theo yêu cầu owner, đã tạo [báo cáo phân tích](../M3/reports/PHAN_TICH_BUOC_1_HOLDOUT_2024.md)
-và script tái lập `M3/analyze_holdout_2024.py`. Phạm vi là đỉnh–đáy max drawdown quan sát của Combined,
-`2024-05-02` → `2024-11-01`, không phải một cửa sổ đánh giá mới. Combined giảm 26,27%; VNINDEX
-trong đúng khoảng này tăng 3,17%, với giới hạn return basis đã công bố.
-
-- Trên cùng đường NAV thực tế, phần goal đóng góp -23,70 điểm phần trăm và lệch phân bổ sau giao dịch
-  đóng góp -2,57 điểm phần trăm, cộng lại khớp mức giảm 26,27%. Đây là phân rã PnL, không phải tỷ lệ
-  nguyên nhân hoặc lợi suất của một shadow backtest đã giả định fill mọi lệnh.
-- CID, CAG và VTK đóng góp lần lượt -7,10, -5,79 và -4,33 điểm phần trăm, tương ứng 65,51% tổn thất ròng
-  của cửa sổ. Kỳ đầu chỉ chọn bốn mã với goal 25%/mã; N_min áp dụng cho ứng viên, không bảo đảm mười mã giữ.
-- Kỳ `2024-07-01` → `2024-08-01` thực giữ sáu mã khớp goal, không có failed/scaled orders và giảm 15,24%,
-  trong khi VNINDEX giảm 2,20%. Đây là bằng chứng tổn thất lớn đã xuất hiện trong danh mục được chọn.
-- Các mã tăng bị loại đã được truy về audit/rank tại decision, chỉ xét giá hai đầu quan sát được và BUY
-  executable ở đầu kỳ. Có bảng coverage/lý do và ví dụ CDR xếp hạng 9 ngoài top 6 trước đợt tăng; không dùng
-  thông tin sau kỳ để chọn lại mã. Lý do audit có thứ tự ưu tiên, chưa đo nhân quả của từng gate.
-- Đã ghi các lệnh BUY_FAILED/SELL_FAILED/SCALED, volume/trần/sàn và lệch goal/thực giữ. CID ngày 01/10
-  không bán giảm được vì volume=0, giữ tỷ trọng cao hơn goal rồi tiếp tục giảm; một số lệnh mua thất bại
-  lại giúp tránh lỗ. Các ảnh hưởng được cộng cả chiều có lợi và bất lợi.
-
-[Evidence phân tích](../M3/reproduction/20261104T152349610446Z-holdout-diagnosis/analysis.json),
-[verification](../M3/reproduction/20261104T152349610446Z-holdout-diagnosis/verification.json) và
-[self-review](../M3/reproduction/20261104T152349610446Z-holdout-diagnosis/self_review.json) ghi nguồn,
-hash và đối chiếu. Replay chính thức toàn bộ ledger/holdings/NAV/turnover Holdout đạt; sổ lượng nắm giữ
-độc lập xác nhận từng đóng góp và tổng PnL. Phân rã goal đủ mark, không có quan sát phải tự điền zero.
-Lý do và return của mọi quan sát bỏ lỡ đều được kiểm tra lại với canonical audit/target và PriceBook.
-
-Self-review `PASS`, compile/link checks đạt, 66 file canonical và các seal giữ nguyên. Chỉ giải thích
-đợt giảm 2024, chưa quy nguyên nhân riêng cho Market/Financial/ranking hoặc giải thích toàn bộ chênh lệch
-Holdout với VNINDEX. Không tuning, không thay config/engine/input, không tạo run backtest mới và không sửa
-`M3_READINESS.md`. Lệnh tái lập đã chạy thành công: `python -I -B -X utf8 M3/analyze_holdout_2024.py`.
-
-### 3.28. Chuyển mã M3-C vào notebook, bỏ phụ thuộc helper `.py` trong `M3`
+### 3.27. Chuyển mã M3-C vào notebook, bỏ phụ thuộc helper `.py` trong `M3`
 
 Theo yêu cầu owner, notebook 01–03 hiện chứa trực tiếp mã điều phối/đối chiếu, trình bày và sinh báo cáo
 trong các cell. Notebook 03 có cả mã phân tích đợt giảm 2024. Người dùng chọn kernel rồi **Run All**,
@@ -1071,6 +1038,29 @@ vì module chính thức/pipeline không đổi, trạng thái TIMEOUT của che
 Self-review stage chuyển đổi `PASS`; source/config M3-A và `M3_READINESS.md` không đổi. Phần lịch sử
 M3-C đạt PASS, phần Final vẫn NOT_READY; chưa triển khai M3-B hoặc đánh giá Final.
 
+### 3.28. Chuẩn bị công bố CSV kết quả M3 lên Hugging Face
+
+Owner yêu cầu upload kết quả lên dataset `ngyen/delta-intelligence-data`, sau đó thu hẹp phạm vi
+thành **chỉ CSV**. Gói hiện hành có 64 tệp, tổng khoảng 33,43 MiB: 31 CSV canonical mỗi segment
+Development/Holdout và hai CSV Combined dễ đọc. Không upload notebook, biểu đồ, báo cáo, config
+hoặc seal trong phạm vi đã điều chỉnh. Hai seal và đủ 66 tệp canonical đã được kiểm tra SHA256
+tại local trước khi tạo gói; CSV giữ nguyên byte, không tạo backtest mới.
+
+[Kế hoạch upload CSV](../M3/publications/20261104T160624Z/upload_plan.json) liệt kê từng đường dẫn,
+kích thước và SHA256. Thư mục đích dự kiến là `m3/backtests/20261104T160624Z/`, giữ cấu trúc đường dẫn
+nguồn bên trong để phân biệt segment/run và CSV diễn giải. Gói staging nằm dưới `.tmp/m3-hf-publish/`.
+
+**Trạng thái: BLOCKED_AUTH, chưa công bố.** Lần gửi gói trước khi owner thu hẹp phạm vi bị Hugging Face
+từ chối ở bước preupload với HTTP 403: token chỉ có quyền đọc. Không có commit upload được tạo.
+Không có credential đăng nhập CLI đã lưu để dùng thay thế; cần đăng nhập bằng token có quyền ghi
+vào dataset đích. Đây là phản hồi phân quyền của Hugging Face, không phải gate nghiên cứu hoặc lỗi
+backtest. Gói 64 CSV mới chưa được gửi lại bằng token thiếu quyền.
+
+[Ghi nhận trạng thái](../M3/publications/20261104T160624Z/receipt.json) và
+[self-review](../M3/publications/20261104T160624Z/self_review.json) giữ bằng chứng chuẩn bị tại local.
+Chỉ đánh dấu upload PASS sau khi có commit trên Hub và đọc lại đủ 64 tệp tại revision đó để đối chiếu
+SHA256. Không sửa `M3_READINESS.md`; trạng thái Final vẫn NOT_READY.
+
 ## 4. Công việc còn lại và gate chuyển bước
 
 | Thứ tự | Công việc | Điều kiện hoàn tất |
@@ -1084,5 +1074,8 @@ M3-C đạt PASS, phần Final vẫn NOT_READY; chưa triển khai M3-B hoặc �
 | 7 | Holdout → verify → seal đã `PASS` | Xem Mục 3.22. Run `20261104T133507Z-5557288c`, cùng commit/config/input với Dev; lịch `24/23/1`, NAV cuối `2025-12-31`, đã đối chiếu accounting/metrics và seal riêng. CSV diễn giải 22 cột đã xuất tại Mục 3.23. |
 | 8 | M3-C phần Dev/Holdout đã `PASS`, tổng thể `PARTIAL` | Bộ notebook hiện hành chạy trực tiếp từ cell, không phụ thuộc helper `.py` trong `M3`; xem Mục 3.28. Các đối chiếu, báo cáo, biểu đồ và phân tích 2024 đạt. Notebook 04 chờ Final sealed; full repository gate còn TIMEOUT. Chưa triển khai M3-B trong phạm vi này. |
 | 9 | Final Evaluation — `NOT_READY`, chờ dữ liệu 2026 | Theo thông tin owner ngày 04/11/2026, dữ liệu 2026 chưa đủ; đây chưa phải kết quả audit coverage chi tiết. Chỉ mở lại khi dữ liệu sẵn sàng, qua readiness/evaluation-status audit và khóa exact window trước khi xem performance theo Mục 17.5/Giai đoạn 5 của kế hoạch. Chưa chạy Final, không đổi strategy hoặc chạy lại Dev/Holdout vì thiếu dữ liệu Final. |
+
+Việc công bố CSV lên Hugging Face ở Mục 3.29 đang `BLOCKED_AUTH`; cần quyền ghi trước khi upload
+và kiểm tra SHA256 từ xa. Việc này không thay đổi các gate backtest đã đạt ở trên.
 
 Mỗi lần cập nhật báo cáo sau run chính thức cần ghi segment, run ID, Git commit, `config_sha256`, revision dataset, SHA256 đầu vào và đầu ra, kết quả verify cùng đường dẫn artifact đã seal. Bảng Development tại Mục 3.13 và Holdout tại Mục 3.22 được báo cáo riêng, không nối hai NAV. Final Evaluation có gate riêng trong kế hoạch chuẩn.
