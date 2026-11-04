@@ -2,8 +2,8 @@
 
 ## Corporate actions — nhánh feature/indicators-v1
 
-- `scripts/corporate_actions/collect_vsdc_recovery_pausefix_v6.py` là public supervisor V6,
-  hỗ trợ `--check` offline và `--pause`.
+- `scripts/corporate_actions/collect_vsdc_recovery_supervisor_v7.py` là public supervisor
+  hiện hành, hỗ trợ `--check` offline và `--pause`, dùng worker và preparation V6.
 - `src/delta_t1/ingestion/corporate_actions/`, `configs/data/corporate_actions/`,
   `tests/unit/ingestion/corporate_actions/` chứa module, config và tests thu thập.
 - `data/corporate_actions/work/` chứa evidence/checkpoint local. Các đường dẫn cũ trong

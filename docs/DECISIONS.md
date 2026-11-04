@@ -1,5 +1,13 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-04 — D-CA-SUP-07, tách metadata supervisor khỏi lịch sử thu thập
+
+Supervisor ghi audit/pause trong `.supervisors_v7/<run>/` và để collector tạo `run-*`
+sau khi kiểm tra các phiên trước. Chỉ các phiên PAUSED đã seal và kiểm tra hợp lệ được
+resume. Phiên cũ crash hoặc thiếu seal tiếp tục cần review. V7 dùng nguyên worker,
+preparation, runtime hash, source caps và cost accounting V6. Hồ sơ review xác nhận
+phiên V6 lỗi trước acquisition được giữ kèm lock, hash và bằng chứng PID đã thoát.
+
 ## 2026-11-03 — D-M3-01: methodology M3 đã khóa và các điểm làm rõ (Nguyenex chốt)
 
 Ghi lại các quyết định owner ngày 02/11/2026 trong `docs/KE_HOACH_M3_SCHEMA_GITHUB.md` (bản chuẩn cho M3) và các điểm

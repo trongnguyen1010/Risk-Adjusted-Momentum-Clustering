@@ -1,5 +1,25 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+## Corporate action — sửa supervisor nhận diện chính phiên đang chạy, 04/11/2026
+
+V6 preflight đã đạt nhưng worker coi thư mục vừa được supervisor tạo là phiên cũ chưa
+seal. Phiên `run-20261104T040725938706Z` chưa tạo state hoặc gửi source request.
+Cả PID 27236 và 27440 đã được xác minh thoát. Folder và lock được lưu nguyên nội dung
+trong `data/corporate_actions/work/vsdc_supervisor_v7_incident_review_20261104_v1/`.
+
+Public CLI hiện hành là `scripts/corporate_actions/collect_vsdc_recovery_supervisor_v7.py`.
+V7 ghi audit/pause vào metadata riêng và để worker tự tạo run directory sau history check.
+Worker, preparation và runtime V6 được giữ nguyên byte, tiếp tục dùng prefix 616 query,
+còn 456 query trong scope và ORS HOLD. Output checkpoint vẫn thuộc thư mục V6.
+Tests đã tái lập luồng supervisor → process ẩn → actual V6 worker CLI → history → seal
+bằng synthetic source responses. Evidence ở `tmp/ca_supervisor_v7_20261104_v1/`.
+Stage sửa supervisor PASS với 30 targeted tests, gồm 1 opt-in test skip, compileall và
+synthetic smoke. Đối chiếu 91 runtime hash, preparation V6 83 file và history prefix
+616 query đạt. Dùng bằng chứng raw preflight PASS ngay trước lỗi, tránh lặp kiểm tra
+24.585 file đã freeze trong cùng stage. Có 0 request VSDC thật trong kiểm thử.
+Bước tiếp theo là chạy local theo [hướng dẫn hiện hành](../M3/CORPORATE_ACTIONS_V1_COLLECTION_GUIDE.md)
+và gửi `OUTPUT_ZIP` để review. Các mục chuyển nhánh bên dưới là lịch sử.
+
 ## Chuyển corporate action sang feature/indicators-v1 — 04/11/2026
 
 Đưa nguyên nội dung code/config/schema/fixtures/tests và các đường dẫn tương thích của

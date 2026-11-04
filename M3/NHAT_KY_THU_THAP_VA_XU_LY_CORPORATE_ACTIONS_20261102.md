@@ -2111,3 +2111,12 @@ C:\Users\HP\Downloads\Phân cụm động lượng TTCK\scripts\plan_corporate_a
 | Gom thư mục/pilot KBS local | 424 targeted tests,compileall/smoke PASS;176file hashes/161junctions/78manifests/32entrypoints;0KBS requests;full repository gate còn thiếu artifact ngoài phạm vi |
 
 Các kết quả trên chứng minh phạm vi kỹ thuật đã kiểm tra, không tự chứng nhận dữ liệu đã sẵn sàng backtest. Mọi artifact cũ tiếp tục được giữ nguyên. Không có thao tác canonical freeze, tính giá điều chỉnh hoặc chạy backtest chỉ từ việc tạo tài liệu này.
+# Cập nhật supervisor V7 — 04/11/2026
+
+V6 dừng sau preflight vì supervisor tạo run directory trước history check. Phiên lỗi
+chưa tạo state hoặc gọi nguồn, prefix 616 query giữ nguyên. PID supervisor/worker đã
+thoát và evidence/lock được lưu trong hồ sơ incident review V7. Public CLI mới là
+`scripts/corporate_actions/collect_vsdc_recovery_supervisor_v7.py`, dùng nguyên worker
+và preparation V6. Regression qua hidden Windows process với actual V6 worker CLI
+và synthetic responses đạt. Bộ targeted regression đạt 30 test, gồm 1 skip.
+Bước tiếp theo là user chạy CLI V7 local rồi gửi `OUTPUT_ZIP` để review.

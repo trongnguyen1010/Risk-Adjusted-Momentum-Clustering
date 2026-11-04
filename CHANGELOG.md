@@ -1,5 +1,12 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Corporate action supervisor V7 — 04/11/2026
+
+Sửa lỗi supervisor tạo sẵn run directory khiến V6 worker kiểm tra manifest của chính
+phiên đang khởi động. V7 giữ audit/pause ngoài danh sách run, hỗ trợ pause trong
+preflight và dùng nguyên worker/runtime/preparation V6. Thêm regression qua actual
+worker CLI trong process Windows ẩn, kiểm tra resume và giữ chặn phiên cũ chưa seal.
+
 ## Corporate action chuyển sang nhánh Indicators — 04/11/2026
 
 Đưa bộ thu thập corporate action từ `m3-backtest@8827ebf` sang `feature/indicators-v1`,
