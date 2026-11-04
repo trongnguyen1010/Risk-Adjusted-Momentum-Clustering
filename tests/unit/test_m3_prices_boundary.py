@@ -64,6 +64,39 @@ class PriceBoundaryTests(unittest.TestCase):
         self.assertEqual(set(book.volume), {('AAA', '2023-12-29')})
         self.assertEqual(book.flags, [])
 
+    def test_sparse_loaded_neighbours_do_not_create_a_glitch(self):
+        calendar = ['2023-12-01', '2023-12-04', '2023-12-05', '2023-12-06', '2023-12-07', '2023-12-08']
+        with closing(sqlite3.connect(self.bundle)) as db, db:
+            db.execute('delete from prices')
+            db.executemany('insert into prices values (?, ?, ?, ?, ?)', [
+                ('AAA', date, adjusted, 100, 10)
+                for date, adjusted in zip(calendar, [100, 100, 200, 200, 100, 100])
+            ])
+        book = PriceBook(['2023-12-04', '2023-12-08'], calendar, bundle=self.bundle,
+                         segment_start=calendar[0], segment_end=calendar[-1])
+        self.assertNotIn(('AAA', '2023-12-06'), book.volume)
+        self.assertEqual(book.price('AAA', '2023-12-05'), 200)
+        self.assertEqual(book.flags, [])
+
+    def test_missing_previous_session_does_not_repair_execution_price(self):
+        calendar = ['2023-12-01', '2023-12-04', '2023-12-05', '2023-12-06']
+        with closing(sqlite3.connect(self.bundle)) as db, db:
+            db.execute('delete from prices')
+            db.executemany('insert into prices values (?, ?, ?, ?, ?)', [
+                ('AAA', '2023-12-01', 100, 100, 10),
+                ('AAA', '2023-12-05', 200, 100, 10),
+                ('AAA', '2023-12-06', 100, 100, 10),
+            ])
+        book = PriceBook(['2023-12-01', '2023-12-05'], calendar, bundle=self.bundle,
+                         segment_start=calendar[0], segment_end=calendar[-1])
+        self.assertEqual(book.price('AAA', '2023-12-05'), 200)
+        self.assertEqual(book.flags, [])
+
+    def test_exchange_sessions_across_holiday_still_repair(self):
+        book = self.book(['2023-12-29'], end='2024-01-02')
+        self.assertEqual(book.price('AAA', '2023-12-29'), 100)
+        self.assertEqual(book.flags, [('AAA', '2023-12-29', 'ADJ_GLITCH_REPAIRED')])
+
     def test_requested_date_outside_segment_is_rejected(self):
         for d in ('2023-12-27', '2024-01-02'):
             with self.subTest(date=d), self.assertRaises(ValueError):

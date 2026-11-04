@@ -1,5 +1,13 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Rà soát trước Holdout, sửa Q17 khi bảng giá được nạp thưa — 04/11/2026
+
+Q17 kiểm tra ba phiên liền kề theo trading calendar. Thêm regression cho ngày lân cận được nạp thưa,
+thiếu giá phiên trước và khoảng nghỉ lễ. Rà soát độc lập toàn bộ Development xác nhận target, ledger,
+holdings và NAV của năm strategy khớp. Số repair hợp lệ là 34, run cũ đếm 36 do hai cờ trên ngày lân cận.
+52 test M3, compile và synthetic smoke PASS. Cần commit bản sửa rồi tạo và seal run Development đồng bộ
+trước Holdout. Xem Mục 3.20 trong `docs/REPORT_BACKTEST.md`.
+
 ## Khóa config M3 và sửa ranh giới Q17 — 04/11/2026
 
 `PriceBook` giới hạn query giá và các phiên lân cận Q17 trong đoạn runner truyền vào; phiên biên không repair

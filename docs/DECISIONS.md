@@ -85,6 +85,18 @@ ranh giới trên dữ liệu thật. SHA256 và bằng chứng kiểm thử ghi
 Code/config vẫn cần commit trước official Development để đạt `git_dirty=false`. Development phải verify/seal
 trước khi chạy Holdout bằng cùng code, config và input đã đóng băng. Chưa chạy official backtest tại bước khóa.
 
+### 2026-11-04 — Rà soát trước Holdout, thực thi Q17 trên đúng ba phiên liền kề
+
+Yêu cầu rà soát Development phát hiện Q17 đang coi ba dòng trong tập giá được nạp thưa là ba phiên
+liền kề. Bản sửa truyền trading calendar đã giới hạn segment vào detector để kiểm tra chính xác phiên
+trước và phiên sau. Đây là sửa implementation theo điều kiện đã ghi tại Mục Q17 của kế hoạch.
+
+Đối chiếu độc lập tập Dev xác nhận hai cờ sai ở HND `2023-07-31` và DNN `2023-08-02`, đều là ngày lân cận.
+Giá execution/valuation, target, ledger, holdings và NAV của cả năm strategy khớp bản nguồn đã seal.
+Chỉ số `adj_glitches_repaired` của run nguồn là 36, số đúng là 34. Bản sửa qua 52 test M3, compile và
+synthetic smoke. Giữ run nguồn làm evidence. Gate trước Holdout còn checkpoint commit và run Development
+mới có cùng version code với Holdout. Danh tính và kết quả rà soát ghi tại Mục 3.20 của báo cáo thực hiện.
+
 ## 2026-10-26 — D-DIR-01: hướng chính thức M2/M3 và lưu trữ hướng cũ (owner duyệt)
 
 So sánh công bằng (`artifacts/reports/m2-vs-rework-v1/report.md`): trên cùng tập mã và không gian log, mô hình A v4
