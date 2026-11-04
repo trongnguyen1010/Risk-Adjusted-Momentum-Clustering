@@ -33,9 +33,11 @@ def _audit_row(decision_date, ticker, **values):
 
 
 class Strategies:
-    def __init__(self, cfg, market, fin_labels, availability, sector, indicators, fin_order=None):
+    def __init__(self, cfg, market, fin_labels, availability, sector, indicators, fin_order=None,
+                 financial_cutoffs=None):
         self.cfg, self.market, self.fin = cfg, market, fin_labels
         self.avail, self.sector, self.ind = availability, sector, indicators
+        self.financial_cutoffs = financial_cutoffs
         self.fin_order = fin_order if fin_order is not None else financial_order_from_labels(fin_labels)
         self.allowed_fin = financial_allowed(self.fin_order, cfg['financial_rule'])
         self.mc = cfg['market_criteria']        # {feature: higher_is_better}
@@ -46,7 +48,8 @@ class Strategies:
 
     def _universe(self, date, **kwargs):
         cands, raw_audit, _ = candidate_universe(self.market[date], date, self.fin, self.avail, self.sector,
-                                                 self.allowed_fin, stale_months=self.stale_months, **kwargs)
+                                                 self.allowed_fin, stale_months=self.stale_months,
+                                                 financial_cutoffs=self.financial_cutoffs, **kwargs)
         fin_cluster = {c['ticker']: c['financial_cluster'] for c in cands}
         audit = [_audit_row(date, a['ticker'], market_cluster=a['market_cluster'], market_eligible=a['market_eligible'],
                             financial_year=a['financial_year'] or '', financial_cluster=fin_cluster.get(a['ticker'], ''),

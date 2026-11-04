@@ -1,11 +1,13 @@
 """M3 readiness changes (ADR D-M3-01): config-driven staleness, N_min after FINANCIAL_CRITERIA_MISSING, audit rows,
 B-PIT cutoff/fit rules."""
 import importlib.util
+from pathlib import Path
+from tempfile import TemporaryDirectory
 import unittest
 
 import numpy as np
 
-from delta_t1.m3 import bpit
+from delta_t1.m3 import bpit, inputs
 from delta_t1.m3.strategies import AUDIT_KEYS, Strategies
 from delta_t1.m3.universe import financial_state, stale_after
 
@@ -22,6 +24,26 @@ def config(**kw):
 def market_row(ticker, cluster, mom, liquidity='LIQUID'):
     return dict(ticker=ticker, cluster=cluster, liquidity=liquidity,
                 features=dict(mom_126=mom, mdd_126=-0.1, liquidity_21=1.0))
+
+
+class AvailabilityQDateTests(unittest.TestCase):
+    def test_filters_by_q_date_without_changing_the_historical_reference(self):
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'availability.csv'
+            path.write_text(
+                'ticker,fiscal_year,date_source,usable_from_date\n'
+                'AAA,2021,LAG_RULE,2022-07-01\n'
+                'AAA,2022,LAG_RULE,2023-07-03\n'
+                'BBB,2021,CAFEF_DISCLOSURE,2022-03-31\n'
+                'BBB,2022,CAFEF_DISCLOSURE,2023-03-31\n'
+                'CCC,2025,CAFEF_DISCLOSURE,\n',
+                encoding='utf-8',
+            )
+            official = inputs.availability(path)
+            reference = inputs.availability(path, historical_reference=True)
+        self.assertEqual(set(official), {('AAA', 2021), ('BBB', 2022), ('CCC', 2025)})
+        self.assertEqual(official['CCC', 2025]['usable_from_date'], '')
+        self.assertEqual(set(reference) - set(official), {('AAA', 2022), ('BBB', 2021)})
 
 
 class StalenessFromConfigTests(unittest.TestCase):

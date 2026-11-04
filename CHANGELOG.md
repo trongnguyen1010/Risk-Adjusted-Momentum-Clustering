@@ -1,5 +1,22 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Chấp nhận snapshot Indicators v1 cho B-PIT (04/11/2026)
+
+Owner duyệt dùng bộ Indicators v1 đã pin theo cùng cách B v4, gồm VCG FY2023 và SBT FY2024. Audit nguồn và revision
+được lưu làm disclosure của dữ liệu đầu vào. Quy trình tiếp tục theo các gate Q-date, cutoff, hash và audit B-PIT.
+
+## Gate cutoff B-PIT tại runtime (04/11/2026)
+
+Triển khai phương án 2 đã được owner duyệt tạm thời. Combined và Financial-only xét FY mới nhất đã usable theo
+availability, rồi chặn dùng model trước cutoff hoặc khi thiếu metadata model hợp lệ. Lý do được ghi vào universe
+audit. Runner và feasibility đọc cùng cutoff của artifact. Kiểm thử 43 test M3 đạt, gồm integration fixture qua
+hai CLI và trường hợp FY mới usable nhưng thiếu model.
+
+## M3 áp dụng Q-date tại loader (04/11/2026)
+
+Build B-PIT, feasibility và runtime B-PIT chỉ sử dụng `LAG_RULE` trước FY2022 và `CAFEF_DISCLOSURE` từ FY2022.
+Đối chứng B v4 tiếp tục đọc artifact availability lịch sử để tái lập số đếm đã ghi.
+
 ## M3 sẵn sàng chạy, chờ B-PIT (03/11/2026)
 
 ADR D-M3-01. Config `m3_strategy_v1` sync theo methodology đã khóa (`not_weakest`, chi phí 0, `segment_end_dates`,

@@ -3,6 +3,16 @@
 **Ngày:** 03/11/2026 · **Nhánh:** `feature/indicators-v1` · **Quyết định:** ADR D-M3-01 (`docs/DECISIONS.md`)
 **Kế hoạch chuẩn:** `docs/KE_HOACH_M3_SCHEMA_GITHUB.md` (bản rà soát 03/11, bảng R1–R8 ở đầu tài liệu)
 
+**Cập nhật 04/11/2026.** Gate cutoff ở Mục 3.1.5 của kế hoạch chuẩn đã triển khai. Khi dùng B-PIT, runner và
+feasibility tạm loại mã khỏi Combined/Financial-only nếu FY mới nhất đã usable thiếu model hợp lệ hoặc ngày
+quyết định sớm hơn cutoff. Bộ test M3 hiện có 43 test đạt. Trạng thái artifact local và gate đầu vào tài chính
+được ghi trong [báo cáo thực hiện](REPORT_BACKTEST.md).
+
+**Chấp nhận đầu vào ngày 04/11/2026.** Owner duyệt dùng snapshot Indicators v1 theo cùng cách B v4 cho B-PIT,
+gồm VCG FY2023 và SBT FY2024. Audit PDF/revision được lưu làm disclosure về giới hạn dữ liệu. Các kiểm tra
+Q-date, cutoff và audit artifact tiếp tục áp dụng. Artifact local đã build và được kiểm tra trong
+[báo cáo thực hiện](REPORT_BACKTEST.md), bước tiếp theo là pin vào config.
+
 ## Tóm tắt
 
 Methodology đã khóa, code và config đã sync, 35 test M3 pass. **Phần duy nhất chưa làm được là chạy trên dữ liệu thật:**

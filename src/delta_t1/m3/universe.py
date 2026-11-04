@@ -75,7 +75,8 @@ def financial_state(ticker, decision_date, availability, years, stale_months=STA
 
 
 def candidate_universe(market_rows, decision_date, fin_labels, availability, sector, leading_fin, *,
-                       include_illiquid=False, leading_market=None, market_rule='leading', stale_months=STALE_MONTHS):
+                       include_illiquid=False, leading_market=None, market_rule='leading', stale_months=STALE_MONTHS,
+                       financial_cutoffs=None):
     """Market Eligible Pool ∩ Financial Eligible Pool with one primary exclusion reason per ticker.
 
     leading_fin: {fiscal_year: allowed B cluster(s)} (an int or a set); with B-PIT these come from the cluster order
@@ -89,7 +90,8 @@ def candidate_universe(market_rows, decision_date, fin_labels, availability, sec
         leading_market = allowed_clusters(order, market_rule)
     leading_market = as_set(leading_market)
     leading_fin = {y: as_set(v) for y, v in leading_fin.items()}
-    years = sorted(fin_labels)
+    # B-PIT selects the latest usable report even when that FY has no model yet.
+    years = sorted({y for _, y in availability}) if financial_cutoffs is not None else sorted(fin_labels)
     candidates, audit = [], []
     for r in market_rows:
         t = r['ticker']
@@ -105,6 +107,12 @@ def candidate_universe(market_rows, decision_date, fin_labels, availability, sec
             fin_reason = 'FINANCIAL_SECTOR_NO_B'
         else:
             year, fin_reason = financial_state(t, decision_date, availability, years, stale_months)
+            if fin_reason is None and financial_cutoffs is not None:
+                cutoff = financial_cutoffs.get(year)
+                if not cutoff:
+                    fin_reason = 'FINANCIAL_MODEL_NOT_READY'
+                elif decision_date < cutoff:
+                    fin_reason = 'FINANCIAL_MODEL_BEFORE_CUTOFF'
             if fin_reason is None:
                 label = fin_labels.get(year, {}).get(t)
                 if label is None:

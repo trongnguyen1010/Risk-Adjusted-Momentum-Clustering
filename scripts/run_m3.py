@@ -88,12 +88,12 @@ def load_financial(cfg, targets_only):
         actual = inputs.sha256(bpit_dir / 'labels.csv')
         if pin.get('labels_sha256') and actual != pin['labels_sha256']:
             sys.exit(f'B-PIT labels.csv sha256 {actual} does not match the pinned {pin["labels_sha256"]}')
-        labels, order, _ = inputs.bpit(bpit_dir)
-        return labels, order, 'B_PIT', bpit_dir
+        labels, order, _, cutoffs = inputs.bpit(bpit_dir, include_cutoffs=True)
+        return labels, order, 'B_PIT', bpit_dir, cutoffs
     if not targets_only:
         sys.exit('Config does not pin a B-PIT artifact (financial_pit.artifact). Build it with '
                  'scripts/build_financial_pit_clusters.py; official runs never use B v4.')
-    return inputs.financial_labels(), None, 'B_V4_REFERENCE_NOT_PIT', None
+    return inputs.financial_labels(), None, 'B_V4_REFERENCE_NOT_PIT', None, None
 
 
 def main():
@@ -111,10 +111,11 @@ def main():
         sys.exit(f'Segment {args.segment!r} has no start/end in the config (final is locked after readiness, Q16).')
     start, _ = cfg['segments'][args.segment]
     segment_end = cfg['segment_end_dates'][args.segment]
-    fin_labels, fin_order, fin_source, bpit_dir = load_financial(cfg, args.targets_only)
+    fin_labels, fin_order, fin_source, bpit_dir, fin_cutoffs = load_financial(cfg, args.targets_only)
     market = inputs.market_snapshots()
-    strategies = Strategies(cfg, market, fin_labels, inputs.availability(), inputs.sectors(), inputs.indicators(),
-                            fin_order=fin_order)
+    availability = inputs.availability(historical_reference=fin_source == 'B_V4_REFERENCE_NOT_PIT')
+    strategies = Strategies(cfg, market, fin_labels, availability, inputs.sectors(), inputs.indicators(),
+                            fin_order=fin_order, financial_cutoffs=fin_cutoffs)
     calendar = inputs.calendar()
     nxt_session = lambda d: calendar[i] if (i := bisect_right(calendar, d)) < len(calendar) else None  # noqa: E731
     decisions = [d for d in sorted(market) if start <= d <= segment_end]

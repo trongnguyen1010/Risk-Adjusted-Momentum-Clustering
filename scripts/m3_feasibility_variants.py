@@ -42,17 +42,18 @@ def main():
     cfg = json.loads(CONFIG.read_text(encoding='utf-8'))
     stale = cfg.get('stale_months', 18)
     market = inputs.market_snapshots()
-    avail = inputs.availability()
     sector = inputs.sectors()
     pin = (cfg.get('financial_pit') or {}).get('artifact')
     if pin and not args.b_v4:
-        fin, fin_order, _ = inputs.bpit(pin)
+        fin, fin_order, _, fin_cutoffs = inputs.bpit(pin, include_cutoffs=True)
         source = 'B_PIT:' + pin
     else:
         fin = inputs.financial_labels()
         fin_order = {y: cluster_order(list(v.values()), 'roe', 'debt_to_equity', higher_tiebreak=False)
                      for y, v in fin.items()}
         source = 'B_V4_REFERENCE_NOT_PIT'
+        fin_cutoffs = None
+    avail = inputs.availability(historical_reference=source == 'B_V4_REFERENCE_NOT_PIT')
     print('financial source:', source)
     out = {}
     for name, (market_rule, fin_rule) in VARIANTS.items():
@@ -60,7 +61,8 @@ def main():
         rows = []
         for date in sorted(market):
             cands, audit, _ = candidate_universe(market[date], date, fin, avail, sector, allowed_fin,
-                                                 market_rule=market_rule, stale_months=stale)
+                                                 market_rule=market_rule, stale_months=stale,
+                                                 financial_cutoffs=fin_cutoffs)
             rows.append(dict(date=date, segment='development' if date <= DEV_END else 'holdout',
                              market_pool=sum(a['market_eligible'] for a in audit), candidates=len(cands)))
         summary = {}
@@ -73,7 +75,8 @@ def main():
                                 market_pool_median=statistics.median(r['market_pool'] for r in part))
         out[name] = dict(market_rule=market_rule, financial_rule=fin_rule, summary=summary, monthly=rows)
         print(name, json.dumps(summary, ensure_ascii=False))
-    strategies = Strategies(cfg, market, fin, avail, sector, inputs.indicators(), fin_order=fin_order)
+    strategies = Strategies(cfg, market, fin, avail, sector, inputs.indicators(), fin_order=fin_order,
+                            financial_cutoffs=fin_cutoffs)
     official = []
     for date in sorted(market):
         res = strategies.combined(date)

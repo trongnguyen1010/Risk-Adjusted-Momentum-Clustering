@@ -526,6 +526,10 @@ Canonical rule:
 - FY < 2022: không dùng historical CafeF disclosure date làm canonical; BCTC năm t usable từ phiên giao dịch hợp lệ đầu tiên sau 30/06 năm t+1.
 - Mốc 30/04 chỉ dùng cho sensitivity/robustness check riêng, không thay canonical rule 30/06.
 
+M3 chính thức lọc `date_source` khi đọc availability. FY trước 2022 nhận `LAG_RULE`. FY từ 2022 nhận
+`CAFEF_DISCLOSURE`. Nếu artifact nguồn có dòng `LAG_RULE` từ FY2022, dòng đó không tạo ngày usable cho build B-PIT,
+feasibility hoặc runtime B-PIT. Giữ nguyên artifact để tái lập đối chứng B v4 lịch sử.
+
 Rule này ưu tiên tránh look-ahead. Với doanh nghiệp có fiscal year khác 31/12, lag rule có thể conservative hơn thực tế nhưng không được tự rút ngắn nếu chưa có authority dataset tốt hơn.
 
 ### 3.1.5. Financial clustering PIT — Q3
@@ -600,6 +604,27 @@ selected_fiscal_year = max(fiscal_year)
 ```
 
 B-PIT quyết định cluster state được xây như thế nào; runtime PIT quyết định fiscal year nào được phép sử dụng tại decision_date.
+
+#### Thời điểm được phép sử dụng mô hình B-PIT tại runtime
+
+**Trạng thái — được duyệt tạm thời ngày 04/11/2026, gate cutoff đã triển khai và kiểm thử PASS.**
+Phạm vi chấp nhận nguồn và revision Indicators v1 thực hiện theo quyết định owner ngày 04/11/2026 ở Mục 5.2.B.
+
+Tại mỗi `decision_date`, chọn FY mới nhất có báo cáo đáp ứng `usable_from_date <= decision_date` theo Q-date. Sau đó,
+chỉ dùng nhãn và thứ tự cụm của FY đã chọn khi có mô hình B-PIT hợp lệ cho FY đó và `decision_date >= cutoff(FY)`.
+
+Nếu FY đã chọn chưa đến cutoff hoặc chưa có mô hình hợp lệ, tạm loại mã khỏi Candidate Universe của **Combined** và
+**Financial-only** tại snapshot đó. Ghi lý do loại vào universe audit và đánh giá lại mã tại snapshot kế tiếp.
+FY trước vẫn hết hiệu lực khi báo cáo FY mới đã dùng được, theo Mục 3.2.
+
+Runtime đọc cutoff từ `models.json` của artifact B-PIT. FY mới nhất được chọn theo availability kể cả khi FY đó
+thiếu model hoặc label. `FINANCIAL_MODEL_BEFORE_CUTOFF` ghi việc ngày quyết định sớm hơn cutoff.
+`FINANCIAL_MODEL_NOT_READY` ghi FY thiếu cutoff hoặc thứ tự đủ ba cụm hợp lệ. Feasibility và targets dùng chung
+gate qua `candidate_universe`. Các lượt đối chứng B v4 tiếp tục dùng quy tắc lịch sử.
+
+**Ví dụ.** Báo cáo FY2023 của mã ABC đã dùng được tại `2024-03-29`, còn cutoff của mô hình FY2023 là `2024-04-30`.
+ABC bị loại khỏi hai strategy trên tại snapshot `2024-03-29`. Từ cutoff trở đi, ABC có thể được xét nếu có mô hình
+hợp lệ và mã đáp ứng các điều kiện còn lại.
 
 ---
 
@@ -1596,6 +1621,13 @@ M3-A không refit B-PIT trong backtest; nó đọc upstream B-PIT state đã pin
 data/financial/indicators_v1/results/
 indicators-2c4a24e3830d325f/indicators.sqlite
 ```
+
+**Owner chấp nhận ngày 04/11/2026.** B-PIT dùng bộ Indicators v1 đã pin theo cùng cách B v4, gồm VCG FY2023 và
+SBT FY2024. Công ty phi tài chính có đủ chín biến `status=OK` và giá trị hữu hạn được xét theo recipe B v4,
+sau đó áp Q-date và cutoff để chọn tập fit. Audit PDF/revision là bằng chứng về giới hạn của snapshot dữ liệu
+đã được chấp nhận. Các chênh lệch VCG/SBT và giới hạn truy vết vintage được disclosure trong báo cáo M3.
+Các gate kiểm tra hash, ngày usable, cutoff, fit-leak, cluster order và ARI tiếp tục áp dụng.
+[Quyết định và giới hạn đã ghi nhận](DECISIONS.md).
 
 M3 hiện sử dụng Financial criteria:
 
@@ -6606,7 +6638,7 @@ reason                   (một primary reason, trống nếu được chọn v�
 flags                    (ví dụ FC_MISSING:roe)
 ```
 
-`reason` dùng đúng tập lý do của Mục 3: `MARKET_ILLIQUID`, `MARKET_NOT_IN_LEADING_CLUSTER`, `CLUSTER_PROFILE_AMBIGUOUS`, `FINANCIAL_SECTOR_NO_B`, `FINANCIAL_NOT_AVAILABLE`, `FINANCIAL_STALE`, `FINANCIAL_STATE_MISSING`, `FINANCIAL_NOT_IN_ALLOWED_CLUSTER`, `FINANCIAL_CRITERIA_MISSING`.
+`reason` dùng đúng tập lý do của Mục 3: `MARKET_ILLIQUID`, `MARKET_NOT_IN_LEADING_CLUSTER`, `CLUSTER_PROFILE_AMBIGUOUS`, `FINANCIAL_SECTOR_NO_B`, `FINANCIAL_NOT_AVAILABLE`, `FINANCIAL_STALE`, `FINANCIAL_STATE_MISSING`, `FINANCIAL_MODEL_BEFORE_CUTOFF`, `FINANCIAL_MODEL_NOT_READY`, `FINANCIAL_NOT_IN_ALLOWED_CLUSTER`, `FINANCIAL_CRITERIA_MISSING`.
 
 Kiểm tra: số dòng `in_candidate_universe = true` tại mỗi kỳ phải bằng `candidates` trong `targets_<strategy>.csv`.
 
@@ -6719,6 +6751,7 @@ do đó gross return và net return của base scenario là tương đương.
 [ ] B-PIT built + audited + pinned
 [ ] Financial input/version/hash validated
 [ ] Financial runtime PIT = usable filter → max(fiscal_year) frozen
+[ ] Gate B-PIT tại Mục 3.1.5 có test trước, đúng và sau cutoff, cùng trường hợp FY đã chọn thiếu mô hình hợp lệ
 [ ] Q-date availability rule frozen
 [ ] Financial stale_months = 18 frozen
 [ ] ILLIQUID exclusion frozen
@@ -7700,10 +7733,13 @@ Không suy semantic từ numeric label; ambiguity → fail closed.
 
 ## 36.4. Methodology đã khóa nhưng readiness/implementation còn phải hoàn tất
 
-Không còn Q1–Q17/Q-date nào chờ mentor/owner duyệt về methodology.
+Các quyết định Q1–Q17/Q-date đã khóa theo D-M3-01. Quy tắc dùng mô hình B-PIT tại runtime ở Mục 3.1.5 được duyệt tạm
+thời ngày 04/11/2026. Loader chính thức đã áp dụng Q-date theo Mục 3.1.4. Owner chấp nhận snapshot Indicators v1
+theo Mục 5.2.B với các giới hạn vintage/revision được ghi vào báo cáo. Các gate còn lại theo từng bước vẫn áp dụng.
 
 Official full backtest còn phụ thuộc:
 - B-PIT build + audit + pin PASS;
+- gate thời điểm dùng mô hình B-PIT tại Mục 3.1.5 đã được triển khai và kiểm thử trước feasibility và targets-only chính thức;
 - docs/DECISIONS.md/ADR sync;
 - Khóa toàn bộ các tham số cấu hình chính thức (`configs/experiments/m3_strategy_v1.json`):
   + `status = "LOCKED"` (chính thức cho official run kèm SHA-256 pin);

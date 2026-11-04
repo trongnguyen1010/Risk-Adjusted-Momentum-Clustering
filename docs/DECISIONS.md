@@ -34,6 +34,37 @@ lịch sử đề xuất; khi mâu thuẫn, kế hoạch + ADR này được ưu
 
 Triển khai và hướng dẫn chạy: `docs/M3_READINESS.md`.
 
+### 2026-11-04 — Duyệt tạm thời quy tắc dùng mô hình B-PIT tại runtime
+
+Chọn FY mới nhất theo ngày usable của báo cáo. Với Combined và Financial-only, tạm loại mã ở snapshot nếu
+`decision_date < cutoff(FY)` hoặc FY đã chọn chưa có mô hình B-PIT hợp lệ. Ghi lý do vào universe audit. Quy tắc
+hết hiệu lực của FY trước theo Q10 vẫn áp dụng. Chi tiết và ví dụ nằm ở Mục 3.1.5 của
+`docs/KE_HOACH_M3_SCHEMA_GITHUB.md`.
+
+Gate cutoff đã triển khai và kiểm thử PASS ngày 04/11/2026. Combined và Financial-only chọn FY mới nhất theo
+availability kể cả khi model của FY đó chưa có trong artifact. Runtime đọc cutoff từ `models.json`, ghi
+`FINANCIAL_MODEL_BEFORE_CUTOFF` hoặc `FINANCIAL_MODEL_NOT_READY` vào audit khi tạm loại mã. Feasibility và targets
+dùng cùng gate. Phạm vi chấp nhận Indicators v1 thực hiện theo quyết định owner bên dưới.
+
+### 2026-11-04 — Áp dụng Q-date đã khóa tại loader M3
+
+Loader chính thức chỉ nhận `LAG_RULE` cho FY trước 2022 và `CAFEF_DISCLOSURE` cho FY từ 2022 theo Mục 3.1.4.
+Mốc 30/06 là giả định của nhóm cho giai đoạn lịch sử. Artifact availability nguồn giữ nguyên để tái lập đối chứng
+B v4. Các bản ghi CafeF ngoài bộ lọc hiện hành được lưu trong evidence để xác minh báo cáo tương ứng.
+
+### 2026-11-04 — Owner chấp nhận dùng Indicators v1 cho B-PIT theo cùng cách B v4
+
+Owner quyết định B-PIT dùng nguyên bộ Indicators v1 đã pin bởi `configs/product/indicators_v1.json`, gồm VCG
+FY2023 và SBT FY2024. Cohort lấy các công ty phi tài chính có đủ chín chỉ số `status=OK` và giá trị hữu hạn theo
+recipe B v4. Việc tiếp tục quy trình M3 dựa trên bộ dữ liệu cố định này và các kiểm tra Q-date, cutoff, hash,
+fit-leak, cluster order và ARI hiện hành.
+
+Audit đối chiếu PDF và truy vết revision được lưu làm giới hạn dữ liệu đã chấp nhận. VCG FY2023 có cờ
+`NCI_ASSUMED_ZERO` ảnh hưởng ROE, SBT FY2024 có chênh lệch số liệu và phạm vi báo cáo so với các tài liệu đã kiểm tra.
+Quyết định này cho phép sử dụng snapshot Indicators v1 trong M3 với các giới hạn đó. Kết quả M3 phải công bố giới
+hạn vintage/revision của dữ liệu đầu vào khi trình bày tính PIT. Artifact B-PIT hiện có
+`bpit-4a9d2e87f0de84ec` là bản build từ đúng snapshot được chấp nhận, chờ pin vào config theo quy trình.
+
 ## 2026-10-26 — D-DIR-01: hướng chính thức M2/M3 và lưu trữ hướng cũ (owner duyệt)
 
 So sánh công bằng (`artifacts/reports/m2-vs-rework-v1/report.md`): trên cùng tập mã và không gian log, mô hình A v4
