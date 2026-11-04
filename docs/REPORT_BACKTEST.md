@@ -1061,6 +1061,31 @@ backtest. Gói 64 CSV mới chưa được gửi lại bằng token thiếu quy�
 Chỉ đánh dấu upload PASS sau khi có commit trên Hub và đọc lại đủ 64 tệp tại revision đó để đối chiếu
 SHA256. Không sửa `M3_READINESS.md`; trạng thái Final vẫn NOT_READY.
 
+### 3.29. Công bố 64 CSV kết quả M3 lên GitHub
+
+Theo yêu cầu owner, chuyển sang lưu kết quả CSV trên GitHub thay cho lần upload Hugging Face
+chưa có quyền ghi. Đã push commit `79d659057cc150789b89b86ede3cdab69fa030cf` lên nhánh
+`feature/indicators-v1` của repository `trongnguyen1010/Risk-Adjusted-Momentum-Clustering`.
+
+- Chép 62 CSV canonical, giữ nguyên segment/run ID: 31 tệp Development và 31 tệp Holdout dưới
+  [M3/outputs](../M3/outputs/README.md). Hai CSV Combined dễ đọc đã có trong Git được giữ nguyên
+  tại [Dev](../M3/BACKTEST_DEV_COMBINED.csv) và [Holdout](../M3/BACKTEST_HOLDOUT_COMBINED_V2.csv).
+  Tổng cộng 64 CSV, 35.058.169 byte, khoảng 33,43 MiB; tệp lớn nhất khoảng 3,23 MiB.
+- [Danh mục checksum](../M3/outputs/manifest.json) ghi đủ đường dẫn nguồn/bản sao, kích thước,
+  SHA256, source commit/config và pins của hai seal. `.gitattributes` giữ nguyên byte, không tự
+  chuyển đổi xuống dòng đối với các CSV trong gói. Không đổi `.gitignore` của dữ liệu đầu vào.
+- Đã xác minh hai seal và 66 tệp canonical tại nguồn; đủ 64 Git blobs khớp SHA256, CSV parse đạt,
+  liên kết hướng dẫn mới hợp lệ và compileall PASS. Sau push, tải lại **64/64 CSV từ GitHub tại
+  exact commit**: tất cả khớp cả SHA256 lẫn kích thước. [Receipt và self-review](../M3/outputs/publication_verification.json)
+  ghi nhận `PASS`. Không chạy lại backtest hoặc full repository tests cho thay đổi sao chép artifact.
+- GitHub đã có chín commit mới so với checkout local, gồm các tệp owner đã xóa. Commit CSV được
+  tạo trong checkout riêng trên nền remote mới nhất, push bình thường không force. Không phục hồi
+  những tệp đã xóa trên GitHub; không fast-forward/xóa tệp trong thư mục làm việc gốc của owner.
+
+**Kết quả công bố CSV qua GitHub: PASS.** Các source run/seal/config và kết quả backtest giữ nguyên;
+không sửa `M3_READINESS.md`. Hugging Face chưa được upload, giữ lịch sử ở Mục 3.28; việc thiếu quyền
+Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Final Evaluation tiếp tục NOT_READY.
+
 ## 4. Công việc còn lại và gate chuyển bước
 
 | Thứ tự | Công việc | Điều kiện hoàn tất |
@@ -1072,10 +1097,11 @@ SHA256. Không sửa `M3_READINESS.md`; trạng thái Final vẫn NOT_READY.
 | 5 | Strict isolation, config `LOCKED` và checkpoint commit đã `PASS` | Xem Mục 3.11–3.12. Commit `a5d9872`, hash config đã ghi và code/config đạt `git_dirty=false`. |
 | 6 | Development → verify → seal đã `PASS` sau sửa Q17 | Xem Mục 3.21. Run `20261104T121107Z-5557288c`, commit `c9c1f5f`, đúng 34 repair. 31 CSV khớp run đã đối chiếu độc lập; NAV năm strategy giữ nguyên. CSV diễn giải 22 cột vẫn gắn identity run cũ. |
 | 7 | Holdout → verify → seal đã `PASS` | Xem Mục 3.22. Run `20261104T133507Z-5557288c`, cùng commit/config/input với Dev; lịch `24/23/1`, NAV cuối `2025-12-31`, đã đối chiếu accounting/metrics và seal riêng. CSV diễn giải 22 cột đã xuất tại Mục 3.23. |
-| 8 | M3-C phần Dev/Holdout đã `PASS`, tổng thể `PARTIAL` | Bộ notebook hiện hành chạy trực tiếp từ cell, không phụ thuộc helper `.py` trong `M3`; xem Mục 3.28. Các đối chiếu, báo cáo, biểu đồ và phân tích 2024 đạt. Notebook 04 chờ Final sealed; full repository gate còn TIMEOUT. Chưa triển khai M3-B trong phạm vi này. |
+| 8 | M3-C phần Dev/Holdout đã `PASS`, tổng thể `PARTIAL` | Bộ notebook hiện hành chạy trực tiếp từ cell, không phụ thuộc helper `.py` trong `M3`; xem Mục 3.27. Các đối chiếu, báo cáo, biểu đồ và phân tích 2024 đạt. Notebook 04 chờ Final sealed; full repository gate còn TIMEOUT. Chưa triển khai M3-B trong phạm vi này. |
 | 9 | Final Evaluation — `NOT_READY`, chờ dữ liệu 2026 | Theo thông tin owner ngày 04/11/2026, dữ liệu 2026 chưa đủ; đây chưa phải kết quả audit coverage chi tiết. Chỉ mở lại khi dữ liệu sẵn sàng, qua readiness/evaluation-status audit và khóa exact window trước khi xem performance theo Mục 17.5/Giai đoạn 5 của kế hoạch. Chưa chạy Final, không đổi strategy hoặc chạy lại Dev/Holdout vì thiếu dữ liệu Final. |
 
-Việc công bố CSV lên Hugging Face ở Mục 3.29 đang `BLOCKED_AUTH`; cần quyền ghi trước khi upload
-và kiểm tra SHA256 từ xa. Việc này không thay đổi các gate backtest đã đạt ở trên.
+Công bố 64 CSV qua GitHub đã `PASS`, xem Mục 3.29; đủ 64 tệp được tải lại và kiểm tra SHA256.
+Hugging Face chưa được upload do thiếu quyền ghi (Mục 3.28), không chặn sử dụng kết quả trên GitHub.
+Các dòng `PASS` trong bảng là mốc đã hoàn tất; Final vẫn chờ dữ liệu 2026.
 
 Mỗi lần cập nhật báo cáo sau run chính thức cần ghi segment, run ID, Git commit, `config_sha256`, revision dataset, SHA256 đầu vào và đầu ra, kết quả verify cùng đường dẫn artifact đã seal. Bảng Development tại Mục 3.13 và Holdout tại Mục 3.22 được báo cáo riêng, không nối hai NAV. Final Evaluation có gate riêng trong kế hoạch chuẩn.

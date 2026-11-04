@@ -9,6 +9,9 @@ Notebook 01–03 tái lập dữ liệu/PIT, lựa chọn danh mục, backtest v
 Mã điều phối nằm trực tiếp trong notebook: chọn kernel theo hướng dẫn rồi Run All, không cần helper `.py` trong `M3`.
 Notebook 04 chưa chạy vì Final thiếu dữ liệu 2026; M3-C tổng thể còn `PARTIAL`.
 
+[Kết quả CSV đã công bố trong Git](../M3/outputs/README.md): 62 CSV canonical Dev/Holdout và hai CSV
+Combined dễ đọc, tổng 64 tệp. Danh mục SHA256 và receipt tải lại từ GitHub nằm cùng thư mục outputs.
+
 ## Corporate actions trên nhánh Indicators — 04/11/2026
 
 CLI hiện hành là `scripts/corporate_actions/collect_vsdc_recovery_supervisor_v7.py`,

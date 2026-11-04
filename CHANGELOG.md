@@ -1,5 +1,11 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Công bố CSV kết quả M3 lên GitHub — 04/11/2026
+
+Thêm 62 bản sao CSV canonical dưới `M3/outputs/`, giữ hai CSV Combined đã có tại `M3/`;
+tổng 64 CSV. Có danh mục SHA256, receipt kiểm tra 64 tệp từ GitHub và Git attributes bảo toàn byte.
+Giữ các thay đổi đã có trên remote, không sửa source run/seal/config hoặc methodology; Final vẫn NOT_READY.
+
 ## M3-C — notebook tái lập và báo cáo Dev/Holdout, 04/11/2026
 
 Thêm ba notebook thực thi bằng kernel sạch, pin source/seal, kiểm tra input hash và tái sử dụng
