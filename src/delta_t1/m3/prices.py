@@ -20,13 +20,20 @@ from . import inputs
 GLITCH_JUMP, GLITCH_BACK = 0.03, 0.005
 
 
-def repair_ratio_glitches(rows):
-    """rows: [(date, adj, raw)] sorted by date. Returns {date: (adj, flag)} with Q17 applied."""
+def repair_ratio_glitches(rows, calendar=None):
+    """Apply Q17 to [(date, adj, raw)] rows; an exchange calendar enforces adjacent sessions."""
     out = {}
     ratios = [(d, a / r if a and r else None) for d, a, r in rows]
+    neighbours = None
+    if calendar is not None:
+        neighbours = {current: (previous, following)
+                      for previous, current, following in zip(calendar, calendar[1:], calendar[2:])}
     for i, (d, a, r) in enumerate(rows):
         flag = None
-        if 0 < i < len(rows) - 1 and a and r:
+        has_neighbours = 0 < i < len(rows) - 1
+        if has_neighbours and neighbours is not None:
+            has_neighbours = neighbours.get(d) == (rows[i - 1][0], rows[i + 1][0])
+        if has_neighbours and a and r:
             prev, cur, nxt = ratios[i - 1][1], ratios[i][1], ratios[i + 1][1]
             if prev and cur and nxt and abs(cur / prev - 1) > GLITCH_JUMP and abs(nxt / prev - 1) < GLITCH_BACK:
                 a, flag = r * nxt, 'ADJ_GLITCH_REPAIRED'
@@ -67,7 +74,7 @@ class PriceBook:
                 self.volume[(t, d)] = v
         self.adj, self.flags = {}, []
         for t, rows in series.items():
-            for d, (a, flag) in repair_ratio_glitches(rows).items():
+            for d, (a, flag) in repair_ratio_glitches(rows, calendar=calendar).items():
                 if a:
                     self.adj[(t, d)] = a
                 if flag:
