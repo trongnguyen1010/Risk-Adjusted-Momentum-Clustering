@@ -1529,6 +1529,11 @@ repair
 
 `PriceBook` sử dụng `repaired_adj_close` thay cho `adj_close` gốc tại đúng phiên bị phát hiện glitch.
 
+Runtime giới hạn cả các phiên lân cận phục vụ Q17 trong `segment_start` đến `segment_end_date`
+theo strict isolation tại Mục 3.9. Nếu thiếu phiên trước hoặc phiên kế tiếp trong đoạn, Q17 không repair
+phiên đó; không mượn giá ngoài đoạn để hoàn tất detector. Runner truyền hai ranh giới vào `PriceBook`
+trước khi query giá. Kiểm thử phải giữ trường hợp sửa giá tương lai ngoài đoạn không đổi giá runtime trong đoạn.
+
 Detector/repair phải deterministic và auditable; cùng một input và cùng version code phải tạo cùng kết quả repair.
 
 Q17 không được dùng để tùy ý làm mượt giá hoặc sửa các biến động lớn thông thường. Chỉ những phiên thỏa chính xác detector nêu trên mới được gắn:

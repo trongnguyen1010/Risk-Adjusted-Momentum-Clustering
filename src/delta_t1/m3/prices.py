@@ -12,6 +12,7 @@ import json
 import sqlite3
 from bisect import bisect_left, bisect_right
 from collections import defaultdict
+from contextlib import closing
 from pathlib import Path
 
 from . import inputs
@@ -36,25 +37,34 @@ def repair_ratio_glitches(rows):
 class PriceBook:
     """Adjusted prices, volumes and price limits on the sessions M3 trades or values on.
 
-    dates: sessions that matter (execution dates + end dates); their neighbours are loaded too for Q17.
+    dates: sessions that matter (execution dates + end dates); their neighbours are loaded too for Q17,
+    restricted to segment_start/segment_end when provided. A boundary session without both neighbours
+    inside the segment is left unchanged by Q17.
     limits: {(ticker, date): (raw_close, ceiling, floor)} from load_limits(), or None to skip limit checks.
     """
 
-    def __init__(self, dates, calendar, bundle=inputs.BUNDLE, limits=None):
+    def __init__(self, dates, calendar, bundle=inputs.BUNDLE, limits=None, *, segment_start=None, segment_end=None):
+        dates = list(dates)
+        if segment_start and segment_end and segment_start > segment_end:
+            raise ValueError('segment_start must not be after segment_end')
+        if any((segment_start and d < segment_start) or (segment_end and d > segment_end) for d in dates):
+            raise ValueError('execution/valuation date is outside the segment')
+        calendar = [d for d in calendar if (not segment_start or d >= segment_start)
+                    and (not segment_end or d <= segment_end)]
         self.calendar = calendar
         need = set()
         for d in dates:
             i = bisect_left(calendar, d)
             need.update(calendar[max(0, i - 1): i + 2])
-        db = sqlite3.connect(f'file:{bundle}?mode=ro', uri=True)
         marks = ','.join('?' * len(need))
         series = defaultdict(list)
         self.volume = {}
-        for t, d, a, r, v in db.execute(
-                f'select ticker, date, adj_close, raw_close, volume from prices where date in ({marks}) '
-                'order by ticker, date', sorted(need)):
-            series[t].append((d, a, r))
-            self.volume[(t, d)] = v
+        with closing(sqlite3.connect(f'file:{bundle}?mode=ro', uri=True)) as db:
+            for t, d, a, r, v in db.execute(
+                    f'select ticker, date, adj_close, raw_close, volume from prices where date in ({marks}) '
+                    'order by ticker, date', sorted(need)):
+                series[t].append((d, a, r))
+                self.volume[(t, d)] = v
         self.adj, self.flags = {}, []
         for t, rows in series.items():
             for d, (a, flag) in repair_ratio_glitches(rows).items():

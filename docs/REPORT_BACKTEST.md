@@ -20,8 +20,10 @@ Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và th�
 | Gate cutoff tại runtime | `PASS` | Phương án 2 đã triển khai và kiểm thử qua fixture runner targets-only, feasibility và kiểm tra đọc artifact thật tại ba snapshot. |
 | Pin B-PIT | `PASS`, đã commit | Config đã pin artifact và SHA256 tại commit `8692d3f`. Loader runtime xác nhận `financial_source=B_PIT` và 8.461 labels. Status còn `READY_TO_LOCK_AFTER_BPIT`. |
 | Feasibility với B-PIT | `PASS` | Đủ 60/24 snapshot, Combined có 13/60 tháng Development và 1/24 tháng Holdout dưới `N_min=10`. Số tháng thiếu ứng viên Development giữ mức tham khảo lịch sử. |
-| Targets-only chính thức | Chưa thực hiện | Cần commit phần code M3 đã kiểm thử để manifest ghi `git_dirty=false` theo readiness, rồi chạy Development targets-only. |
-| Config `LOCKED`, Development, Holdout, verify và seal | Chưa thực hiện | Chưa có run backtest Development/Holdout và chưa có NAV, ledger, metrics hay kết quả lợi suất M3. |
+| Targets-only Development | `PASS` | Run `20261104T041728Z-9c4abba3`, đủ 60/59/1 cho cả năm strategy, source/hash đúng và `git_dirty=false`. Targets khớp universe audit tại mọi kỳ. |
+| Targets-only Holdout | `PASS` | Run `20261104T042556Z-9c4abba3`, đủ 24/23/1 cho cả năm strategy. Code, config, hash đầu vào và B-PIT khớp Development; targets khớp universe audit tại mọi kỳ. |
+| Strict isolation Q17 và config `LOCKED` | Kiểm tra kỹ thuật `PASS`, config đã đổi, chờ commit | Phạm vi giá thật hai đoạn đạt, 49 test M3/compile/synthetic smoke PASS. SHA256 config ghi tại Mục 3.11. |
+| Official Development, Holdout, verify và seal | Chưa thực hiện | Commit code/config để đạt `git_dirty=false` trước Development. Chưa có run backtest chính thức và kết quả lợi suất M3. |
 
 ## 2. Phạm vi phương pháp đã khóa
 
@@ -162,6 +164,116 @@ Git HEAD khi xác minh là `8692d3fe8d6b13bc7a89d2425118be6eabe54a89`. Code M3 t
 đang chờ commit. Kết quả feasibility chỉ đếm ứng viên. Bước tiếp theo là commit code để đạt điều kiện
 `git_dirty=false` của readiness, rồi chạy targets-only Development.
 
+### 3.8. Checkpoint code trước targets-only
+
+Owner đã commit 14 file M3 bằng thông điệp `Apply M3 Q-date and B-PIT runtime cutoff gates`.
+Commit là `e734c5df2042a573324fa408c9dba8d354d7c6dc`, gồm 499 dòng thêm và 23 dòng xóa.
+Kiểm tra `git status --porcelain -- src scripts configs` trả về trống. Hash labels khớp config,
+status giữ `READY_TO_LOCK_AFTER_BPIT`. Worktree còn `.venv-vci/` untracked, nằm ngoài phạm vi `git_dirty` của runner.
+Kết quả checkpoint `PASS`, đủ điều kiện bắt đầu targets-only Development theo readiness.
+
+### 3.9. Targets-only Development
+
+Owner đã chạy `scripts/run_m3.py --segment development --targets-only`, kết thúc với `TARGETS_DEV_EXIT=0`.
+Run [20261104T041728Z-9c4abba3](../data/experiments/m3/development/20261104T041728Z-9c4abba3/manifest.json) ghi
+Git commit `38948f8e4f15c2c9727ac4da59e2f422ebeda58e`, `git_dirty=false`, `targets_only=true` và
+`financial_source=B_PIT`. Kiểm tra code và config hiện có so với commit trong manifest trả về diff trống.
+Config hash và sáu hash input được ghi trong manifest khớp file trên máy. `c8_prices_sha256=null` đúng behavior
+của targets-only đã mô tả trong kế hoạch. Hash file C8 đầy đủ đã kiểm tra ở bước input readiness.
+
+| Strategy | Decision snapshots | Lịch execution | `UNIVERSE_TOO_SMALL` | Quyết định ngoài biên execution | Dòng targets |
+|---|---:|---:|---:|---:|---:|
+| Combined | 60 | 59 | 13 | 1 | 787 |
+| Market-only | 60 | 59 | 0 | 1 | 1.595 |
+| Financial-only | 60 | 59 | 0 | 1 | 4.012 |
+| Equal-weight | 60 | 59 | 0 | 1 | 25.647 |
+| Momentum-only | 60 | 59 | 0 | 1 | 7.722 |
+
+Mỗi strategy có 45.646 dòng universe audit, một dòng cho từng mã trong Market snapshot. Đã đối chiếu tại đủ
+60 kỳ, số dòng `in_candidate_universe=True` khớp `candidates` trong targets. Các mã được chọn thuộc tập ứng viên,
+khóa mã/ngày duy nhất, rank liên tục, trọng số bằng nhau và tổng trọng số là 1 khi có picks. Số mã được chọn khớp
+rule của từng strategy. Kỳ `UNIVERSE_TOO_SMALL` lưu dòng trạng thái với target trống.
+
+Mọi execution date khớp phiên HOSE mở kế tiếp. Quyết định cuối `2023-12-29` có
+`NOT_EXECUTED_SEGMENT_END` cho cả năm strategy. Các dòng Financial đủ điều kiện dùng đúng FY mới nhất đã usable
+và có cutoff không sau ngày quyết định. Tập lý do loại khớp contract, gồm 419 dòng Combined và 847 dòng
+Financial-only ghi `FINANCIAL_MODEL_BEFORE_CUTOFF`. Không có mã lý do lạ trong audit.
+
+Kết quả verify `PASS`. Run có đủ 11 file targets-only theo contract. SHA256 manifest là
+`b5b80bea9b29d56f5f64fb383c8cef924cb0e6a9beed1786e5053b3d90387350`.
+Next action là targets-only Holdout, sau đó đối chiếu hai run trước khi khóa config theo readiness.
+
+### 3.10. Targets-only Holdout và đối chiếu hai đoạn
+
+Owner đã chạy `scripts/run_m3.py --segment holdout --targets-only`, kết thúc với `TARGETS_HOLDOUT_EXIT=0`.
+Run [20261104T042556Z-9c4abba3](../data/experiments/m3/holdout/20261104T042556Z-9c4abba3/manifest.json) ghi
+`targets_only=true`, `financial_source=B_PIT`, `git_dirty=false`, start `2024-01-31` và end `2025-12-31`.
+Git commit, config SHA256, toàn bộ hash đầu vào và nguồn tài chính khớp run Development tại Mục 3.9.
+Kiểm tra lại file trên máy xác nhận sáu hash input và hash config đều khớp manifest. Code/config hiện có
+không có diff so với commit trong manifest. `c8_prices_sha256=null` đúng contract targets-only.
+
+| Strategy | Decision snapshots | Lịch execution | `UNIVERSE_TOO_SMALL` | Quyết định ngoài biên execution | Dòng targets |
+|---|---:|---:|---:|---:|---:|
+| Combined | 24 | 23 | 1 | 1 | 259 |
+| Market-only | 24 | 23 | 0 | 1 | 828 |
+| Financial-only | 24 | 23 | 0 | 1 | 1.706 |
+| Equal-weight | 24 | 23 | 0 | 1 | 18.087 |
+| Momentum-only | 24 | 23 | 0 | 1 | 5.439 |
+
+Mỗi strategy có 30.155 dòng universe audit, đúng một dòng cho từng mã/ngày trong Market snapshot.
+Ở đủ 24 kỳ, số ứng viên khớp audit, picks thuộc tập ứng viên, không trùng mã, rank liên tục,
+số mã chọn đúng rule và trọng số bằng nhau có tổng bằng 1 khi có picks. Các dòng Financial đủ điều kiện
+dùng FY mới nhất đã usable, có model cutoff không sau ngày quyết định và thuộc cụm được phép.
+Tập lý do loại khớp contract; các dòng `FINANCIAL_MODEL_BEFORE_CUTOFF` và `FINANCIAL_MODEL_NOT_READY`
+được giữ trong audit theo gate runtime đã duyệt.
+
+Combined có một kỳ `UNIVERSE_TOO_SMALL` tại `2025-04-29`, với 4 ứng viên và target trống, khớp feasibility.
+Execution date khớp phiên HOSE mở kế tiếp. Quyết định cuối `2025-12-31` được ghi
+`NOT_EXECUTED_SEGMENT_END` ở cả năm strategy. Đây là lịch execution dự kiến, chưa phải giao dịch thực tế.
+
+Kết quả verify `PASS`; đủ 11 file theo contract targets-only. SHA256 manifest là
+`402112a47154bf64773e809408fc0f884517cc209ada7be22ab89d072c60d10a`.
+Self-review xác nhận cả hai run targets-only đã đạt Bước 4 của readiness, giữ nguyên rule và không tạo
+NAV, ledger hoặc metrics lợi suất. Bước tiếp theo là kiểm tra strict isolation Q17 và khóa config;
+chưa thực hiện bước này trong lần xác minh Holdout.
+
+### 3.11. Strict isolation Q17 và khóa config
+
+Owner yêu cầu thực hiện bước kiểm tra ranh giới giá và khóa config sau khi targets-only hai đoạn PASS.
+Kiểm tra code phát hiện `PriceBook` nạp thêm phiên lân cận của execution/valuation date để phục vụ Q17,
+nhưng chưa giới hạn theo segment. Trên lịch thật, logic cũ nạp thêm `2024-01-02` cho Development kết thúc
+`2023-12-29`. Đây là lỗi implementation so với strict isolation tại Mục 3.9 của kế hoạch.
+
+Đã truyền `segment_start`/`segment_end` từ runner vào `PriceBook`, lọc lịch trước khi query SQLite và từ chối
+execution/valuation date nằm ngoài đoạn. Q17 tiếp tục sửa glitch trong đoạn theo detector đã khóa. Nếu phiên
+biên thiếu lân cận trong đoạn thì giữ giá nguồn, không dùng phiên ngoài đoạn để repair. Kết nối SQLite đóng
+sau khi đọc. Source artifacts và các run targets-only đã có được giữ nguyên.
+
+Kiểm tra đọc giá thật, không chạy portfolio engine hoặc tính lợi suất, cho kết quả:
+
+| Segment | Phiên execution/valuation yêu cầu | Phiên giá đã nạp, gồm lân cận | Dòng giá | Phiên giá đầu | Phiên giá cuối |
+|---|---:|---:|---:|---|---|
+| Development | 60 | 179 | 246.132 | `2019-01-31` | `2023-12-29` |
+| Holdout | 24 | 71 | 103.730 | `2024-01-31` | `2025-12-31` |
+
+Không có ngày ngoài đoạn trong giá/volume đã nạp hoặc Q17 flags. Bộ 43 test M3 ban đầu PASS trước sửa;
+sau sửa, 49 test M3 PASS, gồm sáu regression test mới về biên cuối, biên đầu, future append ngoài đoạn,
+repair trong đoạn, source immutability, date ngoài đoạn và wiring qua runner fixture. `compileall` PASS.
+[Synthetic smoke](../data/runs/run-20261104T043141Z-55c26888/manifest.json) có `status=complete`, `synthetic=true`,
+exit 0. Test runner dùng dữ liệu giả trong thư mục tạm; không phải official Development/Holdout.
+
+Config chuyển `READY_TO_LOCK_AFTER_BPIT` sang `LOCKED`. So với config đã chạy targets-only, chỉ thay `status`
+và `status_note`; artifact B-PIT, labels hash, rule Va, `N_min`, trọng số, chi phí và segments giữ nguyên.
+SHA256 của file config `LOCKED` là `b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d`.
+Các hash input đã xác minh ở Mục 3.9–3.10 tiếp tục là danh tính đầu vào; không tạo bản dữ liệu mới.
+Hash config mới khác hai manifest targets-only vì đã chuyển trạng thái, không phải thay strategy rule.
+
+Self-review xác nhận bản sửa thực thi ranh giới đã duyệt, không đổi methodology, không dùng kết quả lợi suất
+để chọn rule và không sửa immutable artifacts. Gate kỹ thuật `PASS`. Git HEAD trước commit vẫn là
+`38948f8e4f15c2c9727ac4da59e2f422ebeda58e`; code/config đang có thay đổi nên chưa đạt `git_dirty=false`.
+Next action là owner commit các file của bước này, kiểm tra hash config và worktree sạch theo phạm vi runner.
+Sau checkpoint commit mới chuyển sang official Development → verify → seal. Chưa chạy stage đó trong phiên này.
+
 ## 4. Công việc còn lại và gate chuyển bước
 
 | Thứ tự | Công việc | Điều kiện hoàn tất |
@@ -169,9 +281,9 @@ Git HEAD khi xác minh là `8692d3fe8d6b13bc7a89d2425118be6eabe54a89`. Code M3 t
 | 1 | Chấp nhận snapshot đầu vào đã `PASS` theo owner | Xem quyết định ở Mục 3.5. Dùng Indicators v1 đã pin và disclosure các giới hạn ghi tại Mục 3.2. |
 | 2 | Gate cutoff tại runtime đã `PASS` | Xem kết quả thực hiện ở Mục 3.4. Dùng implementation này cho feasibility và targets-only chính thức sau khi các gate đầu vào đạt. |
 | 3 | Pin B-PIT và feasibility đã `PASS` | Xem Mục 3.6 và 3.7. Giữ `N_min=10` và rule Va theo config đã khóa về methodology. |
-| 4 | Chạy targets-only riêng hai segment | Xác minh B-PIT hash, `financial_source`, lịch `60/59/1` và `24/23/1`, target weights và số dòng universe audit. |
-| 5 | Kiểm tra strict isolation và khóa config | Xác minh Q17 ở biên đoạn vì `PriceBook` có thể nạp phiên lân cận. Chốt code, input, config SHA256 và trạng thái `LOCKED` sau khi các gate trước đạt. |
-| 6 | Development → verify → seal | Kiểm tra ledger, holdings, turnover, NAV, VNINDEX và metrics. Ngày NAV cuối dự kiến `2023-12-29`. Lưu run ID, manifest và hash đầu ra. |
+| 4 | Targets-only Development và Holdout đã `PASS` | Xem Mục 3.9 và 3.10. Hai run cùng code/config/input/B-PIT; lịch `60/59/1` và `24/23/1`, target weights và số dòng universe audit đều đạt. |
+| 5 | Strict isolation `PASS`, config đã `LOCKED`; còn checkpoint commit | Xem Mục 3.11. Hash config đã ghi; chờ owner commit code/config/tests/docs và xác nhận `git_dirty=false`. Chưa coi checkpoint commit đã hoàn tất. |
+| 6 | Tiếp theo sau commit: Development → verify → seal — chưa chạy | Kiểm tra ledger, holdings, turnover, NAV, VNINDEX và metrics. Ngày NAV cuối dự kiến `2023-12-29`. Lưu run ID, manifest và hash đầu ra. |
 | 7 | Holdout → verify → seal | Chạy sau khi Development seal, dùng cùng danh tính code, config và input. Ngày NAV cuối dự kiến `2025-12-31`. Xác minh và lưu bộ output riêng. |
 | 8 | Đối chứng, đánh giá và tái lập | So sánh Combined với bốn strategy đối chứng và VNINDEX theo từng đoạn. Báo số kỳ thiếu ứng viên và giới hạn dữ liệu. Chuẩn bị artifact sealed cho M3-B và notebook M3-C. |
 

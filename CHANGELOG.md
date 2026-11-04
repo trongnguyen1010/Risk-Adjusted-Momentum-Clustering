@@ -1,5 +1,13 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Khóa config M3 và sửa ranh giới Q17 — 04/11/2026
+
+`PriceBook` giới hạn query giá và các phiên lân cận Q17 trong đoạn runner truyền vào; phiên biên không repair
+bằng giá ngoài đoạn. Thêm sáu regression test cho biên đoạn, future append, source immutability và runner.
+49 test M3, compile và synthetic smoke PASS; kiểm tra phạm vi giá trên dữ liệu thật hai đoạn đạt.
+Config chuyển sang `LOCKED` sau targets-only Development/Holdout PASS, chờ commit trước official Development.
+Chi tiết bằng chứng và SHA256 ghi trong `docs/REPORT_BACKTEST.md`.
+
 ## Corporate action supervisor V7 — 04/11/2026
 
 Sửa lỗi supervisor tạo sẵn run directory khiến V6 worker kiểm tra manifest của chính
