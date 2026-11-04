@@ -1,5 +1,15 @@
 # Project Map
 
+## Corporate actions — nhánh feature/indicators-v1
+
+- `scripts/corporate_actions/collect_vsdc_recovery_pausefix_v6.py` là public supervisor V6,
+  hỗ trợ `--check` offline và `--pause`.
+- `src/delta_t1/ingestion/corporate_actions/`, `configs/data/corporate_actions/`,
+  `tests/unit/ingestion/corporate_actions/` chứa module, config và tests thu thập.
+- `data/corporate_actions/work/` chứa evidence/checkpoint local. Các đường dẫn cũ trong
+  `tmp/` và compatibility imports là đầu vào của các artifact đã pin.
+- [Hướng dẫn thu thập](../M3/CORPORATE_ACTIONS_V1_COLLECTION_GUIDE.md).
+
 - `src/delta_t1/product/research_preview.py`, `scripts/export_delta_research_preview.py`: sidecar version mới, source pins, presentation aggregates; no fit.
 - `web/backend/app/previews.py`, `configs/product/model_previews_v1.json`: read-only baseline/R1 registry, composite revision và versioned stock/members/matrix/migration.
 - `scripts/verify_delta_research_preview.py`, `tests/unit/test_terminal_previews.py`: source replay và isolated contracts.

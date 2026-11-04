@@ -1,5 +1,11 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Corporate action chuyển sang nhánh Indicators — 04/11/2026
+
+Đưa bộ thu thập corporate action từ `m3-backtest@8827ebf` sang `feature/indicators-v1`,
+gồm V6 supervisor, config, schema, compatibility entrypoints, fixtures/tests và hướng dẫn.
+Dùng lại preparation và dữ liệu local với các hash đã pin để tiếp tục prefix 616 query.
+
 ## Chấp nhận snapshot Indicators v1 cho B-PIT (04/11/2026)
 
 Owner duyệt dùng bộ Indicators v1 đã pin theo cùng cách B v4, gồm VCG FY2023 và SBT FY2024. Audit nguồn và revision

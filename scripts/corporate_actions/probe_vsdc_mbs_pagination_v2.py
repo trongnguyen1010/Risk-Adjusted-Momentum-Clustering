@@ -1,0 +1,35 @@
+"""Pilot V2 VSDC MBS hai requests, AJAX header đã quan sát; do user chạy; không gọi AI hoặc resume state cũ."""
+import argparse
+from datetime import datetime, timezone
+import json
+from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "src"))
+from delta_t1.ingestion.corporate_actions.vsdc_mbs_pilot_v2 import CONFIG, TYPE, run, seal
+
+
+def main():
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"): stream.reconfigure(encoding="utf-8")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--check", action="store_true", help="Chỉ kiểm tra offline")
+    args = parser.parse_args()
+    config = json.loads((ROOT / CONFIG).read_text(encoding="utf-8"))
+    base = ROOT / config["output_base"]
+    if not args.check and base.exists() and any(base.glob("run-*")):
+        parser.error("Pilot đã có output; gửi ZIP review trước, không tự chạy lại hoặc force-resume.")
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+    output = base / ("run-" + stamp) / "state"
+    result = run(ROOT, output, dry_run=args.check)
+    if not args.check:
+        archive = base / ("delta-vsdc-mbs-pagination-v2-" + stamp + ".zip")
+        seal(output, archive, artifact_type=TYPE)
+        print("OUTPUT_STATE:", str(output))
+        print("OUTPUT_ZIP:", str(archive))
+    print(json.dumps(result, ensure_ascii=False, indent=2))
+    return 0 if result["status"] in {"OFFLINE_CHECK_PASS", "PASS_PAGE2_ACCESS_AND_LAYOUT_REVIEW_REQUIRED"} else 2
+
+
+if __name__ == "__main__": raise SystemExit(main())
