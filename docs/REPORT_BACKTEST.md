@@ -3,7 +3,7 @@
 **Ngày chốt báo cáo** 04/11/2026, giờ Việt Nam  
 **Nhánh** `feature/indicators-v1`  
 **Git HEAD ban đầu** `42d3af869ac43c2f199e36916700b58c6959bcf1`<br>
-**Commit backtest chính thức** `a5d9872b598bd9878238849835f41beedeb5826f`<br>
+**Commit backtest chính thức hiện hành** `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`<br>
 **Revision dataset** `08c24867b11177072bfe457a4623a38abf9bbc48`
 
 Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và thứ tự các gate lấy từ [kế hoạch chuẩn M3](KE_HOACH_M3_SCHEMA_GITHUB.md), [ADR D-M3-01](DECISIONS.md) và [hướng dẫn readiness](M3_READINESS.md). Bằng chứng dưới `data/`, `artifacts/` và `.tmp/` được lưu local theo quy tắc Git ignore của dự án.
@@ -24,9 +24,11 @@ Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và th�
 | Targets-only Development | `PASS` | Run `20261104T041728Z-9c4abba3`, đủ 60/59/1 cho cả năm strategy, source/hash đúng và `git_dirty=false`. Targets khớp universe audit tại mọi kỳ. |
 | Targets-only Holdout | `PASS` | Run `20261104T042556Z-9c4abba3`, đủ 24/23/1 cho cả năm strategy. Code, config, hash đầu vào và B-PIT khớp Development; targets khớp universe audit tại mọi kỳ. |
 | Strict isolation Q17 và config `LOCKED` | `PASS`, đã commit | Commit `a5d9872`, code/config sạch theo phạm vi runner. Phạm vi giá thật hai đoạn đạt, 49 test M3/compile/synthetic smoke PASS. SHA256 config ghi tại Mục 3.11. |
-| Official Development → verify → seal | Run nguồn đã seal. Portfolio accounting `PASS`, cần đồng bộ metadata Q17 | Run `20261104T060408Z-5557288c`. Rà soát Mục 3.20 xác nhận NAV năm strategy khớp, phát hiện count repair 36 cần sửa thành 34. |
-| Rà soát trước Holdout | `PARTIAL`, chờ commit và run Development mới | Đã sửa Q17 kiểm tra đúng phiên liền kề. 52 test M3, compile, synthetic smoke PASS. |
-| Official Holdout → verify → seal | Chưa thực hiện | Chờ commit bản sửa và verify/seal Development đồng bộ version code theo Mục 3.20. |
+| Official Development → verify → seal | `PASS` | Run mới `20261104T121107Z-5557288c`, commit `c9c1f5f`, `git_dirty=false`. Đã verify/seal, Q17 có đúng 34 repair; xem Mục 3.21. |
+| Rà soát trước Holdout | `PASS` | Sửa Q17 qua 52 test M3, compile, synthetic smoke; run Dev mới có 31 CSV khớp byte với run đã đối chiếu độc lập. NAV và metrics danh mục giữ nguyên. |
+| Official Holdout → verify → seal | `PASS` | Run `20261104T133507Z-5557288c`, cùng commit/config/bảy input với Dev đã seal. Đã đối chiếu giao dịch, dòng tiền, lượng nắm giữ, NAV, metrics và VNINDEX; xem Mục 3.22. |
+| Final Evaluation | `NOT_READY` | Owner xác nhận ngày 04/11/2026 chưa đủ dữ liệu 2026. Chưa khóa exact window, chưa thêm segment Final vào config và chưa chạy Final. |
+| M3-C — notebook và báo cáo kỹ thuật | Dev/Holdout `PASS`, tổng thể `PARTIAL` | Notebook 01–03 đã thực thi từ kernel sạch và đối chiếu hai run đã seal; báo cáo/hướng dẫn ở `M3`. Notebook 04 chưa chạy do Final `NOT_READY`; xem Mục 3.26. |
 
 ## 2. Phạm vi phương pháp đã khóa
 
@@ -365,7 +367,7 @@ sau đó verify/seal riêng. Chưa chạy official Holdout trong phiên này.
 ### 3.14. CSV backtest v2 diễn giải bốn bước của Combined Development
 
 **Bản xem hiện hành** là bản `plan-columns` với 22 cột tại Mục 3.19.
-[CSV v2 theo bố cục đã chốt](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/plan-columns/BACKTEST_DEV_COMBINED_V2.csv)
+[CSV v2 theo bố cục đã chốt](../M3/BACKTEST_DEV_COMBINED_V2.csv)
 
 Theo yêu cầu owner, đã xuất [BACKTEST_DEV_COMBINED_V2.csv](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/BACKTEST_DEV_COMBINED_V2.csv)
 để xem kết quả từng bước theo 60 decision snapshots của run Development đã seal tại Mục 3.13.
@@ -561,10 +563,13 @@ Owner chốt 21 cột để theo dõi kết quả chọn mã, giao dịch, tỷ 
 chi tiết sau khi chuyển dòng tổng hợp. Dòng HVT kỳ 2 ghi `volume=0`, `BUY_FAILED` và lý do trong `Ghi chú`.
 Theo yêu cầu owner, bổ sung `pre-rebalance-weight` ngay sau `weight`, đưa tổng số lên 22 cột.
 Đã đối chiếu 802 tỷ trọng cuối khoảng giữ ở các dòng `ĐỊNH GIÁ` của Bước 3 với bản gốc 35 cột.
-[CSV hiện hành](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/plan-columns/BACKTEST_DEV_COMBINED_V2.csv)
+[CSV hiện hành](../M3/BACKTEST_DEV_COMBINED_V2.csv)
 · [Manifest](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/plan-columns/manifest_v2.json)
 
 SHA256 CSV là `511f3cccf0c27309a8486948e39151abad4fe646844110d0d9915b7cc96ff7f4`.
+
+Theo yêu cầu owner, file CSV 22 cột đã được di chuyển vào `M3/BACKTEST_DEV_COMBINED_V2.csv`.
+SHA256 trước và sau di chuyển khớp; nội dung giữ nguyên. Manifest tại đường dẫn gốc được giữ làm evidence.
 
 ### 3.20. Rà soát Development trước Holdout
 
@@ -623,6 +628,449 @@ Self-review kết luận portfolio accounting Dev `PASS`, sửa Q17 runtime `PAS
 run mới để metadata Q17 và code identity đồng bộ. Sau checkpoint đó mới thực hiện Holdout bằng cùng version.
 Kết quả nguồn, seal nguồn và CSV diễn giải hiện có được lưu làm evidence của run trước sửa.
 
+### 3.21. Development chạy lại sau sửa Q17: verify và seal `PASS`
+
+Owner đã commit bản sửa Q17 tại `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf` và chạy lại
+Development, `BACKTEST_DEV_EXIT=0`. Run chính thức hiện hành là
+[20261104T121107Z-5557288c](../data/experiments/m3/development/20261104T121107Z-5557288c/manifest.json).
+Manifest xác nhận `git_dirty=false`, `targets_only=false`, `financial_source=B_PIT`, config `LOCKED`.
+SHA256 config giữ nguyên `b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d`.
+Revision dataset vẫn là `08c24867b11177072bfe457a4623a38abf9bbc48`; đã hash lại đủ bảy input,
+gồm toàn bộ C8 prices, và tất cả khớp các giá trị đã pin trong manifest.
+
+| Kiểm tra | Kết quả |
+|---|---|
+| Lịch và số quyết định | Cả năm strategy có 60 decisions, 59 executions và một quyết định cuối không execution; NAV cuối `2023-12-29`. |
+| Thiếu ứng viên | Combined vẫn 13 kỳ dưới `N_min`; bốn strategy đối chứng không có kỳ dưới `N_min`. |
+| Q17 runtime | Có đúng 34 repair, khớp bộ đối chiếu độc lập tại Mục 3.20; không còn hai cờ sai HND/DNN. Giá nạp nằm trong ranh giới Dev. |
+| Output | Đủ 33 file. Toàn bộ 31 CSV khớp byte với run nguồn đã seal và được đối chiếu độc lập tại Mục 3.20. Chỉ manifest và metadata Q17 trong metrics thay đổi. |
+| Metrics | Metrics của năm strategy và VNINDEX giữ nguyên; riêng `adj_glitches_repaired` đổi từ 36 thành 34. Chưa tính Sharpe. |
+
+Việc verify tái sử dụng bằng chứng selection và sổ lượng nắm giữ độc lập của Mục 3.20 thông qua hash
+manifest/seal nguồn và hash source `prices.py`. Đối chiếu byte của 31 CSV xác nhận toàn bộ target,
+universe audit, ledger, holdings, NAV, turnover và benchmark của run mới giống kết quả đã kiểm tra.
+Đồng thời kiểm tra lại code identity, config, input, Q17 runtime và ranh giới segment cho run mới.
+Helper kiểm tra là `.tmp/seal_m3_development_q17_rerun.py`; SHA256 helper được ghi trong seal.
+
+Đã tạo [seal Development mới](../data/experiments/m3/seals/development/20261104T121107Z-5557288c/seal.json)
+với `status=PASS`, lưu SHA256 của đủ 33 file cùng đường dẫn và hash bằng chứng tham chiếu.
+
+| Artifact | SHA256 |
+|---|---|
+| `manifest.json` run mới | `994b7bb6bd7473a5bd2f18f02972dab91fd7e02e457bb07666eba6ebc41b623b` |
+| `metrics.json` run mới | `dda8a822ec791e390366b2f0aab27a7c4b27b17cbb191f048c62e4c7c37eef84` |
+| `seal.json` run mới | `39784248f3777700ebc0261ef53f20053bc4429920785472bba416150e902661` |
+
+Self-review `PASS`: run mới đúng commit đã sửa, output được verify/seal và gate Dev tại Mục 3.20
+đã hoàn tất. Run/seal cũ và evidence review được giữ nguyên. CSV diễn giải 22 cột tại Mục 3.19 vẫn ghi
+identity run cũ; các CSV nguồn nghiệp vụ của hai run khớp byte, chưa xuất lại bản diễn giải trong bước này.
+Chỉ cập nhật báo cáo, không sửa `M3_READINESS.md`, code/config hoặc tự chạy Holdout.
+Bước tiếp theo là chạy Holdout bằng cùng commit `c9c1f5f`, config và input đã pin, rồi verify/seal riêng.
+
+### 3.22. Holdout chính thức: verify và seal `PASS`
+
+Owner đã chạy Holdout và nhận `BACKTEST_HOLDOUT_EXIT=0`. Run
+[20261104T133507Z-5557288c](../data/experiments/m3/holdout/20261104T133507Z-5557288c/manifest.json)
+ghi `targets_only=false`, `financial_source=B_PIT`, config `LOCKED`, `git_dirty=false`.
+Commit là `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`, SHA256 config là
+`b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d`, trùng Dev tại Mục 3.21.
+Revision dataset giữ nguyên `08c24867b11177072bfe457a4623a38abf9bbc48`.
+Đã hash lại bảy input, kể cả toàn bộ C8 prices; các giá trị khớp manifest và seal Dev.
+
+#### Kết quả kiểm tra
+
+- Đủ 33 file output. Mười CSV targets/universe audit khớp byte với Holdout targets-only tại Mục 3.10.
+  Kiểm tra 24 decision dates, execution là phiên kế tiếp, số ứng viên, membership, rank và tổng target weight đạt.
+- Cả năm strategy có 24 decisions, 23 executions và một quyết định cuối `2025-12-31` không execution.
+  NAV được khởi tạo độc lập bằng 1 tại `2024-02-01`, kết thúc tại `2025-12-31`; không nối danh mục/NAV Dev.
+- Combined có một kỳ `UNIVERSE_TOO_SMALL`, decision `2025-04-29`, chỉ bốn ứng viên. Rule Q6 giữ mã cũ
+  còn thuộc tập ứng viên, không mua mới, được kiểm tra cùng ledger. Bốn strategy còn lại không có kỳ dưới N_min.
+- Q17 được tính độc lập từ các phiên exchange liền kề thật: toàn bộ giá và 110 cờ repair khớp runtime.
+  Giá/volume nạp nằm trong ranh giới Holdout. Trần/sàn được đọc trực tiếp trong lượt scan/hash C8.
+- Đối chiếu từng ledger field: intended/executed, SELL trước BUY, volume/trần/sàn, failed orders, scaling,
+  bảo toàn vốn, holdings và turnover. Dựng thêm sổ lượng nắm giữ × giá độc lập xác nhận NAV và tỷ trọng
+  ở mọi kỳ của năm strategy. Không gọi portfolio engine để xác minh accounting.
+- Metrics được tái tính từ output; VNINDEX chuẩn hóa trên đúng cùng 24 ngày định giá. Không có Sharpe.
+  Tất cả hash output trước/sau kiểm tra giữ nguyên.
+
+#### Kết quả Holdout đã seal
+
+Các giá trị dưới đây được lấy từ `metrics.json`; 24 điểm NAV tạo 23 khoảng lợi suất, CAGR dùng `23/12` năm.
+
+| Strategy / benchmark | Tổng lợi suất | CAGR | Biến động năm | Max drawdown | Turnover trung bình mỗi kỳ | Cash trung bình sau giao dịch |
+|---|---:|---:|---:|---:|---:|---:|
+| Combined | 38,95% | 18,72% | 28,59% | -26,27% | 54,53% | 8,92% |
+| Market-only | 22,43% | 11,14% | 23,75% | -18,91% | 58,52% | 3,75% |
+| Financial-only | 28,37% | 13,92% | 7,30% | -3,95% | 24,37% | 2,54% |
+| Equal-weight | 29,53% | 14,45% | 13,34% | -7,40% | 8,41% | 0,47% |
+| Momentum-only | 41,37% | 19,80% | 15,60% | -8,92% | 27,50% | 0,82% |
+| VNINDEX | 52,13% | 24,47% | 16,08% | -5,87% | — | — |
+
+Combined kết thúc với NAV `1.3894883661092423`, thấp hơn VNINDEX về tổng lợi suất 13,18 điểm phần trăm.
+Combined cao hơn Market-only, Financial-only và Equal-weight, nhưng thấp hơn Momentum-only về tổng lợi suất;
+max drawdown sâu hơn cả bốn đối chứng và VNINDEX trên các chuỗi NAV đang dùng.
+Đây là kết quả theo config đã khóa, không thay rule để cải thiện kết quả Holdout.
+
+> **Giới hạn đối sánh:** Combined dùng giá cổ phiếu điều chỉnh, còn VNINDEX là chỉ số giá, nên lợi suất và
+> mức sụt giảm tối đa chưa hoàn toàn tương đương. Mức sụt giảm chỉ được đo tại các ngày định giá theo kỳ;
+> backtest chưa tính phí giao dịch và trượt giá.
+
+Giới hạn vintage/revision tài chính tại Mục 3.2 tiếp tục áp dụng.
+
+| Strategy | BUY_FAILED | SELL_FAILED | SCALED | PRICE_STALE | LIMIT_DATA_MISSING |
+|---|---:|---:|---:|---:|---:|
+| Combined | 17 | 23 | 93 | 3 | 0 |
+| Market-only | 40 | 25 | 254 | 5 | 0 |
+| Financial-only | 123 | 96 | 614 | 1 | 0 |
+| Equal-weight | 1.073 | 1.169 | 9.019 | 29 | 0 |
+| Momentum-only | 409 | 464 | 2.430 | 6 | 0 |
+
+Combined có ba sự kiện dùng last valid mark: PTX ngày `2024-10-01` và `2024-11-01`, VVS ngày `2025-12-01`.
+Đây là các mã/ngày thiếu giá được ghi nhận theo policy `PRICE_STALE`; toàn bộ sự kiện của năm strategy
+được lưu trong seal. Counts là số sự kiện/lệnh, không phải số mã duy nhất.
+
+#### Evidence và self-review
+
+[Seal Holdout](../data/experiments/m3/seals/holdout/20261104T133507Z-5557288c/seal.json)
+ghi `status=PASS`, hash đủ 33 file, hash bảy input, seal Dev tham chiếu, kết quả accounting/metrics và stale.
+Helper là `.tmp/verify_m3_holdout_20261104.py`, có SHA256 được ghi trong seal.
+
+| Artifact | SHA256 |
+|---|---|
+| `manifest.json` Holdout | `78049d610321e1fd63888437d705a57423ec04129549fc7eb255c0d9d046c0c1` |
+| `metrics.json` Holdout | `30a45d1556df42e7ecb8e2fd7dd3f04b418be0b329926da1580ceb13bc63d9c7` |
+| `seal.json` Holdout | `f54ea2fb1d0da107d684178c541c9f9c634a11f4de463ad4352e4967ec152cbc` |
+
+Self-review `PASS`: hoàn tất đúng bước Holdout → verify → seal, không sửa code/config, dữ liệu đầu vào,
+run/seal Dev, CSV diễn giải hoặc `M3_READINESS.md`. Không chạy lại model, không tuning sau Holdout.
+Đợt này chỉ dùng helper kiểm tra local và cập nhật báo cáo; không thay pipeline nên không lặp unit suite.
+Chưa tự chuyển sang Final Evaluation, dashboard hoặc notebook.
+
+### 3.23. CSV Holdout Combined v2 theo bản Dev đã chốt
+
+Theo yêu cầu owner, đã xuất [BACKTEST_HOLDOUT_COMBINED_V2.csv](../M3/BACKTEST_HOLDOUT_COMBINED_V2.csv)
+trong thư mục `M3`, dùng đúng 22 tên cột và thứ tự cột của bản Dev tại Mục 3.19.
+File là báo cáo diễn giải từ Holdout đã seal ở Mục 3.22, không chạy lại strategy hoặc portfolio engine.
+
+File có **1.892 dòng**, gồm 829 dòng ứng viên, 411 dòng giao dịch, 278 dòng danh mục,
+278 dòng định giá và 96 dòng tổng hợp. Giữ đủ 24 kỳ, bốn bước mỗi kỳ, mỗi dòng tổng hợp nằm cuối bước.
+Giữ cả ứng viên không được chọn ở Bước 1. Kỳ 24 chỉ lưu target và các dòng tổng hợp kết thúc đoạn;
+không tạo giao dịch hoặc khoảng nắm giữ mới.
+
+`weight` ở Bước 3 là tỷ trọng đầu khoảng giữ, `pre-rebalance-weight` là tỷ trọng cuối khoảng giữ tại `date`.
+Các tỷ trọng/lợi suất dùng tỷ lệ 0–1, NAV và executed dùng giá trị vốn chuẩn hóa với vốn ban đầu bằng 1.
+Volume được bổ sung tại các dòng mã Bước 2, giữ đơn vị shares. Đủ 40 lệnh thất bại có lý do trong `Ghi chú`,
+đối chiếu price/volume và raw close/trần/sàn từ input đã hash. Ô thiếu/không áp dụng giữ trống.
+
+Read-back kiểm tra đủ 22 cột khớp bản Dev, 24 kỳ/96 tổng hợp cuối bước, toàn bộ ứng viên, target weights,
+ledger, holdings, 278 tỷ trọng cuối khoảng giữ, cash ratio và NAV/lợi suất từng kỳ đều `PASS`.
+Lợi suất ghép của 23 khoảng khớp NAV cuối `1.3894883661092423`.
+Artifact Tool round-trip, inspect và render đạt; SHA256 đủ 33 file Holdout vẫn khớp seal.
+
+[Manifest CSV](../data/experiments/m3/reports_v2/holdout/20261104T133507Z-5557288c/plan-columns/manifest_v2.json)
+ghi source run/commit/config, seal hash, input/output hashes, template Dev hash, counts, đơn vị và builders.
+SHA256 CSV là `82e6b1cb5cb7db061ad3b2a0b838967555604071903d479044699c41c980dcb7`.
+Self-review `PASS`: không sửa CSV Dev, run/seal nguồn, code/config hoặc `M3_READINESS.md`;
+chỉ xuất báo cáo Holdout được yêu cầu và cập nhật báo cáo tiến độ.
+
+### 3.24. So sánh kết quả đối sánh giữa Development và Holdout
+
+Số liệu lấy từ [metrics Dev hiện hành](../data/experiments/m3/development/20261104T121107Z-5557288c/metrics.json)
+và [metrics Holdout](../data/experiments/m3/holdout/20261104T133507Z-5557288c/metrics.json), đều thuộc run đã seal.
+Dev có 59 khoảng lợi suất, Holdout có 23 khoảng. Vì độ dài khác nhau, dùng CAGR để so sánh thêm bên cạnh
+tổng lợi suất; không nối NAV hai đoạn hoặc diễn giải tổng lợi suất thấp hơn là hiệu quả năm hóa thấp hơn.
+
+| Strategy / benchmark | Tổng lợi suất Dev | Tổng lợi suất Holdout | CAGR Dev | CAGR Holdout |
+|---|---:|---:|---:|---:|
+| Combined | 116,15% | 38,95% | 16,97% | 18,72% |
+| Market-only | 128,81% | 22,43% | 18,34% | 11,14% |
+| Financial-only | 40,74% | 28,37% | 7,20% | 13,92% |
+| Equal-weight | 159,03% | 29,53% | 21,36% | 14,45% |
+| Momentum-only | 169,73% | 41,37% | 22,36% | 19,80% |
+| VNINDEX | 24,35% | 52,13% | 4,53% | 24,47% |
+
+Combined tăng từ thứ 4/5 strategy trong Dev lên thứ 2/5 trong Holdout, không tính VNINDEX vào thứ hạng strategy.
+Trong Dev, Combined chỉ cao hơn Financial-only; trong Holdout, Combined cao hơn Market-only, Financial-only
+và Equal-weight. Khoảng cách CAGR thấp hơn Momentum-only thu hẹp từ 5,39 xuống 1,08 điểm phần trăm.
+So với VNINDEX, Combined chuyển từ CAGR cao hơn 12,44 điểm phần trăm trong Dev sang thấp hơn
+5,75 điểm phần trăm trong Holdout. Đây là mô tả trên các chuỗi hiện có, với giới hạn return basis bên dưới.
+
+| Strategy / benchmark | Max drawdown Dev | Max drawdown Holdout |
+|---|---:|---:|
+| Combined | -44,60% | -26,27% |
+| Market-only | -47,88% | -18,91% |
+| Financial-only | -27,20% | -3,95% |
+| Equal-weight | -37,01% | -7,40% |
+| Momentum-only | -33,71% | -8,92% |
+| VNINDEX | -33,02% | -5,87% |
+
+Combined có drawdown sâu hơn toàn bộ bốn đối chứng và VNINDEX trong Holdout. Drawdown của Combined
+ít sâu hơn ở Holdout so với Dev chưa chứng minh rủi ro giảm, vì hai đoạn khác độ dài và giai đoạn thị trường.
+Biến động năm của Combined tăng từ 27,39% lên 28,59%.
+
+#### Phân tích ý nghĩa của kết quả đối sánh
+
+**Hiệu quả của Combined qua hai đoạn.** CAGR tăng từ 16,97% lên 18,72% cho thấy lợi suất năm hóa của
+Combined không suy giảm trong Holdout. Tuy nhiên, thứ hạng tăng từ 4/5 lên 2/5 còn đi cùng việc CAGR
+của Market-only, Equal-weight và Momentum-only giảm. Vì vậy, thứ hạng cải thiện chưa chứng minh mô hình
+ổn định hơn hoặc có khả năng khái quát tốt hơn. Hai đoạn thuộc các giai đoạn khác nhau, với Holdout chỉ
+có 23 khoảng lợi suất; kết quả hiện tại là bằng chứng mô tả trên hai mẫu, chưa phải kiểm định ý nghĩa thống kê.
+
+**So với Market-only: lợi ích của phương án kết hợp chưa nhất quán về rủi ro.** Trong Dev, Combined có
+CAGR thấp hơn 1,36 điểm phần trăm, đồng thời biến động thấp hơn và drawdown ít sâu hơn Market-only.
+Đó là một đánh đổi giữa lợi suất và rủi ro. Sang Holdout, Combined cao hơn 7,59 điểm phần trăm CAGR,
+nhưng drawdown sâu hơn 7,37 điểm phần trăm và biến động tăng từ mức 23,75% của Market-only lên 28,59%.
+Phương án kết hợp có lợi thế lợi suất trong Holdout, nhưng chưa cho thấy tác dụng giảm rủi ro xuyên suốt
+hai đoạn. Chênh lệch này phản ánh toàn bộ thay đổi về tập ứng viên và cách xếp hạng giữa hai strategy;
+chưa tách riêng được đóng góp nhân quả của bộ lọc Financial.
+
+**So với Financial-only: lợi suất cao hơn đi cùng mức dao động lớn hơn.** Combined có CAGR cao hơn
+Financial-only trong cả Dev và Holdout. Tuy nhiên, trong Holdout, phần lợi suất năm hóa tăng thêm
+4,81 điểm phần trăm đi cùng biến động 28,59% so với 7,30%, và drawdown -26,27% so với -3,95%.
+Do đó, Combined thể hiện khả năng tìm lợi suất cao hơn trên mẫu đang xét, còn Financial-only có kết quả
+ít biến động và ít sụt giảm hơn. Chưa có cơ sở mô tả Combined là phương án vượt trội trên cả hai mặt.
+
+**So với Equal-weight: lợi ích của chọn lọc danh mục thay đổi theo giai đoạn.** Trong Dev, Equal-weight
+đạt CAGR cao hơn Combined 4,39 điểm phần trăm, đồng thời có biến động thấp hơn và drawdown ít sâu hơn.
+Điều này cho thấy quy trình chọn lọc của Combined chưa tạo lợi thế so với việc chia đều trên tập mã đủ
+điều kiện của đối chứng trong đoạn Dev. Trong Holdout, Combined vượt Equal-weight 4,27 điểm phần trăm
+CAGR, nhưng drawdown sâu hơn 18,88 điểm phần trăm và biến động cao hơn 15,26 điểm phần trăm.
+Lợi thế lợi suất ở Holdout vì vậy có mức đánh đổi rủi ro đáng kể. Không thể lấy riêng phần lợi suất tăng
+thêm để kết luận việc tập trung danh mục hiệu quả hơn; chưa có phân rã để xác định nguồn của phần rủi ro tăng.
+
+**So với Momentum-only: đây là đối chứng gây bất lợi rõ nhất cho Combined.** Momentum-only có CAGR
+cao hơn, biến động thấp hơn và drawdown ít sâu hơn Combined trong cả hai đoạn. Trong Holdout, Combined
+chỉ còn thấp hơn 1,08 điểm phần trăm CAGR, nhưng biến động vẫn cao hơn 13,00 điểm phần trăm và drawdown
+sâu hơn 17,36 điểm phần trăm. Khoảng cách lợi suất thu hẹp chưa chuyển thành lợi thế về rủi ro.
+Trên ba chỉ tiêu đã đo, chiến lược chỉ dùng momentum có kết quả thuận lợi hơn phương án kết hợp phức tạp
+hơn. Đây là bằng chứng quan trọng khi đánh giá giá trị tăng thêm của Combined, nhưng chưa phải kết luận
+về ý nghĩa thống kê hoặc kết quả sau chi phí giao dịch.
+
+**So với VNINDEX: chưa có lợi thế vượt thị trường nhất quán.** Combined vượt VNINDEX về lợi suất
+trong Dev nhưng thấp hơn trong Holdout; ở cả hai đoạn, drawdown của Combined đều sâu hơn VNINDEX.
+Vì thế, kết quả hiện hành chưa hỗ trợ nhận định Combined vừa vượt thị trường vừa bảo vệ danh mục tốt hơn.
+Đối sánh này còn khác return basis, nên không gọi phần chênh lệch là alpha đã được xác nhận hoặc quy
+chênh lệch hoàn toàn cho chất lượng mô hình. Khác biệt cơ sở giá ảnh hưởng cả lợi suất và drawdown,
+được phân tích riêng bên dưới.
+
+**Điều kiện vận hành cũng thay đổi giữa hai đoạn.** Combined có 13/60 quyết định thiếu ứng viên trong Dev
+và 1/24 trong Holdout; tỷ trọng tiền mặt trung bình sau giao dịch giảm từ 22,40% xuống 8,92%.
+Trong Holdout, strategy ít bị giới hạn bởi N_min hơn và giữ phần vốn cổ phiếu lớn hơn theo thước đo này.
+Đây là bối cảnh cần xét khi đọc kết quả, chưa chứng minh tiền mặt hoặc số ứng viên là nguyên nhân làm
+lợi suất thay đổi. Turnover trung bình mỗi kỳ của Combined tăng từ 47,62% lên 54,53%; khi baseline đang
+để chi phí bằng 0, phần kết quả ròng sau phí và trượt giá vẫn chưa được đo. Việc này cũng hạn chế kết luận
+về ưu thế sau chi phí giữa các strategy có turnover khác nhau.
+
+> **Đánh giá từ các kết quả đã có:** Combined cải thiện thứ hạng lợi suất trong Holdout và vượt ba trong
+> bốn strategy đối chứng, nhưng chưa tạo lợi thế nhất quán về lợi suất và rủi ro qua hai đoạn.
+> Momentum-only thuận lợi hơn trên cả CAGR, biến động và drawdown trong cả Dev lẫn Holdout.
+> Trạng thái verify/seal `PASS` xác nhận kết quả được tính đúng theo contract đã khóa; trạng thái này
+> không đồng nghĩa chiến lược đã chứng minh hiệu quả đầu tư vượt trội hoặc chất lượng phân cụm tốt hơn.
+
+#### Giới hạn cơ sở giá khi so sánh với VNINDEX
+
+Combined dùng `adj_close` của nhà cung cấp, được sử dụng như adjusted-return proxy theo Q11;
+VNINDEX là price index. Khác biệt này ảnh hưởng cả lợi suất và drawdown vì hai chỉ tiêu đều tính từ NAV.
+Drawdown chỉ đo tại các ngày định giá theo kỳ; backtest chưa tính phí giao dịch và trượt giá.
+
+Hai hướng đối sánh đồng nhất hơn có ý nghĩa khác nhau:
+
+| Hướng tính | Ảnh hưởng có thể xảy ra |
+|---|---|
+| Tính Combined theo price return, loại ảnh hưởng cổ tức tiền mặt và vẫn xử lý đúng các sự kiện vốn | Lợi suất Combined có thể thấp hơn mức đang báo cáo. Chưa có phép tính để xác định mức giảm. |
+| Đối chiếu Combined với benchmark total return có tính cổ tức | Kết quả Combined hiện hành giữ nguyên; lợi suất benchmark có thể cao hơn VNINDEX price index đang dùng. |
+
+Không thay trực tiếp `adj_close` bằng `raw_close`: chia tách, cổ tức bằng cổ phiếu hoặc quyền mua có thể
+tạo biến động giá cơ học, cần xử lý phù hợp để tính price return. Giá điều chỉnh hiện có chưa cho phép
+tách chính xác phần đóng góp của cổ tức hoặc coi là chuỗi total return đã được tái lập đầy đủ.
+Do đó, chưa thể định lượng phần chênh lệch do cơ sở giá, quy toàn bộ chênh lệch cho cổ tức hoặc kết luận
+thứ hạng sẽ thay đổi sau khi đồng nhất cơ sở tính.
+
+Các hướng trên chỉ giải thích giới hạn đối sánh, chưa được thực hiện và không thay methodology đã khóa.
+Self-review: số liệu, chênh lệch CAGR/biến động/drawdown và thứ hạng đã đối chiếu hai file metrics;
+counts đối chiếu manifest, cash/turnover lấy từ metrics. Phân tích phân biệt kết quả quan sát với nguyên nhân
+chưa được kiểm chứng; cập nhật này chỉ bổ sung diễn giải báo cáo, không tuning hoặc chọn lại cluster/model.
+
+### 3.25. Kế hoạch thực hiện M3-C khi Final chưa đủ dữ liệu
+
+Theo yêu cầu owner, lập kế hoạch triển khai M3-C theo Mục 20–30 và 35 của kế hoạch chuẩn.
+Tại thời điểm lập kế hoạch, chưa có thư mục `M3/notebooks`, báo cáo kỹ thuật hoặc hướng dẫn M3-C.
+Hai run Dev/Holdout tại Mục 3.21/3.22 đã seal, đủ làm nguồn cho notebook 01–03 và báo cáo lịch sử.
+Notebook 04 chỉ được chạy sau Final sealed theo Mục 25; hiện `NOT_READY` vì chưa đủ dữ liệu 2026.
+Kế hoạch này chưa triển khai notebook, chưa thay đổi methodology và chưa đánh dấu M3-C hoàn tất.
+
+#### Đầu vào và phạm vi
+
+- Dev: `data/experiments/m3/development/20261104T121107Z-5557288c/` và seal tương ứng.
+- Holdout: `data/experiments/m3/holdout/20261104T133507Z-5557288c/` và seal tương ứng.
+- Cùng code nguồn `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`, config `LOCKED` có SHA256
+  `b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d`, bảy input đã pin và B-PIT hiện hành.
+- Dùng canonical outputs và `universe_audit` để truy nguyên. Hai CSV Combined v2 là tài liệu đọc từng kỳ,
+  không thay thế nguồn canonical hoặc seal trong notebook.
+- Gọi lại `src/delta_t1/m3/` và hàm chính thức trong `scripts/run_m3.py` khi cần tái lập;
+  không gọi pipeline để ghi đè run đã seal, không fit lại clustering, không viết business logic thứ hai.
+- Không lặp audit thu thập/PDF/B-PIT đã hoàn tất. Kiểm tra identity/hash và PIT trong notebook là bước
+  tái lập từ evidence hiện có. M3-B không phải phần triển khai của kế hoạch M3-C này.
+
+#### Trình tự triển khai và nghiệm thu từng bước
+
+Mỗi lần triển khai chỉ thực hiện một bước, kiểm tra và cập nhật tiến độ rồi dừng.
+
+| Bước | Đầu ra | Nội dung và điều kiện nghiệm thu |
+|---:|---|---|
+| 1 | `M3/notebooks/01_Du_Lieu_Va_PIT.ipynb` | Chuẩn bị môi trường notebook; ghi branch/HEAD, code nguồn của run, config, input và seal hashes. Đọc hai manifest, kiểm tra artifact/schema cần dùng. Minh họa tại một số decision dates việc chọn FY usable, cutoff và target bằng module PIT/strategy chính thức. PASS khi identity/hash đạt, mẫu PIT/target khớp canonical; không tạo alignment CSV mới. |
+| 2 | `M3/notebooks/02_Tai_Lap_Lua_Chon_Danh_Muc.ipynb` | Dùng `inputs`, `Strategies`, `ranking` và `universe` chính thức cho năm strategy trên toàn bộ 60/24 decisions. Minh họa Candidate → ba MC/ba FC → điểm → rank → top 30% và target weights; giải thích thiếu FC, kỳ dưới N_min và kỳ cuối không execution. PASS khi decision/execution date, ticker, rank, weight, candidates, status và audit khớp output nguồn trong tolerance phù hợp. |
+| 3 | `M3/notebooks/03_Tai_Lap_Backtest_Va_Benchmark.ipynb` | Gọi `PriceBook`, `engine.run`, benchmark và hàm metrics chính thức với ranh giới từng segment. Đối chiếu ledger, holdings, turnover, NAV, metrics, failed/scaled/stale và VNINDEX; minh họa giao dịch và biến động tỷ trọng qua các bước. Tạo bảng, đồ thị NAV/drawdown và phân tích Dev/Holdout riêng. PASS khi năm strategy và VNINDEX khớp canonical, CASH/tổng weight và turnover đúng, không có Sharpe hoặc nối NAV hai đoạn. Drawdown theo ngày định giá được ghi rõ. |
+| 4 | `M3/reports/BAO_CAO_KY_THUAT_M3.md` và `M3/HUONG_DAN_THUC_HIEN_M3.md` | Hoàn thiện báo cáo lịch sử từ các notebook/output đã đối chiếu: mục tiêu, phiên bản dữ liệu, hai hệ clustering, PIT, ứng viên, sáu tiêu chí, xếp hạng, execution, kết quả Combined/bốn đối chứng/VNINDEX, phân tích và giới hạn. Số liệu/bảng/biểu đồ được sinh từ nguồn, có provenance; không nhập tay số liệu kết quả. Hướng dẫn ghi đủ input/path/hash/config/commit, môi trường, lệnh đã kiểm chứng, output, cách đối chiếu, PASS/FAIL/DỪNG và thứ tự chạy. Thực thi lại notebook 01–03 từ kernel sạch cho cả hai segment, ghi kết quả đối chiếu và kiểm tra liên kết. |
+| Chờ Final | `M3/notebooks/04_Bao_Cao_Danh_Gia_Cuoi.ipynb` | Hiện `NOT_READY`, không tạo kết quả giả hoặc thay Final bằng Dev/Holdout. Chỉ triển khai/chạy phần đánh giá cuối khi Final có dữ liệu đủ, window/config/hash đã khóa và run verified + sealed. Khi đó tái tạo bảng/biểu đồ Final, Sharpe nếu contract cho phép, rồi cập nhật báo cáo/hướng dẫn. |
+
+Trong bước 1, xác minh Python/kernel và các phụ thuộc thực sự cần để chạy/hiển thị notebook; venv M3 hiện
+có bộ thư viện tính toán đã kiểm tra, chưa suy ra đã có Jupyter hoặc thư viện vẽ. Chỉ bổ sung phụ thuộc
+còn thiếu theo lock phù hợp, không đổi phiên bản NumPy/scikit-learn đã dùng tạo run.
+Hướng dẫn chỉ công bố lệnh notebook sau khi notebook và lệnh đó đã được tạo, chạy và xác minh.
+
+#### Kiểm tra và trạng thái bàn giao
+
+Mỗi notebook ghi input/source run, commit nguồn và commit thực thi, config/input/output hashes, kết quả
+đối chiếu và discrepancy nếu có. Khi code thực thi không còn đúng HEAD nguồn, phải xác minh các module
+M3 dùng để tái lập không thay đổi so với commit nguồn; không sửa identity của run để làm khớp.
+Ưu tiên tái sử dụng các evidence đã seal và dữ liệu đã nạp trong phiên, tránh build/scan đắt tiền lặp vô ích.
+Nếu thêm helper, helper chỉ điều phối/đọc/đối chiếu/trình bày; chạy kiểm tra phù hợp và compile theo quy định.
+Checkpoint môi trường/bàn giao áp dụng các kiểm tra repository ở Mục 30.4; không lặp full suite sau mỗi sửa Markdown.
+
+Thiếu file/hash sai, target/accounting không khớp hoặc dùng sai segment phải dừng bước liên quan và ghi
+discrepancy; không thay strategy để khớp. Bước 1–4 đạt thì ghi **M3-C phần Dev/Holdout PASS, tổng thể PARTIAL**.
+Phần Final trong báo cáo phải ghi `NOT_READY`. Chỉ đánh dấu M3-C hoàn tất sau khi Notebook 04 và phần đánh giá
+Final đáp ứng contract. Không sửa `M3_READINESS.md` trong quá trình thực hiện này.
+
+### 3.26. Thực hiện M3-C — phần Dev/Holdout `PASS`, Final `NOT_READY`
+
+Owner yêu cầu thực hiện M3-C và lưu tệp trong `M3`. Đã hoàn tất phần lịch sử theo kế hoạch Mục 3.25,
+gồm ba notebook có output thực thi, báo cáo kỹ thuật sinh từ nguồn, biểu đồ và hướng dẫn tái lập.
+
+| Đầu ra | Kết quả |
+|---|---|
+| [Notebook 01 — Dữ liệu và PIT](../M3/notebooks/01_Du_Lieu_Va_PIT.ipynb) | `PASS`: identity/hash hai run và bảy input; PIT/target tại 11 ngày mẫu, toàn bộ ứng viên đủ điều kiện trong các ngày đó được kiểm tra bằng module chính thức. |
+| [Notebook 02 — Lựa chọn danh mục](../M3/notebooks/02_Tai_Lap_Lua_Chon_Danh_Muc.ipynb) | `PASS`: 420 lượt quyết định, gồm năm strategy × 60 Dev và 24 Holdout; đối chiếu toàn bộ target/audit rows. Có bảng ứng viên, sáu tiêu chí, percentile, điểm và trọng số mục tiêu. |
+| [Notebook 03 — Backtest và benchmark](../M3/notebooks/03_Tai_Lap_Backtest_Va_Benchmark.ipynb) | `PASS`: 10 lượt strategy/segment; ledger, holdings, NAV, turnover, metrics và hai benchmark khớp canonical. Q17 đúng 34/110; kiểm tra CASH, failed/scaled, stale và segment boundaries. |
+| [Notebook 04 — Đánh giá cuối](../M3/notebooks/04_Bao_Cao_Danh_Gia_Cuoi.ipynb) | `NOT_READY`: chỉ ghi phụ thuộc bằng Markdown, không có code tính performance hoặc kết quả giả. CLI từ chối chạy notebook này. |
+| [Báo cáo kỹ thuật](../M3/reports/BAO_CAO_KY_THUAT_M3.md) | Sinh từ metrics/canonical đã đối chiếu, có phương pháp, kết quả, phân tích từng đối chứng và giới hạn. Biểu đồ NAV/drawdown tách nhóm theo segment đã kiểm tra trực quan. Final ghi rõ NOT_READY. |
+| [Hướng dẫn thực thi](../M3/HUONG_DAN_THUC_HIEN_M3.md) | Ghi môi trường, path/hash/config/commit, lệnh đã kiểm chứng, output, điều kiện PASS/FAIL/DỪNG và thứ tự chạy; có giải thích đơn vị vốn chuẩn hóa/tỷ trọng. |
+
+Phụ thuộc Jupyter/biểu đồ được cài riêng trong `.tmp/m3c-notebook-runtime`, có
+[lock đủ phiên bản](../M3/requirements-notebooks.lock.txt); không đổi package của venv backtest M3.
+[Pin nguồn](../M3/sources.json) giữ hai seal/config/source commit. `M3/m3c.py` chỉ điều phối và đối chiếu;
+PIT, ranking, engine và metrics gọi module chính thức. Không build lại B-PIT, fit model hoặc sửa chiến lược.
+
+Phiên bàn giao cuối là `M3/reproduction/20261104T143919569614Z/`:
+
+- [Verification](../M3/reproduction/20261104T143919569614Z/verification.json) ghi
+  `historical_status=PASS`, `overall_status=PARTIAL`, `final_status=NOT_READY`, hash code/notebook/report/biểu đồ,
+  guide/lock/pins/Notebook 04 và phiên bản môi trường.
+- [Preflight](../M3/reproduction/20261104T143919569614Z/preflight.json) ghi bảy input hash, code identity và
+  snapshot trần/sàn được lấy trong cùng lượt hash C8, dùng lại trong các kernel để tránh scan lặp.
+- `01_verification.json`, `02_verification.json`, `03_verification.json` ghi chi tiết đối chiếu;
+  có bản sao notebook đã thực thi và kernel log.
+- [Self-review bàn giao](../M3/reproduction/20261104T143919569614Z/delivery_check.json) xác nhận schema notebook,
+  execution counts, không có output lỗi, các hash bàn giao, liên kết Markdown, 66 file canonical và hai CSV v2 giữ nguyên.
+
+SHA256 `verification.json` là `163df17bd3206093a60035c426ad64d322bba5fc3daa13fbdb0dd28cd8ea4e38`.
+Lệnh thực thi là `python -I -B -X utf8 M3/run_notebooks.py`, dùng Python M3 3.12.7; exit 0.
+Mỗi notebook 01–03 chạy bằng một Jupyter kernel sạch. Runner không thực thi Notebook 04.
+
+Kiểm tra bổ sung: 52 unit tests M3 `PASS`; bảy negative controls M3-C `PASS`, gồm hash/config sai,
+schema/order/status sai, NaN, missing khác zero, tolerance và đúng tập mẫu percentile trước loại toàn bộ FC thiếu.
+`compileall` và Markdown link checks `PASS`. Full repository suite **chưa PASS**, hết giới hạn 180 giây;
+[summary/log checkpoint](../M3/reproduction/checks-20261104T143141Z/summary.json) ghi `TIMEOUT`.
+Không sửa subsystem khác hoặc giảm assertion để xử lý giới hạn full suite trong stage này.
+
+Self-review kết luận **M3-C phần Dev/Holdout PASS, M3-C tổng thể PARTIAL** vì chưa có Final đã seal.
+Hai run/seal, code/config chính thức, input và CSV v2 giữ nguyên; `M3_READINESS.md` không thay đổi.
+Đã cập nhật START HERE/CHANGELOG để dẫn tới bộ bàn giao. Không thực hiện M3-B hoặc mở Final.
+
+Cập nhật theo yêu cầu owner: Notebook 03 có nhận xét ngắn gọn cho biểu đồ Dev/Holdout và lưu ý đọc drawdown.
+Chỉ bổ sung Markdown, giữ nguyên code/output hiện có; bằng chứng tái lập trước đó được tham chiếu trong
+[bản cập nhật nhận xét](../M3/reproduction/20261104T145154154675Z-chart-notes/verification.json).
+
+Theo phản hồi biểu đồ nhiều đường gây rối, đã đổi bố cục: hình chính chỉ gồm Combined/VNINDEX;
+bốn strategy đối chứng tách thành từng hàng NAV/drawdown, mỗi ô hai đường, cùng thang đo theo cột.
+Combined luôn màu xanh liền, đối chứng màu cam đứt. Báo cáo và output Notebook 03 đã cập nhật cùng bố cục.
+Đã thực thi lại notebook 01–03 từ kernel sạch và kiểm tra trực quan; target/accounting/metrics vẫn khớp nguồn.
+[Evidence bố cục mới](../M3/reproduction/20261104T150049600949Z/verification.json) và self-review cùng thư mục
+ghi nhận phần lịch sử PASS, 66 file canonical và hai CSV v2 giữ nguyên; Final tiếp tục NOT_READY.
+
+Nhận xét biểu đồ trong Notebook 03 đã được tập trung vào Combined/VNINDEX theo yêu cầu owner:
+diễn biến NAV, giai đoạn giảm/phục hồi và đánh đổi lợi suất/drawdown trong từng segment.
+Chỉ chỉnh Markdown, giữ nguyên code, hình và kết quả; `M3/reproduction/latest.json` trỏ đến bản cập nhật cùng evidence.
+
+### 3.27. Phân tích Bước 1, mã gây lỗ và thực thi trong đợt giảm Holdout 2024
+
+Theo yêu cầu owner, đã tạo [báo cáo phân tích](../M3/reports/PHAN_TICH_BUOC_1_HOLDOUT_2024.md)
+và script tái lập `M3/analyze_holdout_2024.py`. Phạm vi là đỉnh–đáy max drawdown quan sát của Combined,
+`2024-05-02` → `2024-11-01`, không phải một cửa sổ đánh giá mới. Combined giảm 26,27%; VNINDEX
+trong đúng khoảng này tăng 3,17%, với giới hạn return basis đã công bố.
+
+- Trên cùng đường NAV thực tế, phần goal đóng góp -23,70 điểm phần trăm và lệch phân bổ sau giao dịch
+  đóng góp -2,57 điểm phần trăm, cộng lại khớp mức giảm 26,27%. Đây là phân rã PnL, không phải tỷ lệ
+  nguyên nhân hoặc lợi suất của một shadow backtest đã giả định fill mọi lệnh.
+- CID, CAG và VTK đóng góp lần lượt -7,10, -5,79 và -4,33 điểm phần trăm, tương ứng 65,51% tổn thất ròng
+  của cửa sổ. Kỳ đầu chỉ chọn bốn mã với goal 25%/mã; N_min áp dụng cho ứng viên, không bảo đảm mười mã giữ.
+- Kỳ `2024-07-01` → `2024-08-01` thực giữ sáu mã khớp goal, không có failed/scaled orders và giảm 15,24%,
+  trong khi VNINDEX giảm 2,20%. Đây là bằng chứng tổn thất lớn đã xuất hiện trong danh mục được chọn.
+- Các mã tăng bị loại đã được truy về audit/rank tại decision, chỉ xét giá hai đầu quan sát được và BUY
+  executable ở đầu kỳ. Có bảng coverage/lý do và ví dụ CDR xếp hạng 9 ngoài top 6 trước đợt tăng; không dùng
+  thông tin sau kỳ để chọn lại mã. Lý do audit có thứ tự ưu tiên, chưa đo nhân quả của từng gate.
+- Đã ghi các lệnh BUY_FAILED/SELL_FAILED/SCALED, volume/trần/sàn và lệch goal/thực giữ. CID ngày 01/10
+  không bán giảm được vì volume=0, giữ tỷ trọng cao hơn goal rồi tiếp tục giảm; một số lệnh mua thất bại
+  lại giúp tránh lỗ. Các ảnh hưởng được cộng cả chiều có lợi và bất lợi.
+
+[Evidence phân tích](../M3/reproduction/20261104T152349610446Z-holdout-diagnosis/analysis.json),
+[verification](../M3/reproduction/20261104T152349610446Z-holdout-diagnosis/verification.json) và
+[self-review](../M3/reproduction/20261104T152349610446Z-holdout-diagnosis/self_review.json) ghi nguồn,
+hash và đối chiếu. Replay chính thức toàn bộ ledger/holdings/NAV/turnover Holdout đạt; sổ lượng nắm giữ
+độc lập xác nhận từng đóng góp và tổng PnL. Phân rã goal đủ mark, không có quan sát phải tự điền zero.
+Lý do và return của mọi quan sát bỏ lỡ đều được kiểm tra lại với canonical audit/target và PriceBook.
+
+Self-review `PASS`, compile/link checks đạt, 66 file canonical và các seal giữ nguyên. Chỉ giải thích
+đợt giảm 2024, chưa quy nguyên nhân riêng cho Market/Financial/ranking hoặc giải thích toàn bộ chênh lệch
+Holdout với VNINDEX. Không tuning, không thay config/engine/input, không tạo run backtest mới và không sửa
+`M3_READINESS.md`. Lệnh tái lập đã chạy thành công: `python -I -B -X utf8 M3/analyze_holdout_2024.py`.
+
+### 3.28. Chuyển mã M3-C vào notebook, bỏ phụ thuộc helper `.py` trong `M3`
+
+Theo yêu cầu owner, notebook 01–03 hiện chứa trực tiếp mã điều phối/đối chiếu, trình bày và sinh báo cáo
+trong các cell. Notebook 03 có cả mã phân tích đợt giảm 2024. Người dùng chọn kernel rồi **Run All**,
+không cần chạy script/helper trong `M3`; các module nghiên cứu chính thức ở `src/delta_t1/m3` và
+`scripts/run_m3.py` vẫn được gọi lại, không viết phiên bản business logic mới.
+
+Đã di chuyển đủ bảy negative controls vào Notebook 02, giữ tên test và các assertion. Các nhận xét ngắn,
+bố cục biểu đồ Combined/VNINDEX và đối chứng được giữ. File 04 tiếp tục chỉ có Markdown `NOT_READY`.
+
+Sau khi notebook chạy đạt, đã gỡ năm file cấp `M3`: `m3c.py`, `m3c_report.py`, `run_notebooks.py`,
+`test_reproduction.py`, `analyze_holdout_2024.py`. Bản cũ cùng notebook trước chuyển đổi được lưu nguyên
+trong [ZIP lịch sử](../M3/reproduction/20261104T154206819006Z-notebook-migration/legacy_helpers.zip),
+có [hash từng helper](../M3/reproduction/20261104T154206819006Z-notebook-migration/legacy_helpers_sha256.json).
+Notebook hiện hành không import hoặc chạy mã trong ZIP. Đã dọn cache bytecode của các helper đã gỡ.
+
+Môi trường kernel cô lập ở `.tmp/m3c-kernel/Scripts/python.exe`, Python 3.12.7, đọc bộ thư viện
+notebook đã khóa qua `.pth`; không thay package venv backtest. [Hướng dẫn](../M3/HUONG_DAN_THUC_HIEN_M3.md)
+đã đổi sang cách chọn kernel/Run All, không còn lệnh gọi các script đã gỡ.
+
+Đã thực thi lại cả ba notebook từ kernel sạch **sau khi helper không còn trên filesystem**, làm việc từ
+`M3/notebooks`; tất cả cell chạy đạt. [Verification bàn giao](../M3/reproduction/20261104T154826484210Z-direct-notebooks/verification.json)
+ghi `historical_status=PASS`, `overall_status=PARTIAL`, `final_status=NOT_READY`, helper còn lại bằng 0.
+SHA256 verification là `6ffeb7df0a0e07852121860ab4a39e6f0db28b19e327f7006c4ee5aa7e15f879`.
+
+[Self-review](../M3/reproduction/20261104T154826484210Z-direct-notebooks/self_review.json) xác nhận:
+schema/execution counts hợp lệ, 420 lượt quyết định và 10 lượt strategy/segment khớp canonical, bảy test
+đã migrate PASS và không giảm assertion. Bốn PNG khớp byte với bản trước; nội dung hai CSV giữ nguyên.
+Kết quả phân rã 2024 khớp baseline đã được kiểm tra bằng sổ lượng độc lập. Guide/report links đạt,
+66 file canonical và các seal giữ nguyên. 52 test M3 và compileall PASS; không lặp full repository suite
+vì module chính thức/pipeline không đổi, trạng thái TIMEOUT của checkpoint full suite trước vẫn được giữ.
+
+Self-review stage chuyển đổi `PASS`; source/config M3-A và `M3_READINESS.md` không đổi. Phần lịch sử
+M3-C đạt PASS, phần Final vẫn NOT_READY; chưa triển khai M3-B hoặc đánh giá Final.
+
 ## 4. Công việc còn lại và gate chuyển bước
 
 | Thứ tự | Công việc | Điều kiện hoàn tất |
@@ -632,8 +1080,9 @@ Kết quả nguồn, seal nguồn và CSV diễn giải hiện có được lưu
 | 3 | Pin B-PIT và feasibility đã `PASS` | Xem Mục 3.6 và 3.7. Giữ `N_min=10` và rule Va theo config đã khóa về methodology. |
 | 4 | Targets-only Development và Holdout đã `PASS` | Xem Mục 3.9 và 3.10. Hai run cùng code/config/input/B-PIT; lịch `60/59/1` và `24/23/1`, target weights và số dòng universe audit đều đạt. |
 | 5 | Strict isolation, config `LOCKED` và checkpoint commit đã `PASS` | Xem Mục 3.11–3.12. Commit `a5d9872`, hash config đã ghi và code/config đạt `git_dirty=false`. |
-| 6 | Dev nguồn đã seal, audit danh mục `PASS`. Cần commit Q17 và verify/seal run Dev đồng bộ | Xem Mục 3.20. Bản sửa qua 52 test/compile/smoke, đếm đúng 34 repair. NAV năm strategy khớp run nguồn. Chờ owner commit và chạy lại Dev. CSV 22 cột vẫn gắn run nguồn. |
-| 7 | Holdout → verify → seal — chờ gate Dev tại Mục 3.20 | Dùng version code của run Dev mới sau sửa Q17, cùng config `LOCKED` và input đã pin. Ngày NAV cuối dự kiến `2025-12-31`. |
-| 8 | Đối chứng, đánh giá và tái lập | So sánh Combined với bốn strategy đối chứng và VNINDEX theo từng đoạn. Báo số kỳ thiếu ứng viên và giới hạn dữ liệu. Chuẩn bị artifact sealed cho M3-B và notebook M3-C. |
+| 6 | Development → verify → seal đã `PASS` sau sửa Q17 | Xem Mục 3.21. Run `20261104T121107Z-5557288c`, commit `c9c1f5f`, đúng 34 repair. 31 CSV khớp run đã đối chiếu độc lập; NAV năm strategy giữ nguyên. CSV diễn giải 22 cột vẫn gắn identity run cũ. |
+| 7 | Holdout → verify → seal đã `PASS` | Xem Mục 3.22. Run `20261104T133507Z-5557288c`, cùng commit/config/input với Dev; lịch `24/23/1`, NAV cuối `2025-12-31`, đã đối chiếu accounting/metrics và seal riêng. CSV diễn giải 22 cột đã xuất tại Mục 3.23. |
+| 8 | M3-C phần Dev/Holdout đã `PASS`, tổng thể `PARTIAL` | Bộ notebook hiện hành chạy trực tiếp từ cell, không phụ thuộc helper `.py` trong `M3`; xem Mục 3.28. Các đối chiếu, báo cáo, biểu đồ và phân tích 2024 đạt. Notebook 04 chờ Final sealed; full repository gate còn TIMEOUT. Chưa triển khai M3-B trong phạm vi này. |
+| 9 | Final Evaluation — `NOT_READY`, chờ dữ liệu 2026 | Theo thông tin owner ngày 04/11/2026, dữ liệu 2026 chưa đủ; đây chưa phải kết quả audit coverage chi tiết. Chỉ mở lại khi dữ liệu sẵn sàng, qua readiness/evaluation-status audit và khóa exact window trước khi xem performance theo Mục 17.5/Giai đoạn 5 của kế hoạch. Chưa chạy Final, không đổi strategy hoặc chạy lại Dev/Holdout vì thiếu dữ liệu Final. |
 
-Mỗi lần cập nhật báo cáo sau run chính thức cần ghi segment, run ID, Git commit, `config_sha256`, revision dataset, SHA256 đầu vào và đầu ra, kết quả verify cùng đường dẫn artifact đã seal. Bảng Development đã có tại Mục 3.13; sau Holdout verified bổ sung bảng riêng, không nối hai NAV. Final Evaluation có gate riêng trong kế hoạch chuẩn.
+Mỗi lần cập nhật báo cáo sau run chính thức cần ghi segment, run ID, Git commit, `config_sha256`, revision dataset, SHA256 đầu vào và đầu ra, kết quả verify cùng đường dẫn artifact đã seal. Bảng Development tại Mục 3.13 và Holdout tại Mục 3.22 được báo cáo riêng, không nối hai NAV. Final Evaluation có gate riêng trong kế hoạch chuẩn.
