@@ -6,6 +6,9 @@ Thêm 62 bản sao CSV canonical dưới `M3/outputs/`, giữ hai CSV Combined �
 tổng 64 CSV. Có danh mục SHA256, receipt kiểm tra 64 tệp từ GitHub và Git attributes bảo toàn byte.
 Giữ các thay đổi đã có trên remote, không sửa source run/seal/config hoặc methodology; Final vẫn NOT_READY.
 
+Theo yêu cầu owner, gỡ metadata của lần thử upload Hugging Face chưa thành công và các liên kết
+đến tệp đã xóa trong báo cáo. Giữ đủ 64 CSV và receipt xác minh công bố GitHub.
+
 ## M3-C — notebook tái lập và báo cáo Dev/Holdout, 04/11/2026
 
 Thêm ba notebook thực thi bằng kernel sạch, pin source/seal, kiểm tra input hash và tái sử dụng

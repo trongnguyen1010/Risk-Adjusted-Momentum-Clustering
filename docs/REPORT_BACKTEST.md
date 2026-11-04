@@ -1038,28 +1038,15 @@ vì module chính thức/pipeline không đổi, trạng thái TIMEOUT của che
 Self-review stage chuyển đổi `PASS`; source/config M3-A và `M3_READINESS.md` không đổi. Phần lịch sử
 M3-C đạt PASS, phần Final vẫn NOT_READY; chưa triển khai M3-B hoặc đánh giá Final.
 
-### 3.28. Chuẩn bị công bố CSV kết quả M3 lên Hugging Face
+### 3.28. Lần chuẩn bị công bố lên Hugging Face — đã dừng
 
-Owner yêu cầu upload kết quả lên dataset `ngyen/delta-intelligence-data`, sau đó thu hẹp phạm vi
-thành **chỉ CSV**. Gói hiện hành có 64 tệp, tổng khoảng 33,43 MiB: 31 CSV canonical mỗi segment
-Development/Holdout và hai CSV Combined dễ đọc. Không upload notebook, biểu đồ, báo cáo, config
-hoặc seal trong phạm vi đã điều chỉnh. Hai seal và đủ 66 tệp canonical đã được kiểm tra SHA256
-tại local trước khi tạo gói; CSV giữ nguyên byte, không tạo backtest mới.
+Đã chuẩn bị gói 64 CSV để upload lên dataset `ngyen/delta-intelligence-data`, nhưng Hugging Face
+từ chối ở bước preupload với HTTP 403 do token chỉ có quyền đọc. Không có commit upload được tạo.
+Sau đó owner chọn công bố CSV qua GitHub; kết quả đã được kiểm tra tại Mục 3.29.
 
-[Kế hoạch upload CSV](../M3/publications/20261104T160624Z/upload_plan.json) liệt kê từng đường dẫn,
-kích thước và SHA256. Thư mục đích dự kiến là `m3/backtests/20261104T160624Z/`, giữ cấu trúc đường dẫn
-nguồn bên trong để phân biệt segment/run và CSV diễn giải. Gói staging nằm dưới `.tmp/m3-hf-publish/`.
-
-**Trạng thái: BLOCKED_AUTH, chưa công bố.** Lần gửi gói trước khi owner thu hẹp phạm vi bị Hugging Face
-từ chối ở bước preupload với HTTP 403: token chỉ có quyền đọc. Không có commit upload được tạo.
-Không có credential đăng nhập CLI đã lưu để dùng thay thế; cần đăng nhập bằng token có quyền ghi
-vào dataset đích. Đây là phản hồi phân quyền của Hugging Face, không phải gate nghiên cứu hoặc lỗi
-backtest. Gói 64 CSV mới chưa được gửi lại bằng token thiếu quyền.
-
-[Ghi nhận trạng thái](../M3/publications/20261104T160624Z/receipt.json) và
-[self-review](../M3/publications/20261104T160624Z/self_review.json) giữ bằng chứng chuẩn bị tại local.
-Chỉ đánh dấu upload PASS sau khi có commit trên Hub và đọc lại đủ 64 tệp tại revision đó để đối chiếu
-SHA256. Không sửa `M3_READINESS.md`; trạng thái Final vẫn NOT_READY.
+Theo yêu cầu owner, đã gỡ thư mục kế hoạch/receipt/self-review của lần thử Hugging Face khỏi repo
+hiện hành và bỏ các liên kết đến các tệp đã xóa. Lịch sử vẫn có trong Git. Không cần tiếp tục bước
+upload Hugging Face; 64 CSV và bằng chứng công bố GitHub trong `M3/outputs` giữ nguyên.
 
 ### 3.29. Công bố 64 CSV kết quả M3 lên GitHub
 
@@ -1101,7 +1088,7 @@ Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Fi
 | 9 | Final Evaluation — `NOT_READY`, chờ dữ liệu 2026 | Theo thông tin owner ngày 04/11/2026, dữ liệu 2026 chưa đủ; đây chưa phải kết quả audit coverage chi tiết. Chỉ mở lại khi dữ liệu sẵn sàng, qua readiness/evaluation-status audit và khóa exact window trước khi xem performance theo Mục 17.5/Giai đoạn 5 của kế hoạch. Chưa chạy Final, không đổi strategy hoặc chạy lại Dev/Holdout vì thiếu dữ liệu Final. |
 
 Công bố 64 CSV qua GitHub đã `PASS`, xem Mục 3.29; đủ 64 tệp được tải lại và kiểm tra SHA256.
-Hugging Face chưa được upload do thiếu quyền ghi (Mục 3.28), không chặn sử dụng kết quả trên GitHub.
+Lần thử Hugging Face đã dừng (Mục 3.28); không còn là công việc chờ để sử dụng kết quả trên GitHub.
 Các dòng `PASS` trong bảng là mốc đã hoàn tất; Final vẫn chờ dữ liệu 2026.
 
 Mỗi lần cập nhật báo cáo sau run chính thức cần ghi segment, run ID, Git commit, `config_sha256`, revision dataset, SHA256 đầu vào và đầu ra, kết quả verify cùng đường dẫn artifact đã seal. Bảng Development tại Mục 3.13 và Holdout tại Mục 3.22 được báo cáo riêng, không nối hai NAV. Final Evaluation có gate riêng trong kế hoạch chuẩn.
