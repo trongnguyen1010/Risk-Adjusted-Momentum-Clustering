@@ -4,6 +4,7 @@ import hashlib
 import json
 import sqlite3
 from collections import defaultdict
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -62,10 +63,16 @@ def sectors(path=INDICATORS):
     return dict(_ro(path).execute('select ticker, sector_group from company'))
 
 
-def availability(path=AVAILABILITY):
-    """{(ticker, fiscal_year): row} from the availability table (usable_from_date may be empty)."""
+def availability(path=AVAILABILITY, *, historical_reference=False):
+    """Read availability under Q-date, or reproduce the original B v4 reference."""
+    rows = {}
     with open(path, encoding='utf-8') as f:
-        return {(r['ticker'], int(r['fiscal_year'])): r for r in csv.DictReader(f)}
+        for row in csv.DictReader(f):
+            year = int(row['fiscal_year'])
+            required_source = 'LAG_RULE' if year < 2022 else 'CAFEF_DISCLOSURE'
+            if historical_reference or row['date_source'] == required_source:
+                rows[row['ticker'], year] = row
+    return rows
 
 
 def benchmark(path=BENCHMARK):
@@ -87,11 +94,12 @@ def m2_labels(text):
     return dict(out)
 
 
-def bpit(artifact_dir):
+def bpit(artifact_dir, *, include_cutoffs=False):
     """Read a B-PIT artifact (scripts/build_financial_pit_clusters.py).
 
     Returns (labels, order, manifest): labels = {fiscal_year: {ticker: (cluster, {})}} in the same shape as
     financial_labels(); order = {fiscal_year: [cluster best → worst]} frozen at the cutoff (plan §3.1.5).
+    include_cutoffs adds a fourth result mapping model-ready fiscal years to their cutoff dates.
     """
     artifact_dir = Path(artifact_dir)
     if not artifact_dir.is_absolute():
@@ -102,5 +110,9 @@ def bpit(artifact_dir):
     with open(artifact_dir / 'labels.csv', encoding='utf-8') as f:
         for r in csv.DictReader(f):
             labels[int(r['fiscal_year'])][r['ticker']] = (int(r['cluster']), {})
-    order = {int(y): m['cluster_order'] for y, m in models.items()}
+    order = {int(y): m.get('cluster_order', []) for y, m in models.items()}
+    if include_cutoffs:
+        cutoffs = {int(y): date.fromisoformat(m['cutoff']).isoformat() for y, m in models.items()
+                   if m.get('cutoff') and sorted(order[int(y)]) == [0, 1, 2]}
+        return dict(labels), order, manifest, cutoffs
     return dict(labels), order, manifest

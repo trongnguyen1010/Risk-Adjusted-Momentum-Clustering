@@ -33,6 +33,7 @@ from delta_t1.m3 import bpit, inputs  # noqa: E402
 
 POINTER = ROOT / 'configs/product/indicators_v1.json'
 CODE = ('scripts/build_financial_pit_clusters.py', 'src/delta_t1/m3/bpit.py',
+        'src/delta_t1/m3/inputs.py',
         'src/delta_t1/clustering/robust_transforms.py', 'src/delta_t1/experiments/clustering_rework.py')
 
 

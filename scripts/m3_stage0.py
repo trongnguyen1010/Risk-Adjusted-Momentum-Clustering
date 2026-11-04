@@ -42,7 +42,7 @@ def manifest(skip_c8):
 def feasibility():
     market = inputs.market_snapshots()
     fin = inputs.financial_labels()
-    avail = inputs.availability()
+    avail = inputs.availability(historical_reference=True)
     sector = inputs.sectors()
     leading_fin, fin_stats = {}, {}
     for year, labels in fin.items():
