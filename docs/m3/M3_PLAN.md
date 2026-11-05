@@ -299,6 +299,8 @@ thành fixture, quy tắc trần/sàn và sửa lỗi adj (Q12, Q17) trong hàm 
 - Cờ `non_december_fye` (13 mã) trong bảng ngày công bố `availability-4f0f83108e761dae` (ngày dùng được không đổi).
 - Phương án Q5/Q6: `scripts/m3_feasibility_variants.py`; câu hỏi gửi mentor: [M3_MENTOR_QUESTIONS.md](M3_MENTOR_QUESTIONS.md).
 - Dữ liệu M3 công khai trên HF Dataset (`scripts/publish_m3_data.py`, commit `08c2486`):
+  https://huggingface.co/datasets/ngyen/delta-intelligence-data/tree/main/m3 — ngày công bố BCTC, giai đoạn 0,
+  targets-only, VNINDEX, lịch phiên, giá C8 (gzip). Các tệp Render dùng không đổi.
 
 ### Giai đoạn 1 — Khóa chiến lược
 
