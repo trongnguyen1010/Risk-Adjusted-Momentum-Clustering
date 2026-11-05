@@ -5,7 +5,7 @@
 **Nhánh M3 tham chiếu:** `feature/indicators-v1`
 **Nhánh M2/handoff tham chiếu:** `m2-clustering-experiment`
 **Phiên bản kế hoạch:** cập nhật output contract + input contract theo GitHub và các quyết định của chủ dự án ngày 26/10/2026; bản rà soát + sync code 03/11/2026 (xem "Ghi chú rà soát 03/11/2026" ngay bên dưới)
-**Trạng thái:** KẾ HOẠCH CHI TIẾT — ENGINE/TARGETS-ONLY ĐÃ CÓ; CHƯA CHẠY OFFICIAL M3 BACKTEST CÓ RETURN
+**Trạng thái:** M3-A Development + Holdout ĐÃ CHẠY, VERIFY VÀ SEAL (04/11/2026, code `c9c1f5f`, config LOCKED); Final Evaluation NOT_READY; M3-C PARTIAL; M3-B chưa làm
 **Phạm vi:** M3-A Danh mục và backtest + M3-B Dashboard + M3-C Báo cáo và khả năng tái lập
 
 ## GHI CHÚ RÀ SOÁT 03/11/2026
@@ -7645,6 +7645,12 @@ M3-C hoàn tất khi:
 ---
 
 # 36. TRẠNG THÁI HIỆN TẠI
+
+**Cập nhật 04/11/2026:** M3-A Development (run `20261104T121107Z-5557288c`) và Holdout
+(run `20261104T133507Z-5557288c`) đã chạy, verify và seal với code `c9c1f5f`, config LOCKED.
+Final Evaluation NOT_READY; M3-C PARTIAL; M3-B chưa làm. Kết quả và giới hạn:
+[REPORT_BACKTEST.md](REPORT_BACKTEST.md), [BAO_CAO_KY_THUAT_M3.md](../M3/reports/BAO_CAO_KY_THUAT_M3.md).
+Các mục con bên dưới giữ nguyên nội dung decision/dependency trước khi chạy.
 
 Mục này chỉ theo dõi trạng thái decision/dependency.
 

@@ -17,7 +17,7 @@ Stage sửa supervisor PASS với 30 targeted tests, gồm 1 opt-in test skip, c
 synthetic smoke. Đối chiếu 91 runtime hash, preparation V6 83 file và history prefix
 616 query đạt. Dùng bằng chứng raw preflight PASS ngay trước lỗi, tránh lặp kiểm tra
 24.585 file đã freeze trong cùng stage. Có 0 request VSDC thật trong kiểm thử.
-Bước tiếp theo là chạy local theo [hướng dẫn hiện hành](../M3/CORPORATE_ACTIONS_V1_COLLECTION_GUIDE.md)
+Bước tiếp theo là chạy local theo hướng dẫn hiện hành (đã gỡ khỏi repo ở commit `3fe08da`, xem lịch sử git)
 và gửi `OUTPUT_ZIP` để review. Các mục chuyển nhánh bên dưới là lịch sử.
 
 ## Chuyển corporate action sang feature/indicators-v1 — 04/11/2026
@@ -26,7 +26,7 @@ và gửi `OUTPUT_ZIP` để review. Các mục chuyển nhánh bên dưới là
 corporate action từ `m3-backtest@8827ebf` sang nhánh hiện tại. Stage chuyển bộ thu thập.
 Dữ liệu local và preparation V6 tiếp tục dùng đúng đường dẫn cũ. Runtime 89 file khớp
 SHA-256 đã pin. Prefix có 616 query hoàn tất, còn 456 query trong scope V6 và ORS HOLD.
-Việc thu thập tiếp chạy local theo [hướng dẫn V6](../M3/CORPORATE_ACTIONS_V1_COLLECTION_GUIDE.md).
+Việc thu thập tiếp chạy local theo hướng dẫn V6 (đã gỡ khỏi repo ở commit `3fe08da`, xem lịch sử git).
 
 Stage chuyển nhánh PASS. Đã đối chiếu 438 file được đưa sang với source branch, 89 runtime
 hash và 91 protected code/config hash. V6 `--check` đạt `OFFLINE_CHECK_PASS`, gồm kiểm
@@ -51,6 +51,13 @@ khi hoàn tất, pause hoặc gặp lỗi để review. ORS còn HOLD. Budget ba
 - Bằng chứng: `artifacts/reports/m2-vs-rework-v1/report.md`.
 
 Các mục bên dưới là lịch sử theo thời gian; khi mâu thuẫn, mục này được ưu tiên.
+
+## M3 — Development và Holdout đã chạy và seal (04/11/2026)
+
+M3-A Development (run `20261104T121107Z-5557288c`) và Holdout (run `20261104T133507Z-5557288c`)
+đã chạy, verify và seal với code `c9c1f5f`, config `configs/experiments/m3_strategy_v1.json` LOCKED.
+Final Evaluation NOT_READY do chưa đủ dữ liệu 2026; M3-C PARTIAL; M3-B (dashboard) chưa làm.
+Kết quả: `docs/REPORT_BACKTEST.md`, `M3/reports/BAO_CAO_KY_THUAT_M3.md`; CSV trong `M3/outputs/`.
 
 ## M3 — methodology khóa, code sync, chờ build B-PIT trên máy có dữ liệu (03/11/2026)
 
