@@ -10,10 +10,11 @@ from .indicators import IndicatorReferences
 from .schemas import IndicatorResponse
 from .previews import PreviewRepository
 from .fundamentals import FundamentalsRepository
+from .availability import FinancialAvailability, financial_tickers
 
 ROOT=Path(__file__).resolve().parents[3]
 
-def create_app(repository=None,fundamentals=None):
+def create_app(repository=None,fundamentals=None,availability=None):
     @asynccontextmanager
     async def lifespan(app):
         app.state.repository=repository or TerminalRepository(os.environ.get('DELTA_BUNDLE',str(ROOT/'data/web/delta-intelligence-v4')))
@@ -27,6 +28,10 @@ def create_app(repository=None,fundamentals=None):
         if fundamentals is None:
             try:app.state.fundamentals=FundamentalsRepository.from_config(ROOT)
             except (MissingData,FileNotFoundError):app.state.fundamentals=None  # Endpoints answer 404 until built.
+        app.state.availability=availability
+        if availability is None:
+            try:app.state.availability=FinancialAvailability.from_config(ROOT)
+            except (MissingData,FileNotFoundError):app.state.availability=None  # Endpoint answers 404 until published.
         yield
     app=FastAPI(title='DELTA Intelligence · Read-only Research API',version='1.0.0',lifespan=lifespan)
     def repo(request:Request):return request.app.state.repository
@@ -91,6 +96,12 @@ def create_app(repository=None,fundamentals=None):
                 members=repo(request).query('SELECT ticker FROM observations WHERE kind=? AND date=? AND cluster=?',(kind,latest[0]['date'],own[0]['cluster']))
                 return [r['ticker'] for r in members],f'CLUSTER_{kind.upper()}:{latest[0]["date"]}'
         return None,None
+    @app.get('/api/v2/financial-availability')
+    def financial_availability(request:Request):
+        """Per fiscal year: model-B companies with a CafeF disclosure date vs the 30/06 lag rule."""
+        source=request.app.state.availability
+        if source is None:raise MissingData('Financial availability table not published with this deploy.')
+        return source.summary(financial_tickers(repo(request)))
     @app.get('/api/v2/fundamentals-coverage')
     def fundamentals_coverage(request:Request):return fund(request).coverage()
     @app.get('/api/v2/stocks/{ticker}/overview')
