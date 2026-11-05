@@ -6,7 +6,7 @@
 **Commit backtest chính thức hiện hành** `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`<br>
 **Revision dataset** `08c24867b11177072bfe457a4623a38abf9bbc48`
 
-Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và thứ tự các gate lấy từ [kế hoạch chuẩn M3](m3/KE_HOACH_M3_SCHEMA_GITHUB.md), [ADR D-M3-01](DECISIONS.md) và [hướng dẫn readiness](m3/M3_READINESS.md). Bằng chứng dưới `data/`, `artifacts/` và `.tmp/` được lưu local theo quy tắc Git ignore của dự án.
+Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và thứ tự các gate lấy từ [kế hoạch chuẩn M3](KE_HOACH_M3_SCHEMA_GITHUB.md), [ADR D-M3-01](DECISIONS.md) và [hướng dẫn readiness](M3_READINESS.md). Bằng chứng dưới `data/`, `artifacts/` và `.tmp/` được lưu local theo quy tắc Git ignore của dự án.
 
 ## 1. Trạng thái tổng thể
 
@@ -37,7 +37,7 @@ Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và th�
 - Development có các decision snapshot từ `2019-01-31` đến `2023-12-29`. Holdout từ `2024-01-31` đến `2025-12-31`. Hai đoạn có danh mục và NAV riêng.
 - Run chính dùng chi phí và trượt giá bằng 0. Strategy định giá theo `adj_close`. VNINDEX là price index, nên phần đối chứng cần ghi rõ khác biệt về return basis. Sharpe thuộc Final Evaluation.
 
-Chi tiết và tham số nằm trong [config M3](../configs/experiments/m3_strategy_v1.json) và [kế hoạch chuẩn](m3/KE_HOACH_M3_SCHEMA_GITHUB.md).
+Chi tiết và tham số nằm trong [config M3](../configs/experiments/m3_strategy_v1.json) và [kế hoạch chuẩn](KE_HOACH_M3_SCHEMA_GITHUB.md).
 
 ## 3. KẾT QUẢ THỰC HIỆN
 
@@ -120,7 +120,7 @@ Ngày 04/11/2026, owner quyết định B-PIT dùng bộ Indicators v1 theo cùn
 Các giá trị và công thức trong snapshot đã pin là đầu vào được chấp nhận. Audit nguồn ở Mục 3.2 tiếp tục được lưu
 làm bằng chứng về chất lượng và giới hạn vintage/revision để disclosure khi báo cáo kết quả. Trạng thái audit
 `MANUAL_REVIEW_REQUIRED` trong các evidence trước đó phản ánh kết luận tại thời điểm tạo evidence. Quyết định mới
-được ghi ở [nhật ký owner decisions](DECISIONS.md) và Mục 5.2.B của [kế hoạch chuẩn](m3/KE_HOACH_M3_SCHEMA_GITHUB.md).
+được ghi ở [nhật ký owner decisions](DECISIONS.md) và Mục 5.2.B của [kế hoạch chuẩn](KE_HOACH_M3_SCHEMA_GITHUB.md).
 
 Artifact `bpit-4a9d2e87f0de84ec` đã build từ đúng Indicators v1 được chấp nhận và audit kỹ thuật đã PASS.
 Cutoff runtime đã kiểm thử PASS. Quy trình chuyển đến bước pin artifact và hash, sau đó feasibility.
@@ -693,6 +693,29 @@ Revision dataset giữ nguyên `08c24867b11177072bfe457a4623a38abf9bbc48`.
 - Metrics được tái tính từ output; VNINDEX chuẩn hóa trên đúng cùng 24 ngày định giá. Không có Sharpe.
   Tất cả hash output trước/sau kiểm tra giữ nguyên.
 
+Combined kết thúc với NAV `1.3894883661092423`, thấp hơn VNINDEX về tổng lợi suất 13,18 điểm phần trăm.
+Combined cao hơn Market-only, Financial-only và Equal-weight, nhưng thấp hơn Momentum-only về tổng lợi suất;
+max drawdown sâu hơn cả bốn đối chứng và VNINDEX trên các chuỗi NAV đang dùng.
+Đây là kết quả theo config đã khóa, không thay rule để cải thiện kết quả Holdout.
+
+> **Giới hạn đối sánh:** Combined dùng giá cổ phiếu điều chỉnh, còn VNINDEX là chỉ số giá, nên lợi suất và
+> mức sụt giảm tối đa chưa hoàn toàn tương đương. Mức sụt giảm chỉ được đo tại các ngày định giá theo kỳ;
+> backtest chưa tính phí giao dịch và trượt giá.
+
+Giới hạn vintage/revision tài chính tại Mục 3.2 tiếp tục áp dụng.
+
+| Strategy | BUY_FAILED | SELL_FAILED | SCALED | PRICE_STALE | LIMIT_DATA_MISSING |
+|---|---:|---:|---:|---:|---:|
+| Combined | 17 | 23 | 93 | 3 | 0 |
+| Market-only | 40 | 25 | 254 | 5 | 0 |
+| Financial-only | 123 | 96 | 614 | 1 | 0 |
+| Equal-weight | 1.073 | 1.169 | 9.019 | 29 | 0 |
+| Momentum-only | 409 | 464 | 2.430 | 6 | 0 |
+
+Combined có ba sự kiện dùng last valid mark: PTX ngày `2024-10-01` và `2024-11-01`, VVS ngày `2025-12-01`.
+Đây là các mã/ngày thiếu giá được ghi nhận theo policy `PRICE_STALE`; toàn bộ sự kiện của năm strategy
+được lưu trong seal. Counts là số sự kiện/lệnh, không phải số mã duy nhất.
+
 #### Evidence và self-review
 
 [Seal Holdout](../data/experiments/m3/seals/holdout/20261104T133507Z-5557288c/seal.json)
@@ -739,121 +762,109 @@ chỉ xuất báo cáo Holdout được yêu cầu và cập nhật báo cáo ti
 
 ### 3.24. So sánh kết quả đối sánh giữa Development và Holdout
 
-Số liệu lấy từ [metrics Dev hiện hành](../data/experiments/m3/development/20261104T121107Z-5557288c/metrics.json)
-và [metrics Holdout](../data/experiments/m3/holdout/20261104T133507Z-5557288c/metrics.json), đều thuộc run đã seal.
-Dev có 59 khoảng lợi suất, Holdout có 23 khoảng. Vì độ dài khác nhau, dùng CAGR để so sánh thêm bên cạnh
-tổng lợi suất; không nối NAV hai đoạn hoặc diễn giải tổng lợi suất thấp hơn là hiệu quả năm hóa thấp hơn.
+**Cập nhật phân tích:** 05/11/2026. Số liệu đã đối chiếu trực tiếp từ CSV của hai run đã seal:
+[Development](../M3/outputs/development/20261104T121107Z-5557288c/) và
+[Holdout](../M3/outputs/holdout/20261104T133507Z-5557288c/). Danh mục và SHA256 nằm trong
+[manifest kết quả](../M3/outputs/manifest.json). Dev có 59 khoảng lợi suất, Holdout có 23 khoảng;
+hai đoạn khởi tạo độc lập và không nối NAV. Vì độ dài khác nhau, dùng CAGR bên cạnh tổng lợi suất
+khi đọc kết quả giữa hai giai đoạn. Giữ nguyên công thức metrics trong `scripts/run_m3.py`.
 
-| Strategy / benchmark | Tổng lợi suất Dev | Tổng lợi suất Holdout | CAGR Dev | CAGR Holdout |
-|---|---:|---:|---:|---:|
-| Combined | 116,15% | 38,95% | 16,97% | 18,72% |
-| Market-only | 128,81% | 22,43% | 18,34% | 11,14% |
-| Financial-only | 40,74% | 28,37% | 7,20% | 13,92% |
-| Equal-weight | 159,03% | 29,53% | 21,36% | 14,45% |
-| Momentum-only | 169,73% | 41,37% | 22,36% | 19,80% |
-| VNINDEX | 24,35% | 52,13% | 4,53% | 24,47% |
+#### Combined so với VNINDEX
 
-Combined tăng từ thứ 4/5 strategy trong Dev lên thứ 2/5 trong Holdout, không tính VNINDEX vào thứ hạng strategy.
-Trong Dev, Combined chỉ cao hơn Financial-only; trong Holdout, Combined cao hơn Market-only, Financial-only
-và Equal-weight. Khoảng cách CAGR thấp hơn Momentum-only thu hẹp từ 5,39 xuống 1,08 điểm phần trăm.
-So với VNINDEX, Combined chuyển từ CAGR cao hơn 12,44 điểm phần trăm trong Dev sang thấp hơn
-5,75 điểm phần trăm trong Holdout. Đây là mô tả trên các chuỗi hiện có, với giới hạn return basis bên dưới.
+| Giai đoạn | Danh mục | Tổng lợi suất | CAGR | Biến động năm | Max drawdown |
+|---|---|---:|---:|---:|---:|
+| Dev | Combined | 116,15% | 16,97% | 27,39% | -44,60% |
+| Dev | VNINDEX | 24,35% | 4,53% | 23,56% | -33,02% |
+| Holdout | Combined | 38,95% | 18,72% | 28,59% | -26,27% |
+| Holdout | VNINDEX | 52,13% | 24,47% | 16,08% | -5,87% |
 
-| Strategy / benchmark | Max drawdown Dev | Max drawdown Holdout |
-|---|---:|---:|
-| Combined | -44,60% | -26,27% |
-| Market-only | -47,88% | -18,91% |
-| Financial-only | -27,20% | -3,95% |
-| Equal-weight | -37,01% | -7,40% |
-| Momentum-only | -33,71% | -8,92% |
-| VNINDEX | -33,02% | -5,87% |
+Trong **Dev**, Combined đạt lợi suất cao hơn VNINDEX, nhưng đồng thời biến động lớn hơn và sụt giảm
+sâu hơn. Vì vậy, mức lợi suất cao chưa đi cùng khả năng kiểm soát rủi ro tốt hơn.
 
-Combined có drawdown sâu hơn toàn bộ bốn đối chứng và VNINDEX trong Holdout. Drawdown của Combined
-ít sâu hơn ở Holdout so với Dev chưa chứng minh rủi ro giảm, vì hai đoạn khác độ dài và giai đoạn thị trường.
-Biến động năm của Combined tăng từ 27,39% lên 28,59%.
+Sang **Holdout**, Combined vừa có lợi suất thấp hơn VNINDEX, vừa có biến động và drawdown lớn hơn.
+Kết quả quan sát này không ủng hộ nhận định Combined vượt trội so với thị trường trong giai đoạn
+kiểm tra.
 
-#### Phân tích ý nghĩa của kết quả đối sánh
+Tuy nhiên, **chênh lệch trên chưa phải phép đo lợi thế đầu tư trên cùng cơ sở giá**. Combined dùng
+giá điều chỉnh của nhà cung cấp như một proxy, còn VNINDEX trong backtest là price index.
+Price return và total return có cách xử lý thu nhập cổ tức khác nhau; đồng thời chưa thể mặc định
+proxy hiện tại là total return chuẩn. Khác biệt này ảnh hưởng cả lợi suất lẫn đường drawdown.
+Xem [phương pháp chỉ số của S&P Dow Jones Indices](https://www.spglobal.com/spdji/en/methodology/article/index-mathematics-methodology/).
+Không diễn giải phần chênh lệch thành alpha đã được xác nhận.
 
-**Hiệu quả của Combined qua hai đoạn.** CAGR tăng từ 16,97% lên 18,72% cho thấy lợi suất năm hóa của
-Combined không suy giảm trong Holdout. Tuy nhiên, thứ hạng tăng từ 4/5 lên 2/5 còn đi cùng việc CAGR
-của Market-only, Equal-weight và Momentum-only giảm. Vì vậy, thứ hạng cải thiện chưa chứng minh mô hình
-ổn định hơn hoặc có khả năng khái quát tốt hơn. Hai đoạn thuộc các giai đoạn khác nhau, với Holdout chỉ
-có 23 khoảng lợi suất; kết quả hiện tại là bằng chứng mô tả trên hai mẫu, chưa phải kiểm định ý nghĩa thống kê.
+#### Combined so với bốn strategy đối chứng
 
-**So với Market-only: lợi ích của phương án kết hợp chưa nhất quán về rủi ro.** Trong Dev, Combined có
-CAGR thấp hơn 1,36 điểm phần trăm, đồng thời biến động thấp hơn và drawdown ít sâu hơn Market-only.
-Đó là một đánh đổi giữa lợi suất và rủi ro. Sang Holdout, Combined cao hơn 7,59 điểm phần trăm CAGR,
-nhưng drawdown sâu hơn 7,37 điểm phần trăm và biến động tăng từ mức 23,75% của Market-only lên 28,59%.
-Phương án kết hợp có lợi thế lợi suất trong Holdout, nhưng chưa cho thấy tác dụng giảm rủi ro xuyên suốt
-hai đoạn. Chênh lệch này phản ánh toàn bộ thay đổi về tập ứng viên và cách xếp hạng giữa hai strategy;
-chưa tách riêng được đóng góp nhân quả của bộ lọc Financial.
+**So sánh Combined với bốn strategy còn lại đồng nhất hơn về phương pháp so với so sánh với VNINDEX**,
+vì chúng cùng dùng nguồn giá, lịch định giá, engine giao dịch và các giả định chi phí. Tuy nhiên,
+điều đó chưa đồng nghĩa kết quả phản ánh chính xác hoàn toàn giao dịch thực tế.
 
-**So với Financial-only: lợi suất cao hơn đi cùng mức dao động lớn hơn.** Combined có CAGR cao hơn
-Financial-only trong cả Dev và Holdout. Tuy nhiên, trong Holdout, phần lợi suất năm hóa tăng thêm
-4,81 điểm phần trăm đi cùng biến động 28,59% so với 7,30%, và drawdown -26,27% so với -3,95%.
-Do đó, Combined thể hiện khả năng tìm lợi suất cao hơn trên mẫu đang xét, còn Financial-only có kết quả
-ít biến động và ít sụt giảm hơn. Chưa có cơ sở mô tả Combined là phương án vượt trội trên cả hai mặt.
+**Cách đọc bảng:** Trong mỗi cặp số, giá trị trước là **Combined**, giá trị sau là **strategy đối chứng**.
+Lợi suất trong bảng được thể hiện bằng CAGR; biến động được năm hóa và max drawdown đo theo kỳ.
 
-**So với Equal-weight: lợi ích của chọn lọc danh mục thay đổi theo giai đoạn.** Trong Dev, Equal-weight
-đạt CAGR cao hơn Combined 4,39 điểm phần trăm, đồng thời có biến động thấp hơn và drawdown ít sâu hơn.
-Điều này cho thấy quy trình chọn lọc của Combined chưa tạo lợi thế so với việc chia đều trên tập mã đủ
-điều kiện của đối chứng trong đoạn Dev. Trong Holdout, Combined vượt Equal-weight 4,27 điểm phần trăm
-CAGR, nhưng drawdown sâu hơn 18,88 điểm phần trăm và biến động cao hơn 15,26 điểm phần trăm.
-Lợi thế lợi suất ở Holdout vì vậy có mức đánh đổi rủi ro đáng kể. Không thể lấy riêng phần lợi suất tăng
-thêm để kết luận việc tập trung danh mục hiệu quả hơn; chưa có phân rã để xác định nguồn của phần rủi ro tăng.
+| Đối chứng | Nhận xét trong Dev | Nhận xét trong Holdout |
+|---|---|---|
+| Market-only | CAGR thấp hơn: **16,97% so với 18,34%**.<br>Biến động năm thấp hơn: 27,39% so với 29,51%.<br>Max drawdown ít sâu hơn: -44,60% so với -47,88%. | CAGR cao hơn: **18,72% so với 11,14%**.<br>Biến động năm cao hơn: 28,59% so với 23,75%.<br>Max drawdown sâu hơn: -26,27% so với -18,91%. |
+| Financial-only | CAGR cao hơn: **16,97% so với 7,20%**.<br>Biến động năm cao hơn: 27,39% so với 17,09%.<br>Max drawdown sâu hơn: -44,60% so với -27,20%. | CAGR cao hơn: **18,72% so với 13,92%**.<br>Biến động năm cao hơn: 28,59% so với 7,30%.<br>Max drawdown sâu hơn: -26,27% so với -3,95%. |
+| Equal-weight | CAGR thấp hơn: **16,97% so với 21,36%**.<br>Biến động năm cao hơn: 27,39% so với 24,45%.<br>Max drawdown sâu hơn: -44,60% so với -37,01%. | CAGR cao hơn: **18,72% so với 14,45%**.<br>Biến động năm cao hơn: 28,59% so với 13,34%.<br>Max drawdown sâu hơn: -26,27% so với -7,40%. |
+| Momentum-only | CAGR thấp hơn: **16,97% so với 22,36%**.<br>Biến động năm cao hơn: 27,39% so với 25,51%.<br>Max drawdown sâu hơn: -44,60% so với -33,71%. | CAGR thấp hơn: **18,72% so với 19,80%**.<br>Biến động năm cao hơn: 28,59% so với 15,60%.<br>Max drawdown sâu hơn: -26,27% so với -8,92%. |
 
-**So với Momentum-only: đây là đối chứng gây bất lợi rõ nhất cho Combined.** Momentum-only có CAGR
-cao hơn, biến động thấp hơn và drawdown ít sâu hơn Combined trong cả hai đoạn. Trong Holdout, Combined
-chỉ còn thấp hơn 1,08 điểm phần trăm CAGR, nhưng biến động vẫn cao hơn 13,00 điểm phần trăm và drawdown
-sâu hơn 17,36 điểm phần trăm. Khoảng cách lợi suất thu hẹp chưa chuyển thành lợi thế về rủi ro.
-Trên ba chỉ tiêu đã đo, chiến lược chỉ dùng momentum có kết quả thuận lợi hơn phương án kết hợp phức tạp
-hơn. Đây là bằng chứng quan trọng khi đánh giá giá trị tăng thêm của Combined, nhưng chưa phải kết luận
-về ý nghĩa thống kê hoặc kết quả sau chi phí giao dịch.
+Với **Market-only**, việc kết hợp Financial chưa tạo ra lợi ích nhất quán: Dev giảm rủi ro nhưng
+giảm lợi suất; Holdout tăng lợi suất nhưng cũng tăng rủi ro. Chưa thể kết luận thêm lớp tài chính
+giúp danh mục tốt hơn trên cả hai phương diện.
 
-**So với VNINDEX: chưa có lợi thế vượt thị trường nhất quán.** Combined vượt VNINDEX về lợi suất
-trong Dev nhưng thấp hơn trong Holdout; ở cả hai đoạn, drawdown của Combined đều sâu hơn VNINDEX.
-Vì thế, kết quả hiện hành chưa hỗ trợ nhận định Combined vừa vượt thị trường vừa bảo vệ danh mục tốt hơn.
-Đối sánh này còn khác return basis, nên không gọi phần chênh lệch là alpha đã được xác nhận hoặc quy
-chênh lệch hoàn toàn cho chất lượng mô hình. Khác biệt cơ sở giá ảnh hưởng cả lợi suất và drawdown,
-được phân tích riêng bên dưới.
+Với **Financial-only**, Combined chấp nhận rủi ro cao hơn để đạt lợi suất cao hơn. Trong Holdout,
+CAGR tăng từ 13,92% lên 18,72%, nhưng biến động tăng từ 7,30% lên 28,59%. Đây là sự đánh đổi
+đáng kể, chưa đủ để gọi Combined là phương án tốt hơn.
 
-**Điều kiện vận hành cũng thay đổi giữa hai đoạn.** Combined có 13/60 quyết định thiếu ứng viên trong Dev
-và 1/24 trong Holdout; tỷ trọng tiền mặt trung bình sau giao dịch giảm từ 22,40% xuống 8,92%.
-Trong Holdout, strategy ít bị giới hạn bởi N_min hơn và giữ phần vốn cổ phiếu lớn hơn theo thước đo này.
-Đây là bối cảnh cần xét khi đọc kết quả, chưa chứng minh tiền mặt hoặc số ứng viên là nguyên nhân làm
-lợi suất thay đổi. Turnover trung bình mỗi kỳ của Combined tăng từ 47,62% lên 54,53%; khi baseline đang
-để chi phí bằng 0, phần kết quả ròng sau phí và trượt giá vẫn chưa được đo. Việc này cũng hạn chế kết luận
-về ưu thế sau chi phí giữa các strategy có turnover khác nhau.
+Với **Equal-weight**, kết quả Dev đặt ra câu hỏi về giá trị của quy trình chọn lọc: danh mục chia đều
+đơn giản đạt lợi suất cao hơn và rủi ro thấp hơn. Trong Holdout, Combined cải thiện lợi suất,
+nhưng max drawdown là -26,27%, so với -7,40% của Equal-weight.
 
-> **Đánh giá từ các kết quả đã có:** Combined cải thiện thứ hạng lợi suất trong Holdout và vượt ba trong
-> bốn strategy đối chứng, nhưng chưa tạo lợi thế nhất quán về lợi suất và rủi ro qua hai đoạn.
-> Momentum-only thuận lợi hơn trên cả CAGR, biến động và drawdown trong cả Dev lẫn Holdout.
-> Trạng thái verify/seal `PASS` xác nhận kết quả được tính đúng theo contract đã khóa; trạng thái này
-> không đồng nghĩa chiến lược đã chứng minh hiệu quả đầu tư vượt trội hoặc chất lượng phân cụm tốt hơn.
+**Momentum-only là đối chứng bất lợi rõ nhất cho Combined.** Nó đạt CAGR cao hơn, biến động thấp hơn
+và drawdown ít sâu hơn trong cả hai giai đoạn. Riêng Holdout, CAGR của hai chiến lược khá gần nhau
+— 19,80% và 18,72% — nhưng mức drawdown khác biệt lớn: -8,92% và -26,27%. Trong các chỉ tiêu
+đã đo, Combined chưa thể hiện lợi ích bổ sung so với chiến lược momentum đơn giản hơn.
 
-#### Giới hạn cơ sở giá khi so sánh với VNINDEX
+Các đối sánh này có cơ sở đồng nhất hơn so với VNINDEX, nhưng **chưa tách riêng được tác dụng
+của phân cụm hoặc bộ lọc tài chính**, vì các strategy khác nhau cả về tập ứng viên, cách xếp hạng,
+số mã nắm giữ và tỷ lệ tiền mặt. Sai lệch chung của nguồn dữ liệu cũng không nhất thiết triệt tiêu
+khi mỗi strategy giữ những mã khác nhau.
 
-Combined dùng `adj_close` của nhà cung cấp, được sử dụng như adjusted-return proxy theo Q11;
-VNINDEX là price index. Khác biệt này ảnh hưởng cả lợi suất và drawdown vì hai chỉ tiêu đều tính từ NAV.
-Drawdown chỉ đo tại các ngày định giá theo kỳ; backtest chưa tính phí giao dịch và trượt giá.
+#### Kết luận từ kết quả hiện tại
 
-Hai hướng đối sánh đồng nhất hơn có ý nghĩa khác nhau:
+Combined chưa chứng minh được ưu thế nhất quán về cả lợi suất và rủi ro. Việc cải thiện thứ hạng
+lợi suất từ thứ 4 trong Dev lên thứ 2 trong Holdout là điểm tích cực, nhưng chưa đủ chứng minh
+tính ổn định. Thứ hạng này chỉ xét năm strategy, không tính VNINDEX.
 
-| Hướng tính | Ảnh hưởng có thể xảy ra |
-|---|---|
-| Tính Combined theo price return, loại ảnh hưởng cổ tức tiền mặt và vẫn xử lý đúng các sự kiện vốn | Lợi suất Combined có thể thấp hơn mức đang báo cáo. Chưa có phép tính để xác định mức giảm. |
-| Đối chiếu Combined với benchmark total return có tính cổ tức | Kết quả Combined hiện hành giữ nguyên; lợi suất benchmark có thể cao hơn VNINDEX price index đang dùng. |
+Bằng chứng đáng chú ý nhất là Momentum-only thuận lợi hơn trên cả ba chỉ tiêu CAGR, biến động
+và max drawdown ở cả hai giai đoạn. Kết luận này áp dụng cho **quy tắc danh mục Combined đã kiểm tra**,
+không chứng minh phương pháp phân cụm nói chung không có giá trị. Chất lượng cụm, độ ổn định cụm
+và hiệu quả danh mục tiếp tục là ba lớp đánh giá độc lập.
 
-Không thay trực tiếp `adj_close` bằng `raw_close`: chia tách, cổ tức bằng cổ phiếu hoặc quyền mua có thể
-tạo biến động giá cơ học, cần xử lý phù hợp để tính price return. Giá điều chỉnh hiện có chưa cho phép
-tách chính xác phần đóng góp của cổ tức hoặc coi là chuỗi total return đã được tái lập đầy đủ.
-Do đó, chưa thể định lượng phần chênh lệch do cơ sở giá, quy toàn bộ chênh lệch cho cổ tức hoặc kết luận
-thứ hạng sẽ thay đổi sau khi đồng nhất cơ sở tính.
+#### Các giới hạn hiện tại của project
 
-Các hướng trên chỉ giải thích giới hạn đối sánh, chưa được thực hiện và không thay methodology đã khóa.
-Self-review: số liệu, chênh lệch CAGR/biến động/drawdown và thứ hạng đã đối chiếu hai file metrics;
-counts đối chiếu manifest, cash/turnover lấy từ metrics. Phân tích phân biệt kết quả quan sát với nguyên nhân
-chưa được kiểm chứng; cập nhật này chỉ bổ sung diễn giải báo cáo, không tuning hoặc chọn lại cluster/model.
+- **Cơ sở giá chưa đồng nhất với VNINDEX:** chưa định lượng được phần chênh lệch do cổ tức và
+  cách điều chỉnh giá. Giá điều chỉnh hiện tại chưa được xác nhận là chuỗi total return tái lập đầy đủ.
+  Không thay trực tiếp bằng raw close khi chưa xử lý đúng các sự kiện vốn.
+- **Dữ liệu tài chính còn giới hạn về vintage/revision:** kiểm soát ngày sử dụng không bảo đảm
+  mọi giá trị đều là đúng phiên bản đã công bố tại thời điểm đó. Mốc 30/6 trước FY2022 là giả định
+  của nhóm. Các phát hiện VCG/SBT và quyết định chấp nhận snapshot tại Mục 3.2 và 3.5 tiếp tục áp dụng.
+- **Mô phỏng giao dịch còn đơn giản:** phí và slippage bằng 0, vị thế phân số, chưa mô phỏng đầy đủ
+  lô giao dịch, sổ lệnh và sức chứa theo quy mô vốn. Turnover khác nhau giữa các strategy cũng làm
+  hạn chế kết luận về thứ hạng sau chi phí.
+- **Rủi ro được đo theo kỳ:** max drawdown chưa phản ánh đầy đủ biến động giữa các ngày định giá;
+  việc giữ giá gần nhất khi thiếu dữ liệu cũng ảnh hưởng đường NAV.
+- **Danh mục có thể tập trung:** `N_min=10` áp dụng cho số ứng viên, không bảo đảm thực giữ ít nhất
+  10 mã. Lệnh thất bại có thể làm tỷ trọng thực tế lệch mục tiêu.
+- **Khả năng khái quát còn hạn chế:** Holdout chỉ có 23 khoảng lợi suất, chưa xác lập ý nghĩa thống kê;
+  độ ổn định mô hình tài chính upstream còn hạn chế và Holdout không hoàn toàn độc lập với mọi bước
+  lựa chọn mô hình upstream.
+- **Chưa có Final Evaluation:** dữ liệu 2026 chưa đủ, nên chưa thể kết luận về hiệu quả ở giai đoạn
+  đánh giá cuối. Trạng thái Final vẫn `NOT_READY`.
+
+Kết quả kiểm chứng `PASS` xác nhận backtest được thực hiện và tái lập đúng theo quy tắc đã khóa;
+nó **không đồng nghĩa chiến lược đã chứng minh được hiệu quả đầu tư vượt trội**. Cập nhật ngày
+05/11/2026 chỉ thay phần diễn giải báo cáo, không thay methodology, config hoặc các kết quả đã seal.
 
 ### 3.25. Kế hoạch thực hiện M3-C khi Final chưa đủ dữ liệu
 
