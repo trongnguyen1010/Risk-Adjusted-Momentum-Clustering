@@ -1,4 +1,38 @@
-# Lệnh làm việc hiện tại
+# Bảng lệnh scripts/
+
+Chạy mọi lệnh từ thư mục gốc repo. Script nằm phẳng trong `scripts/` vì nhiều manifest/config đã ghi
+đường dẫn của chúng; đừng di chuyển hoặc đổi tên. Bảng dưới chia theo nhóm để dễ tìm.
+
+## Đang dùng
+
+| Nhóm | Script | Việc |
+|---|---|---|
+| M3 | `run_m3.py --segment development\|holdout\|final [--targets-only]` | Chọn danh mục và backtest theo `configs/experiments/m3_strategy_v1.json` |
+| M3 | `build_financial_pit_clusters.py` | Build nhãn B-PIT (`data/financial/b_pit_v1/`) |
+| M3 | `m3_stage0.py`, `m3_feasibility_variants.py` | Manifest đầu vào, đếm tập ứng viên (không tính lợi suất) |
+| M3 | `publish_hf_data.py`, `publish_m3_data.py` | Đẩy dữ liệu M3/web lên HuggingFace |
+| Ngày công bố | `crawl_cafef_disclosure_dates.py`, `build_financial_availability.py` | Crawl ngày gửi BCTC CafeF, build bảng `usable_from_date` |
+| Indicators v1 | `build_indicator_inputs.py` → `build_indicators.py` → `verify_indicators.py` | Lớp chỉ số sản phẩm D-IND-01 |
+| Phân cụm A/B/C | `run_clustering_rework_v2.py`, `dual_cluster_review.py`, `combined_reference.py [--execute]`, `verify_combined_reference.py`, `build_cluster_comparison_report.py` | Mô hình A/B v4 và tham chiếu C |
+| Web | `build_delta_bundle_v4.py`, `export_delta_terminal.py`, `start_delta_terminal.py`, `verify_delta_terminal.py`, `start_product.ps1` | Bundle và chạy web local |
+| Web QA | `test_delta_frontend.cjs`, `verify_delta_ui.cjs`, `measure_delta_ui.cjs` | Kiểm giao diện |
+| Corporate actions | `corporate_actions/collect_vsdc_recovery_supervisor_v7.py` | Supervisor V7 chạy worker V6 (xem `docs/README.md`) |
+| Kiểm repo | `verify_repository_r1.py`, `project_cleanup.py check` | Kiểm toàn vẹn sau dọn dẹp |
+
+## Lịch sử (giữ để tái lập, không chạy cho việc mới)
+
+| Nhóm | Mẫu tên | Ghi chú |
+|---|---|---|
+| Crawl và xử lý tài chính | `financial_*.py\|.ps1` (107 file), `crawl_financial*`, `crawl_cafef_financial.py`, `probe_financial_*`, `review_financial_scale.py`, `extract_financial_selected_pages.py`, `ocr_financial_pages.ps1`, `setup_financial_ocr.py`, `calculate_cached_financial_scores.py`, `build_financial_serving.py`, `integrate_financial_trial.py` | Các campaign đã xong; dataset hiện hành ở `data/financial/` |
+| Financial PIT cũ | `run_fin_pit_*`, `validate_fin_pit_1a_continuation_proposal.py` | Trước B-PIT |
+| Thị trường C5–C8 | `build_cafef_c*`, `run_cafef_*`, `verify_cafef_*`, `*cafef_expansion*`, `build_m1_market_foundation_report.py` | M1 |
+| M2 K=2 (LEGACY) | `build_m2_prep.py`, `run_m2_global_k.py`, `export_m2_selected_k.py`, `verify_m2_task12.py`, `generate_m2_task13_handoff.py`, `compare_m2_vs_rework.py`, `run_clustering_rework_v1.py` | Đối chứng |
+| Integration market–financial | `import_market_bundle.py`, `verify_market_financial_integration.py`, `market_financial_integration.ps1` | Xem ghi chú bên dưới |
+| DELTA upgrade R1 | `run_delta_upgrade_r1.py`, `verify_delta_upgrade_r1.py`, `audit_delta_upgrade.py`, `export_delta_research_preview.py`, `verify_delta_research_preview.py`, `build_delta_bundle_v2.py`, `build_delta_bundle_v3.py` | Byte được ghim trong `.gitattributes` |
+| Corporate actions / HNX / VCI | `*corporate_action*`, `*hnx_*`, `*vci_calendar*`, `*dtp_asg*`, `*gsp_kpf*`, `*abb_aas*` ở gốc `scripts/`; `corporate_actions/` chứa shim gọi các file này và các runner VSDC | Code chính import `delta_t1.ingestion.<module>` |
+| Khác | `generate_demo.py`, `run_research.py`, `export_presentation_guide_to_docx.py`, `prune_financial_archives.ps1`, `monitor_cafef_worker.py` | |
+
+## Ghi chú lịch sử
 
 ## Indicators v1 (D-IND-01) — lớp chỉ số sản phẩm
 
