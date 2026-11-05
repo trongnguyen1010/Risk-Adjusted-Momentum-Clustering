@@ -14,6 +14,9 @@ tổng cộng 64 CSV, khoảng 33,43 MiB. Các file JSON/Markdown đi kèm chỉ
 Mỗi segment có sáu CSV cho mỗi strategy: `targets`, `universe_audit`, `trade_ledger`,
 `holdings`, `nav`, `turnover`; năm strategy là `combined`, `market_only`, `financial_only`,
 `equal_weight`, `momentum_only`. CSV thứ 31 là `benchmark_vnindex.csv`.
+Ngoài các CSV, mỗi thư mục run lưu trữ đầy đủ bộ ba tệp chứng thực:
+manifest.json (môi trường & tham số), metrics.json (chỉ số hiệu suất) và seal.json (chữ ký niêm phong SHA256 chính thức).
+
 Hai CSV dễ đọc diễn giải từng kỳ của Combined; không thay thế các CSV canonical để kiểm chứng.
 
 [manifest.json](manifest.json) ghi đường dẫn nguồn, đường dẫn bản sao, kích thước và SHA256
