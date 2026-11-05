@@ -57,6 +57,11 @@ export default function Financial() {
         (d) => d.version === selectedVersion,
       )?.version || s.data.datasets.combined.version
     : undefined;
+  const availability = useApi<{
+    rule: string;
+    years: { year: number; companies: number; cafef: number; lag_rule: number; calendar_pending: number }[];
+  }>(url("financial-availability"));
+  const dates = availability.data?.years.find((y) => String(y.year) === year);
   const state = useApi<SnapshotData>(
     tab !== "coverage" && s.data
       ? url("snapshots/financial", {
@@ -117,10 +122,24 @@ export default function Financial() {
           </select>
         }
       />
-      <Badge tone="amber">
-        {number(s.data.metadata.financial_publication_rows)} /{" "}
-        {number(s.data.metadata.financial_rows)} rows có mốc công bố
-      </Badge>
+      {dates ? (
+        <p className="availability-line" title={availability.data?.rule}>
+          <Badge tone={dates.lag_rule ? "amber" : "teal"}>
+            FY{year}: {number(dates.cafef)} / {number(dates.companies)} doanh nghiệp có ngày công bố
+          </Badge>
+          <span>
+            {dates.lag_rule
+              ? `${number(dates.lag_rule)} mã chưa có ngày gửi trên CafeF${Number(year) < 2022 ? " (CafeF chỉ lưu từ năm 2022)" : ""}: dùng mốc 30/06/${Number(year) + 1}`
+              : "Mọi doanh nghiệp đều có ngày gửi trên CafeF"}
+            . Báo cáo chỉ được dùng từ phiên giao dịch đầu tiên sau ngày đó.
+          </span>
+        </p>
+      ) : (
+        <Badge tone="amber">
+          {number(s.data.metadata.financial_publication_rows)} /{" "}
+          {number(s.data.metadata.financial_rows)} rows có mốc công bố
+        </Badge>
+      )}
       <ScopeNote kind="financial" />
       {s.dataset && (
         <ModelVersion

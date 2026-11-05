@@ -48,6 +48,12 @@ def collect():
             local=ROOT/pointer[key]
             if not local.is_file() or sha256(local)!=pointer[key+'_sha256']:raise SystemExit('Indicators v1 source missing or checksum mismatch: '+pointer[key])
             files[pointer[key]]=local
+    availability=ROOT/'configs/product/financial_availability_v1.json'
+    if availability.is_file():
+        pointer=json.loads(availability.read_bytes())
+        local=ROOT/pointer['file']
+        if not local.is_file() or sha256(local)!=pointer['file_sha256']:raise SystemExit('Financial availability table missing or checksum mismatch: '+pointer['file'])
+        files[pointer['file']]=local
     preview=ROOT/'configs/product/model_previews_v1.json'
     if preview.is_file():
         pointer=json.loads(preview.read_bytes())
