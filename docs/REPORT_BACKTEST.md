@@ -693,42 +693,6 @@ Revision dataset giữ nguyên `08c24867b11177072bfe457a4623a38abf9bbc48`.
 - Metrics được tái tính từ output; VNINDEX chuẩn hóa trên đúng cùng 24 ngày định giá. Không có Sharpe.
   Tất cả hash output trước/sau kiểm tra giữ nguyên.
 
-#### Kết quả Holdout đã seal
-
-Các giá trị dưới đây được lấy từ `metrics.json`; 24 điểm NAV tạo 23 khoảng lợi suất, CAGR dùng `23/12` năm.
-
-| Strategy / benchmark | Tổng lợi suất | CAGR | Biến động năm | Max drawdown | Turnover trung bình mỗi kỳ | Cash trung bình sau giao dịch |
-|---|---:|---:|---:|---:|---:|---:|
-| Combined | 38,95% | 18,72% | 28,59% | -26,27% | 54,53% | 8,92% |
-| Market-only | 22,43% | 11,14% | 23,75% | -18,91% | 58,52% | 3,75% |
-| Financial-only | 28,37% | 13,92% | 7,30% | -3,95% | 24,37% | 2,54% |
-| Equal-weight | 29,53% | 14,45% | 13,34% | -7,40% | 8,41% | 0,47% |
-| Momentum-only | 41,37% | 19,80% | 15,60% | -8,92% | 27,50% | 0,82% |
-| VNINDEX | 52,13% | 24,47% | 16,08% | -5,87% | — | — |
-
-Combined kết thúc với NAV `1.3894883661092423`, thấp hơn VNINDEX về tổng lợi suất 13,18 điểm phần trăm.
-Combined cao hơn Market-only, Financial-only và Equal-weight, nhưng thấp hơn Momentum-only về tổng lợi suất;
-max drawdown sâu hơn cả bốn đối chứng và VNINDEX trên các chuỗi NAV đang dùng.
-Đây là kết quả theo config đã khóa, không thay rule để cải thiện kết quả Holdout.
-
-> **Giới hạn đối sánh:** Combined dùng giá cổ phiếu điều chỉnh, còn VNINDEX là chỉ số giá, nên lợi suất và
-> mức sụt giảm tối đa chưa hoàn toàn tương đương. Mức sụt giảm chỉ được đo tại các ngày định giá theo kỳ;
-> backtest chưa tính phí giao dịch và trượt giá.
-
-Giới hạn vintage/revision tài chính tại Mục 3.2 tiếp tục áp dụng.
-
-| Strategy | BUY_FAILED | SELL_FAILED | SCALED | PRICE_STALE | LIMIT_DATA_MISSING |
-|---|---:|---:|---:|---:|---:|
-| Combined | 17 | 23 | 93 | 3 | 0 |
-| Market-only | 40 | 25 | 254 | 5 | 0 |
-| Financial-only | 123 | 96 | 614 | 1 | 0 |
-| Equal-weight | 1.073 | 1.169 | 9.019 | 29 | 0 |
-| Momentum-only | 409 | 464 | 2.430 | 6 | 0 |
-
-Combined có ba sự kiện dùng last valid mark: PTX ngày `2024-10-01` và `2024-11-01`, VVS ngày `2025-12-01`.
-Đây là các mã/ngày thiếu giá được ghi nhận theo policy `PRICE_STALE`; toàn bộ sự kiện của năm strategy
-được lưu trong seal. Counts là số sự kiện/lệnh, không phải số mã duy nhất.
-
 #### Evidence và self-review
 
 [Seal Holdout](../data/experiments/m3/seals/holdout/20261104T133507Z-5557288c/seal.json)
