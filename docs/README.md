@@ -2,7 +2,7 @@
 
 ## M3-C — tái lập Dev/Holdout và báo cáo kỹ thuật, 04/11/2026
 
-[Hướng dẫn chạy notebook](../M3/HUONG_DAN_THUC_HIEN_M3.md),
+Hướng dẫn chạy notebook (đã gộp vào notebook, file riêng xóa 04/11),
 [báo cáo kỹ thuật](../M3/reports/BAO_CAO_KY_THUAT_M3.md) và
 [tiến độ thực hiện](REPORT_BACKTEST.md) dùng hai run M3-A đã seal.
 Notebook 01–03 tái lập dữ liệu/PIT, lựa chọn danh mục, backtest và VNINDEX bằng module chính thức.
@@ -18,9 +18,7 @@ CLI hiện hành là `scripts/corporate_actions/collect_vsdc_recovery_supervisor
 supervisor V7 chạy worker V6 đã freeze. Xem hướng dẫn bên dưới cho lệnh chạy và pause.
 
 Code/config và tests corporate action được chuyển từ `m3-backtest@8827ebf` sang
-`feature/indicators-v1`. [Hướng dẫn chạy V6](../M3/CORPORATE_ACTIONS_V1_COLLECTION_GUIDE.md)
-và [nhật ký thu thập](../M3/NHAT_KY_THU_THAP_VA_XU_LY_CORPORATE_ACTIONS_20261102.md)
-đi cùng module. Dữ liệu local ở `data/corporate_actions/work`, gồm prefix 616 mã và
+`feature/indicators-v1`. Hướng dẫn chạy V6 và nhật ký thu thập đã bị xóa khỏi `M3/` ngày 04/11 (còn trong lịch sử git, commit `3fe08da`, `e6b6dce`). Dữ liệu local ở `data/corporate_actions/work`, gồm prefix 616 mã và
 preparation V6 để xử lý tiếp 456 mã trong scope, ORS còn HOLD.
 Kết quả kiểm tra chuyển nhánh được ghi trong [trạng thái hiện tại](CURRENT_STATUS.md).
 
@@ -134,63 +132,12 @@ không dùng chúng để tái tạo current84. Xem `M2/artifacts/market-financi
 Đọc [report tổng](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md) để xem kết quả,
 outlier queue và giới hạn M2/M3. Các ghi chú chưa phân cụm bên dưới thuộc các lượt cũ.
 
-**M3-B Market-only (2026-10-23):** dashboard Streamlit tại
-[`m3_dashboard.py`](../m3_dashboard.py), đọc bộ handoff hiện hành 84 snapshot
+**M3-B Market-only (2026-10-23, LEGACY):** dashboard Streamlit `m3_dashboard.py` (đã xóa 04/11, còn trong lịch sử git), đọc bộ handoff hiện hành 84 snapshot
 2019–2025 trên dữ liệu nền 2016–2025. Hướng dẫn Windows, checklist và ví dụ đối
 chiếu source ở đầu [Current status](CURRENT_STATUS.md). Giao diện chỉ còn Overview
 và bảng thành viên tìm kiếm/phân trang, trục cố định liquidity_21/beta_126;
 không Financial, ranking hoặc backtest. Các mốc cũ bên dưới giữ bối cảnh
 lịch sử, không phải next stage của phiên M3-B này.
-
-## Chạy dashboard sau khi pull Git và nhận dữ liệu riêng
-
-Yêu cầu Python >=3.11 (môi trường đã kiểm tra: Python 3.12). Người chia sẻ cần
-commit `m3_dashboard.py`, `.streamlit/config.toml`, `pyproject.toml`,
-`.gitattributes`, tests/docs và bộ `M2/artifacts/m2-final-handoff-v1/` hiện hành.
-Hai manifest development/holdout dưới `M2/artifacts/` đã nằm trong Git. Không
-commit `.venv/` hoặc bỏ ignore của toàn bộ `artifacts/`.
-
-Người nhận đặt **đúng ba file của bộ C8 hiện hành** do owner gửi riêng vào:
-
-```text
-<repository>/artifacts/cafef_primary/cafef-c8-complete-only-v2/
-├── manifest.json
-└── canonical/
-    ├── feature_snapshots.jsonl
-    └── securities.jsonl
-```
-
-Giữ nguyên bytes, không mở rồi lưu lại CSV/JSONL bằng Excel/editor. Không dùng
-bộ C8 cũ đến 28/08/2026 hoặc chỉ đổi tên thư mục để thay thế. Dashboard kiểm
-tra checksum và lineage với handoff/development/holdout hiện hành; dữ liệu thiếu
-hoặc sai phiên bản sẽ bị chặn. Không cần chạy lại crawl, features hoặc model.
-
-Từ thư mục gốc repository, chạy PowerShell:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dashboard]"
-.\.venv\Scripts\python.exe -m streamlit run .\m3_dashboard.py
-```
-
-Mở `http://localhost:8501`. Những lần sau chỉ chạy lệnh cuối; Ctrl+C để dừng.
-Extra `dashboard` pin Streamlit 1.66.1 và pandas 2.3.3, tương ứng API/table
-Styler đang dùng. Không cần cài extra `research` để xem dashboard.
-
-Kiểm tra offline bộ dữ liệu trước khi mở giao diện:
-
-```powershell
-.\.venv\Scripts\python.exe -c "from m3_dashboard import load_market_data; d = load_market_data(); print(d['audit'])"
-```
-
-Kỳ vọng audit `status=PASS`, 84 snapshot/75.801 assignments và không thiếu
-feature rows/values. Git handoff dùng `-text` để tránh tự chuyển đổi xuống dòng
-làm sai checksum khi clone trên Windows/Linux. Hướng dẫn này chưa thay thế một
-lần thử clone/install trên máy người nhận.
-
-Repository đang ở trạng thái **C8 executed and verified; R1 consolidated; M1-REPORT complete**. M1 market foundation đủ cho market-only experiment preparation, còn strict research gate vẫn `NOT READY`. Bắt đầu bằng:
-
-**Cleanup55:** `data/financial` còn **59** thư mục (trước221), `artifacts/reports` còn **13** (trước57). Các lượt cũ đã gom vào [kho lịch sử](../artifacts/archives/financial-history-20261023/README.md); chỉ dùng handoff hiện hành cho M2.
 
 ## Công việc hiện hành
 
