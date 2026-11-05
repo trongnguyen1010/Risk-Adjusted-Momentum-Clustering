@@ -257,3 +257,62 @@ export interface StockPeers {
   basis: string;
   items: PeerRow[];
 }
+export type BacktestMetrics = {
+  periods: number;
+  total_return: number | null;
+  cagr: number | null;
+  volatility_annual: number | null;
+  max_drawdown: number | null;
+  avg_turnover: number | null;
+  avg_cash_after_trading: number | null;
+  failed_buys: number;
+  failed_sells: number;
+  scaled_buys: number;
+  price_stale?: number;
+  limit_data_missing?: number;
+};
+export type BacktestSegment = {
+  segment: "development" | "holdout";
+  run_id: string;
+  start: string;
+  end: string;
+  status: string;
+  financial_source: string;
+  git_commit: string;
+  config: string;
+  config_sha256: string;
+  counts: Record<string, { decisions: number; executed: number; too_small: number; not_executed_segment_end: number }>;
+  seal: { path: string; sha256: string; sealed_at: string; status: string };
+  inputs_sha256: Record<string, string>;
+  metrics: Record<string, BacktestMetrics>;
+  adj_glitches_repaired: number | null;
+  sources: { path: string; sha256: string }[];
+};
+export type BacktestSummary = {
+  version: string;
+  strategies: string[];
+  benchmark: string;
+  final_status: string;
+  source_commit: string;
+  config_sha256: string;
+  outputs_manifest: { path: string; sha256: string };
+  segments: BacktestSegment[];
+};
+type BacktestLines = { dates: string[]; series: Record<string, number[]> };
+export type BacktestSeries = { segment: string; run_id: string; nav: BacktestLines; drawdown: BacktestLines; turnover: BacktestLines };
+export type BacktestPeriod = {
+  date: string;
+  decision_date: string;
+  candidates: number;
+  status: string;
+  executed: boolean;
+  cash: number | null;
+  items: { ticker: string; weight: number; rank: number | null }[];
+};
+export type BacktestHoldings = {
+  segment: string;
+  run_id: string;
+  strategy: string;
+  periods: { date: string; decision_date: string; status: string; executed: boolean; n: number }[];
+  period: BacktestPeriod;
+};

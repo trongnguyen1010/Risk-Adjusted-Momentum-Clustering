@@ -18,6 +18,7 @@ RUN python /tmp/fetch_data.py /tmp/data-files.txt /app
 
 COPY web/backend/app /app/web/backend/app
 COPY configs/product /app/configs/product
+COPY M3/presentation /app/M3/presentation
 
 EXPOSE 10000
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000} --proxy-headers"]

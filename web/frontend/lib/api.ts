@@ -59,9 +59,9 @@ function acquire(path: string, force: boolean) {
               ? vi(body.detail)
               : "Không thể hoàn tất yêu cầu.",
           );
-        // Indicator endpoints already speak Vietnamese and carry codes (e.g.
-        // sector_group=SECURITIES) that the legacy dictionary would rewrite.
-        const value = /^\/api\/v2\/stocks\/[^/?]+\/(overview|fundamentals|scores|peers)/.test(path)
+        // Indicator and backtest endpoints already speak Vietnamese and carry codes (e.g.
+        // sector_group=SECURITIES, strategy ids) that the legacy dictionary would rewrite.
+        const value = /^\/api\/v2\/(stocks\/[^/?]+\/(overview|fundamentals|scores|peers)|backtest)/.test(path)
           ? body
           : localizePayload(body);
         if (cache.size >= 80) cache.delete(cache.keys().next().value!);

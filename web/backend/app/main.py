@@ -11,10 +11,11 @@ from .schemas import IndicatorResponse
 from .previews import PreviewRepository
 from .fundamentals import FundamentalsRepository
 from .availability import FinancialAvailability, financial_tickers
+from .backtest import BacktestResults
 
 ROOT=Path(__file__).resolve().parents[3]
 
-def create_app(repository=None,fundamentals=None,availability=None):
+def create_app(repository=None,fundamentals=None,availability=None,backtest=None):
     @asynccontextmanager
     async def lifespan(app):
         app.state.repository=repository or TerminalRepository(os.environ.get('DELTA_BUNDLE',str(ROOT/'data/web/delta-intelligence-v4')))
@@ -32,6 +33,10 @@ def create_app(repository=None,fundamentals=None,availability=None):
         if availability is None:
             try:app.state.availability=FinancialAvailability.from_config(ROOT)
             except (MissingData,FileNotFoundError):app.state.availability=None  # Endpoint answers 404 until published.
+        app.state.backtest=backtest
+        if backtest is None:
+            try:app.state.backtest=BacktestResults.from_config(ROOT)
+            except (MissingData,FileNotFoundError):app.state.backtest=None  # Endpoints answer 404 until published.
         yield
     app=FastAPI(title='DELTA Intelligence · Read-only Research API',version='1.0.0',lifespan=lifespan)
     def repo(request:Request):return request.app.state.repository
@@ -102,6 +107,16 @@ def create_app(repository=None,fundamentals=None,availability=None):
         source=request.app.state.availability
         if source is None:raise MissingData('Financial availability table not published with this deploy.')
         return source.summary(financial_tickers(repo(request)))
+    def backtest_results(request):
+        found=request.app.state.backtest
+        if found is None:raise MissingData('Kết quả backtest M3 chưa được phát hành trên máy chủ này.')
+        return found
+    @app.get('/api/v2/backtest')
+    def backtest_summary(request:Request):return backtest_results(request).summary()
+    @app.get('/api/v2/backtest/{segment}/series')
+    def backtest_series(request:Request,segment:str):return backtest_results(request).series(segment)
+    @app.get('/api/v2/backtest/{segment}/holdings')
+    def backtest_holdings(request:Request,segment:str,date:str|None=None):return backtest_results(request).holdings(segment,date)
     @app.get('/api/v2/fundamentals-coverage')
     def fundamentals_coverage(request:Request):return fund(request).coverage()
     @app.get('/api/v2/stocks/{ticker}/overview')
