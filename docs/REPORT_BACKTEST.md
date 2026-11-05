@@ -693,19 +693,6 @@ Revision dataset giữ nguyên `08c24867b11177072bfe457a4623a38abf9bbc48`.
 - Metrics được tái tính từ output; VNINDEX chuẩn hóa trên đúng cùng 24 ngày định giá. Không có Sharpe.
   Tất cả hash output trước/sau kiểm tra giữ nguyên.
 
-#### Kết quả Holdout đã seal
-
-Các giá trị dưới đây được lấy từ `metrics.json`; 24 điểm NAV tạo 23 khoảng lợi suất, CAGR dùng `23/12` năm.
-
-| Strategy / benchmark | Tổng lợi suất | CAGR | Biến động năm | Max drawdown | Turnover trung bình mỗi kỳ | Cash trung bình sau giao dịch |
-|---|---:|---:|---:|---:|---:|---:|
-| Combined | 38,95% | 18,72% | 28,59% | -26,27% | 54,53% | 8,92% |
-| Market-only | 22,43% | 11,14% | 23,75% | -18,91% | 58,52% | 3,75% |
-| Financial-only | 28,37% | 13,92% | 7,30% | -3,95% | 24,37% | 2,54% |
-| Equal-weight | 29,53% | 14,45% | 13,34% | -7,40% | 8,41% | 0,47% |
-| Momentum-only | 41,37% | 19,80% | 15,60% | -8,92% | 27,50% | 0,82% |
-| VNINDEX | 52,13% | 24,47% | 16,08% | -5,87% | — | — |
-
 Combined kết thúc với NAV `1.3894883661092423`, thấp hơn VNINDEX về tổng lợi suất 13,18 điểm phần trăm.
 Combined cao hơn Market-only, Financial-only và Equal-weight, nhưng thấp hơn Momentum-only về tổng lợi suất;
 max drawdown sâu hơn cả bốn đối chứng và VNINDEX trên các chuỗi NAV đang dùng.
