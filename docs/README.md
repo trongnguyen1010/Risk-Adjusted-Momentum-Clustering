@@ -29,7 +29,7 @@ Kết quả kiểm tra chuyển nhánh được ghi trong [trạng thái hiện 
 - **Phân cụm thị trường (M2):** mô hình A của bundle web v4 — 9 đặc trưng, lọc thanh khoản nhẹ, log + cắt đuôi +
   z-score, K-Means k=3 học trên mã có giao dịch (chọn bằng `clustering_rework_v2`; chọn lại chỉ trên 2019–2023 vẫn k=3).
 - **Phân cụm tài chính:** mô hình B của bundle v4 (9 chỉ số, k=3, chưa đạt ngưỡng ổn định — giới hạn đã ghi).
-- **M3:** `docs/M3_PLAN.md`, đọc A/B v4 + Indicators v1 + ngày công bố CafeF.
+- **M3:** `docs/m3/M3_PLAN.md`, đọc A/B v4 + Indicators v1 + ngày công bố CafeF.
 - **Hướng cũ (LEGACY, chỉ làm đối chứng/tái lập):** bàn giao M2 K=2 trong `M2/`, báo cáo `Bao_cao_M2_Nhiem_vu_4.*`,
   dashboard Streamlit `m3_dashboard.py`, web cũ `web/index.html|app.js|styles.css`. Giữ nguyên đường dẫn vì code/test
   cũ còn đọc; không dùng làm input cho việc mới.
@@ -196,7 +196,7 @@ Repository đang ở trạng thái **C8 executed and verified; R1 consolidated; 
 
 M2 Nhiệm vụ 1 đã freeze protocol và Nhiệm vụ 2 đã hoàn tất runner preparation/testing. Stage chính xác tiếp theo là **M2 Nhiệm vụ 3 — GLOBAL K TRÊN DEVELOPMENT**; chưa chạy trong stage hiện tại. Eligibility vẫn theo từng snapshot; 905 chỉ là latest-snapshot count và không phải strict research universe.
 
-Chuyển session: đọc [bản bàn giao Execution56](FINANCIAL_SESSION_HANDOFF.md)
+Chuyển session: đọc [bản bàn giao Execution56](plans/FINANCIAL_SESSION_HANDOFF.md)
 để biết trạng thái Git, kết quả model, tests và bước review tiếp theo.
 
 | Nội dung | Tài liệu |
@@ -240,8 +240,8 @@ Chuyển session: đọc [bản bàn giao Execution56](FINANCIAL_SESSION_HANDOFF
   Task 12/13 lịch sử chưa áp dụng cho workflow hiện tại, thực hiện riêng.
 - Thu thập CafeF có kiểm soát: [Data collection](crawl/README.md) và [CafeF semantics](crawl/sources/CAFEF.md).
 - Quyết định methodology: [Decisions](DECISIONS.md), [Research questions](research/RESEARCH_QUESTIONS.md), [Literature matrix](research/LITERATURE_MATRIX.md), [Dynamic clustering review](research/DYNAMIC_CLUSTERING_REVIEW.md).
-- Evaluation/product: [Evaluation and backtest](EVALUATION_AND_BACKTEST.md), [Product](PRODUCT.md).
-- Governance: [Roadmap](ROADMAP.md), [Reproducibility](REPRODUCIBILITY.md), [Contributing](../CONTRIBUTING.md).
+- Evaluation/product: [Evaluation and backtest](architecture/EVALUATION_AND_BACKTEST.md), [Product](architecture/PRODUCT.md).
+- Governance: [Roadmap](ROADMAP.md), [Reproducibility](architecture/REPRODUCIBILITY.md), [Contributing](../CONTRIBUTING.md).
 - Historical source caveat còn được artifact tham chiếu: [KBS pilot semantics](data/kbs_pilot_semantics.md) và [data usage risk acceptance](data/DATA_USAGE_RISK_ACCEPTANCE.md).
 
 Dataset mới nhất là kết quả50:1.172 full10/13.529 reference rows; lượt52 review 95 gaps

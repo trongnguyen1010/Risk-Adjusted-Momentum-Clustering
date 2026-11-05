@@ -10,8 +10,8 @@ phiên V6 lỗi trước acquisition được giữ kèm lock, hash và bằng c
 
 ## 2026-11-03 — D-M3-01: methodology M3 đã khóa và các điểm làm rõ (Nguyenex chốt)
 
-Ghi lại các quyết định owner ngày 02/11/2026 trong `docs/KE_HOACH_M3_SCHEMA_GITHUB.md` (bản chuẩn cho M3) và các điểm
-làm rõ R1–R8 của bản rà soát 03/11/2026. Kể từ ADR này, `docs/M3_PLAN.md` và `docs/M3_MENTOR_QUESTIONS.md` chỉ còn là
+Ghi lại các quyết định owner ngày 02/11/2026 trong `docs/m3/KE_HOACH_M3_SCHEMA_GITHUB.md` (bản chuẩn cho M3) và các điểm
+làm rõ R1–R8 của bản rà soát 03/11/2026. Kể từ ADR này, `docs/m3/M3_PLAN.md` và `docs/m3/M3_MENTOR_QUESTIONS.md` chỉ còn là
 lịch sử đề xuất; khi mâu thuẫn, kế hoạch + ADR này được ưu tiên.
 
 - **Mô hình:** thị trường = A v4 (k=3). Tài chính = **B-PIT**: cùng công thức B v4 (9 chỉ số, T1, K-Means k=3) nhưng
@@ -40,14 +40,14 @@ lịch sử đề xuất; khi mâu thuẫn, kế hoạch + ADR này được ưu
   `LOCKED` → Development → seal → Holdout → seal. Nếu số tháng dưới 10 ứng viên tăng mạnh với B-PIT, chốt lại N_min/Q5
   tại bước đếm, trước khi có bất kỳ con số lợi suất nào.
 
-Triển khai và hướng dẫn chạy: `docs/M3_READINESS.md`.
+Triển khai và hướng dẫn chạy: `docs/m3/M3_READINESS.md`.
 
 ### 2026-11-04 — Duyệt tạm thời quy tắc dùng mô hình B-PIT tại runtime
 
 Chọn FY mới nhất theo ngày usable của báo cáo. Với Combined và Financial-only, tạm loại mã ở snapshot nếu
 `decision_date < cutoff(FY)` hoặc FY đã chọn chưa có mô hình B-PIT hợp lệ. Ghi lý do vào universe audit. Quy tắc
 hết hiệu lực của FY trước theo Q10 vẫn áp dụng. Chi tiết và ví dụ nằm ở Mục 3.1.5 của
-`docs/KE_HOACH_M3_SCHEMA_GITHUB.md`.
+`docs/m3/KE_HOACH_M3_SCHEMA_GITHUB.md`.
 
 Gate cutoff đã triển khai và kiểm thử PASS ngày 04/11/2026. Combined và Financial-only chọn FY mới nhất theo
 availability kể cả khi model của FY đó chưa có trong artifact. Runtime đọc cutoff từ `models.json`, ghi
@@ -137,7 +137,7 @@ cụm. Bằng chứng: `data/experiments/clustering_rework_v1/rework-c133b103710
 
 ## 2026-10-24 — D-IND-01: công thức chuẩn thị trường cho lớp chỉ số sản phẩm
 
-Owner duyệt (plan `docs/INDICATORS_PRODUCT_PLAN.md`). Chỉ áp dụng cho lớp
+Owner duyệt (plan `docs/plans/INDICATORS_PRODUCT_PLAN.md`). Chỉ áp dụng cho lớp
 product/web (`src/delta_t1/indicators`, `data/financial/indicators_v1`); research
 gates, clustering, PIT và backtest giữ nguyên quy tắc fail-closed cũ.
 **Thay thế** cho lớp sản phẩm các quy tắc cấm inferred shares / proxy EBIT:

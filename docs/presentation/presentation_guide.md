@@ -159,7 +159,7 @@ Sau khi C8 phát hiện 2 khoảng gián đoạn (05/2023 - 10/2023 và 02/2025 
 Việc lựa chọn ngưỡng 120 mã hoàn toàn **thuộc về M2-PREP (không phải C8)**. Trình tự tư duy diễn ra như sau:
 1. **Khảo sát Cửa sổ Dev trước (Làm trước):** Khi khảo sát Cửa sổ liên tục chính (11/2023 - 01/2025), nhóm ghi nhận số lượng mã sẵn sàng dao động từ **142 đến 780 mã** (tháng thấp nhất là tháng 11/2023 đạt **142 mã**).
 2. **Xét bài toán phân cụm k = 8 cụm:** Để tránh hiện tượng cụm nhỏ chỉ có 1-3 mã làm tâm cụm (centroid) bị méo mó bởi nhiễu riêng lẻ, mỗi cụm cần trung bình tối thiểu **15 cổ phiếu** -> 8 x 15 = 120 mã.
-3. **Đối chiếu và chốt ngưỡng 120 mã (Chốt sau):** Vì 142 > 120, ngưỡng 120 mã vừa đảm bảo độ dày thống kê cho 8 cụm, vừa đảm bảo **100% (15/15 tháng) của Cửa sổ phát triển đều vượt qua kiểm tra** mà không bị loại bỏ oan. Quy tắc này được ghi nhận chính thức tại Mục 6.3 trong `docs/DELTA_UNIFIED_PROJECT_PLAN.md`.
+3. **Đối chiếu và chốt ngưỡng 120 mã (Chốt sau):** Vì 142 > 120, ngưỡng 120 mã vừa đảm bảo độ dày thống kê cho 8 cụm, vừa đảm bảo **100% (15/15 tháng) của Cửa sổ phát triển đều vượt qua kiểm tra** mà không bị loại bỏ oan. Quy tắc này được ghi nhận chính thức tại Mục 6.3 trong `docs/plans/DELTA_UNIFIED_PROJECT_PLAN.md`.
 
 ---
 

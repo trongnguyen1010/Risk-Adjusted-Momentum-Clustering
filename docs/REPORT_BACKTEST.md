@@ -6,7 +6,7 @@
 **Commit backtest chính thức hiện hành** `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`<br>
 **Revision dataset** `08c24867b11177072bfe457a4623a38abf9bbc48`
 
-Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và thứ tự các gate lấy từ [kế hoạch chuẩn M3](KE_HOACH_M3_SCHEMA_GITHUB.md), [ADR D-M3-01](DECISIONS.md) và [hướng dẫn readiness](M3_READINESS.md). Bằng chứng dưới `data/`, `artifacts/` và `.tmp/` được lưu local theo quy tắc Git ignore của dự án.
+Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và thứ tự các gate lấy từ [kế hoạch chuẩn M3](m3/KE_HOACH_M3_SCHEMA_GITHUB.md), [ADR D-M3-01](DECISIONS.md) và [hướng dẫn readiness](m3/M3_READINESS.md). Bằng chứng dưới `data/`, `artifacts/` và `.tmp/` được lưu local theo quy tắc Git ignore của dự án.
 
 ## 1. Trạng thái tổng thể
 
@@ -37,7 +37,7 @@ Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và th�
 - Development có các decision snapshot từ `2019-01-31` đến `2023-12-29`. Holdout từ `2024-01-31` đến `2025-12-31`. Hai đoạn có danh mục và NAV riêng.
 - Run chính dùng chi phí và trượt giá bằng 0. Strategy định giá theo `adj_close`. VNINDEX là price index, nên phần đối chứng cần ghi rõ khác biệt về return basis. Sharpe thuộc Final Evaluation.
 
-Chi tiết và tham số nằm trong [config M3](../configs/experiments/m3_strategy_v1.json) và [kế hoạch chuẩn](KE_HOACH_M3_SCHEMA_GITHUB.md).
+Chi tiết và tham số nằm trong [config M3](../configs/experiments/m3_strategy_v1.json) và [kế hoạch chuẩn](m3/KE_HOACH_M3_SCHEMA_GITHUB.md).
 
 ## 3. KẾT QUẢ THỰC HIỆN
 
@@ -120,7 +120,7 @@ Ngày 04/11/2026, owner quyết định B-PIT dùng bộ Indicators v1 theo cùn
 Các giá trị và công thức trong snapshot đã pin là đầu vào được chấp nhận. Audit nguồn ở Mục 3.2 tiếp tục được lưu
 làm bằng chứng về chất lượng và giới hạn vintage/revision để disclosure khi báo cáo kết quả. Trạng thái audit
 `MANUAL_REVIEW_REQUIRED` trong các evidence trước đó phản ánh kết luận tại thời điểm tạo evidence. Quyết định mới
-được ghi ở [nhật ký owner decisions](DECISIONS.md) và Mục 5.2.B của [kế hoạch chuẩn](KE_HOACH_M3_SCHEMA_GITHUB.md).
+được ghi ở [nhật ký owner decisions](DECISIONS.md) và Mục 5.2.B của [kế hoạch chuẩn](m3/KE_HOACH_M3_SCHEMA_GITHUB.md).
 
 Artifact `bpit-4a9d2e87f0de84ec` đã build từ đúng Indicators v1 được chấp nhận và audit kỹ thuật đã PASS.
 Cutoff runtime đã kiểm thử PASS. Quy trình chuyển đến bước pin artifact và hash, sau đó feasibility.

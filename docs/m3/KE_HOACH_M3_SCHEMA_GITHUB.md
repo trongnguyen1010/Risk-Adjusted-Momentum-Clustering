@@ -10,7 +10,7 @@
 
 ## GHI CHÚ RÀ SOÁT 03/11/2026
 
-Bản này sửa trên commit `f507a3e`. Các thay đổi gồm làm rõ hoặc bổ sung. R1 và R7 thay đổi nội dung quyết định và đã được Nguyenex chốt ngày 03/11/2026 theo đề xuất rà soát; tất cả R1–R8 được ghi thành ADR `D-M3-01` trong `docs/DECISIONS.md`. Code/config đã sync cùng commit với bản này; trạng thái chạy và hướng dẫn cho nhóm trưởng nằm ở `docs/M3_READINESS.md`.
+Bản này sửa trên commit `f507a3e`. Các thay đổi gồm làm rõ hoặc bổ sung. R1 và R7 thay đổi nội dung quyết định và đã được Nguyenex chốt ngày 03/11/2026 theo đề xuất rà soát; tất cả R1–R8 được ghi thành ADR `D-M3-01` trong `docs/DECISIONS.md`. Code/config đã sync cùng commit với bản này; trạng thái chạy và hướng dẫn cho nhóm trưởng nằm ở `docs/m3/M3_READINESS.md`.
 
 | # | Mục | Thay đổi | Lý do |
 |---|---|---|---|
@@ -126,7 +126,7 @@ Owner decision ngày 02/11/2026 đã chọn B-PIT cho official M3 để xử lý
 
 Một nội dung đã được ghi thành owner decision trong `DECISIONS.md` không được tiếp tục trình bày như một câu hỏi chưa chốt trong kế hoạch M3.
 
-## 1.2. `docs/M3_PLAN.md`
+## 1.2. `docs/m3/M3_PLAN.md`
 
 Đây là tài liệu M3 chính để xác định:
 
@@ -142,7 +142,7 @@ Một nội dung đã được ghi thành owner decision trong `DECISIONS.md` kh
 
 Các nội dung trong `M3_PLAN.md` có trạng thái proposal/open không được tự coi là đã khóa.
 
-## 1.3. `docs/M3_MENTOR_QUESTIONS.md`
+## 1.3. `docs/m3/M3_MENTOR_QUESTIONS.md`
 
 Tài liệu này là nguồn của các proposal Q1–Q17/Q-date trước khi owner chốt.
 
@@ -1632,7 +1632,7 @@ SBT FY2024. Công ty phi tài chính có đủ chín biến `status=OK` và giá
 sau đó áp Q-date và cutoff để chọn tập fit. Audit PDF/revision là bằng chứng về giới hạn của snapshot dữ liệu
 đã được chấp nhận. Các chênh lệch VCG/SBT và giới hạn truy vết vintage được disclosure trong báo cáo M3.
 Các gate kiểm tra hash, ngày usable, cutoff, fit-leak, cluster order và ARI tiếp tục áp dụng.
-[Quyết định và giới hạn đã ghi nhận](DECISIONS.md).
+[Quyết định và giới hạn đã ghi nhận](../DECISIONS.md).
 
 M3 hiện sử dụng Financial criteria:
 
@@ -7649,7 +7649,7 @@ M3-C hoàn tất khi:
 **Cập nhật 04/11/2026:** M3-A Development (run `20261104T121107Z-5557288c`) và Holdout
 (run `20261104T133507Z-5557288c`) đã chạy, verify và seal với code `c9c1f5f`, config LOCKED.
 Final Evaluation NOT_READY; M3-C PARTIAL; M3-B chưa làm. Kết quả và giới hạn:
-[REPORT_BACKTEST.md](REPORT_BACKTEST.md), [BAO_CAO_KY_THUAT_M3.md](../M3/reports/BAO_CAO_KY_THUAT_M3.md).
+[REPORT_BACKTEST.md](../REPORT_BACKTEST.md), [BAO_CAO_KY_THUAT_M3.md](../../M3/reports/BAO_CAO_KY_THUAT_M3.md).
 Các mục con bên dưới giữ nguyên nội dung decision/dependency trước khi chạy.
 
 Mục này chỉ theo dõi trạng thái decision/dependency.
