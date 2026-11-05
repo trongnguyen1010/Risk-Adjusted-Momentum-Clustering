@@ -15,10 +15,10 @@ thức từng thành phần với field keys và checklist crawl trong một nơ
 |---|---|
 | [Financial feature contract](FINANCIAL_FEATURE_CONTRACT.md) | Quyết định variant, accounting basis, PIT và acceptance; ưu tiên khi có xung đột với phần diễn giải |
 | **Handbook này** | Công thức, ý nghĩa, raw inputs, nguồn/trang cần lấy, QA và code tương ứng |
-| [Data contract](../DATA_CONTRACT.md) | Schema, identity, instant/duration, provenance và units |
+| [Data contract](../architecture/DATA_CONTRACT.md) | Schema, identity, instant/duration, provenance và units |
 | [CafeF source note](../crawl/sources/CAFEF.md) | Discovery, endpoint semantics, giới hạn và các kết quả kiểm nguồn |
 | [Hướng dẫn financial readiness](../crawl/FINANCIAL_READINESS_USER_GUIDE.md) | Lệnh PowerShell/Python, cache/OCR/template/review/verify |
-| [Feature system](../FEATURE_SYSTEM.md) | Registry, readiness, transform và ranh giới clustering |
+| [Feature system](../architecture/FEATURE_SYSTEM.md) | Registry, readiness, transform và ranh giới clustering |
 | [Literature matrix](LITERATURE_MATRIX_COMPLETE.md) | Cơ sở hướng nghiên cứu; không thay thế công thức score |
 
 Ba câu hỏi phải tách riêng: **đã crawl được số?**, **đã tính được reference?**,
@@ -455,7 +455,7 @@ OHLCV/traded value, benchmark, trading calendar, identities và adjustment basis
 vẫn là raw requirements; workstream financial không cần crawl lại market cache.
 
 Sharpe/ROI thuộc portfolio evaluation, **không cluster inputs**; metrics đánh giá
-cluster/backtest xem [evaluation contract](../EVALUATION_AND_BACKTEST.md), không
+cluster/backtest xem [evaluation contract](../architecture/EVALUATION_AND_BACKTEST.md), không
 trộn với sáu financial families ở trên.
 
 ## 15. Quy tắc bảo trì cho developer tiếp theo

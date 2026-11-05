@@ -1,4 +1,4 @@
-"""Candidate Universe size per month for the Q5/Q6 options in docs/M3_PLAN.md (counts only, no returns).
+"""Candidate Universe size per month for the Q5/Q6 options in docs/m3/M3_PLAN.md (counts only, no returns).
 
 Variants combine the market rule (best cluster by median mom_126, or best two) with the financial rule (best cluster
 by median ROE, or every cluster except the weakest). Output: data/experiments/m3/feasibility-variants/<run>/.

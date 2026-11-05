@@ -1,4 +1,4 @@
-"""M3 stage 0 (docs/M3_PLAN.md §7): input manifest, Candidate Universe counts, return-basis evidence.
+"""M3 stage 0 (docs/m3/M3_PLAN.md §7): input manifest, Candidate Universe counts, return-basis evidence.
 
 No portfolio return is computed: the feasibility counts read only data available at each decision date, and the
 return-basis check only compares adj_close with raw_close of the same day.

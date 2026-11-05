@@ -1,4 +1,4 @@
-"""Run M3 (docs/KE_HOACH_M3_SCHEMA_GITHUB.md, ADR D-M3-01): targets per decision date and, once LOCKED, the backtest.
+"""Run M3 (docs/m3/KE_HOACH_M3_SCHEMA_GITHUB.md, ADR D-M3-01): targets per decision date and, once LOCKED, the backtest.
 
   python scripts/run_m3.py --segment development --targets-only
   python scripts/run_m3.py --segment development          # refused unless status == LOCKED and B-PIT is pinned
@@ -106,7 +106,7 @@ def main():
     cfg = json.loads((ROOT / args.config).read_text(encoding='utf-8'))
     if not args.targets_only and cfg.get('status') != 'LOCKED':
         sys.exit(f"Config status is {cfg.get('status')!r}: only --targets-only is allowed until the strategy is LOCKED "
-                 '(docs/M3_READINESS.md). No return was computed.')
+                 '(docs/m3/M3_READINESS.md). No return was computed.')
     if args.segment not in cfg['segments'] or args.segment not in cfg.get('segment_end_dates', {}):
         sys.exit(f'Segment {args.segment!r} has no start/end in the config (final is locked after readiness, Q16).')
     start, _ = cfg['segments'][args.segment]

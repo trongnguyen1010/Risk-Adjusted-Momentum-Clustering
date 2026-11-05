@@ -3,7 +3,7 @@
 Các quyết định dưới đây chặn bước chạy backtest có lợi suất. Mọi số liệu trong tài liệu là **đếm số mã**, chưa có
 lợi suất nào được tính (`configs/experiments/m3_strategy_v1.json` đang ở trạng thái `PROPOSED`; `scripts/run_m3.py`
 từ chối chạy backtest cho tới khi chuyển sang `LOCKED`). Mỗi câu có phương án đề xuất; mentor chỉ cần ghi
-"Đồng ý" hoặc phương án khác vào dòng **Trả lời**. Chi tiết: `docs/M3_PLAN.md` mục 4.
+"Đồng ý" hoặc phương án khác vào dòng **Trả lời**. Chi tiết: `docs/m3/M3_PLAN.md` mục 4.
 
 Bối cảnh: A = mô hình thị trường bundle v4 (k=3, học trên mã có giao dịch); B = mô hình tài chính bundle v4 (k=3,
 doanh nghiệp phi tài chính); Development = 60 kỳ 2019-01 → 2023-12; Holdout = 24 kỳ 2024-01 → 2025-12.

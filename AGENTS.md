@@ -38,7 +38,7 @@ Quy định cũ nghiêm hơn ở `docs/crawl/` và các gate research/PIT cũ v�
 ## Ranh giới M1/M2/M3
 
 **Hướng chính thức từ 26/10/2026 (D-DIR-01):** mô hình thị trường = A của bundle v4 (k=3), tài chính = B v4, M3 theo
-`docs/M3_PLAN.md`. `M2/` (K=2), `m3_dashboard.py`, web HTML/JS cũ là LEGACY: chỉ đọc để đối chứng/tái lập, không làm
+`docs/m3/M3_PLAN.md`. `M2/` (K=2), `m3_dashboard.py`, web HTML/JS cũ là LEGACY: chỉ đọc để đối chứng/tái lập, không làm
 input cho việc mới. Các đoạn M1/M2 bên dưới mô tả gate lịch sử.
 
 - **M1:** C8 đã execute/verify với 905 mã market-ready; historical identity và strict research readiness vẫn fail-closed. Proposed market-only universe không tự động trở thành final research universe.

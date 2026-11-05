@@ -82,13 +82,13 @@ ADR D-M3-01. Config `m3_strategy_v1` sync theo methodology đã khóa (`not_weak
 trạng thái `READY_TO_LOCK_AFTER_BPIT`). Mới: `src/delta_t1/m3/bpit.py` + `scripts/build_financial_pit_clusters.py`
 (B-PIT, audit không rò rỉ, ARI so với B v4). `run_m3.py`: strict segment boundary, `universe_audit_<strategy>.csv`,
 manifest có git commit + hash input, B-PIT bắt buộc cho full run. Chiến lược: N_min sau khi loại mã thiếu FC, thứ tự
-cụm tài chính đóng băng, chặn lệnh khi thiếu dữ liệu trần/sàn. 35 test M3. Hướng dẫn: `docs/M3_READINESS.md`.
+cụm tài chính đóng băng, chặn lệnh khi thiếu dữ liệu trần/sàn. 35 test M3. Hướng dẫn: `docs/m3/M3_READINESS.md`.
 
 ## Hướng chính thức và M3 chuẩn bị (26/10/2026)
 
 D-DIR-01: mô hình thị trường chính thức = A bundle v4 (k=3; chọn lại trên 2019–2023 vẫn k=3), tài chính = B v4; M2 K=2
 thành đối chứng (`artifacts/reports/m2-vs-rework-v1`). Hướng cũ đánh dấu LEGACY, không xóa. D-CRAWL-02: crawl thực dụng,
-ngày gửi BCTC CafeF cho 1.362 mã. M3: `docs/M3_PLAN.md`, giai đoạn 0 (`scripts/m3_stage0.py`), lõi engine
+ngày gửi BCTC CafeF cho 1.362 mã. M3: `docs/m3/M3_PLAN.md`, giai đoạn 0 (`scripts/m3_stage0.py`), lõi engine
 `src/delta_t1/m3` + 16 test.
 
 ## Thử nghiệm giao diện Blueprint (nhánh `feature/ui-blueprint`, 2026-10-25)
@@ -1213,7 +1213,7 @@ Giữ single network worker, original deadline và toàn bộ source latches. T�
 - Bổ sung mô phỏng danh mục trên chuỗi lợi suất với tỷ trọng phân số, khớp sau tín hiệu, chi phí, bốn chiến lược, so sánh chỉ số tham chiếu, bootstrap ghép cặp, phân tích giai đoạn/độ nhạy chi phí và báo cáo/biểu đồ theo phiên bản.
 - Bổ sung dữ liệu mẫu và kiểm thử tích hợp/hồi quy ngoại tuyến; chỉ cho tải lớn sau khi bộ thử nghiệm thật đạt. Sổ giao dịch theo số lượng cổ phiếu, nghiệm thu dữ liệu thật và quy trình kiểm định độc lập đã khóa vẫn chưa hoàn tất.
 - Phát hiện các file nhà cung cấp có mã băm lệch do đổi định dạng; bổ sung phục hồi đúng bytes từ cache sang snapshot mới có thông tin truy vết, không sửa file gốc.
-- Kết quả kiểm chứng cuối đợt triển khai: 44/44 kiểm thử đạt; pilot 6 mã giả lập trong 18 tháng chạy xuyên suốt. Trạng thái validation hiện được hợp nhất tại `docs/REPRODUCIBILITY.md`; báo cáo phase cũ đã được gỡ.
+- Kết quả kiểm chứng cuối đợt triển khai: 44/44 kiểm thử đạt; pilot 6 mã giả lập trong 18 tháng chạy xuyên suốt. Trạng thái validation hiện được hợp nhất tại `docs/architecture/REPRODUCIBILITY.md`; báo cáo phase cũ đã được gỡ.
 
 Ghi thay đổi có ảnh hưởng tới người dùng/developer và bằng chứng kiểm thử. Không dùng changelog như bằng chứng kết quả nghiên cứu chưa chạy.
 
@@ -1234,7 +1234,7 @@ Ghi thay đổi có ảnh hưởng tới người dùng/developer và bằng ch�
 - JSONL là định dạng MVP; chưa có Parquet storage hoặc incremental merge tự động.
 - raw_close nullable để ghi nhận dữ liệu thiếu; không tự đồng nhất raw và adjusted.
 - M2/M3 là interfaces và schema dự kiến; chưa có trained models, backtest hoặc UI hoàn chỉnh.
-- Chưa chứng minh coverage 300 mã/5 năm hoặc hoàn thành nghiệm thu M1. Trạng thái hiện tại xem tại `docs/REPRODUCIBILITY.md`.
+- Chưa chứng minh coverage 300 mã/5 năm hoặc hoàn thành nghiệm thu M1. Trạng thái hiện tại xem tại `docs/architecture/REPRODUCIBILITY.md`.
 # Chưa phát hành — Financial crawler bàn giao người dùng (2026-10-06)
 
 - Thêm CLI/PowerShell launcher `doctor/plan/run/verify`, config portable và gói source bàn giao. Không phụ thuộc các pilot run; output bất biến có raw/JSONL/CSV/coverage/QA/review queue/log/code snapshot.

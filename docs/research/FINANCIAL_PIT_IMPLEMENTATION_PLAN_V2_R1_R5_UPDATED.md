@@ -55,7 +55,7 @@ Kế hoạch này không cho phép:
 
 ### 4.1. Nguồn quy chuẩn
 
-- `docs/DATA_CONTRACT.md`: timing, report identity, immutable vintage và reconciliation.
+- `docs/architecture/DATA_CONTRACT.md`: timing, report identity, immutable vintage và reconciliation.
 - `docs/METHODOLOGY.md`: PIT, restatement và feature approval.
 - `docs/DECISIONS.md`: financial PIT/revision-aware và risk acceptance hiện hành.
 - `docs/crawl/sources/CAFEF.md`: semantics CafeF đã quan sát và blocker còn mở.
@@ -5155,7 +5155,7 @@ Nếu đổi contract:
 
 - bump schema version;
 - migrate assertion cũ thay vì xóa test;
-- cập nhật `docs/DATA_CONTRACT.md`, `docs/METHODOLOGY.md`, `docs/DECISIONS.md`,
+- cập nhật `docs/architecture/DATA_CONTRACT.md`, `docs/METHODOLOGY.md`, `docs/DECISIONS.md`,
   `CHANGELOG.md`, config và tests;
 - kiểm tra import/config/schema/Markdown links;
 - ghi rõ `MANUAL_REVIEW_REQUIRED` trước implementation.

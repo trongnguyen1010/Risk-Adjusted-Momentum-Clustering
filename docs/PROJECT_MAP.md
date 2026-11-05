@@ -208,7 +208,7 @@ M2 Nhiệm vụ 12; project map này không cấp quyền chạy Task 12, backte
 
 ## Tài liệu canonical
 
-`docs/README.md` là index; `docs/CURRENT_STATUS.md` là active handoff; `docs/METHODOLOGY.md` và `docs/DECISIONS.md` giữ invariant/decision; `docs/REPRODUCIBILITY.md` định nghĩa cách verify. Git history giữ tài liệu superseded, không tạo archive song song trong working tree.
+`docs/README.md` là index; `docs/CURRENT_STATUS.md` là active handoff; `docs/METHODOLOGY.md` và `docs/DECISIONS.md` giữ invariant/decision; `docs/architecture/REPRODUCIBILITY.md` định nghĩa cách verify. Git history giữ tài liệu superseded, không tạo archive song song trong working tree.
 
 Financial reference slice: `ingestion/financial_table_parser.py` đọc coordinate
 OCR candidates; `features/financial_reference.py` tính EPS/EM-Z reference qua

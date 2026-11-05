@@ -2,7 +2,7 @@
 
 ## Execution59 — DELTA Intelligence local terminal
 
-Active demo tại `web/frontend` và `web/backend`; xem [hướng dẫn](../web/README.md).
+Active demo tại `web/frontend` và `web/backend`; xem [hướng dẫn](../../web/README.md).
 5 modules: Overview, Cluster Atlas, Stock Explorer, Financial Lens, Research Lab.
 Thêm immutable presentation index bằng adapter, FastAPI parameterized read-only,
 Next same-origin proxy. UI không đọc raw sources hoặc fit/recompute model.

@@ -1,8 +1,8 @@
 # Hệ thống feature
 
 Công thức từng financial indicator, required fields/nguồn và phụ lục market:
-[Handbook chỉ số và dữ liệu cần thu thập](research/FINANCIAL_INDICATORS_AND_DATA_GUIDE.md).
-Definition/acceptance financial theo [contract](research/FINANCIAL_FEATURE_CONTRACT.md).
+[Handbook chỉ số và dữ liệu cần thu thập](../research/FINANCIAL_INDICATORS_AND_DATA_GUIDE.md).
+Definition/acceptance financial theo [contract](../research/FINANCIAL_FEATURE_CONTRACT.md).
 
 ## Registry là source of truth
 

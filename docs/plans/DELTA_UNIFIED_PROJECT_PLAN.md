@@ -824,7 +824,7 @@ Sau M2-R1 mới sửa runner ở M2-R2.
 
 Workstream này nằm trong `SourceCode-CafeF`, nhánh `m1-cafef-primary-experiment`;
 market-only do nhóm khác phụ trách. Mục tiêu: dữ liệu có thể truy nguyên và dùng
-được cho F/M/Z, EPS, P/E, P/B theo [definition contract](research/FINANCIAL_FEATURE_CONTRACT.md).
+được cho F/M/Z, EPS, P/E, P/B theo [definition contract](../research/FINANCIAL_FEATURE_CONTRACT.md).
 Không đo tiến độ bằng số PDF tải được hoặc đồng nhất raw presence với PIT-ready.
 
 | Stage | Deliverable và công việc | Acceptance |
@@ -884,7 +884,7 @@ operating/financial/associate/other bridge. Overlay v7 có 135 verified/PIT-pend
 cells; task matrix v4 cho FPT Z annual presence 7/7 năm 2024–2025, EPS 3/3 năm
 2021–2025; chưa tính score. Bounded workflow planner/CLI/recipes đã chạy output
 workflow_v4: 1.224 unique cells, 140 external requirements, reuse 460 OCR pages;
-known VNM full-VAS gaps giữ riêng. [Workflow runbook](crawl/README.md) và
+known VNM full-VAS gaps giữ riêng. [Workflow runbook](../crawl/README.md) và
 [report hiện hành — archived](../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip).
 FIN-D2 vẫn PARTIAL: ordinary income, debt/PPE/net-receivables/issuance/common-equity
 mapping và compatible-vintage QA chưa đóng; FIN-D3 publication history còn pending.
@@ -904,7 +904,7 @@ PDF candidates/488 reused OCR pages/1.224 cells/140 external dependencies.
 FIN-D1 COMPLETE; FIN-D2/3 PARTIAL; FIN-D4 STARTED/PARTIAL (publication/issuer prefix,
 chưa full statement closure); FIN-D5 pending. Không đổi năm stage/mục tiêu score,
 không thay market-only clustering protocol. [Report mới](../artifacts/reports/financial-date-pit-v1/report.md)
-và [runbook](crawl/README.md) chứa thiếu gì/điều kiện scale và validation.
+và [runbook](../crawl/README.md) chứa thiếu gì/điều kiện scale và validation.
 
 ### FIN-D2 calculator/reference acceptance slice — 03/10/2026
 
@@ -960,4 +960,4 @@ Owner yêu cầu cả cụm riêng/bảng đối chiếu và modelkết hợp, �
 thí nghiệmC EX_POST_ANNUAL_DESCRIPTIVE_NOT_PIT ở config riêng, không sửa M2v1
 và không waive điều kiện historical extension ở mục15–16. HistoricalC/M3 vẫn
 đóng cho đến publication/vintage/identity/PIT acceptance. Report hiện hành:
-[cluster comparison](../artifacts/reports/cluster-comparison-v1/report.md).
+[cluster comparison](../../artifacts/reports/cluster-comparison-v1/report.md).

@@ -1,9 +1,9 @@
 # Kế hoạch M3 — Danh mục, backtest, dashboard và báo cáo tái lập
 
 > **Lịch sử đề xuất (03/11/2026).** Methodology M3 đã khóa trong ADR D-M3-01 (`docs/DECISIONS.md`) và kế hoạch chuẩn
-> `docs/KE_HOACH_M3_SCHEMA_GITHUB.md`. Khi tài liệu này khác hai tài liệu đó (ví dụ Q5 tài chính "không thuộc cụm yếu
+> `docs/m3/KE_HOACH_M3_SCHEMA_GITHUB.md`. Khi tài liệu này khác hai tài liệu đó (ví dụ Q5 tài chính "không thuộc cụm yếu
 > nhất", chi phí 15/30 bps chỉ là phần mở rộng, B-PIT), hai tài liệu đó được ưu tiên. Trạng thái chạy:
-> `docs/M3_READINESS.md`.
+> `docs/m3/M3_READINESS.md`.
 
 **Phiên bản:** v1.0 (25/10/2026). Viết lại từ bản "Kế hoạch tổng thể M3 V5.1" của nhóm, đối chiếu với trạng thái
 thật của nhánh `feature/indicators-v1` (bundle web v4, Indicators v1).
@@ -57,7 +57,7 @@ test và ADR riêng trước khi M3 dùng.
 
 ## 3. Nguyên tắc bất biến
 
-Kế thừa từ `AGENTS.md`, `docs/EVALUATION_AND_BACKTEST.md`, `docs/DATA_CONTRACT.md`:
+Kế thừa từ `AGENTS.md`, `docs/architecture/EVALUATION_AND_BACKTEST.md`, `docs/architecture/DATA_CONTRACT.md`:
 
 1. **Hai hệ cụm độc lập; kết hợp ở bước chọn danh mục.** Không gộp đặc trưng thô để phân cụm lại cho M3.
 2. **PIT:** tại `decision_date` t chỉ dùng dữ liệu thị trường đến hết phiên t và bản ghi tài chính có
@@ -298,6 +298,7 @@ thành fixture, quy tắc trần/sàn và sửa lỗi adj (Q12, Q17) trong hàm 
   (NAV 100 → 102,5 → 102,218333; `execution_scale` 0,655285; turnover hai chiều 0,75 / 0,739024 / 0,415381).
 - Cờ `non_december_fye` (13 mã) trong bảng ngày công bố `availability-4f0f83108e761dae` (ngày dùng được không đổi).
 - Phương án Q5/Q6: `scripts/m3_feasibility_variants.py`; câu hỏi gửi mentor: [M3_MENTOR_QUESTIONS.md](M3_MENTOR_QUESTIONS.md).
+- Dữ liệu M3 công khai trên HF Dataset (`scripts/publish_m3_data.py`, commit `08c2486`):
 
 ### Giai đoạn 1 — Khóa chiến lược
 
