@@ -1,0 +1,97 @@
+{
+  "proposal_id": "CA-SOURCE-TIMESTAMP-ORS-PILOT-V2",
+  "version": "2.0.0",
+  "status": "MANUAL_REVIEW_REQUIRED",
+  "activated": false,
+  "approval": null,
+  "scope": "PRODUCT_M3_THREE_ORS_EVENTS_EXPLICIT_13_FIELD_MAPPINGS_ONLY",
+  "events": [
+    "142284",
+    "166577",
+    "171704"
+  ],
+  "field_mappings_ref": {
+    "path": "data/corporate_actions/work/ors_timestamp_precision_proposal_20261107_v2/proposed_field_bounds.json",
+    "sha256": "4b6862b69899b5d83444eb89439d90160ce4832452303e7d9453e99eab3f65fb"
+  },
+  "candidate_rows": 13,
+  "held_rows": 46,
+  "DATE_ONLY_enabled": false,
+  "proposed_rule_vi": "Chỉ khi được duyệt riêng: dùng datePublished của đúng bài/field trong source snapshot đã pin.6field cổ tức dùng metadata lịch sử11:18:31;7field2021 giữ source assertion16:55:48 và gap archive. Capture time/modified/fetched không thay publication.",
+  "source_binding_required": [
+    "EXACT_TICKER_EVENT_AND_FIELD_VALUE",
+    "SCOPED_ARTICLE_PARAGRAPH_AND_PINNED_LOCATOR",
+    "EVIDENCE_TYPE_SPECIFIC_VERIFIED_RECEIPT_AND_HASH_CHAIN",
+    "EXPLICIT_OFFSET_DATEPUBLISHED",
+    "PRESENT_PUBLICATION_METADATA_AGREEMENT_WITHIN_SELECTED_SNAPSHOT",
+    "dateModified_EQUALS_datePublished_IN_SELECTED_SNAPSHOT"
+  ],
+  "event_date_context_rule": "Only year from an explicit full event date in same paragraph; no year from publication date alone. This normalizes an event date, not a publication time.",
+  "cached_link_only_accepted": false,
+  "update_modified_created_fetched_as_publication_allowed": false,
+  "midnight_or_timezone_inference_allowed": false,
+  "source_assertion_risk_vi": "6field2024 có archived metadata và đúng đoạn nội dung, nhưng capture16/6 sau ex-date14/6, chưa chứng nhận nội dung ở instant11/6.7field2021 chưa có archive độc lập xác nhận timestamp. Cả13 vẫn là source publication assertion, không chứng minh first publication của Sở hay mở strict PIT.",
+  "not_exchange_first_publication_claim": true,
+  "strict_research_gate_opened": false,
+  "canonical_build": false,
+  "financial_policies_changed": false,
+  "old_policy_versions_and_packets_immutable": true,
+  "stockbiz_11_rows_held_reason": "Current live article lacks exact field text/PDF attachment link; stage26 cached web binding is retained evidence but not sufficient for this proposed admission rule.",
+  "on_owner_approval": "Only after explicit approval of V2 rule and13 mappings, implement/test a new versioned overlay; no automatic activation, no old artifact mutation, canonical or strict research gates.",
+  "current_available_at_assigned": 0,
+  "approval_reason": "Existing corporate_actions PIT policy is inactive draft and offline reconcile automatic_field_approval=false; admitting current publisher-asserted historical field time is a new evidence acceptance rule.",
+  "previous_proposal_ref": {
+    "path": "configs/data/corporate_actions/ors_source_timestamp_contract_proposal_20261107_v1.json",
+    "sha256": "db1beceefb0c1f9be268672e90558ab1f6fbd92a5f1f8abf4f26ffd45f84a1a3"
+  },
+  "supersedes_for_future_review_only": true,
+  "historical_timestamp_binding_ref": {
+    "path": "data/corporate_actions/work/ors_timestamp_precision_proposal_20261107_v2/171704.archived_timestamp_binding.json",
+    "sha256": "884e729d870e8f5f6ef464bb846d31710af19972a3649fca5617ccbc48cef16c"
+  },
+  "revision_reason_vi": "Evidence Common Crawl giữ giây31 của datePublished bài Mekong cũ; chỉnh6mốc đề xuất, giữ7mốc2021 chưa xác nhận độc lập và46hold. Không activate.",
+  "evidence_types": {
+    "LIVE_HTTP_RAW_200": {
+      "network_HTTP_status": 200,
+      "raw_receipt_sha256_required": true
+    },
+    "ARCHIVED_HTTP_RESPONSE_FROM_PUBLIC_WARC_RANGE": {
+      "archive_network_HTTP_status": 206,
+      "archived_publisher_HTTP_status": 200,
+      "required": [
+        "CDX_RAW_AND_RECEIPT_SHA256",
+        "WARC_RANGE_RECEIPT_AND_SHA256",
+        "EXACT_RANGE_LENGTH",
+        "WARC_TARGET_URI_AND_STATUS",
+        "WARC_CAPTURE_DATE",
+        "CDX_PAYLOAD_DIGEST_MATCH",
+        "DERIVED_HTML_SHA256",
+        "SCOPED_ARTICLE_METADATA_AND_CONTENT"
+      ],
+      "derived_HTML_is_fresh_publisher_HTTP_raw": false
+    }
+  },
+  "snapshot_disagreement_vi": "Historical Mekong11:18:31 và current11:18:00 được giữ riêng. V2 đề xuất chọn metadata bản lịch sử cho6mapping, không average/vote. Không coi các clock đã khớp hoàn toàn.",
+  "evidence_groups": [
+    {
+      "event_id": "171704",
+      "rows": 6,
+      "source_published_at": "2024-06-11T11:18:31+07:00",
+      "archive_capture_at": "2024-06-16T02:08:25Z",
+      "historical_metadata_corroborated": true,
+      "pre_ex_date_content_observation_proved": false
+    },
+    {
+      "event_id": "142284",
+      "rows": 7,
+      "source_published_at": "2021-06-02T16:55:48+07:00",
+      "independent_timestamp_confirmation_status": "DEFERRED",
+      "gap_ref": {
+        "path": "data/corporate_actions/work/ors_additional_source_crosscheck_20261107_v1/142284.archive_lookup_review.json",
+        "sha256": "59f23f0dcc06bc3c9cb289f8bcfa6590f2408ab299586dbd173c57b7e8364dc8"
+      }
+    }
+  ],
+  "auto_activation_allowed": false,
+  "source_snapshot_current_historical_difference_seconds": 31
+}

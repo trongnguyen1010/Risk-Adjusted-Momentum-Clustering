@@ -1,5 +1,277 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-11 — chấp nhận TNCK7/Mekong6, overlay Product/M3 pilot V2
+
+Owner yêu cầu “hãy thực hiện” ngay sau đề xuất cụ thể ở bước43: chấp nhận
+7 trường quyền mua ORS2021 với timestamp TNCK **02/06/2021 16:55:48 GMT+7** và
+6 trường cổ tức ORS2024 với timestamp bản lưu Mekong **11/06/2024 11:18:31 GMT+7**.
+[Approval receipt](../data/corporate_actions/work/ors_remaining13_timestamp_admission_20261111_v1/owner_approval_receipt.json)
+ghi rõ hai nhóm, row IDs và giới hạn Product/M3 pilot. Không xin lại quyết định
+này hoặc hiểu thành approval canonical, strict PIT hay giờ công bố gốc của Sở.
+
+[Policy mới](../configs/data/corporate_actions/ors_remaining13_timestamp_admission_20261111_v1.json)
+OWNER_APPROVED/activated=true chỉ thêm đúng 13 mapping đã review. Cả hai nguồn
+phải có publication rõ offset, JSON-LD/meta nhất quán và dateModified bằng
+publication; không có ngoại lệ missing modified cho 13 trường này. Mỗi field
+được gắn selector/ordinal/hash của đoạn nội dung, giá trị và scope khớp packet
+gốc. 13 proposal record cũ thiếu field_scope được đối chiếu qua scope provenance
+đã pin ở bước43; không sửa record cũ hoặc suy scope từ ticker prefix.
+
+Profile LIVE_SCOPED_ARTICLE_TEXT_V1 kiểm HTTP200 raw/receipt/hash và, với TNCK,
+time datetime/epoch. Profile ARCHIVED_SCOPED_ARTICLE_TEXT_V1 kiểm index HTTP200,
+WARC range HTTP206, target/capture/range/length, archived HTTP200, payload digest
+CDX/WARC và derived HTML khớp bytes. Derived archive HTML không là HTTP raw mới
+của publisher hoặc rendered DOM; capture/modified/fetched time không thay publication.
+
+Giữ các rủi ro đã nêu: TNCK snapshot thu2026 tự khai giờ2021, chưa archive độc
+lập; Mekong capture16/6 sau ex-date14/6, không chứng minh nội dung có trước ex-date.
+Metadata lịch sử11:18:31 và hiện tại11:18:00 vẫn lệch31giây, giữ riêng; chỉ dùng
+snapshot lịch sử được chấp nhận, không average/vote/làm tròn. Đây là acceptance
+publisher assertion cho pilot, không chứng nhận first-exchange publication/strict PIT.
+
+[Builder/reader V2](../src/delta_t1/ingestion/corporate_actions/publisher_timestamp_overlay_v2.py)
+và [CLI V2](../scripts/corporate_actions/apply_publisher_timestamp_overlay_v2.py) chạy
+offline, chỉ ghi output mới và không sửa V1. [Artifact kết hợp](../data/corporate_actions/product_m3/ors_three_events_timestamp_20261111_v2/manifest.json)
+có59row:24ADMITTED/35DEFERRED, gồm11FireAnt giữ nguyên từng byte và13row mới.
+35row còn chờ cũng byte-identical,59giá trị/scope không đổi,usable_from_date=null.
+Reader V2 revalidate toàn approval/evidence/rows và so available_at<=decision_at
+có offset; từ chối canonical/strictresearch purpose. Dashboard/final M3 backtest
+chưa được nối tự động. DATE_ONLY corporate_actions vẫn dừng; financial policy không đổi.
+
+89targetedtests,compileall,synthetic smoke đạt. Boundary thực:0row trước TNCK,
+7từ TNCK,18từ FireAnt,24từ Mekong11:18:31; tại11:18:00/11:18:30 vẫn18.0network,
+không thu lại85/V7/7/418 hoặc mở canonical/factors. Raw, policy/proposal/packet,
+overlay và runtime V1 cũ immutable; bytes DECISIONS trước cập nhật được snapshot.
+
+## 2026-11-08 — CA-FIREANT-ORS166577-PRODUCT-M3-V1, owner chấp nhận đúng 11 field
+
+Sau khi được giải thích FireAnt/Stockbiz cùng14:51 nhưng chưa độc lập và clock
+HOSE vẫn chưa rõ, owner yêu cầu “hãy thực hiện” đề xuất dùng timestamp FireAnt
+cho đúng11field quyền muaORS2024, Product/M3 pilot. Approval được ghi tại
+[receipt](../data/corporate_actions/work/ors_fireant_timestamp_admission_20261108_v1/owner_approval_receipt.json).
+Đây là approval cho phạm vi này; không cần xin lại cùng quyết định và không
+được hiểu là duyệt13mapping khác hoặc toàn proposalV3.
+
+[Policy version mới](../configs/data/corporate_actions/ors_fireant_timestamp_admission_20261108_v1.json)
+`OWNER_APPROVED/activated=true` chỉ áp đúng11row ID/value/scope đã pin:
+10ORIGINAL_TERMS và1ORIGINAL_OPERATIONAL_RIGHTS_UNITS của166577. Dùng
+`2024-01-16T14:51:00+07:00` doFireAnt khai báo; JSON-LD07:51:00Z cùnginstant,
+anchorPDF và embeddedfileURL trong cùngHTML dẫnPDF hash trùng bảnHOSE gốc.
+Đây là publisher assertion được owner chấp nhận cho pilot, không phải chứng
+nhận clock/first-publication HOSE hoặc nội dung nguyên trạng tại instant2024.
+Thiếu historicalsnapshot/dateModified và quan hệFeedStockbiz vẫn được ghi rõ.
+
+Ngoại lệ missingdateModified chỉ cho11mapping/evidence đã pin; đểnull, không
+impute bằngpublication hoặc chứng minh chưa sửa. Nếu metadata publication
+khác nhau, timezonevắng, modified cógiátrị khácpublication, hash/receipt/PDF/link/
+identity/value/scope sai hoặc approvalinactive thì fail-closed. Không nới các
+CLIlegacy hoặc policyfinancial; DATE_ONLY corporate_actions tiếp tục dừng.
+
+Module [publisher_timestamp_overlay.py](../src/delta_t1/ingestion/corporate_actions/publisher_timestamp_overlay.py)
+và [CLI](../scripts/corporate_actions/apply_publisher_timestamp_overlay_v1.py)
+chạy offline, chỉ ghi outputdir mới. [Artifact pilot](../data/corporate_actions/product_m3/ors166577_fireant_timestamp_20261108_v1/manifest.json)
+có59row:11ADMITTED/available_at=14:51+07,48DEFERRED/available_at=null; giá trị
+vàscope59field giữ nguyên. `usable_from_date` vẫnnull. Consumer
+`eligible_fields(..., decision_at, purpose="PRODUCT_M3_PILOT")` kiểm hashes,
+revalidate approval/evidence/rows và chỉ trả khiavailable_at<=decision_at;
+không nhận date-only/naiveclock hoặc purposecanonical/strictresearch.
+
+Boundary artifact thật:14:50:59 trả0row,14:51:00 và07:51:00Z trả11row.69targeted
+tests,compileall vàsynthetic smoke đạt. LỗiTEMP Windows/consoleencoding ban đầu
+được giữ log; test chạy lại trongworkspaceTMP/UTF-8 không giảm assertion.0network,
+không thu lại85/V7/7/418, không gáncanonical/factor hoặc mởstrictresearch/PITgate.
+Chưa nối overlay vào dashboard hoặc finalM3backtest. Policy/proposal/packet/raw
+cũ immutable; bytes củaDECISIONS trước cập nhật được snapshot vì có pin lịch sử.
+
+## 2026-11-07 — đề xuất CA-SOURCE-TIMESTAMP-ORS-PILOT-V3, chưa kích hoạt
+
+Bước 34 chuẩn bị [proposal V3](../configs/data/corporate_actions/ors_source_timestamp_contract_proposal_20261107_v3.json):
+**MANUAL_REVIEW_REQUIRED; activated=false; approval=null**. V1/V2 immutable.
+Đây là đề xuất acceptance cho Product/M3 pilot, chưa là quyết định dùng dữ liệu.
+
+Giữ nguyên 13 mapping V2; đề xuất thêm đúng 11 mapping quyền mua ORS 2024 từ
+timestamp Stockbiz modern 16/01/2024 14:51:00+07:00. Nội dung PDF được link trực
+tiếp tại Stockbiz legacy 1548002 và có hash trùng bản HOSE 79 đã pin. Hợp đồng
+ghép hai frontend yêu cầu exact headline, date/wall clock, image/download news ID,
+source labels, field/value và raw/receipt/hash đã review. Không có hyperlink
+modern→legacy được quan sát; không suy legacy timezone hoặc giờ đăng đầu HOSE.
+
+Ngoại lệ dateModified vắng chỉ áp đúng 11 row ID/evidence đã pin, giữ giá trị
+null và NOT_PUBLISHED. Không coi vắng là bằng publication hay chứng minh chưa
+modification. Metadata muộn/bất đồng phải DEFERRED; 13 mapping cũ vẫn yêu cầu
+present dateModified bằng publication. Không nới toàn pipeline hoặc dùng DATE_ONLY.
+
+24 mapping vẫn là candidate có điều kiện, 35 dòng hold. Chấp nhận đề xuất đồng
+nghĩa chấp nhận publisher assertion và composite binding trong phạm vi này,
+không chứng nhận historical content ở publication instant: 7 row năm 2021 chưa
+có archive độc lập, 6 row cổ tức có capture sau ex-date, 11 row Stockbiz chưa
+có archive chứng minh link/PDF tại ngày 16/01/2024. Strict PIT/research,
+canonical, first-exchange-publication và clock HOSE chưa được mở hoặc giải quyết.
+
+0 available_at/usable_from_date/canonical, 0 network, không đổi financial policy.
+22 timing tests, 33 negative guard cases và compileall đạt. Sau approval cụ thể
+mới triển khai/test overlay version mới cho đúng 24 mapping; chưa tự activate.
+
+## 2026-11-07 — proposal CA-SOURCE-TIMESTAMP-ORS-PILOT-V2, chưa kích hoạt
+
+Bước 30 chuẩn bị [V2](../configs/data/corporate_actions/ors_source_timestamp_contract_proposal_20261107_v2.json)
+theo evidence archive bước29; **MANUAL_REVIEW_REQUIRED, activated=false,
+approval=null**. V2 là bản để review tiếp; V1 và policy/artifact cũ immutable.
+Chưa có quyết định acceptance hoặc quyền triển khai availability overlay.
+
+Giữ13mapping/46hold và toàn bộ giá trị điều khoản.6mapping cổ tức2024 dùng
+timestamp đề xuất11/06/2024 **11:18:31+07:00** từ datePublished trong bản Mekong
+lịch sử, thay mốc11:18:00 của V1.7mapping quyền2021 giữ16:55:48+07 ngày02/06/2021
+và ghi DEFERRED về xác nhận độc lập. Phân biệt hai nhóm evidence; không nâng
+giờ bài khác hoặc capture time thành publication, không đóng gap2021.
+
+Contract đề xuất V2 thêm dạng archived HTTP response: network206 public WARC
+range, archived publisher200, CDX/WARC/digest/target/range/hash và đoạn nội dung
+đều phải khớp. DerivedHTML không phải raw live. Metadata trong selected snapshot
+phải nhất quán; chênh31giây với current snapshot được giữ riêng. Context năm
+eventdate giữ rule V1; không suy publication clock/timezone.
+
+Archive16/6 sau ex-date14/6 nên chưa chứng minh nội dung có sẵn tại instant11/6.
+Đây vẫn là publisher assertion; nhận làm Product/M3 availability là acceptance
+riêng chưa duyệt, không chứng nhận first publication của Sở hoặc strict PIT.
+0available_at/usable_from_date/canonical, DATE_ONLY corporate_actions vẫn off.
+22timing tests,22negative guard cases/compileall đạt; không thay pipeline.
+
+## 2026-11-07 — đề xuất CA-SOURCE-TIMESTAMP-ORS-PILOT-V1, chưa kích hoạt
+
+**MANUAL_REVIEW_REQUIRED; activated=false, approval=null.** Bước28 hoàn tất
+review contract theo field và chuẩn bị
+[proposal version riêng](../configs/data/corporate_actions/ors_source_timestamp_contract_proposal_20261107_v1.json).
+Đây chưa là quyết định chấp thuận: dùng timestamp do publisher khai báo cho
+Product/M3 là acceptance mới so với draft PIT inactive và offline reconcile
+automatic_field_approval=false. Giữ DATE_ONLY corporate_actions tạm ngừng.
+
+Đề xuất chỉ áp13mapping đã pin:7field quyền mua2021 ở bài Tin nhanh chứng khoán
+270871, timestamp02/06/2021 16:55:48+07:00;6field cổ tức2024 ở bài Mekong30000,
+timestamp11/06/2024 11:18:00+07:00. Yêu cầu raw/receipt/hash, datetime có offset,
+datePublished/metadata khớp, dateModified không muộn, nội dung scoped khớp đúng
+ticker/event/field/value. Ex-date14/6 của cổ tức lấy năm2024 từ record17/6/2024
+ngay cùng đoạn, không suy giờ/offset hoặc dùng publication date để suy năm.
+
+Rủi ro cần owner quyết định: đây là timestamp và modification do snapshot hiện
+tại của publisher tự khai báo; chưa có archive độc lập chứng minh nguyên trạng
+nội dung từng field ở thời điểm lịch sử. Proposal chấp nhận mức source-asserted
+đó riêng cho Product/M3 pilot; không claim first-publication VSDC/HOSE hoặc mở
+strict research/canonical. Giữ46row:11Stockbiz chỉ có cached attachment binding,
+1record date2021 thiếu full-date anchor cùng đoạn,34chưa có supported timestamp.
+
+Chưa gán available_at/usable_from_date, chưa sửa packet/policy cũ hoặc triển khai
+pipeline. Sau approval cụ thể mới làm version overlay mới cho13mapping; không
+sửa draft hiện tại thành approved tại chỗ. Agent tự kiểm evidence từng nguồn;
+owner quyết định một quy tắc acceptance và phạm vi, không review từng PDF.
+
+## 2026-11-07 — D-TIME-ONLY-02, thu hẹp tạm ngừng DATE_ONLY về corporate_actions
+
+Owner đính chính: “tạm ngừng DATE_ONLY trong `corporate_actions` thôi nhé”.
+Chỉ đạo này thay phạm vi toàn DELTA của D-TIME-ONLY-01, có hiệu lực cho mọi xử lý
+mới corporate_actions đến khi owner yêu cầu dùng lại; gồm dữ liệu corporate
+action tiêu thụ ở Product/M3/research. Ưu tiên tìm timestamp công bố có ngày/giờ,
+semantics và clock/timezone xác minh; thiếu thì giữ evidence/DEFERRED, không
+dùng DATE_ONLY làm fallback availability/usable_from_date trong corporate_actions.
+
+Financial và các phạm vi khác tiếp tục theo policy DATE_ONLY đã được duyệt,
+trong đúng phạm vi/gate cũ; không tạo acceptance mới, chạy lại batch hoàn thành
+hoặc sửa artifact đã freeze. Config execution V1 và evidence bước24 giữ nguyên;
+[V2 hiện hành](../configs/data/publication_timestamp_only_execution_20261107_v2.json)
+thay chỉ đạo thực thi V1. AGENTS và status đã cập nhật; chưa thêm hard guard mọi
+CLI legacy hoặc thay code pipeline. Stage này chỉ đính chính phạm vi,0network.
+
+## 2026-11-07 — D-TIME-ONLY-01, owner tạm ngừng DATE_ONLY toàn DELTA
+
+**Lịch sử: phạm vi toàn project dưới đây đã được D-TIME-ONLY-02 thay thế.**
+
+Owner chỉ định “tạm thời không dùng DATE_ONLY nhé, tậm trung tìm ra đúng timestamp”,
+sau đó làm rõ “tạm ngừng luôn chứ không riêng ORS nhé”. Đây là chỉ đạo đã có hiệu
+lực cho mọi xử lý mới, gồm financial, corporate actions, Product/M3 và research,
+cho đến khi owner yêu cầu dùng lại. Tạm ngừng các acceptance/fallback DATE_ONLY
+trước đây, kể cả CafeF CreateDate và financial daily/monthly next-session;
+không dùng để gán availability/usable_from_date hoặc mở gate cho xử lý mới.
+
+Ưu tiên tìm timestamp công bố đúng tài liệu, có ngày/giờ và clock/timezone được
+xác minh. Thiếu thì giữ evidence/gap và DEFERRED, tiếp tục record khác; không suy
+giờ/offset, lấy modified/update/created/capture time làm publication hoặc lấy
+đa số giữa các semantics khác nhau. Các ngày kỳ báo cáo/record/ex/operational
+giữ nghĩa riêng. Raw và artifact đã freeze, config/policy version cũ immutable;
+không chạy lại batch hoàn thành để áp chỉ đạo mới.
+
+[Config chỉ đạo thực thi](../configs/data/publication_timestamp_only_execution_20261107_v1.json)
+và AGENTS ghi phạm vi toàn project. Đây là enforcement tại agent execution/stage
+review, chưa thêm hard guard trên mọi CLI legacy; không claim các CLI cũ đã tự
+từ chối DATE_ONLY. Agent không chạy mới route DATE_ONLY trong thời gian override.
+Đề xuất tích hợp extractor ở bước23 nhường ưu tiên cho tìm timestamp thực.
+
+## 2026-11-06 — D-CA-REVIEW-THIRD-02, workflow đối chiếu offline version riêng
+
+Owner yêu cầu thực hiện bước tích hợp quy tắc nguồn thứ ba đã chỉ định. Thêm
+module ingestion/CLI/config riêng cho observation A/B/C đã review/pin, không sửa
+runner/config/hash V1 cũ. Chỉ định rule được kiểm qua artifact authorization đã
+pin; source value được tính lại, không lấy selected_value của selection receipt
+upstream làm quyết định. Review source/locator/raw/receipt giữ provenance và dissent.
+
+Chỉ chọn khi hai giá trị đầu khác nhau và nguồnC đủ điều kiện khớp một bên. Exact
+comparison không tolerance/average/unit inference, bool không coi như1/0. SourceC
+trùng hash/document/origin group, sai field/scope/hiệu lực, superseded/known extra
+counter-evidence, missing hoặc receipt/tamper đều giữ unresolved. Metadata nguồn
+gốc/comparability/revision là upstream review đã pin, không giả engine tự đọc PDF.
+Hàng đợi không buộc owner review từng case; output immutable, CLI exit0/3/2 rõ nghĩa.
+
+[Bản chạy ORS](../data/corporate_actions/work/ors_third_source_reconcile_20261106_v1/KET_QUA_TICH_HOP.md)
+chọn2/2, đối chiếu value/support/dissent khớp bước15.78 targeted tests (29 mới)
+và compileall/synthetic smoke đạt. `automatic_field_approval=false`,
+`canonical_build=false`: chưa tự tạo canonical/factor hoặc promote PIT/identity.
+Đây là workflow đối chiếu đã hoạt động, chưa phải acquisition tự tìm nguồnC hoặc
+PDF semantic extraction; không mở broader campaign hoặc final freeze.
+
+## 2026-11-06 — thực thi D-CA-REVIEW-THIRD-01 ở hai field ORS
+
+[Stage15](../data/corporate_actions/work/ors_third_source_resolution_20261106_v1/KET_QUA_DOI_CHIEU.md)
+chọn hai field ở lớp review theo chỉ đạo đã có, không xin owner duyệt từng case.
+Operational rights units của đợt19/01/2024 chọn theo VSDC166577+HOSE79: một CP cũ
+nhận một quyền, hai quyền mua một CP mới; giữ NQ11/2023 khác đơn vị làm dissent,
+không kết luận đã có formal correction. HOSE79 là notice riêng, copy Vietstock
+không tính thêm; không claim statistical/data-audit independence giữa hai cơ quan.
+
+Giá trị danh nghĩa100 triệu CP bổ sung2021 chọn1.000.000.000.000 VND theo PDF
+HNX430+GCN VSDC143656/152-5; tổng sau bổ sung2.000 tỷ là field khác. Giữ HTML924
+2.000 tỷ phần bổ sung làm dissent. VSDC143656 có origin đăng ký riêng trước HNX,
+giá trị nêu trực tiếp; profile619 và hạch toán144117 chỉ phục vụ linkage, không
+là phiếu thêm. Selection receipt/overlay mới giữ nguyên mọi version/hash cũ.
+Không tự đổi config, freeze canonical, tính factor hoặc promote PIT/identity.
+
+## 2026-11-06 — D-CA-REVIEW-THIRD-01, chọn theo nguồn thứ ba xác nhận
+
+**OWNER_DIRECTED_RULE_RECORDED.** Owner chỉ định trong chat: “2 nguồn tài liệu cho
+ra kết quả khác nhau thì tìm thêm nguồn thứ 3 nếu nguồn thứ 3 giống 1 trong 2 nguồn
+đầu thì chọn”. Không yêu cầu owner phê duyệt lại chính component này.
+
+Ghi [CA-THIRD-SOURCE-V1](../data/corporate_actions/work/ors_third_source_rule_20261106_v1/QUY_TAC_NGUON_THU_BA.md)
+và policy V2 riêng; V1/evidence/packet cũ immutable. Chỉ so cùng security, event,
+field, đơn vị, semantic scope và trạng thái hiệu lực/revision. Nguồn thứ ba cần
+gốc tài liệu riêng; bản đăng lại cùng PDF không tạo phiếu mới. Khớp bên nào thì
+chọn value của bên đó theo `SELECTED_BY_THIRD_SOURCE_CORROBORATION`, giữ ba nguồn
+và cả observation bất đồng, kèm selection receipt đầy đủ. Không lấy trung bình
+hoặc tự ưu tiên nguồn; chưa có nguồn đủ điều kiện/cả ba khác nhau thì unresolved.
+Không dùng hai bản cũ để phủ một revision mới có hiệu lực rõ, không chọn lọc
+evidence để ép đồng thuận.
+
+Đây là quy tắc review được chỉ định, chưa phải engine đã triển khai hoặc approval
+freeze canonical/PIT/identity/price factor. Chưa thu nguồn mới hoặc chọn hai field
+conflict ORS trong stage 14; các phần ủy quyền còn lại của V1 vẫn chưa được suy
+approved từ chỉ đạo này. Áp dụng trong stage được giao, không tự mở 7/418 mã.
+
+## 2026-11-06 — D-CA-ORS-01, chẩn đoán chênh lệch danh sách ORS
+
+Một phiên Chrome ẩn mở truy vấn công khai từ trang 1 và bấm tuần tự tối đa đến
+trang 5. Giữ khoảng cách tối thiểu 4 giây giữa request danh sách và dùng bộ chặn
+nguồn đã kiểm thử của V6. Đối chiếu với 80 ID đã review, lưu receipt và ZIP riêng.
+Trường hợp đủ 85 ID và chứa toàn bộ 80 ID cũ được đưa vào review offline để xem xét
+gỡ HOLD. Nếu số đếm hoặc tập ID đổi, ghi nhận chênh lệch cho review riêng.
+
 ## 2026-11-04 — D-CA-SUP-07, tách metadata supervisor khỏi lịch sử thu thập
 
 Supervisor ghi audit/pause trong `.supervisors_v7/<run>/` và để collector tạo `run-*`
@@ -1588,3 +1860,22 @@ Không sửa A/B, không chọn bằng returns, không claim holdout mới. Same
 có thể công bố sauDecember: EX_POST_ANNUAL_DESCRIPTIVE_NOT_PIT; historical/research/M3
 vẫn false. Thí nghiệm riêng có manifest/config/code/input pins, chất lượng review độc lập.
 Protocol: configs/experiments/combined_reference_v1.json; chỉ chạy khi owner_approvalAPPROVED.
+
+## Đề xuất chờ duyệt — CA-REVIEW-DELEGATION-V1, 06/11/2026
+
+**PROPOSED_MANUAL_REVIEW_REQUIRED — chưa có hiệu lực.** Bản đề xuất trong
+[hồ sơ ủy quyền review](../data/corporate_actions/work/ors_review_delegation_proposal_20261106_v1/QUY_TAC_UY_QUYEN_REVIEW.md)
+được lập theo yêu cầu owner giảm review thủ công, chưa phải quyết định đã approved.
+Agent tự kiểm chứng kỹ thuật theo evidence, không buộc owner đọc PDF/chọn từng
+field. Field thiếu hoặc mâu thuẫn giữ unresolved và phần độc lập tiếp tục trong
+scope. Nguồn chính thức doanh nghiệp được đề xuất dùng cho field nêu trực tiếp
+với đúng provenance, không giả exchange-confirmed hoặc áp source priority.
+
+Không chọn/cập nhật canonical, price factor, PIT/identity hoặc research readiness.
+Phê duyệt nguyên gói không phê duyệt toàn campaign hoặc final freeze; chỉ áp dụng
+trong stage được giao. Config đề xuất có nhãn `INACTIVE_POLICY_PROPOSAL_NOT_RUNTIME_CONFIG`,
+`owner_approval=null`, `active=false`, lưu riêng trong artifact; config offline
+hiện hành giữ `automatic_field_approval=false`, `canonical_build=false`.
+12 design case là đặc tả, không phải chứng nhận engine/pipeline đã hoạt động.
+Đề xuất cần owner chấp thuận một lần trước khi áp acceptance mới trong stage sau;
+mọi artifact/policy cũ giữ nguyên. Chưa ghi quyết định owner cho D01–D06.

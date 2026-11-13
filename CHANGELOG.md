@@ -1,5 +1,174 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Áp 13 timestamp TNCK/Mekong, overlay pilot V2 — 11/11/2026
+
+Bước44 thực thi approval cho7rowTNCK2021 ở16:55:48+07 ngày02/06/2021 và6row
+Mekong2024 ở11:18:31+07 ngày11/06/2024. Thêm policy, builder/reader/CLI V2 và
+tests cho scoped article text/WARC, giữ V1 nguyên bytes. Artifact mới có24/59
+rowADMITTED,35DEFERRED;11FireAnt/35held giữ từngbyte,59value/scope không đổi.
+Kiểm approval chính xác, metadata/modified/offset, locators, hash/receipt và
+CDX→WARC→derivedbody; fail-closed khi sai.89targetedtests,compileall,synthetic
+smoke và9boundary checks trên artifact thật đạt.0network/Markdown mới; không
+DATE_ONLY,canonical/factors,strictresearch hoặc đổi timestamp thành giờ gốcSở.
+
+## Áp timestamp FireAnt đúng11field ORS2024 cho Product/M3 pilot — 08/11/2026
+
+Bước42 thực thi ownerapproval cho16/01/2024 14:51:00+07:00 doFireAnt công bố,
+đúng11field quyền muaORS2024. Thêm policyversion mới, offlineoverlaybuilder/CLI,
+consumer soexacttimestamp và immutableartifact59row:11ADMITTED/48DEFERRED.
+Kiểm publication hai representation, directPDF/hash/receipt, field/value/scope,
+approval và missingmodifiedexception; fail-closed nếu sai. Không duyệt13mapping
+khácV3 hoặc mởcanonical/strictresearch/DATE_ONLY; clockHOSE vẫnOPEN.69targeted
+tests,compileall,synthetic smoke và boundary thực0rowtrước14:51/11rowtừ14:51 đạt.
+Giữ loglỗiTEMP/console ban đầu, không giảmassertion;0network/Markdown mới.
+
+## Đề xuất timestamp ORS V3 cho 24 mapping — 07/11/2026
+
+Bước 34 chuẩn bị V3 inactive: giữ nguyên 13 mapping V2, thêm 11 mapping quyền
+mua 2024 bằng Stockbiz modern timestamp + legacy direct PDF binding khớp HOSE.
+Ngoại lệ dateModified vắng chỉ cho 11 row/evidence đã pin; không impute equality,
+gán legacy offset hay nới toàn pipeline. 24 candidate/35 hold, chưa availability.
+MANUAL_REVIEW_REQUIRED; V1/V2 và giá trị/evidence cũ giữ nguyên. 0 network và
+Markdown mới; 22 timing tests, 33 negative checks và compileall đạt. Không thay
+production pipeline hoặc chạy lại batch/smoke.
+
+## Đề xuất ORS timestamp V2 theo giây trong archive — 07/11/2026
+
+Bước30 tạo proposal V2 inactive, giữ V1.6mapping cổ tức2024 đổi mốc đề xuất
+11:18:00 thành11:18:31+07 ngày11/06/2024, gắn CDX/WARC/derivedHTML/provenance.
+7mapping2021 giữ timestamp và gap xác nhận độc lập;46hold khác không đổi.
+MANUAL_REVIEW_REQUIRED trước activation;0availability/canonical/DATE_ONLY,
+0network/Markdown mới.22timing tests,22negative guard cases vàcompileall đạt.
+Không thay production pipeline hoặc chạy lại batch/smoke.
+
+## Review contract timestamp ở field level cho ORS — 07/11/2026
+
+Bước28 thêm raw bài Mekong30000 có timestamp11/06/2024 11:18:00+07:00, record
+17/6/2024 và ex-date14/6 trong cùng đoạn ORS. Loại2bản tin calendar không cóORS;
+dừngKTCK403Cloudflare,OpenstockTLS/routeChrome tool unavailable giữDEFERRED.
+Chuẩn bị proposal timestamp nguồn khai báo riêng cho Product/M3 pilot13mapping,
+giữ46row chưa đạt admission. Proposal MANUAL_REVIEW_REQUIRED/inactive,0available_at/
+canonical,không thay pipeline/policy cũ hoặc DATE_ONLY financial.22timing tests,
+11negative evidence guard checks và compileall đạt; không tạoMarkdown mới.
+
+## Đính chính DATE_ONLY: chỉ tạm ngừng corporate_actions — 07/11/2026
+
+Theo chỉ đạo mới nhất của owner, D-TIME-ONLY-02/config execution V2 thay phạm vi
+toàn DELTA của V1: chỉ corporate_actions tạm ngừng DATE_ONLY, kể cả CA đưa sang
+Product/M3/research. Financial và phần khác giữ policy DATE_ONLY đã duyệt trong
+scope/gate cũ. Cập nhật AGENTS/status/nhật ký; giữ V1 và evidence lịch sử, không
+sửa code pipeline hoặc chạy lại batch.0network,0Markdown mới.
+
+## Tạm ngừng DATE_ONLY toàn DELTA theo chỉ đạo owner — 07/11/2026
+
+Phạm vi toàn project ở mốc lịch sử này đã được D-TIME-ONLY-02 thu hẹp ở trên.
+
+Ghi D-TIME-ONLY-01 trong AGENTS/DECISIONS và config execution version mới: mọi
+xử lý mới financial/corporate actions/Product/M3/research tạm ngừng DATE_ONLY,
+tập trung timestamp công bố có clock/timezone và provenance xác minh. Thiếu
+timestamp giữ evidence/DEFERRED; không gán availability/usable_from_date bằng
+fallback ngày. Policy/artifact cũ bảo toàn, không chạy lại batch hoàn thành.
+Chỉ đạo đang áp ở agent execution/stage review; chưa thêm hard guard toàn bộ
+CLI legacy hoặc thay pipeline. Stage24 kiểm metadata VSDC2021 và public frontend
+TPS, chưa tìm thêm timestamp công bố đủ điều kiện. Không tạo Markdown mới.
+
+## Workflow đối chiếu ba nguồn offline ORS V1 — 06/11/2026
+
+Thêm module/CLI/config version riêng để tính lại lựa chọn từ ba observation đã
+review/pin: kiểm hash/receipt/value binding, comparison key, origin/revision review,
+giữ dissent và đưa trường hợp chưa đủ vào unresolved queue. Không sửa legacy,
+không tự đọc selected_value cũ, gọi network hoặc apply canonical/PIT/identity.
+Runner refuse overwrite, khóa authorization, DOM/raw label và strict JSON; CLI
+exit0 khi đủ/3 khi unresolved/2 khi lỗi envelope-policy. ORS chọn2/2 khớp bước15;
+78 targeted tests (29 mới), compileall và synthetic smoke đạt. Tự tìm nguồn/PDF
+semantic review còn là upstream, chưa triển khai trong stage16.
+
+## Chọn hai field ORS theo nguồn thứ ba — 06/11/2026
+
+Theo rule owner chỉ định, ghi selection receipt cho đơn vị quyền2024 khớp
+VSDC166577/HOSE79 (một CP cũ nhận một quyền, hai quyền mua một CP mới) và giá trị
+danh nghĩa bổ sung2021 là1.000 tỷ đồng khớp HNX430/VSDC143656. Bảo toàn dissent
+NQ11/2023 và HTML doanh nghiệp924; không sửa packet/evidence cũ hoặc apply canonical.
+Lưu ba GET200, một POST400 và ba DOM capture riêng;85-ID inventory giữ nguyên.
+Khôi phục body public SSR JSON post869 từ raw đã pin; không coi tiền thu phát
+hành là nominal value. 14 test revision/compileall/integrity đạt; event readiness
+vẫn PARTIAL do các gap/gate khác, pipeline deterministic chưa thay đổi.
+
+## Ghi nhận quy tắc nguồn thứ ba do owner chỉ định — 06/11/2026
+
+Tạo CA-THIRD-SOURCE-V1 và delegation policy V2 riêng: khi hai nguồn khác nhau,
+tìm nguồn thứ ba đúng field/phạm vi/hiệu lực, không phải bản đăng lại; khớp bên
+nào thì chọn giá trị được hai nguồn xác nhận và giữ nguồn bất đồng. Thiếu nguồn
+hoặc ba giá trị khác nhau giữ unresolved. Component này đã owner chỉ định, không
+xin duyệt lại; general delegation không tự được approved. Chưa bật runtime,
+thu nguồn mới, chọn field ORS hoặc freeze canonical; V1/evidence cũ giữ nguyên.
+Kiểm tra integrity/guards, 14 test revision và compileall đạt.
+
+## Đề xuất ủy quyền agent tự review corporate actions — 06/11/2026
+
+Chuẩn bị CA-REVIEW-DELEGATION-V1: 12 quy tắc, 12 tình huống kỳ vọng và mapping
+D01–D06. Đề xuất agent tự kiểm chứng field, giữ nguồn có provenance phù hợp,
+quarantine conflict/thiếu chứng cứ và không yêu cầu owner duyệt từng bài.
+Phân biệt technical review, pipeline deterministic chưa triển khai và canonical
+chưa được mở. Policy/config đề xuất inactive, owner approval null; không thay
+acceptance đang chạy hoặc áp dụng quyết định packet cũ. Giữ evidence/version cũ,
+0 request; kiểm tra proposal, 14 test revision và compileall đạt.
+
+## Packet quyết định offline ba sự kiện ORS — 06/11/2026
+
+Lập packet gồm 54 dòng field, 22 tham chiếu nguồn và sáu quyết định D01–D06 về
+điều khoản, gap HNX ex-date 2021, đơn vị quyền 2024, conflict HTML/PDF 2021,
+revision coverage và liên kết kết quả. Giữ các lựa chọn owner/giá trị phê duyệt
+chưa điền, tách đề xuất khỏi quyết định thực thi; readiness vẫn PARTIAL.
+0 request mới, kiểm lại 441 input đã pin; không đổi evidence cũ, runtime, policy
+hoặc canonical. Kiểm tra packet, 14 test revision và compileall đạt.
+
+## Bổ sung nguồn Sở và lineage ba sự kiện ORS — 06/11/2026
+
+Lưu PDF gốc HOSE 79 khớp SHA-256 bản Vietstock, PDF kết quả phân phối quyền mua/cổ
+tức 2024 và các thông báo HNX đăng ký/giao dịch bổ sung 2021 trên host doanh nghiệp.
+Đọc 27 trang PDF mới, giữ riêng giá quyền mua 10.000 và phân phối lại phần dư
+11.000 đồng/CP; nối NQ17/2023 bổ sung NQ11/2023, loại đính chính trái phiếu
+ORSH2328001 và hoãn phương án 2022 khỏi ba sự kiện. Review tiêu đề 110 ID trong hai
+khoảng archive và các snapshot bộ lọc 21/4/59 ID; không chứng nhận full history.
+Readiness PARTIAL do thiếu thông báo HNX ex-date và còn discrepancy/revision cần
+review. Giữ immutable các version cũ, không đổi runtime/policy/canonical.
+14 test revision và compileall đạt; chi tiết tại bước 11 của nhật ký.
+
+## Review ba candidate ORS và ngày giao dịch không hưởng quyền — 06/11/2026
+
+Lập ba hồ sơ sự kiện, đối chiếu điều khoản với VSDC và nguồn bổ sung: ex-date cổ
+tức 100:12 là 14/06/2024, quyền mua 2:1 là 18/01/2024, quyền mua 1:1 là 10/06/2021.
+Giữ provenance riêng của PDF HOSE tải trực tiếp, bản HOSE trên Vietstock và HTML/PDF
+doanh nghiệp. Review cache 31 bài cổ phiếu và bổ sung hai thông báo hạch toán VSDC;
+chưa chứng nhận archive revision đầy đủ nên readiness PARTIAL, field/source selection
+và canonical vẫn MANUAL_REVIEW_REQUIRED. 14 test revision và compileall đạt; giữ
+nguyên inventory V3, evidence cũ, runtime và policy.
+
+## Hoàn tất toàn văn ORS trong snapshot 85 ID — 06/11/2026
+
+Thu đủ 36 bài trái phiếu còn thiếu và toàn văn năm bài cổ phiếu chỉ có fields
+qua Chrome; lưu riêng 41 rendered text, receipt thu nhận DOM và hash. Inventory V3
+ghi đủ 85/85 bài có toàn văn: 20 HTTP raw và 65 rendered text. Nội dung phân biệt
+31 bài cổ phiếu đúng mã ORS với 54 bài trái phiếu. Không có candidate điều chỉnh
+giá mới từ 41 bài bổ sung; giữ nguyên evidence cũ, runtime, policy và canonical.
+Kết quả chỉ chứng nhận đủ bài trong snapshot đã quan sát, chưa chứng nhận full history.
+
+## Bổ sung nội dung cổ phiếu ORS — 06/11/2026
+
+Review đủ 24 bài cổ phiếu còn thiếu trong snapshot ORS 85 ID, lưu rendered text,
+receipt thu nhận DOM và SHA-256 riêng. Xác nhận nội dung ba candidate cổ tức/quyền
+mua, nối ba thông báo hủy với quyền họp/lấy ý kiến theo content match; giữ possible
+successor riêng khi chưa có liên kết trực tiếp. Inventory V2 phân biệt 20 HTTP raw,
+24 rendered text, 5 fields-only và 36 bài trái phiếu thiếu detail. Giữ nguyên evidence
+cũ, hash/policy/runtime và canonical. Chi tiết tại `docs/CURRENT_STATUS.md`.
+
+## Chẩn đoán danh sách ORS — 06/11/2026
+
+Thêm phiên ORS tối đa năm request danh sách bằng Chrome ẩn, với mốc 80/85 từ hồ sơ
+V7 đã review. Kết quả lưu đối chiếu ID, các trang đạt kiểm tra và evidence nếu trang
+5 thiếu nội dung. Có kiểm thử cho trường hợp đủ trang và trang 5 rỗng.
+
 ## Công bố CSV kết quả M3 lên GitHub — 04/11/2026
 
 Thêm 62 bản sao CSV canonical dưới `M3/outputs/`, giữ hai CSV Combined đã có tại `M3/`;

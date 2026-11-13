@@ -1,5 +1,1538 @@
 # Trạng thái hiện tại — M1 market foundation reported
 
+Nhật ký chi tiết corporate actions theo từng bước nằm tại
+[NHAT_KY_CORPORATE_ACTIONS.md](NHAT_KY_CORPORATE_ACTIONS.md).
+
+## Corporate action — giờ công bố Nghị quyết 05 của ORS năm 2024, 12/11/2026
+
+Bước 51 tìm được bài HOSE **1688391**. PDF tải từ HOSE trùng SHA-256
+với bản CafeF 1965156. Ba trang nghị quyết chứa cùng các ảnh scan với PDF
+của TPS 2004. Công văn 11/2024/TPS-CBTT xác nhận ngày công bố trên website
+TPS là 21/03/2024 và ghi đúng URL bài 2004.
+
+Trường `postedDate` của HOSE cho giờ hiển thị 25/03/2024 **14:20** theo
+hàm định dạng của trang. Nếu số đó biểu diễn Unix timestamp thực thì khi
+đổi sang giờ Việt Nam sẽ là **21:20**. Kiểm tra cùng mẫu tháng 01/2024
+cho thấy hai trường của bản tin lệch đúng 7 giờ so với các trường tương
+ứng trong bản ghi tệp, song chưa xác minh được quy ước lịch sử. CafeF có
+`dateModified` lúc 00:00 và công văn có giờ ký. Cả hai mốc này chưa xác
+nhận giờ công bố. 5 trường vẫn chờ, pilot có 24/59 trường đã gán timestamp.
+[Hồ sơ đối chiếu](../data/corporate_actions/work/ors_tps2004_residual_publication_clock_20261112_v1/source_review.json).
+
+**Bước tiếp theo** là tra timestamp công bố báo cáo kết quả chào bán 2024
+hoặc công văn UBCKNN 1914 trên TPS 2016 và bản đăng cùng tài liệu. Đây là
+nhóm riêng gồm một trường kết quả phân phối.
+[Kết quả bước 51](../data/corporate_actions/work/ors_tps2004_residual_publication_clock_20261112_v1/summary.json).
+
+## Corporate action — giờ công bố Nghị quyết 11 của ORS năm 2021, 12/11/2026
+
+Bước 50 tìm thấy bản đăng lại CafeF 1392871. Tệp đính kèm gồm công văn
+507/2021/TPS-CV và hai trang Nghị quyết 11. Cả hai trang khớp với bản TPS
+khi so sánh bản render. Công văn xác nhận TPS đã công bố nghị quyết trên
+bài 858 ngày 22/07/2021, đến độ chính xác ngày.
+
+CafeF hiển thị 25/07/2021 23:52, với `dateModified` là
+`2021-07-25T23:52:43+07:00`. Giờ công bố vẫn chưa xác minh được. Hai bảng
+HNX trong kỳ 22/07–06/08 trả 0 dòng ORS và chỉ mục Wayback trả rỗng cho ba
+URL đã tra. 5 trường liên quan vẫn chờ timestamp. Pilot có 24/59 trường
+đã gán timestamp và 35 trường chờ.
+[Hồ sơ đối chiếu](../data/corporate_actions/work/ors_tps858_residual_publication_clock_20261112_v1/source_review.json).
+
+**Bước tiếp theo** là tìm giờ công bố của Nghị quyết 05 ngày 21/03/2024
+trên TPS 2004 hoặc bản đăng khác đính kèm đúng văn bản, phục vụ 5 trường
+riêng của đợt quyền mua 2024.
+[Kết quả bước 50](../data/corporate_actions/work/ors_tps858_residual_publication_clock_20261112_v1/summary.json).
+
+## Corporate action — tìm bản lưu RSS HNX tháng 08/2021, 12/11/2026
+
+Bước 49 tra các URL RSS HNX đã biết trong khoảng 19–31/08/2021. Arquivo.pt
+trả 0 kết quả cho cả ba biến thể URL. Chỉ mục Wayback trả HTTP 400, còn
+chỉ mục Common Crawl tháng 09/2021 trả HTTP 504, nên kết quả ở hai kho này
+chưa xác định.
+
+HNX xác nhận InfoFile phân phối thông tin công bố UPCoM và cung cấp đặc tả
+chi tiết sau khi ký hợp đồng. Trang hướng dẫn và danh mục công khai đã kiểm
+chưa cho thấy quy ước múi giờ của hai bài ORS 399860 và 400173. 8 trường
+gắn với hai bài vẫn chờ bằng chứng múi giờ. Pilot có 24/59 trường đã gán
+timestamp. [Hồ sơ tra cứu](../data/corporate_actions/work/ors_hnx_historical_timezone_lookup_20261112_v1/source_review.json).
+
+**Bước tiếp theo** là tìm giờ công bố gắn đúng TPS 858 hoặc PDF Nghị quyết
+11 ngày 22/07/2021 để xử lý 5 trường về kết quả quyền mua và phân phối phần
+dư. Hai bài HNX trên tiếp tục chờ nguồn lịch sử mới.
+[Kết quả bước 49](../data/corporate_actions/work/ors_hnx_historical_timezone_lookup_20261112_v1/summary.json).
+
+## Corporate action — múi giờ trên RSS HNX và hai bài ORS 2021, 12/11/2026
+
+Bước 48 kiểm tra RSS **Thông tin công bố từ Sở** của HNX. Cả 50 mục trong
+feed ngày 04–12/11/2026 đều ghi `pubDate` với offset `+07:00`. Đối chiếu cùng
+ID và tiêu đề, cả 3 bài lấy từ bảng UPCoM ngày 11–12/11 đều khớp đến phút
+với cột **Ngày đăng tin**.
+
+Hai bài ORS 399860 và 400173 vắng trong feed này. Trang riêng của bài
+400173 xác nhận 23/08/2021 16:17 và cùng tệp PDF 2716, với giờ hiển thị đến
+phút. Wayback trả về đầu mối bản lưu RSS ngày 28/01/2021, còn lượt mở trả
+HTTP 429. Múi giờ của hai bài tháng 08/2021 vẫn chờ xác minh. 8 trường gắn
+với hai bài vẫn chờ timestamp. Pilot hiện có 24/59 trường đã gán timestamp.
+[Bằng chứng và kết quả đối chiếu](../data/corporate_actions/work/ors_hnx_followup_timezone_review_20261112_v1/source_review.json).
+
+**Bước tiếp theo** là tìm bản lưu RSS HNX vào tháng 08/2021 hoặc tài liệu
+chính thức quy định múi giờ của hệ thống công bố HNX trong giai đoạn đó.
+[Kết quả bước 48](../data/corporate_actions/work/ors_hnx_followup_timezone_review_20261112_v1/summary.json).
+
+## Corporate action — giờ đăng của hai thông báo HNX về ORS 2021, 12/11/2026
+
+Bước 47 xác minh hai giờ hiển thị trong cột **Ngày đăng tin** của bảng công
+bố HNX cho ORS. Hai PDF tải trực tiếp từ chi tiết HNX trùng SHA-256 với các
+bản đã đọc trong hồ sơ.
+
+| Bài HNX | Ngày giờ hiển thị | Văn bản đính kèm |
+| --- | --- | --- |
+| 399860 | 19/08/2021 12:22 | Thông báo 2651, dẫn quyết định 430 |
+| 400173 | 23/08/2021 16:17 | Thông báo 2716 về giao dịch bổ sung |
+
+Các văn bản đối chiếu được với 8 trường còn chờ. Cột HNX có độ chính xác
+đến phút và chưa xác minh được múi giờ. CafeF ghi cùng phút 12:22 và đính kèm
+đúng PDF 2651, còn offset +07:00 nằm trong trường sửa bài của CafeF. Thời
+điểm đăng riêng của quyết định 430 vẫn chưa xác minh. Lượt mở lại bản lưu
+TPS 769 trả HTTP 429. Pilot hiện có 24/59 trường được gán timestamp.
+[Hồ sơ nguồn và ánh xạ trường](../data/corporate_actions/work/ors_rights2021_hnx_followup_clock_20261112_v1/source_review.json).
+
+**Bước tiếp theo** là tìm quy ước múi giờ của cột HNX hoặc bản công bố có
+offset cho cùng hai mã bài 399860 và 400173. Bản lưu TPS 769 tiếp tục chờ
+Wayback phục vụ. [Kết quả bước 47](../data/corporate_actions/work/ors_rights2021_hnx_followup_clock_20261112_v1/summary.json).
+
+## Corporate action — tra giờ đăng cho hai ngày quyền mua ORS 2021, 12/11/2026
+
+Bước 46 tìm được bản lưu Wayback của đúng URL TPS 769, chụp lúc
+**20:55:12 UTC ngày 26/07/2021**. Lượt mở bản lưu trả HTTP 429, nên nội dung
+và giờ đăng trong bản lưu vẫn chưa được xác minh. Hai truy vấn Common Crawl
+cho URL TPS trả HTTP 504. Với URL CafeF, Wayback không trả bản lưu và
+truy vấn chính xác trên chỉ mục tháng 6/2021 trả HTTP 404.
+
+HNX 390773 và bản tin CafeF 1505338 đều ghi ngày giao dịch không hưởng
+quyền **10/06/2021** và ngày đăng ký cuối cùng **11/06/2021**. CafeF hiển thị
+**08/06/2021 lúc 11:22**. HTML đã lưu thiếu `datePublished` và offset cho giờ
+hiển thị. Giá trị `11:22:19+07:00` có nhãn `dateModified`. Cả hai trường
+tiếp tục chờ timestamp đủ điều kiện, với 24/59 trường đã gán timestamp
+trong pilot. [Hồ sơ nguồn](../data/corporate_actions/work/ors_rights2021_entitlement_clock_lookup_20261112_v1/source_review.json).
+
+Bước tiếp theo là mở lại đúng bản lưu TPS 769 khi dịch vụ Wayback phục vụ.
+Trong khi đó, thông báo HNX 2716 và quyết định 430 là đầu mối cho lượt tra
+riêng về kết quả và giao dịch bổ sung năm 2021.
+[Kết quả bước 46](../data/corporate_actions/work/ors_rights2021_entitlement_clock_lookup_20261112_v1/summary.json).
+
+## Corporate action — kiểm kê 35 trường ORS còn chờ, 12/11/2026
+
+Bước 45 hoàn tất đối chiếu 35 trường đang chờ trong overlay V2. Cả 35 có giá
+trị trong hồ sơ đối chiếu, gồm 3 dòng lưu khác biệt hoặc cách diễn đạt của
+nguồn. Hiện có 24/59 trường được gán timestamp cho Product/M3 pilot.
+[Kiểm kê từng trường](../data/corporate_actions/work/ors_deferred35_publication_inventory_20261112_v1/field_inventory.json).
+
+| Sự kiện | Trường chờ | Tài liệu cần xác minh giờ đăng |
+| --- | ---: | --- |
+| Quyền mua 2021 | 19 | HNX 390773 và TPS 769 cho hai ngày quyền. NQ 11, QĐ 430 và HNX 2716 cho kết quả, phần dư và giao dịch bổ sung |
+| Quyền mua 2024 | 11 | VSDC 166577 cho định danh quyền. NQ 05 và văn bản UBCKNN 1914 cho phần dư và kết quả |
+| Cổ tức 2024 | 5 | Báo cáo kết quả 252, văn bản UBCKNN 3994 và quyết định HOSE 424 |
+
+Hai ngày được ưu tiên là ngày giao dịch không hưởng quyền **10/06/2021** và
+ngày đăng ký cuối cùng **11/06/2021**. HNX 390773 xác nhận cả hai ngày. Bản chi
+tiết đã lưu thiếu giờ đăng. TPS 769 có ngày hiển thị. TNCK chỉ nêu 11/6 ở
+đoạn liên quan và thiếu ngày không hưởng quyền.
+
+Đối chiếu lại 10 trang TPS đã lưu cho thấy chỉ có ngày hiển thị. Ba giờ trên
+VSDC mang nhãn “Cập nhật”. Các mốc hạn nộp tiền, ngày ký và ngày hiệu lực được
+ghi theo đúng vai trò của chúng. Đã kiểm hash và biên nhận của 15 nguồn hỗ trợ.
+[Bằng chứng nguồn](../data/corporate_actions/work/ors_deferred35_publication_inventory_20261112_v1/source_review.json).
+
+**Bước tiếp theo** là tra một bản tin công khai hoặc bản lưu gắn với HNX 390773
+hoặc TPS 769, có cả hai ngày đầy đủ và giờ đăng kèm múi giờ. Các thông báo hậu
+sự kiện có đầu mối tra cứu riêng trong
+[danh sách ưu tiên](../data/corporate_actions/work/ors_deferred35_publication_inventory_20261112_v1/followup_queue.json).
+Kết quả hiện giới hạn ở các bản đã lưu.
+
+## Corporate action — áp 13 trường TNCK/Mekong, 11/11/2026
+
+Bước44 **PASS trong phạm vi owner chấp nhận**. Yêu cầu “hãy thực hiện” sau
+đề xuất bước43 đã được ghi thành
+[approval hai nhóm](../data/corporate_actions/work/ors_remaining13_timestamp_admission_20261111_v1/owner_approval_receipt.json).
+[Policy mới](../configs/data/corporate_actions/ors_remaining13_timestamp_admission_20261111_v1.json)
+thêm đúng7field quyền mua2021/TNCK **02/06/2021 16:55:48 GMT+7** và6field
+cổ tức2024/Mekong archived **11/06/2024 11:18:31 GMT+7**, chỉ cho Product/M3 pilot.
+
+[Artifact V2](../data/corporate_actions/product_m3/ors_three_events_timestamp_20261111_v2/summary.json)
+hiện có **24ADMITTED/35DEFERRED trên59row**.11FireAnt và35held giữ nguyên từng
+byte so với V1;59giá trị/scope không đổi,usable_from_date=null. Raw, proposal,
+policy/overlay/runtime V1 không sửa. V2 reader kiểm hashes, approval, metadata
+publication/modified và field locator; profile live text và archive tách đúng
+loại evidence, không biến WARC-derivedHTML thành HTTPraw live/DOM.
+
+Giữ nguyên gap: TNCK chưa archive độc lập xác nhận năm2021; Mekong capture16/6
+sau ex-date14/6, metadata lịch sử11:18:31 khác current11:18:00. Timestamp được
+owner chấp nhận theo publisher assertion, không phải giờ gốcSở hoặc chứng nhận
+strictPIT. Không dùng capture/created/modified/fetched time, không DATE_ONLY,
+canonical/factor/strictresearch, không tựnối dashboard/finalM3backtest.
+
+**Boundary thực:** trước TNCK16:55:48 đọc0row; đúng giờ đọc7; từ FireAnt14:51
+đọc18; Mekong11:18:00/11:18:30 vẫn18, đúng11:18:31 đọc24.89targetedtests
+(20V2+15V1+22timing+32acquisition/layout),compileall vàsynthetic smoke đạt.
+0network/Markdown mới;1695inputpin kiểm trước cập nhật docs, riêngDECISIONS
+giữ oldbytes trongsnapshot theo quy trình. Không thu lại85/V7/7/418/archive.
+[Summary stage](../data/corporate_actions/work/ors_remaining13_timestamp_admission_20261111_v1/summary.json)
+và [boundary review](../data/corporate_actions/work/ors_remaining13_timestamp_admission_20261111_v1/actual_overlay_boundary_review.json).
+
+**Bước tiếp theo đề xuất:** kiểm kê35field còn chờ theo đúng revision và gap
+publication, ưu tiên record/ex-date2021 và thông báo sửa đổi/kết quả. Chưa thực
+hiện trongstage44; không suy timestamp từfield đã được duyệt hoặc mở campaign mã khác.
+
+## Corporate action — review riêng 13 mapping còn ở proposal, 08/11/2026
+
+Bước43 **PASS phần review; admission13row vẫn MANUAL_REVIEW_REQUIRED**.
+Đã tái kiểm tra đúng13mapping bằng evidence offline đã pin, không gọi network
+hoặc mở rộng approvalFireAnt11. [Decision packet](../data/corporate_actions/work/ors_remaining13_timestamp_decision_review_20261108_v1/separate_decision_packet.json)
+và [summary](../data/corporate_actions/work/ors_remaining13_timestamp_decision_review_20261108_v1/summary.json).
+
+| Nhóm đề xuất quyết định riêng | Giờ nguồn khai báo (GMT+7) | Số field | Gap còn giữ |
+| --- | --- | --- | --- |
+| Quyền muaORS2021, TNCK270871 | 02/06/2021 16:55:48 | 7 | Chưa có archive độc lập xác nhận timestamp/nội dung tạiinstant2021 |
+| Cổ tứcORS2024, bản lưu Mekong35579 | 11/06/2024 11:18:31 | 6 | Archive16/6 sau ex-date14/6; chưa chứng minh nội dung cótrướcex-date |
+
+TNCKrawHTTP200/receipt/hash: NewsArticle/meta/time/epoch publication khớp,
+modified bằngpublication; đúng2đoạn điều khoản hỗ trợ7field. Không nhận thêm
+recorddate2021 còn thiếu full-yearcontext, ex-dateHNX chưa publicationclock
+hoặc marketprice32.300 vào giá quyềnmua10.000.
+
+Mekong: kiểm độc lậpCDX→WARCresponse→HTTPbody, range/target/digest/hashes đều
+khớp; metadata bản lưu11:18:31+07, modified bằngpublication. Đúng đoạnORS hỗtrợ
+6field; nămex-date14/6 lấy từ fullrecorddate17/6/2024 cùng đoạn, giữ rule cũ.
+Bản hiện tại11:18:00 khác31giây, cùng đoạnORS; giữ snapshot riêng, không average/
+làmtròn/vote. Capturetime16/6 không phải publication; archive storage độc lập
+không tạo phiếu nguồn công bố thứba. DerivedarchiveHTML không là rawlive/DOM.
+
+13record proposal cũ thiếufield_scope; packet gốc đã có. Review mới mang rõ
+scope từ packet và đối chiếu nguyênvalue, không sửa13record cũ. Verifier hiện
+hành chỉ hỗtrợ FireAnt/directPDF; nếu owner chấp nhận13row thì cần adapter/test
+phiên bản mới cho directarticletext vàarchiveprofile, không nhét vào configFireAnt.
+
+**Đề xuất:** chấp nhận từng nhóm theo mức **giờ do chính publisher khai báo cho
+Product/M3 pilot**, giữ các gap nêu trên; không gọi là giờ công bố đầu tiên của
+Sở hoặc chứng nhậnstrictPIT. Đây là13row được chuẩn bị để quyết định, chưa
+được gánavailable_at. Thực tế vẫn11ADMITTED/48DEFERRED;24/35 chỉ là dự kiến nếu
+cả hai nhóm được duyệt và triển khai/test thành công.
+
+37targetedtests/compileall/helpercompile đạt;1676effectiveinputpin giữ nguyên,
+gồm activeFireAntpolicy/overlay.0network/Markdown mới, không đổi productioncode/
+policy/proposal, không chạy lại smoke hoặc85/V7/7/418. Chưa có timestampapproval
+mới; không dùngDATE_ONLY/canonical/researchgate.
+
+**Bước tiếp theo:** owner quyết định riêng7rowTNCK và6rowMekong với hai mốc giờ
+và rủi ro cụ thể trên. Sau acceptance mới triển khai/test sourceprofile mới và
+overlayversion mới. Stage43 dừng ở hồ sơ quyết định; không xin duyệt lại11rowFireAnt.
+
+## Corporate action — áp timestamp FireAnt cho 11 field pilot, 08/11/2026
+
+Bước42 **PASS trong phạm vi owner đã chấp nhận**: dùng timestamp FireAnt
+**16/01/2024 14:51:00 GMT+7** cho đúng11field quyền muaORS2024. Approval là yêu
+cầu thực hiện ngay sau đề xuất cụ thể, được ghi tại
+[receipt](../data/corporate_actions/work/ors_fireant_timestamp_admission_20261108_v1/owner_approval_receipt.json).
+[Policy mới](../configs/data/corporate_actions/ors_fireant_timestamp_admission_20261108_v1.json)
+chỉ active cho phạm vi này; proposalV1/V2/V3 và13mapping khác không được tựduyệt.
+
+[Artifact Product/M3 pilot](../data/corporate_actions/product_m3/ors166577_fireant_timestamp_20261108_v1/summary.json)
+có59row:11ADMITTED vớiavailable_at=14:51+07,48DEFERRED vớiavailable_at=null.
+59giá trị/scope giữ nguyên; không suyusable_from_date hoặc dùngDATE_ONLY. Nguồn
+ghi rõFireAnt/sourceassertion/directPDF hashmatch; không relabel thành giờ gốc
+HOSE. ClockHOSE vẫnOPEN, chưa cóhistoricalsnapshot/dateModified/independentfeed
+certification. Owner chấp nhận mức chứng cứ này riêng choProduct/M3 pilot.
+
+Đã thêm offlinebuilder/CLI vàconsumer`eligible_fields` để đọcartifact theoexact
+timestamp; không recompute model/feature hoặc tự nối dashboard/finalM3backtest.
+Consumer kiểminput/outputhashes, approvalscope, giá trịfield và directPDFbinding;
+strictresearch/canonicalpurpose bị từ chối. Boundaryartifact thật14:50:59 đọc0,
+14:51:00 và07:51:00Z đọc11; giữ48field khác chờ xử lý.
+
+69targetedtests (15overlay+22timing+32acquisition/layout),compileall vàsynthetic
+smoke đạt. Lượt đầu vướng WindowsTEMP/consoleencoding đã giữ log/artifact;
+chạy lại bằngworkspaceTMP/UTF-8, không sửalegacyassertion.0network/Markdown mới,
+không thu lại85/V7/7/418 hoặc mởcanonical/factor/strictresearch.1637inputpin lúc
+đầu được kiểm; riêngdocs/DECISIONS cập nhật hợp lệ đã giữ nguyên bytes cũ trong
+snapshot, các raw/policy/proposal/packet khác không đổi.
+[Execution review](../data/corporate_actions/work/ors_fireant_timestamp_admission_20261108_v1/execution_review.json)
+và [summary](../data/corporate_actions/work/ors_fireant_timestamp_admission_20261108_v1/summary.json).
+
+**Bước tiếp theo đề xuất:** review riêng13mapping timestamp của hai sự kiện
+ORS2021 vàcổtức2024 còn ởV3, nêu rõ bằng chứng/gap và chuẩn bị quyết định riêng.
+Chưa thực hiện trongstage42; không mở rộng approval11field hiện tại hoặc chạy
+campaign mã khác.
+
+## Corporate action — FireAnt và VNDIRECT quyền mua ORS2024, 08/11/2026
+
+Bước 41 **PARTIAL; FireAnt có direct timestamp/PDF binding, VNDIRECT DEFERRED**.
+Đã kiểm tra cả hai nguồn theo yêu cầu owner. Clock gốc HOSE1614236 vẫn OPEN;
+chưa chọn14:51/21:51 cho Sở và chưa activate admission/availability.
+[Summary](../data/corporate_actions/work/ors_rights2024_fireant_vndirect_lookup_20261108_v1/summary.json).
+
+**FireAnt:** đọc đúng bài22811809 qua HTTP200; tiêu đề/mã ORS/nguồn HSX khớp.
+`initialPost.date=2024-01-16T14:51:00+07:00`, JSON-LD
+`datePublished=2024-01-16T07:51:00.000Z`; hai biểu diễn cùng instant, offset
+được nguồn ghi rõ. Bài có anchor tải PDF trực tiếp và `files[].fileContentUrl`
+đều dẫn `https://mobiv2.fireant.vn/News/NewsAttachedFile/1548002`.
+PDFHTTP200/526.299byte có SHA-256
+`364beb609427cb4b451bbffed5c2718285b9e683dd1371e2f405670f06ae7787`, trùng nguyên
+bản HOSE đã pin. Đây là HTTPraw HTML/embeddedJSON và PDFraw; không claim review
+DOM hoặc historicalcapture2024. DateModified vẫn vắng, không suy nội dung chưa
+từng sửa. [Review binding](../data/corporate_actions/work/ors_rights2024_fireant_vndirect_lookup_20261108_v1/fireant_target_timestamp_binding_review.json).
+
+Giờ14:51 của FireAnt khớp Stockbiz. Tuy nhiên cả hai cùng postID22811809 và
+ảnh1548002 trên hostFireAnt, attachment khớp legacyNewsID1548002. Stockbiz còn
+link sang trang thảo luận mãORS trênFireAnt, không phải link trực tiếp hai bài.
+Đây là dấu hiệu cùng/quan hệ feed; chưa xác minh ownership hoặc kiến trúc feed,
+**không tính thành hai phiếu độc lập** hoặc xác nhận first-publication HOSE.
+[Review tính độc lập](../data/corporate_actions/work/ors_rights2024_fireant_vndirect_lookup_20261108_v1/source_independence_review.json).
+
+**VNDIRECT:** trangORS và2bundleJS công khai HTTP200; từ bundle xác định API
+`https://api-finfo.vndirect.com.vn/v4/news`. Query giới hạn ORS/ngày16/1/2024
+trảHTTP403/body13byte “Access Denied”; dừng provider route ngay, không retry/
+alias/browser/token/cookie. Chưa trả bản tin/timestamp hoặc xác minh semantics
+filter; không kết luận VNDIRECT thiếu bài. RootmobileFireAnt404 cũng không phải
+bằng chứng bài FireAnt vắng. [Route review](../data/corporate_actions/work/ors_rights2024_fireant_vndirect_lookup_20261108_v1/vndirect_route_review.json).
+
+8request córeceipt:6HTTP200/1HTTP404/1HTTP403;16query web.22timingtests/compileall
+đạt,1584inputpin giữ nguyên. Không thay pipeline nên không chạy lại smoke;
+0Markdown mới,0availability/canonical/DATE_ONLY, không đổi proposalV1/V2/V3 hoặc
+59field cũ. Không thu lại85/V7/7/418 hay retryarchive.
+
+**Bước tiếp theo đề xuất:** review/cập nhật proposal inactive cho đúng11field
+quyền2024, dùng source-asserted FireAnt timestamp với direct article→PDF binding
+trong cùngHTML. Giữ gap historicalvintage/dateModified và clockHOSE; không
+coi là sourcevote độc lập hoặc tựduyệt13mapping khácV3. Admission là thay đổi
+nhạy cảm methodology, `MANUAL_REVIEW_REQUIRED` trước activation; stage này chỉ
+thu/review evidence, chưa tạo/activate proposal mới hoặc xin duyệt giờ chưa rõ.
+
+## Corporate action — tìm clock contract công khai HOSE, 08/11/2026
+
+Bước 40 **PARTIAL; clock HOSE1614236 vẫn OPEN**. Đã thực hiện lookup tài liệu
+kỹ thuật/lịch sử công khai theo đề xuất bước39; chưa tìm được contract có căn
+cứ áp dụng cho publication `postedDate` năm2024 trong phạm vi quan sát.
+[Review](../data/corporate_actions/work/ors_hose_public_clock_contract_lookup_20261108_v1/public_clock_contract_review.json)
+và [summary](../data/corporate_actions/work/ors_hose_public_clock_contract_lookup_20261108_v1/summary.json).
+
+- 15query web; các kết quả về giờ giao dịch hoặc báo đăng lại không được dùng
+  làm contract clock API. Tin về đổi website năm2025 chỉ là đầu mối, chưa chứng
+  minh ngày migration hoặc encoding của dữ liệu cũ.
+- Từ pinnedJS suy ra đúng public UI/API route Điều khoản sử dụng và FAQ. Cả hai
+  HTTP200, mỗi body132byte là JSON `list:[]`, `totalCount:0`; không phải body
+  rỗng, cũng không chứng minh tài liệu vắng trên toàn nguồn. Không gọi private
+  data-feed hoặc đoán Swagger/auth endpoint.
+- Lưu PDF quy chế CBTT340/2016 trên host HOSE, HTTP200/raw/hash/receipt. Đây là
+  scan67trang, text layer trích xuất0ký tự. Đã render/đọc trực quan trang1–12,
+  tập trung trang4/6/7 để phân biệt báo cáo gửi/nhận và thông tin đăng website.
+  Chưa có timezone/Unix API contract ở phần đã đọc; không claim đã audit cả67
+  trang hoặc xác nhận hiệu lực/khả năng áp dụng choAPI2024.
+- Một query public UI/API giới hạn cửa sổ28/4–5/5/2025 trả19record HOSE; thấy
+  thông báo ngày đầu KRX, không phải đặc tả publication clock. Không phân trang
+  hoặc suy giờ vận hành KRX thành giờ công bố bài.
+
+4request thu nhận córeceipt, đềuHTTP200;22timingtests/compileall đạt,1535inputpin
+giữ nguyên. Không thay pipeline nên không chạy lại smoke.0Markdown mới,0timestamp
+được chọn/availability/canonical/DATE_ONLY; proposalV1/V2/V3 giữ nguyên inactive.
+Không retryWayback hoặc thu lại85/V7/7/418.14:51+07 và21:51+07 cho HOSE chưa chọn;
+giờ riêng Stockbiz14:51+07 không bị relabel thành first-publication HOSE.
+
+**Bước tiếp theo đề xuất:** tra bản tin FireAnt công khai từ đầu mối
+`NewsID1548002` trong URL ảnh bài Stockbiz đã pin; kiểm tra timestamp, exactPDF
+binding và quan hệ dữ liệu với Stockbiz. Đây mới là imageID, chưa xác nhận URL
+bản tin hoặc tính độc lập. Nếu dùng chung feed thì không tính là phiếu nguồn
+độc lập; giờ đăng lại cũng không tự giải quyết clock gốc HOSE.
+[Đầu mối và giới hạn](../data/corporate_actions/work/ors_hose_public_clock_contract_lookup_20261108_v1/next_evidence_lead.json).
+Chưa thực hiện lookupFireAnt trong stage này; giữ vấn đề HOSE OPEN, không yêu
+cầu owner phê duyệt một giờ chưa xác minh hoặc lặp lookup clock vừa hoàn tất.
+
+## Corporate action — resume archive clock HOSE, 08/11/2026
+
+Bước 39 **PARTIAL; vấn đề giờ công bố HOSE vẫn OPEN**. Đã resume đúng capture
+Wayback đã tìm được; vẫn HTTP429, body khớp lần trước, không có Retry-After.
+Không lặp retry ngay hoặc đổi client/host để né. Chưa đọc được HTML capture
+18/01/2024. [Review evidence](../data/corporate_actions/work/ors_hose_archive_clock_resume_20261108_v1/historical_home_capture_review.json).
+
+Đã kiểm tra thêm Common Crawl độc lập trong cùng stage:
+
+- Index CC-MAIN-2024-10 trả một record `http://hsx.vn/` ngày 01/03/2024.
+  Tải đúng range WARC 633 byte, HTTP206; digest payload khớp CDX và WARC.
+  Body HTTP lưu trữ chỉ 103 byte, chứa meta-refresh sang `https://www.hsx.vn`.
+  Đây là HTML trích từ archive, không phải HTTP raw mới của HOSE hay rendered
+  DOM; chưa có nội dung trang chủ HTTPS, nhãn múi giờ hoặc bài ORS.
+- Index CC-MAIN-2024-18 cho đích HTTPS trả404 với “No Captures found”. Chỉ kết
+  luận cho query exact root/status200 của index này, không suy vắng mọi archive.
+
+Vì vậy chưa chọn **14:51+07 hay 21:51+07 ngày16/01/2024 cho HOSE1614236**.
+Stockbiz vẫn khai báo giờ riêng14:51+07; chưa được đổi thành first-publication
+HOSE. Không dùng capture time, HTTP Date, file modified hoặc media created để
+lấp gap; chưa yêu cầu owner duyệt một instant HOSE chưa xác minh.
+
+4request trong effective budget5 với addendum lưu riêng, 22timingtests và
+compileall đạt. Đã xác minh1489inputpin giữ nguyên; không thay pipeline, không
+chạy lại synthetic smoke. Không tạo Markdown mới, không đổi/activate proposal
+V1/V2/V3, không gán availability/canonical/DATE_ONLY hoặc thu lại85/V7/7/418.
+[Summary](../data/corporate_actions/work/ors_hose_archive_clock_resume_20261108_v1/summary.json).
+
+**Bước tiếp theo đề xuất:** tìm tài liệu kỹ thuật/lịch sử công khai của HOSE
+nêu rõ clock/timezone và cách mã hóa trường publication `postedDate`, có căn cứ
+áp dụng cho hệ thống năm2024. Tái dùng API/formatter đã pin; không coi lệch7giờ
+là bằng chứng tự đủ. Giữ replay Wayback DEFERRED, không lặp ngay các query vừa
+hoàn tất. Chưa thực hiện lookup contract mới hoặc mở gate trong stage này.
+
+## Corporate action — xác minh clock HOSE 1614236, 08/11/2026
+
+Bước 38 **PARTIAL, vấn đề vẫn OPEN**. Đã tái kiểm tra đúng raw API, media và
+formatter đã pin; chưa có bằng chứng chọn một publication instant của HOSE.
+[Hai cách hiểu](../data/corporate_actions/work/ors_hose_clock_contract_followup_20261108_v1/1614236.clock_hypotheses.json)
+và [kết quả xác minh](../data/corporate_actions/work/ors_hose_clock_contract_followup_20261108_v1/official_clock_verification.json).
+
+| Cách hiểu chưa được chấp nhận | Giờ Việt Nam tương ứng | Điều kiện chưa chứng minh |
+| --- | --- | --- |
+| postedDate là Unix UTC thực | 16/01/2024 21:51+07 | Backend mã hóa đúng instant publication UTC |
+| postedDate chứa wall-clock Việt Nam đóng gói như UTC | 16/01/2024 14:51+07 | Có clock contract/historical source cho cách đóng gói này |
+
+Giao diện cached dùng Moment.utc(...,"X") nên hiển thị thành phần14:51, nhưng
+JS được thu năm2026, không tự chứng minh backend/historical UI năm2024. H2 là
+giả thuyết có điều kiện, không gán offset thật cho HOSE. Nó trùng số với media
+createdDate không có nghĩa created là publication. Giữ riêng media.publishDate,
+approvedDate, publishFrom, RSSupdated, PDFmodified; không chọn/average/vote chúng.
+Stockbiz14:51+07 vẫn là timestamp riêng do Stockbiz khai báo, không bị phủ định
+và không tự trở thành first-publication HOSE.
+
+RSS theo target category343 trả404, không phải chứng minh bài không tồn tại.
+Hai index Common Crawl của candidate URL legacy gặp504; Wayback sau30/120giây
+retry trả200 nhưng không có snapshot khả dụng cho hai candidate prefixwww/www1.
+Pattern legacy có nguồn công khai, GUID từ API, nhưng exact URL identity chưa
+được xác nhận bằng capture body; không kết luận archive vắng toàn bộ.
+
+**Đầu mối mới cụ thể:** Wayback API trả capture trang chủ HOSE
+**18/01/2024 06:22:41 UTC**, URL
+`https://web.archive.org/web/20240118062241/https://www.hsx.vn/`.
+API availability không phải HTML. Replay cả3attempt vẫn429, backoff>=30/120giây;
+giữDEFERRED, không đổi client/host/proxy để né. Đây là homepage để tìm clocklabel,
+chưa phải capture bài ORS. [Resume queue](../data/corporate_actions/work/ors_hose_clock_contract_followup_20261108_v1/resume_queue.json).
+
+12request trong basebudget10+addendum chỉ cho2retry cùngreplayURL,9query web.
+22timingtests,compileall/helpercompile đạt; không thay pipeline nên không chạy
+lại smoke.0Markdown mới; raw/policy/proposal/field values cũ giữ nguyên,
+0availability/canonical/DATE_ONLY,không thu lại85/V7 hoặc mở7/418.
+
+**Bước tiếp theo:** khi replay service hết429, resume đúng capture đã có để đọc
+nhãn clock lịch sử và đánh giá phạm vi áp dụng cho bài1614236; không tìm lại
+toàn bộ hoặc tựchốt14:51/21:51. Vấn đề chưa đóng; không yêu cầu owner phê duyệt
+HOSE instant chưa xác minh. Nếu sau này owner chỉ chấp nhận sourceasserted
+Stockbiz14:51 thì scope phải rõ11field, không tựduyệt13mapping khác củaV3.
+
+## Corporate action — lookup bản tin Vietstock quyền mua 2024, 07/11/2026
+
+Bước 37 **PARTIAL/DEFERRED**. Chưa xác định được URL bản tin Vietstock gắn
+với PDF ORS đã pin, chưa thu được publication timestamp mới.
+[Route review](../data/corporate_actions/work/ors_rights2024_vietstock_publication_lookup_20261107_v1/vietstock_route_review.json)
+và [summary](../data/corporate_actions/work/ors_rights2024_vietstock_publication_lookup_20261107_v1/summary.json).
+
+Trang chủ Vietstock trả HTTP403, body146byte ghi rõ “403 Forbidden”, nginx.
+Dừng route vì server từ chối truy cập; classifier challenge=false chỉ có nghĩa
+chưa thấy JS/CAPTCHA, không phải quyền tiếp tục. Không đổi fingerprint, dùng
+cookie/token, thử alias/finance host hoặc browser để vượt route này. Đây là
+status của entrypage, không claim đã mở exacttargetarticle rồi nhận403.
+
+9 query search trong phạm vi vẫn chỉ tìm được PDF đã biết và các nguồn khác;
+không suy bài không tồn tại trên toàn nguồn. Receipt PDF cũ có Last-Modified
+16/01/2024 07:57:56GMT (14:57:56+07 khi chỉ đổi cách hiển thị instant header),
+nhưng đó là thời gian sửa file, không phải ngày/giờ đăng bản tin. Không áp mốc
+này, ngày tênfile hoặc documentdate vào publication/availability; không tải lạiPDF.
+[Review semantics](../data/corporate_actions/work/ors_rights2024_vietstock_publication_lookup_20261107_v1/pinned_PDF_header_semantics_review.json).
+
+Không thêm xác nhận độc lập cho Stockbiz14:51 hoặc TNCK17:36:15.1GET/HTTP403,
+22 timing tests và compileall đạt; không thay pipeline nên không chạy lại smoke.
+Evidence/policy/proposal/field values cũ giữ nguyên,0availability/canonical/
+DATE_ONLY và0Markdown mới. Chưa có approval; nếu owner sau này chỉ duyệt14:51,
+scope vẫn chỉ11field quyền2024, không tự duyệt13mapping khác củaV3.
+
+**Bước tiếp theo đề xuất:** giữ Vietstock DEFERRED. Nếu tiếp tục xác minh14:51,
+ưu tiên bằng chứng quy ước clock của đúng thông báo gốc HOSE1614236, tái dùng
+metadata đãpin và chỉ tìm evidence mới phù hợp. Không retry route403 hoặc lấy
+giờ báo đăng lại làm xác nhận giờ Sở. Chưa thực hiện followup HOSE trong stage này.
+
+## Corporate action — đối chiếu thêm nguồn FUNAN quyền mua 2024, 07/11/2026
+
+Bước 36 **PARTIAL**: nguồn mới FUNAN có đúng hàng ORS và URL PDF thông báo,
+nhưng không có publication timestamp để so với Stockbiz/TNCK.
+[Review nguồn](../data/corporate_actions/work/ors_rights2024_additional_broker_source_20261107_v1/166577.funan_source_review.json)
+và [summary](../data/corporate_actions/work/ors_rights2024_additional_broker_source_20261107_v1/summary.json).
+
+Lịch sự kiện FUNAN trang3 có đúng1hàng ORS:2:1,giá10.000,18/01/2024. Header
+ghi rõ ngày này là **Ngày GDKHQ**, không phải ngày đăng. Onclick chứa HTML
+popup dẫn đúng URL PDF Vietstock đã pin có hash trùngHOSE. Chỉ decode HTML
+attribute, không executeJS hoặc claim popupDOM mới. Tái dùng receipt/hash của
+bảnPDF cũ, không tải lại hoặc claim vừa xác minh bytes hiện tại của targetURL.
+
+Không có giờ trong row/popup hoặc publication metadata; không lấy18/1, ngày
+16/1 trong đường dẫn/tênPDF, hay fetched time làm giờ đăng. FUNAN chưa xác nhận
+14:51Stockbiz hoặc17:36:15TNCK; không tạo majorityvote giữa ngày sự kiện và giờ
+publication.7query web,1GET/HTTP200,22timingtests/compileall đạt. Không thay
+pipeline nên không chạy lại smoke.0Markdown mới,0availability/canonical/DATE_ONLY.
+Proposal V1/V2/V3 và toàn bộ evidence/field values cũ giữ nguyên; chưa approval.
+
+**Bước tiếp theo đề xuất:** nếu tiếp tục đối chiếu nguồn, ưu tiên trang bản tin
+Vietstock gắn với exactPDFURL này để đọc publication metadata của bài. Không
+lấy filedate hoặc mở rộng lịch sự kiện chỉ cóex-date. Giữ14:51chưa được xác nhận
+độc lập; chưa thực hiện lookupVietstock hoặc activateproposal trong stage này.
+
+## Corporate action — nguồn báo khác đối chiếu giờ quyền mua 2024, 07/11/2026
+
+Bước 35 **PARTIAL**: tìm thêm đúng một bài nguồn khác, nhưng không xác nhận
+được cùng instant Stockbiz 14:51:00+07. [Review TNCK](../data/corporate_actions/work/ors_rights2024_timestamp_other_publisher_20261107_v1/166577.tnck_publication_review.json)
+và [bảng so sánh](../data/corporate_actions/work/ors_rights2024_timestamp_other_publisher_20261107_v1/source_time_comparison.json).
+
+Tin nhanh chứng khoán, bài 337892 “Sự kiện chứng khoán đáng chú ý ngày 17/1”,
+khai báo **16/01/2024 17:36:15+07:00**. Raw GET200: JSON-LD, meta publication,
+time.datetime và data-time epoch cùng instant; dateModified bằng publication.
+Đúng đoạn ORS nêu record19/1, 100 triệu CP, tỷ lệ2:1, giá10.000. 6 row có support
+(gồm hai row số CP kế hoạch cùng giá trị), record date chỉ ngày/tháng, 4 row
+không được đoạn này hỗ trợ. Cửa sổ16/1–26/1/2024 thuộc SHB bên cạnh, đã loại.
+Không có binding tới exact PDF HOSE trong bài TNCK này.
+
+17:36:15 muộn hơn Stockbiz 2giờ45phút15giây. Đây là hai publication khác nhau
+cùng sự kiện, không phải hai metadata mâu thuẫn của cùng article; không vote
+chọn giờ và không coi TNCK xác nhận/phủ định Stockbiz14:51. Cache HOSE giữ
+wall-clock14:51 nhưng publisher clock còn gap7giờ; CafeF chỉ00:00/modified,
+không dùng làm xác nhận instant. Tái dùng evidence cũ, không tải lại PDF.
+
+17 query web trong phạm vi không tìm thấy xác nhận độc lập của exact14:51+07;
+không kết luận mọi nguồn vắng.1GET/1HTTP200,22timing tests/compileall đạt,
+không thay pipeline nên không chạy lại smoke;0Markdown mới. Proposal V1/V2/V3
+và toàn bộ field values giữ nguyên,0availability/canonical/DATE_ONLY.
+
+**Phạm vi approval:** chưa có approval. Theo clarification mới nhất, nếu owner
+sau này chỉ chấp thuận14:51 thì chỉ hiểu cho11field quyền2024, không tự duyệt
+13mapping khác của V3. Tra cứu thêm nguồn hiện tại không phải approval.
+
+**Bước tiếp theo đề xuất:** giữ14:51 chưa được nguồn mới xác nhận độc lập.
+Nếu chọn giờ báo khác làm evidence, review riêng17:36:15 cho đúng6field TNCK
+nêu; giữ1partial/4unsupported, không truyền timestamp sang toàn11field. Chưa
+thực hiện review admission mới hoặc activate proposal.
+
+## Corporate action — đề xuất V3 cho 24 mapping timestamp ORS, 07/11/2026
+
+Bước 34 **PASS phần chuẩn bị và tự review**. [Proposal V3](../configs/data/corporate_actions/ors_source_timestamp_contract_proposal_20261107_v3.json)
+và [24 mapping](../data/corporate_actions/work/ors_timestamp_admission_proposal_20261107_v3/proposed_field_bounds.json)
+đã pin, vẫn **MANUAL_REVIEW_REQUIRED**, activated=false, approval=null.
+Yêu cầu chuẩn bị đề xuất chưa phải approval áp dụng timestamp.
+
+| Nhóm | Mapping đề xuất | Timestamp của nguồn | Giới hạn giữ lại |
+| --- | --- | --- | --- |
+| Quyền mua 2021 | 7, giữ nguyên V2 | 02/06/2021 16:55:48+07:00, TNCK | Chưa có archive độc lập xác nhận |
+| Quyền mua 2024 | 11 bổ sung | 16/01/2024 14:51:00+07:00, Stockbiz modern | Composite binding với legacy/PDF; dateModified vắng; chưa có historical vintage |
+| Cổ tức 2024 | 6, giữ nguyên V2 | 11/06/2024 11:18:31+07:00, Mekong lịch sử | Archive thu sau ex-date, chưa chứng minh nội dung ở đúng instant công bố |
+
+11 mapping mới dùng timestamp có offset của đúng record modern 22811809.
+Nội dung đi qua bài legacy 1548002 có link PDF trực tiếp, hash trùng HOSE 79.
+Rule đề xuất yêu cầu cùng headline, date/wall clock, image news ID, nguồn
+HSX/HOSE, legacy download news ID, receipt/hash và đúng field/value đã review.
+Đây là composite evidence matching; không claim có hyperlink modern→legacy,
+không gán timezone hoặc publication_at cho legacy và không giải quyết clock HOSE.
+
+[Ngoại lệ có phạm vi](../data/corporate_actions/work/ors_timestamp_admission_proposal_20261107_v3/stockbiz_scoped_exception_proposal.json)
+chỉ cho đúng 11 row ID và raw/PDF đã pin: dateModified vắng được giữ
+NOT_PUBLISHED, không suy bằng datePublished hoặc chứng minh bài chưa sửa.
+Metadata modification muộn/bất đồng phải DEFERRED. 13 mapping cũ giữ nguyên
+rule V2; không cho phép thiếu modified trên toàn pipeline hoặc fallback DATE_ONLY.
+10 row mới là ORIGINAL_TERMS, 1 row là operational rights units đã review;
+giữ nguyên đơn vị phân bổ/thực hiện quyền, không sửa tỷ lệ hoặc giá trị.
+
+Tổng vẫn 59 dòng: **24 candidate có điều kiện, 35 hold** gồm 1 ngày sự kiện
+partial và 34 dòng chưa có timestamp hỗ trợ. Đây không phải 24 dòng đã được
+nhận availability. V1/V2, raw, packet và selection cũ immutable. 0 network,
+0 available_at/usable_from_date/canonical; DATE_ONLY corporate_actions vẫn off,
+financial không đổi, không mở strict research hoặc chứng nhận giờ đăng đầu Sở.
+
+22 timing tests, 33 negative proposal checks và compileall đạt. Không thay
+production pipeline nên không chạy lại synthetic smoke; 0 Markdown mới.
+[Summary](../data/corporate_actions/work/ors_timestamp_admission_proposal_20261107_v3/summary.json)
+và [phạm vi quyết định](../data/corporate_actions/work/ors_timestamp_admission_proposal_20261107_v3/approval_scope_review.json).
+
+**Bước tiếp theo:** owner quyết định V3 với đúng 24 mapping và ngoại lệ 11 row,
+đặc biệt composite binding và metadata modification vắng. Agent đã review
+tài liệu; không yêu cầu owner đọc từng PDF. Chỉ sau approval cụ thể mới triển
+khai và kiểm thử availability overlay version mới; giữ 35 hold và các gap khác.
+Stage hiện tại dừng ở proposal, chưa triển khai overlay hoặc activate policy.
+
+## Corporate action — live article/PDF binding quyền mua 2024, 07/11/2026
+
+Bước33 **PASS phần binding**, temporal admission chưa review. Đã tìm được bài
+Stockbiz legacy1548002 có link PDF trực tiếp trong raw HTTP200. GET attachment
+trả526.299byte, SHA-256 trùng bảnHOSE đã pin và bảnFireAnt bước26:
+`364beb609427cb4b451bbffed5c2718285b9e683dd1371e2f405670f06ae7787`.
+[Binding review](../data/corporate_actions/work/ors_rights2024_live_document_binding_20261107_v1/166577.live_article_document_binding.json),
+[11field](../data/corporate_actions/work/ors_rights2024_live_document_binding_20261107_v1/166577.eleven_field_binding_review.json)
+và [summary](../data/corporate_actions/work/ors_rights2024_live_document_binding_20261107_v1/summary.json).
+
+Legacy hiển thị16/01/2024 2:51:00CH, quy đổi ký hiệu12giờ thành14:51:00 nhưng
+không gán offset. Bảnmodern22811809 đã pin khai báo14:51:00+07, có cùng headline,
+clock components, nguồnHSX/HOSE và imageNewsID1548002. Legacy link download dùng
+đúngNewsID1548002. Đây là public article-family matching; chưa thấy hyperlink
+trực tiếp modern→legacy/PDF, không relabel modernraw thành có attachment link.
+URLlookup legacy được dựng từ pattern links thật+date/ID/slug, sau đó response
+đúngheadline/og:url/date và attachment xác nhận; không dòID hoặcAPI riêng.
+
+**Đính chính gap11field:** không còn chỉ có cached-link evidence; đã có link
+article→PDF live trực tiếp trênlegacy, nội dungPDF trùng byte nên tái dùng review
+cũ và giữ11giá trị. Tuy nhiên V2 chỉ pin13mapping cũ, chưa bao phủ11mapping này;
+legacy thiếu offset, modern schema thiếu dateModified, nên không tự giả định
+modified=published hoặc chuyển+07 giữa hai record. Giờ đăng đầuHOSE và historical
+vintage vẫn chưa được chứng nhận. [Gap admission](../data/corporate_actions/work/ors_rights2024_live_document_binding_20261107_v1/remaining_admission_gaps.json).
+
+V2 immutable vẫn13conditional/46hold; supplement59row ghi riêng11binding mới đã
+xác nhận, không coi46hold là46field hoàn toàn thiếu nội dung.0available_at/
+usable_from_date/canonical;DATE_ONLY vẫn off.3GET/3HTTP200,22timingtests,
+14negative binding checks/compileall đạt; không thay production pipeline nên
+không chạy lại smoke.0Markdown mới, không chạy lại85/V7 hoặc mở7/418.
+
+**Bước tiếp theo đề xuất:** review/chuẩn bị proposal version mới cho11mapping
+bổ sung, ghi cụ thể crossfrontend evidence và cách xử lý dateModified vắng;
+không âm thầm nới V2 hoặc activate. Gap2021/clockHOSE giữ riêng.
+
+## Corporate action — thông báo gốc HNX/TPS quyền mua 2021, 07/11/2026
+
+Bước32 **PARTIAL**: lưu được raw thông báo HNX, chưa tìm thấy publication
+timestamp đủ ngày/giờ/múi giờ. [Summary](../data/corporate_actions/work/ors_primary_publication_lookup_20261107_v1/summary.json),
+[review HNX](../data/corporate_actions/work/ors_primary_publication_lookup_20261107_v1/142284.hnx_primary_review.json)
+và [cache TPS](../data/corporate_actions/work/ors_primary_publication_lookup_20261107_v1/142284.issuer_cached_date_review.json).
+
+HNX query ORS01/05–30/06/2021 trả đúng1lịch quyền, articleID390773, khớp
+record11/6,ex10/6,ngày thực hiện25/6. Đọc đúng popup theo endpoint/ID trong
+HTML công khai, lưu **HTTP raw POST200**/receipt/hash. Title+body sau chuẩn hóa
+whitespace/casefold khớp bản renderedAX bước17;9field điều khoản giữ nguyên.
+Raw mới là sidecar riêng, không relabel DOM cũ hoặc sửa inventory20GET+65DOM.
+
+Popup390773 không có publication date/time metadata. Hai query “Ngày đăng tin”
+từ Sở/TCPH cho ORS trong05–06/2021 trả0row; hồ sơ từ link ORS trả shell không
+có target data. Chỉ kết luận trong query/snapshot này, không suy nguồn mất hết
+lịch sử. TPS archive cache có post769 display_date02/06/2021 và post771
+03/06/2021, không có giờ/offset; giữ ngày làm evidence, không gán DATE_ONLY.
+HTTPDate/fetched time, ngày VSD950 và ngày tạo/sửaPDF không thay publication.
+
+Python TLS thiếu issuer CA; Windows .NET mặc định xác minh TLS thành công,
+không custom validation callback/cookie/auth/fingerprint.9HTTP attempts gồm
+6HTTP200,2HTTP302,1TLSerror. CUA/node runtime lỗi kernel assets trước navigation,
+không có DOM mới. TPS web403 được giữ route, không retry client khác hoặc truy
+cập internal backend; tái dùng raw cache.22timing tests,compileall và syntax
+helpers đạt; không thay pipeline nên không chạy lại smoke.0Markdown mới.
+
+Timestamp2021 vẫnDEFERRED,7mapping nguồn báo chưa được xác nhận độc lập;
+46hold khác và proposal V1/V2 giữ nguyên/inactive.0availability/canonical,
+không thu lại85/V7 hoặc mở nhóm7/418.
+
+**Bước tiếp theo đề xuất:** giữ gap2021 và xử lý11field quyền mua2024 đang chờ
+binding bài–PDF công khai trực tiếp; tìm evidence liên kết với timestamp đã
+có, không tiếp tục lặp các lookup2021 vừa hoàn thành. Chưa thực hiện stage này
+hoặc activate proposal.
+
+## Corporate action — tra cứu archive quyền mua 2021, 07/11/2026
+
+Bước31 thực hiện lookup bổ sung đúng bài TNCK270871; kết quả **PARTIAL/DEFERRED**.
+[Summary](../data/corporate_actions/work/ors_rights2021_archive_followup_20261107_v1/summary.json)
+và [lookup observations](../data/corporate_actions/work/ors_rights2021_archive_followup_20261107_v1/archive_lookup_observations.json)
+giữ đủ raw API/error body, receipt/hash; chưa thu được archived article HTML.
+
+9GET:2HTTP200 API Wayback,1HTTP404 exact Common Crawl,6HTTP504. Wayback không
+trả snapshot khả dụng cho URL dài và URL ngắn ở mốc yêu cầu gần02/06/2021.
+Index2022-05 không có capture cho URL dài;2021-39/43,2022-21 và June2021 cho
+URL ngắn/mobile gặp504. Biến thể URL ngắn/mobile lấy từ og:url/alternate trong
+raw publisher đã pin, không đoán slug. Route2021-39 đã3attempt kể cả bước29,
+backoff>=30/120giây, vẫn504 nênDEFERRED. Các route504 khác giữDEFERRED tại điểm
+dừng scope; không claim đã hết mọi retry hoặc archive vắng toàn bộ lịch sử.
+
+8web search queries chưa tìm thấy xác nhận độc lập của giây48. Giữ timestamp
+nguồn khai báo **02/06/2021 16:55:48+07:00** và gap7mapping2021;46hold khác không
+đổi. Kết quả lookup không phủ định timestamp, không tạo vote nguồn mới và không
+gắn API response/error page thành fulltext cache của bài.
+
+22timing tests/compileall đạt; không thay production pipeline nên không chạy
+lại smoke. Proposal V1/V2 vẫn giữ nguyên/inactive;0availability/canonical,
+khôngDATE_ONLY,0Markdown mới, không thu lại85/V7 hoặc mở nhóm7/418.
+
+**Bước tiếp theo đề xuất:** đổi hướng sang đúng thông báo gốc HNX/TPS quyền mua
+2021 để tìm publication timestamp của chính tài liệu đó, tái dùng evidence đã
+có. Giữ giờ báo TNCK riêng, không kế thừa thành giờ công bố của Sở; chưa thực
+hiện stage nguồn gốc này hoặc activate proposal.
+
+## Corporate action — proposal V2 giữ chính xác timestamp lịch sử, 07/11/2026
+
+Bước 30 **PASS phần chuẩn bị/review**, activation vẫn **MANUAL_REVIEW_REQUIRED**.
+[Proposal V2](../configs/data/corporate_actions/ors_source_timestamp_contract_proposal_20261107_v2.json)
+và [13 mapping](../data/corporate_actions/work/ors_timestamp_precision_proposal_20261107_v2/proposed_field_bounds.json)
+chỉ là đề xuất inactive, approval=null. Owner yêu cầu thực hiện bước chuẩn bị,
+chưa được hiểu là phê duyệt dùng timestamp làm availability.
+
+- 6 mapping cổ tức 2024: ticker, loại sự kiện, record date, ex-date, tỷ lệ,
+  số CP kế hoạch chuyển mốc đề xuất từ 11/06/2024 11:18:00 sang
+  **11/06/2024 11:18:31+07:00**, theo datePublished trong WARC Mekong cũ.
+  Giá trị điều khoản không đổi. Giữ locator/hash đúng đoạn HTML lịch sử;
+  ex-date lấy năm từ record17/6/2024 cùng đoạn, không suy giờ hoặc offset.
+- 7 mapping quyền mua 2021 giữ timestamp nguồn khai báo
+  **02/06/2021 16:55:48+07:00**, đánh dấu chưa được archive độc lập xác nhận.
+  Không đóng gap chỉ vì VietnamBiz khớp điều khoản. 46 hold khác giữ nguyên.
+- 13 mapping đều chưa có available_at/usable_from_date. Nguồn báo tự khai báo
+  publication; archive Mekong thu16/6 sau ex-date14/6, chưa chứng minh nội dung
+  ở instant11/6 hoặc giờ đăng đầu HOSE. V2 giữ rõ rủi ro này cho cả hai nhóm.
+
+[Binding](../data/corporate_actions/work/ors_timestamp_precision_proposal_20261107_v2/171704.archived_timestamp_binding.json)
+phân biệt networkHTTP206 khi đọc WARC với archived publisherHTTP200; derived
+HTML không relabel raw HTTP live. Kiểm tra CDX/payload digest, WARC target/date,
+range/length, SHA-256, metadata và đúng đoạn ORS. Current11:18:00 và
+historical11:18:31 được giữ riêng, không average/vote. V1 không sửa.
+
+0 network, không chạy lại85/V7; 22 timing tests,22 negative evidence guard cases
+và compileall đạt. Không thay production pipeline nên không chạy lại smoke.
+DATE_ONLY corporate_actions vẫn off, financial không đổi,0 canonical/availability,
+0 Markdown mới. [Summary](../data/corporate_actions/work/ors_timestamp_precision_proposal_20261107_v2/summary.json).
+
+**Bước tiếp theo đề xuất:** tra cứu bổ sung có giới hạn cho timestamp bài quyền
+mua 2021 còn DEFERRED. Chưa tự triển khai overlay hoặc activate V2; không mở
+nhóm7/418, strict research, canonical hay backtest.
+
+## Corporate action — đối chiếu nguồn bổ sung và archive lịch sử, 07/11/2026
+
+Bước 29 hoàn tất tra cứu trong scope, kết quả **PARTIAL** về timestamp.
+[Summary](../data/corporate_actions/work/ors_additional_source_crosscheck_20261107_v1/summary.json)
+và [đối chiếu](../data/corporate_actions/work/ors_additional_source_crosscheck_20261107_v1/cross_source_comparison.json)
+ghi riêng nội dung khớp, giờ từng bài và mức độc lập nguồn.
+
+- Cổ tức 2024: Common Crawl lưu bài Mekong cũ ngày 16/06/2024 02:08:25 UTC.
+  HTML lịch sử khai báo **11/06/2024 11:18:31+07:00**; đoạn ORS khớp nguyên văn
+  trang hiện tại (tỷ lệ 100:12, 36 triệu CP kế hoạch, record 17/6/2024, ex 14/6).
+  Trang hiện tại khai báo 11:18:00: thiếu 31 giây so với bản lịch sử. Archive
+  độc lập về lưu trữ, cùng nguồn gốc Mekong; capture sau ex-date nên chưa chứng
+  minh nội dung đã có trước ex-date, cũng không chứng minh giờ đăng đầu HOSE.
+- Phụ nữ Việt Nam khai báo 10/06/2024 08:47+07:00; đoạn ORS khớp cổ tức 12%,
+  ex 14/6 chỉ ngày/tháng. Báo Mới khai báo 11/6 12:18+07:00 và ghi nguồn Mekong,
+  có originalUrl bài cũ. Đây là các publication khác; không vote giờ khác bài,
+  không coi bản đăng lại là nguồn giá trị độc lập hay suy lỗi múi giờ.
+- Quyền mua 2021: VietnamBiz khớp 100 triệu CP, 1:1, giá 10.000, các cửa sổ
+  chuyển nhượng/đăng ký; ghi Theo Dòng Vốn Kinh Doanh. Timestamp 15/6 10:14
+  thiếu offset và sau ex-date; chưa xác nhận giờ TNCK 02/06/2021 16:55:48+07.
+  Hai exact index Common Crawl không có capture; index thứ ba lỗi 504, DEFERRED.
+  Không suy archive vắng toàn bộ. Body hiện tại có quảng cáo 2026; chỉ review
+  đoạn cổ phiếu, không gắn toàn bộ body hiện tại với thời gian 2021.
+
+11 GET: 5 HTTP200, 1 HTTP206, 1 HTTP301, 2 HTTP404, 2 HTTP504. Raw live,
+WARC range và derived archived HTML giữ riêng; WARC target/status/payload digest
+khớp CDX. 1.110 input pin giữ nguyên; 22 timing tests và compileall đạt.
+Không sửa production pipeline nên không chạy lại synthetic smoke. Không dùng
+DATE_ONLY, không gán available_at/usable_from_date/canonical; 0 Markdown mới.
+
+**Đính chính evidence so với bước 28:** đã có archive độc lập về lưu trữ cho
+Mekong, với độ chính xác tới giây; chưa có cho TNCK 2021 trong scope đã tra.
+Proposal V1 vẫn immutable/inactive/chưa được owner duyệt; mốc 11:18:00 cho
+6 mapping cổ tức cần version mới theo evidence 11:18:31 trước khi xét activation.
+Tra cứu thêm nguồn không được hiểu là approval của contract.
+
+**Bước tiếp theo đề xuất:** review/chuẩn bị proposal version mới dùng timestamp
+lịch sử 11:18:31 cho phần cổ tức; giữ riêng gap 2021 và clock HOSE, nêu rõ mức
+source assertion/capture. Chưa triển khai availability overlay hay chạy stage
+kế tiếp, chưa mở nhóm 7/418 hoặc thu lại 85 bài/V7.
+
+## Corporate action — review contract timestamp theo field, 07/11/2026
+
+Bước28 review hoàn tất, activation **MANUAL_REVIEW_REQUIRED**. [Summary](../data/corporate_actions/work/ors_field_timestamp_contract_review_20261107_v1/summary.json),
+[13mapping đề xuất](../data/corporate_actions/work/ors_field_timestamp_contract_review_20261107_v1/proposed_field_bounds.json)
+và [proposal inactive](../configs/data/corporate_actions/ors_source_timestamp_contract_proposal_20261107_v1.json)
+đã chuẩn bị để owner quyết định một quy tắc evidence, không review từng PDF.
+
+Nguồn mới [Mekong30000](../data/corporate_actions/work/ors_field_timestamp_contract_review_20261107_v1/171704.mekong_timestamp_review.json)
+khai báo11/06/2024 11:18:00+07:00; đúng đoạn ORS nêu record17/6/2024, ex-date14/6,
+tỷ lệ100:12,36triệuCP kế hoạch. Năm ex-date lấy từ full record date trong cùng
+đoạn, không suy giờ công bố. Hai bản tin calendar có timestamp nhưng không cóORS
+đã bị loại. KTCK403 là Cloudflare access control: dừng route, classifier client
+ban đầu false được manual review bổ sung; không sửa receipt cũ. Openstock lỗiTLS,
+CUA không khởi động sau1reset nên không có quan sát trang Chrome; giữDEFERRED.
+
+**Đề xuất Product/M3 pilot:**7field quyền2021 dùng timestamp bài TNCK270871;
+6field cổ tức2024 dùng Mekong30000. Publisher tự khai báo publication/modified
+time trong snapshot hiện tại, không có archive độc lập của nội dung lịch sử:
+đây là tradeoff acceptance cần owner chấp thuận. Không claim giờ đăng đầu của
+VSDC/HOSE, không mở strict research/canonical. DATE_ONLY corporate_actions vẫnoff.
+
+[Admission review](../data/corporate_actions/work/ors_field_timestamp_contract_review_20261107_v1/field_admission_review.json)
+giữ46row:11Stockbiz chỉ có cached-link binding,1record date2021 partial,
+34chưa có field timestamp. Số13 là candidate theo proposal, khác số22source
+support bước27; không phải13field đã được áp available_at.59row/packet cũ giữ.
+5GET gồm3HTTP200/1HTTP403/1TLSerror;22timing tests,11negative guard checks và
+compileall đạt.0available_at/usable_from_date/canonical,0Markdown mới; chưa
+triển khai pipeline. Governance entry mới có snapshot bản trước khớp hash.
+
+**Bước tiếp theo:** owner quyết định proposal chính xác này; nếu được duyệt mới
+triển khai/test version availability overlay cho13mapping. Chưa tự activate,
+sửa policy/manifest cũ, mở7/418 hoặc chạy canonical/research/backtest.
+
+## Corporate action — ba packet có timestamp nguồn khai báo, 07/11/2026
+
+Bước27 hoàn tất supplement offline cho3/3packet, giữ nguyên59row và hai selection
+cũ. [Summary](../data/corporate_actions/work/ors_timestamp_packet_supplement_20261107_v1/summary.json)
+và [ba observation](../data/corporate_actions/work/ors_timestamp_packet_supplement_20261107_v1/publication_timestamp_observations.json)
+ghi rõ publisher/semantics, raw/receipt/hash và giới hạn tương ứng.
+
+| Sự kiện | Timestamp do nguồn công khai khai báo | Binding |
+| --- | --- | --- |
+| Quyền mua2021 —142284 |02/06/2021 16:55:48+07:00 — Tin nhanh chứng khoán270871 | Nội dung bài khớp điều khoản; không có PDF notice gốc |
+| Quyền mua2024 —166577 |16/01/2024 14:51:00+07:00 — Stockbiz22811809 | Tái dùng exact-PDF binding bước26, giữ giới hạn cached-link/liveDOM |
+| Cổ tức2024 —171704 |11/06/2024 17:26:26+07:00 — Tin nhanh chứng khoán347098 | Chỉ đoạn ORS trong bài tổng hợp, không lấy dữ liệu mã liền kề |
+
+Hai bài báo mới GET200: JSON-LD datePublished, meta article:published_time,
+time.datetime và data-time Unix cùng instant; dateModified giữ riêng. Không
+suy giờ/offset. Đây là giờ nguồn báo/Stockbiz đăng nội dung, không tự trở thành
+giờ đăng gốc VSDC/HOSE, hoặc chứng nhận snapshot lịch sử của toàn field bundle.
+
+[Support matrix](../data/corporate_actions/work/ors_timestamp_packet_supplement_20261107_v1/timestamp_field_support.json)
+ghi22/59row có support từ nội dung hoặc PDF khớp;2row chỉ nêu ngày/tháng trong
+fragment,35row chưa có support từ các nguồn timestamp này. Đây không phải22field
+đã được gán available_at. Không truyền timestamp sang ex-date2021/cổ tức2024,
+mã quyền hoặc followup/kết quả phát hành mà bài báo không nêu. Năm trong record
+date fragment chỉ từ context chưa được âm thầm nâng thành full explicit date.
+
+1039 input pin khớp;22timing tests và compileall đạt;2GET/2HTTP200,không retry
+archive429 hoặc thu lại85/V7.0available_at/usable_from_date/canonical,0DATE_ONLY,
+0Markdown mới; source acceptance/pipeline không đổi. Financial policy giữ nguyên.
+
+**Bước tiếp theo đề xuất:** review contract availability theo từng field từ ba
+observation và matrix, phân biệt support trực tiếp/PDF binding/context/thiếu;
+ưu tiên ex-date2021/cổ tức2024 và followup thiếu timestamp riêng. Không tự áp
+timestamp cho toàn event; acceptance mới nếu cần phải trình cụ thể theo AGENTS,
+không giao owner đọc từng PDF. Chưa thực hiện stage tiếp hoặc mở canonical/7/418.
+
+## Corporate action — bổ sung timestamp có offset cho ORS, 07/11/2026
+
+Bước26 kết quả `PARTIAL_ONE_EXPLICIT_OFFSET_TIMESTAMP_DOCUMENT_MATCHED`.
+[Summary](../data/corporate_actions/work/ors_timestamp_source_followup_20261107_v1/summary.json)
+và [review Stockbiz](../data/corporate_actions/work/ors_timestamp_source_followup_20261107_v1/166577.stockbiz_timestamp_review.json)
+ghi timestamp do nguồn khai báo cho article22811809: **2024-01-16T14:51:00+07:00**,
+UTC tương ứng07:51:00. JSON-LD NewsArticle.datePublished và time.datetime cùng
+giá trị; headline khớp đúng HOSE1614236/mã ORS. File đính kèm public được liên
+kết trong bản render/cache của web tool có SHA-256 trùng PDF HOSE79 đã pin.
+
+Giữ rõ giới hạn evidence: link file đến từ web-tool rendered/cache của cùng URL;
+HTML/Chrome live hiện chỉ hiển thị nguồn HSX chung, không có link attachment.
+Raw metadata, raw PDF và các observation khác cơ chế giữ riêng. Stockbiz khai
+báo authorHSX/publisherStockbiz; chưa biến timestamp này thành lần công bố đầu
+được chứng minh trực tiếp trên HOSE hoặc chứng nhận historical vintage.
+Không tính copy PDF thành phiếu độc lập, không áp majority giữa created/posting.
+
+RSS chính thức HOSE khai báo+07:00, nhưng dùng Atom:updated/category/build time
+và không có ba bài ORS cần tìm; không dùng để suy timestamp lịch sử. Chênh7giờ
+giữa postedDate API HOSE và timestamp Stockbiz được bảo toàn. DNSE có snippet
+UTC cho bài cổ tức nhưng URL live redirect về homepage, chưa đủ binding nên
+không chấp nhận. Clock lịch sử hai bài HOSE và timestamp gốc2021 vẫn thiếu.
+
+8 GET gồm4HTTP200,1redirect307 và3HTTP429 từ đúng archive noticeTPS769. Hai lần
+retry có backoff>=30giây và>=2phút; hết budget3attempt đánh DEFERRED, không suy
+archive thiếu snapshot.13 query web và hai view tìm kiếm Stockbiz giới hạn không
+chứng nhận mọi nguồn vắng bài.990 input pin khớp;22 timing tests/compileall đạt.
+0available_at/usable_from_date/canonical,0DATE_ONLY,0Markdown mới; policy không đổi.
+
+**Bước tiếp theo đề xuất:** ghép timestamp Stockbiz và binding vào packet166577
+với provenance riêng; tìm bản tin có publication timestamp/offset cho171704 và
+nguồn gốc2021 khi archive hết429. Không tự áp available_at/canonical hoặc mở7/418.
+
+## Chỉ đạo hiện hành — chỉ tạm ngừng DATE_ONLY corporate_actions, 07/11/2026
+
+**Bước25: owner đính chính chỉ tạm ngừng DATE_ONLY trong `corporate_actions`**,
+gồm corporate action đưa sang Product/M3/research, đến khi owner yêu cầu dùng lại.
+Financial và các phần khác tiếp tục theo policy DATE_ONLY đã duyệt trong phạm vi
+và gate cũ. Phạm vi toàn DELTA ở bước24 đã được thay thế, không còn hiện hành.
+
+AGENTS, [D-TIME-ONLY-02](DECISIONS.md) và
+[config execution V2](../configs/data/publication_timestamp_only_execution_20261107_v2.json)
+đã ghi đính chính. V1/evidence cũ bảo toàn; không thay pipeline hoặc thu lại batch.
+Đây là chỉ đạo thực thi cho agent, chưa thêm hard guard mọi CLI legacy.
+[Kết quả bước25](../data/corporate_actions/work/publication_date_only_scope_correction_20261107_v1/summary.json).
+
+**Bước tiếp theo đề xuất:** trong corporate_actions, tìm bằng chứng clock HOSE
+và timestamp bản tin gốc2021; thiếu thì giữ gap, không dùng DATE_ONLY fallback.
+Stage này chỉ đính chính phạm vi, không thực hiện lookup mới hoặc mở stage tiếp.
+
+## Lịch sử bước24 — phạm vi DATE_ONLY toàn DELTA đã được thu hẹp
+
+**Bước24: owner tạm ngừng DATE_ONLY trên toàn project cho mọi xử lý mới**, gồm
+financial, corporate actions, Product/M3 và research; không chỉ ORS. Chỉ dùng lại
+khi owner yêu cầu. Đây là override các chấp nhận/fallback DATE_ONLY trước đây,
+kể cả CafeF CreateDate và financial daily/monthly. AGENTS,
+[D-TIME-ONLY-01](DECISIONS.md) và
+[config thực thi version mới](../configs/data/publication_timestamp_only_execution_20261107_v1.json)
+đã ghi rõ. Không tự tạo timestamp bằng00:00, timezone hoặc ngày phiên tiếp theo.
+Record thiếu timestamp công bố/clock xác minh giữ evidence và DEFERRED;
+không gán availability/usable_from_date bằng DATE_ONLY.
+
+Đây là chỉ đạo agent execution/stage review; chưa thêm hard guard trên mọi CLI
+legacy. Không chạy mới route DATE_ONLY khi override còn hiệu lực. Không sửa
+policy version/raw/artifact đã freeze hoặc thu lại batch hoàn thành. Các ngày
+kỳ báo cáo, record date, ex-date và vận hành giữ nguyên semantics riêng.
+
+Lookup có giới hạn ở bước24: public JavaScript TPS trả GET200, currentNews của
+post771 trong HTML cũ chỉ có display_date, không có publication timestamp;
+metadata DOM của VSDC142284 không có publication meta/time/JSON-LD theo các
+selector đã kiểm. Nhãn nhìn thấy vẫn là “Cập nhật”, không chuyển thành công bố.
+Không tìm thêm timestamp đủ điều kiện; hai gap clock HOSE và nguồn gốc2021 còn.
+[Kết quả bước24](../data/corporate_actions/work/ors_exact_timestamp_investigation_20261107_v1/summary.json)
+giữ riêng với bước23. Global override không mở rộng crawl sang7/418 mã.
+22 timing tests và compileall đạt;949 input pin được đánh giá:947 path giữ
+nguyên,2 governance document được sửa có bản trước thay đổi khớp hash bảo toàn.
+
+**Bước tiếp theo đề xuất:** tiếp tục tìm bằng chứng trực tiếp về quy ước clock
+publication của HOSE và timestamp bản tin gốc2021. Tạm hoãn đề xuất tích hợp
+extractor ở bước23; DATE_ONLY không còn là fallback trong thời gian override.
+
+## Corporate action — xác minh timestamp HOSE/HNX, 07/11/2026
+
+Bước23 hoàn tất review có giới hạn, kết quả `PARTIAL_ENCODING_VERIFIED_PUBLICATION_CLOCK_UNRESOLVED`.
+[Summary](../data/corporate_actions/work/ors_publication_timestamp_verification_20261107_v1/summary.json)
+và [review hai bài HOSE](../data/corporate_actions/work/ors_publication_timestamp_verification_20261107_v1/hose_timestamp_review.json)
+giữ raw metadata, receipt/hash, liên kết đúng PDF cũ và từng loại thời gian.
+
+| Sự kiện | Kết quả xác minh | Giới hạn còn lại |
+| --- | --- | --- |
+| Quyền mua2024 —166577 | API postedDate1705416660; UI giải mã thành16/01/2024 14:51:00 bằng Moment UTC | Chưa chứng minh clock backend phản ánh instant công bố thực |
+| Cổ tức2024 —171704 | Raw JSON mới postedDate1718098260; UI/DOM cùng11/06/2024 09:31:00 | Chưa chứng minh clock backend phản ánh instant công bố thực |
+| Quyền mua2021 —142284 | Ba truy vấn tin HNX giới hạn không trả record phù hợp | Chưa tìm được timestamp nguồn gốc; không suy vắng toàn lịch sử |
+
+**Điểm mới:** ở cả hai bài HOSE, `createdDate` bản tin trừ `createdDate` file bằng
+25.200 giây; `publishFrom` bản tin trừ `publishFrom` file cũng bằng25.200 giây.
+Bộ định dạng đã pin dùng `utc(e,"X")`; tokenX và parser trong chính bundle xác
+nhận Unix seconds, UTC khi hiển thị. Điều này xác minh cách giải mã, **chưa xác
+minh clock lúc nhập dữ liệu**. Chênh7giờ giữa các loại metadata không chứng minh
+clock nào đúng hoặc ngày nào là lần công bố đầu. Không tự gắn+07 cho giờ UI,
+không lấy thời gian file thay postedDate hoặc chọn bằng đa số.
+
+Hai raw JSON mới GET200; một GET HNX lỗi xác thực certificate và không hạ TLS.
+Chrome thông thường đọc được; ba kết quả truy vấn lưu dưới dạng transcript AX
+chuyển ghi có receipt/hash, không phải HTTPraw hay full AX export.0challenge.
+923 input pin khớp;22 timing tests và compileall đạt. Không thay code/pipeline,
+không chạy lại smoke đã hoàn thành; hai lỗi helper cache_audit bước20 vẫn riêng.
+0 timestamp công bố thực được xác nhận đủ,0available_at/canonical,0Markdown mới.
+
+**Bước tiếp theo đề xuất:** tích hợp trích timestamp tự động offline từ metadata
+đã pin, giữ riêng raw value, encodedUTC, semantics và clock status. Chỉ gán
+available_at khi nguồn/clock đủ evidence; các gap2021 và clock HOSE ở DEFERRED,
+không chặn xử lý record khác. Chưa thực hiện stage này, không tự đổi acceptance
+hoặc mở canonical, không thu lại85/V7 hay nhóm7/418 mã.
+
+## Corporate action — owner chỉ định ưu tiên timestamp, 07/11/2026
+
+Bước22 đã ghi chỉ đạo **timestamp công bố có evidence/múi giờ rõ → DATE_ONLY
+theo rule đã được chấp nhận nếu thiếu timestamp → giữ gap nếu chưa đủ cả hai**.
+[Kết quả](../data/corporate_actions/work/ors_timestamp_priority_review_20261107_v1/summary.json)
+và [tám ứng viên thời gian](../data/corporate_actions/work/ors_timestamp_priority_review_20261107_v1/timestamp_review.json)
+lưu version riêng. Đây là ưu tiên owner đã chỉ định,không xin duyệt lại; không
+thay source acceptance hoặc biến ngày/modified time thành publication.
+
+- HOSE quyền mua2024: ngày hiển thị16/01/2024 14:51:00 tái dựng từ postedDate/API
+  và formatter; ưu tiên xác minh semantics timestamp/timezone,không tự gắnUTC/+07.
+- HOSE cổ tức2024: “Đăng ngày11/06/2024 09:31:00” trong DOM; ưu tiên raw metadata
+  và timezone của đúng article1703956.
+- CafeF2021 có2021-06-08T11:22:19+07:00 nhưng là dateModified; ba VSDC là update.
+  Các giá trị này không đủ cho timestamp công bố dù có giờ/offset.00:00 chỉ có
+  thể dùng chính xác khi có evidence về precision/semantics,không mặc định thật
+  hoặc giả. Trong8 ứng viên hiện rà,0 timestamp công bố đủ xác minh,0available_at
+  được gán; không đồng nghĩa không có giờ hiển thị.
+
+911 input pin khớp;22 timing tests và compileall đạt.0 network,0 canonical,
+0 Markdown mới. Đề xuất policy ngày bản tin ở bước21 chưa kích hoạt và nhường
+ưu tiên cho việc xác minh timestamp. **Bước tiếp theo đề xuất:** tìm/xác minh
+timestamp theo [queue](../data/corporate_actions/work/ors_timestamp_priority_review_20261107_v1/timestamp_search_queue.json),
+ưu tiên metadata/timezone HOSE và nguồn gốc2021; không chạy lại85/V7 hoặc7/418 mã.
+
+## Corporate action — lookup CafeF cho ba sự kiện ORS, 07/11/2026
+
+Bước21 kết quả `PARTIAL_NO_TARGET_EVENT_CREATEDATE`;
+[summary cuối](../data/corporate_actions/work/ors_cafef_publication_lookup_20261107_v1/final_summary.json)
+ghi0/3 record CreateDate khớp sự kiện,nhưng đã lấy đủ ba bản tin đúng event và
+hai PDF2024 trùng SHA-256 bản HOSE đã pin.12 GET công khai (10HTTP200,2redirect301),
+raw/receipt/hash đầy đủ,không challenge/đăng nhập hoặc thu lại batch85/V7.
+
+**Đính chính hướng tìm bước20:** `ajaxcongbothongtin.ashx` trả102 record ORS qua
+hai trang,tất cả có nội dung BCTC. CreateDate tồn tại thật nhưng thuộc tài liệu
+tài chính,không được chuyển sang ba thông báo quyền. Trang public cũng khai báo
+bảng Data.BctcList/CreateDate. Kết luận đầy đủ chỉ trong102record của snapshot
+endpoint này,không claim mọi nguồn CafeF không có corporate action.
+
+| Sự kiện | Bản tin CafeF đã khớp | Metadata thời gian |
+| --- | --- | --- |
+| Quyền mua2021 —142284 | Article1505338;8 điều khoản body khớp HNX/issuer | Ngày hiển thị08/06/2021 11:22;NewsArticle.dateModified cùng ngày |
+| Quyền mua2024 —166577 | Article1931113;PDF trùng bản HOSE79 | Ngày hiển thị16/01/2024 00:00;NewsArticle.dateModified cùng ngày |
+| Cổ tức2024 —171704 | Article2011515;PDF trùng thông báo HOSE | Ngày hiển thị11/06/2024 00:00;NewsArticle.dateModified cùng ngày |
+
+Ba article không có CreateDate/datePublished trong raw; metadata WebPage.dateModified
+là07/11/2026 của trang động,giữ riêng với NewsArticle. Không đổi tên nhãn ngày/
+dateModified thành CreateDate,không coi00:00 là giờ công bố thực. Copy PDF không
+thành phiếu độc lập.0 áp rule DATE_ONLY,0 available_at/usable_from_date,0 canonical.
+
+834 pin cũ khớp;8 tình huống binding sai bị từ chối;35 targeted tests và compileall
+đạt. Không đổi production code/config/pipeline nên không chạy lại synthetic smoke.
+Hai lỗi test cache_audit migration bước20 giữ riêng,chưa sửa ở stage lookup này.
+0 Markdown mới,chỉ cập nhật nhật ký và status hiện có.
+
+**Bước tiếp theo đề xuất:** chuẩn bị policy riêng,phạm vi hẹp cho ngày hiển thị
+bản tin CafeF DATE_ONLY Product/M3 dựa trên ba record đã review. Đây là đề xuất
+acceptance mới,`MANUAL_REVIEW_REQUIRED` trước khi áp theo AGENTS; chưa thay policy
+hoặc yêu cầu owner review từng bài/PDF. Không tiếp tục đợi CreateDate từ sai
+endpoint,không tự chốt canonical/research hoặc mở7/418 mã.
+
+## Corporate action — kiểm kê ngày công bố ba sự kiện ORS, 06/11/2026
+
+Bước20 đạt `PASS_SCOPED_PUBLICATION_EVIDENCE_AUDIT` về evidence;
+[kết quả cuối](../data/corporate_actions/work/ors_publication_evidence_audit_20261106_v1/final_summary.json)
+ghi64 record nguồn (46 nguồn bundle+18 cache bổ sung),194 temporal observation,
+59 trường và hai ứng viên ngày đăng.0 request,0 gán available_at/usable_from_date,
+0 canonical,0 Markdown mới; không đổi code sản phẩm hoặc acceptance policy.
+
+| Sự kiện | Evidence ngày đăng trong cache | Giới hạn |
+| --- | --- | --- |
+| Quyền mua2021 —142284 | Chưa có nhãn ngày đăng được xác nhận; VSDC cập nhật02/06/2021,issuer769 display_date02/06,issuer77103/06 | Update/display date không tự là publication |
+| Quyền mua2024 —166577 | HOSE postedDate suy ra phần ngày hiển thị16/01/2024 từ API+formatter đã pin | Là derived từ cache,không là DOM mới/UTC instant đã xác minh |
+| Cổ tức2024 —171704 | DOM HOSE ghi rõ Đăng ngày11/06/2024 09:31:00,có đúng filename đính kèm | Chưa xác minh timezone/first-publication vintage hoặc tự gán available_at |
+
+Hai ứng viên chỉ gắn với đúng tài liệu:17/59 field có source dẫn tới ứng viên;
+42 field còn lại chưa có ứng viên tương ứng trong scope cache. Không kế thừa ngày
+thông báo quyền sang kết quả/phần dư/niêm yết. Giữ riêng postedDate,createdDate,
+publishFrom,approvedDate,ngày ký,update,capture và ngày vận hành; không lấy min hay
+đếm đa số giữa các semantics/tài liệu khác nhau. Rule CafeF CreateDate Product/M3
+đã duyệt được giữ đúng scope,chưa áp cho HOSE/issuer. Index đã pin có20 record ở
+nhóm ORS (2cổ phiếu đúngORS,18mã khác); không có CreateDate CafeF trong20record này,
+không suy mọi cache/CafeF thiếu bài.
+
+799 pin đầu vào khớp;8 kiểm tra dữ liệu giả sai bị từ chối.36 test ở entrypoint
+gốc pass,compileall pass. Entry point di chuyển của `test_corporate_action_cache_audit`
+có2 lỗi helper path (34/36 pass); byte nội dung hai bản test giống nhau,đường dẫn
+ROOT sau di chuyển khác. Giữ log,không sửa ngoài stage audit và không claim mọi
+test đã pass. Hai file đã sửa ở bước19 vẫn giữ pin,không phải lỗi tái phát ở đó.
+
+**Bước tiếp theo đề xuất:** tìm có mục tiêu bản ghi Công bố thông tin CafeF/
+CreateDate cho ba sự kiện,ưu tiên2021; xác minh đúng event/tài liệu,giữ raw/receipt/
+hash và chỉ dùng rule DATE_ONLY Product/M3 đã duyệt khi đủ evidence. Chưa tự mở
+stage thu thập này,canonical/research hoặc nhóm7/418 mã. Lỗi test migration ghi
+riêng,không được che bằng việc dùng entrypoint gốc.
+
+## Corporate action — đã sửa hai lỗi đường dẫn test legacy, 06/11/2026
+
+Bước19 đạt `PASS_LEGACY_TEST_PATH_FIX`;
+[kết quả cuối](../data/corporate_actions/work/ors_legacy_test_path_fix_20261106_v1/final_summary.json)
+ghi94/94 targeted tests đạt,compileall đạt và synthetic smoke
+`run-20261106T144527Z-71e8ee60` complete/synthetic=True.
+
+Hai test file ở `tests/unit/ingestion/corporate_actions/legacy_sources/` vẫn dùng
+`parents[3]` sau khi chuyển sâu thêm hai cấp, nên tìm helper dưới `tests/unit/scripts`.
+Sửa thành `parents[5]` trong decision_packet và cached_review. Đã tái hiện cả
+hai lỗi trước sửa; giữ nguyên toàn bộ test case/assertion,bao gồm chống ghi đè
+và path escape. Không sửa helper/runtime sản phẩm,config,policy hoặc dữ liệu ORS.
+
+Ngoại lệ `LEGACY_TEST_HELPER_PATH` của bundle bước18 đã được giải quyết bằng
+record bổ sung; lỗi cached_review ghi từ bước8 cũng đã sửa. Giữ nguyên log FAIL
+và manifest cũ.763 pin đầu vào khớp;0 request thu thập,0 canonical,0 Markdown mới.
+Bundle ba sự kiện vẫn ready ở lớp review offline; các gate coverage,publication/
+available_at,historical identity và canonical freeze chưa đổi.
+
+**Bước tiếp theo đề xuất:** kiểm kê bằng chứng ngày công bố/available_at của ba
+sự kiện ORS từ cache đã pin, ghi rõ có/thiếu. Không suy ngày ký/cập nhật/fetch là
+publication,không tự chốt canonical hoặc mở nhóm7/418 mã. Chưa chạy stage này.
+
+## Corporate action — bundle offline ba sự kiện ORS đã hợp nhất, 06/11/2026
+
+Bước18 đạt `PASS_SCOPED_OFFLINE_BUNDLE`; [kết quả cuối](../data/corporate_actions/work/ors_three_event_offline_bundle_20261106_v1/final_summary.json)
+và [readiness từng sự kiện](../data/corporate_actions/work/ors_three_event_offline_bundle_20261106_v1/readiness.json)
+được lưu version mới. Giữ nguyên54 observation của packet bước12; bundle có
+59 dòng trường,27 observation bổ sung và46 record nguồn/context. Catalog không
+là46 phiếu độc lập: copy HOSE và hai transcript HNX cùng nguồn đã nhóm rõ.
+
+- Ba packet142284,166577,171704 đều sẵn sàng đọc ở lớp review offline. Mỗi trường
+  có nguồn/receipt/hash/locator hoặc review-ref đã pin; không tự đọc lại PDF hay
+  chạy lại engine/crawl. Loại HTTP raw,renderedDOM,renderedAX và browser PDF chưa
+  receiptHTTP được giữ riêng.
+- Hai selection bước16 được tái sử dụng nguyên value/support/dissent và caveat;
+  không tạo lựa chọn mới. Ngày HNX2021 đã có observation trực tiếp trong bundle.
+  54 dòng cũ, gồm cả wording bất đồng và nhãn pending lịch sử, được giữ nguyên
+  dưới `legacy_observation`; trạng thái hiện hành không yêu cầu owner đọc/chọn
+  từng PDF. Không kích hoạt general automatic approval policy.
+- Kế hoạch/kết quả,giá quyền/phần dư,nominal bổ sung/tổng và ex-date/ngày niêm yết
+  được giữ khác field/scope.59 dòng không phải59 giá trị canonical đã phê duyệt.
+
+**Readiness:**3/3 bundle observation hoàn tất; canonical/research vẫn PARTIAL.
+[Danh sách ngoại lệ](../data/corporate_actions/work/ors_three_event_offline_bundle_20261106_v1/exceptions.json)
+ghi riêng bốn gate chưa mở: toàn lịch sử revision,publication/available_at,
+historical security_id và future canonical freeze. Các thiếu hụt hình thức
+HNX raw/PDF,PDF4122 và anomaly nhãn vốn là nhóm riêng, không đẩy thành yêu cầu
+owner review tài liệu. Nếu sau này thực hiện methodology/freeze thì áp dụng
+`MANUAL_REVIEW_REQUIRED` theo AGENTS; stage này không thực hiện hoặc xin duyệt đó.
+
+732 pin evidence cũ khớp; dependencyAGENTS được pin thêm riêng.43 targeted tests
+và compileall đạt; bảy kiểm tra dữ liệu giả sai (hash,locator,AX label,support,
+planned/actual,đơn vị quyền,canonical flag) bị từ chối đúng. Lỗi test helper legacy
+từ bước17 còn nguyên, không thuộc43 test đã chạy lần này.0 request,0 canonical,
+0 factor,0 Markdown mới; chỉ cập nhật hai tài liệu hiện có.
+
+**Bước tiếp theo đề xuất:** sửa riêng lỗi đường dẫn helper trong test legacy,
+chạy lại targeted tests và compileall để loại ngoại lệ kỹ thuật đã biết. Chưa
+tự chạy stage sửa test, canonical hoặc nhóm7/418 mã.
+
+## Corporate action — bổ sung xác nhận HNX và review gap ORS, 06/11/2026
+
+Bước17 đạt `PASS_SCOPED_GAP_REVIEW`: đóng5/6 nhóm gap đầu vào; nhóm còn lại
+là PDF kết quả UBCKNN4122/2021 tùy chọn, đã có body kết quả doanh nghiệp869.
+[Summary](../data/corporate_actions/work/ors_remaining_gap_review_20261106_v1/summary.json)
+và [đối chiếu gap](../data/corporate_actions/work/ors_remaining_gap_review_20261106_v1/gap_queue_review.json)
+được lưu version mới; không sửa inventory85 bài hay hai lựa chọn nguồn thứ ba.
+
+**Đã đọc trực tiếp HNX qua Chrome:** UPCoM → Lịch thực hiện quyền, lọc ORS từ
+01/05–30/06/2021 trả đúng một dòng; mở chi tiết thấy ex-date10/06/2021,
+record11/06/2021,1:1,10.000 đồng/CP và lịch chuyển nhượng/đặt mua khớp nguồn cũ.
+Lưu hai transcript text từ accessibility output, có receipt/hash, ghi rõ
+`RENDERED_ACCESSIBILITY_TEXT_TRANSCRIPT`, không phải HTTP raw/PDF ký hoặc bằng
+chứng thời điểm công bố lịch sử. Gap xác nhận ngày từ Sở đã được bổ sung ở mức
+rendered; chưa lưu HTTP raw hoặc PDF gốc của thông báo HNX này.
+
+Thu21 GET200 có raw/receipt/hash:13 bài doanh nghiệp và8 PDF; đọc trực quan đủ
+26 trang PDF. Ba nghị quyết còn treo NQ01/2024,NQ10/2024,NQ11/2024 đã review;
+lịch quyền mua và100:12/record17/06 khớp.13 bài hỗ trợ đã triage từ body public
+SSR JSON, không gán DOM. Giấy phép/phát hành/niêm yết được tách khỏi thay đổi
+quyền; kế hoạch quyền mua210,3 triệu CP trong AGM24/04/2024 là đợt tương lai
+riêng, không ép thành revision đợt100 triệu CP tháng1. Trong tài liệu vừa review
+chưa thấy hủy/đổi lịch ba sự kiện; không chứng nhận toàn lịch sử không có revision.
+
+**Còn giới hạn:** PDF4122 chưa tìm được; chưa review mọi PDF hành chính, phụ lục,
+bản cáo bạch. HTML2042/2153 có nhãn đơn vị vốn đáng ngờ, giữ nguyên và chưa chọn
+giá trị canonical. Không phát sinh conflict cùng field cần chạy lại rule nguồn
+thứ ba. ORS vẫn đủ85/85 toàn văn trong snapshot; readiness toàn event còn PARTIAL
+do coverage/PIT/identity/available_at/freeze chưa mở, không chờ owner đọc từng PDF.
+
+575 input pin khớp;78 test đã chạy có77 đạt,1 lỗi legacy
+`test_runner_path_safety_and_no_overwrite` do tìm helper dưới `tests/unit/scripts`;
+không sửa test/code ngoài stage. Compileall đạt. Không thay production pipeline
+nên không chạy lại synthetic smoke; smoke cuối bước16 giữ pin.0 Markdown mới,
+chỉ cập nhật nhật ký và trạng thái hiện có;0 canonical/price factor.
+
+**Bước tiếp theo đề xuất:** hợp nhất observation/locator bổ sung và hai field đã
+chọn thành bundle đối chiếu offline mới cho ba sự kiện, xuất readiness và danh
+sách ngoại lệ rõ ràng. Dùng cache đã có; chưa cần thu lại85 bài hoặc tiếp tục tìm
+PDF hành chính. Không tự chạy bước này, canonical hoặc nhóm7/418 mã.
+
+## Corporate action — workflow đối chiếu ba nguồn offline ORS đã chạy, 06/11/2026
+
+Bước16 đạt `PASS_OFFLINE_THIRD_SOURCE_WORKFLOW`: triển khai module
+`src/delta_t1/ingestion/corporate_actions/third_source_reconcile.py`, CLI
+`scripts/corporate_actions/reconcile_third_source_v1.py` và
+[config ORS riêng](../configs/data/corporate_actions/third_source_reconcile_ors_v1.json).
+[Kết quả tích hợp](../data/corporate_actions/work/ors_third_source_reconcile_20261106_v1/KET_QUA_TICH_HOP.md)
+ghi bản chạy cuối `run_output_release`: tự tính lại **chọn2/2 case, unresolved0,
+network0, canonical0**, khớp hai selection receipt bước15 về value/support/dissent.
+
+| Field | Hai nguồn ghi khác nhau | Nguồn thứ ba | Lựa chọn tự tính lại |
+| --- | --- | --- | --- |
+| Đơn vị quyền2024 | NQ11/2023 doanh nghiệp vs VSDC166577 | HOSE79 ngày15/01/2024 khớp VSDC | Một CP cũ nhận một quyền; hai quyền mua một CP mới |
+| Nominal phần bổ sung2021 | HTML doanh nghiệp924 vs PDF HNX430 | VSDC143656/GCN152-5 khớp HNX | 1.000.000.000.000 VND phần bổ sung;2.000 tỷ là tổng |
+
+Workflow kiểm authorization rule, pin/raw/receipt/locator, đúng field/scope/đơn vị/
+hiệu lực, source origin đã review và known counter-evidence. Copy/shared origin,
+thiếu nguồn, ba giá trị khác nhau, hash/receipt sai hoặc revision chưa đủ đều giữ
+unresolved, đưa queue `owner_action_required=false`; case độc lập vẫn tiếp tục.
+Giữ dissent/observation, refuse overwrite và ghi input replay/output manifest.
+Không đọc `selected_value` cũ để làm quyết định.
+
+**Giới hạn:** mới tự động so sánh observation đã trích xuất và review provenance;
+chưa tự tìm nguồn trên mạng, đọc hiểu PDF hoặc đánh giá origin từ raw. Config giữ
+`automatic_field_approval=false`, `canonical_build=false`; chỉ chọn field lớp review,
+không mở PIT/identity/available_at/revision coverage hoặc final freeze.
+
+78 targeted tests đạt (29 mới,49 legacy core), compileall đạt; synthetic smoke
+bản cuối `run-20261106T135235Z-4204f521` complete/synthetic=True.530 pin cũ khớp,
+không sửa runtime/config/evidence đã freeze hoặc thu lại85 bài/1.072 query.
+
+**Bước tiếp theo đề xuất:** kết nối unresolved queue với bước tạo observation và
+tìm/review nguồn thứ ba trong stage ORS được giao. Không tự chạy acquisition mới,
+canonical hoặc nhóm7/418 mã; gap HNX ex-date2021 và các gate research vẫn riêng.
+
+## Corporate action — ORS chọn được hai field theo nguồn thứ ba, 06/11/2026
+
+Bước 15 đạt `PASS_2_OF_2_FIELD_SELECTIONS` theo CA-THIRD-SOURCE-V1 owner đã chỉ
+định; [kết quả đối chiếu](../data/corporate_actions/work/ors_third_source_resolution_20261106_v1/KET_QUA_DOI_CHIEU.md)
+và hai selection receipt được lưu version mới, giữ nguyên nguồn bất đồng.
+
+- **Đơn vị quyền2024:** chọn một CP cũ nhận một quyền, hai quyền mua một CP mới.
+  VSDC166577 và PDF HOSE79 ngày15/01/2024 trang1–2 khớp nhau. NQ11/2023 ghi đơn vị
+  khác được giữ làm dissent. HOSE79 là văn bản Sở riêng, không tính copy Vietstock
+  thành nguồn mới; kiểm độc lập ở mức văn bản/provenance, không claim audit độc lập
+  dữ kiện nền. Chưa tìm thấy formal correction NQ11, không sửa lịch sử nghị quyết.
+- **Giá trị danh nghĩa bổ sung2021:** chọn **1.000.000.000.000 VND** cho100 triệu
+  CP bổ sung. Nguồn thứ ba VSDC143656/GCN152-5 ngày02/08/2021 nêu trực tiếp, khớp
+  PDF HNX430 trang2; tổng sau bổ sung là200 triệu CP/2.000 tỷ. HTML post924 ghi
+  2.000 tỷ phần bổ sung vẫn giữ làm dissent; không chọn bằng phép nhân mệnh giá.
+
+Thu bốn HTTP request trực tiếp (ba GET200, một POST tìm kiếm400/body rỗng), dùng
+Chrome thường đọc issuer-news pages2–3 và143656, lưu riêng ba text DOM/receipt/hash.
+143656 ở ngoài snapshot thực hiện quyền85 ID; giữ inventoryV3 immutable, không
+đổi85 thành full historical coverage. Có raw và DOM143656 khớp text sau chuẩn hóa
+khoảng trắng, vẫn giữ đúng hai loại evidence. Hạch toán VSDC144117 chỉ dùng liên
+kết HNX2716, không tính thêm phiếu độc lập. Không gặp challenge/access control.
+
+Đính chính extraction cũ: post869 có body trong public embedded SSR JSON của raw
+đã pin; đã trích riêng, không gán DOM/PDF mới. Tiền thu1.000.877.282.000 đồng trong
+đó khác giá trị danh nghĩa, không đem so cùng field. Chưa lấy được PDF công văn.
+
+Hai field được chọn ở review overlay, 0 canonical/price factor. 14 test revision,
+compileall và kiểm integrity/locator/selection receipt đạt. Toàn event vẫn PARTIAL:
+HNX ex-date2021, global revision coverage và PIT/identity/available_at/freeze chưa
+được mở. **Bước tiếp theo đề xuất:** tích hợp rule và selection receipt vào workflow
+đối chiếu offline version mới có tests, giữ các gate này tắt. Không tự mở stage
+engine/canonical hoặc nhóm7/418 mã.
+
+## Corporate action — owner chỉ định quy tắc nguồn thứ ba, 06/11/2026
+
+Bước 14 ghi [CA-THIRD-SOURCE-V1](../data/corporate_actions/work/ors_third_source_rule_20261106_v1/QUY_TAC_NGUON_THU_BA.md):
+hai nguồn cùng field cho giá trị khác nhau thì tìm nguồn thứ ba; nếu khớp một
+bên, chọn giá trị được hai nguồn xác nhận, giữ cả nguồn bất đồng. **Quy tắc này
+đã được owner chỉ định, không yêu cầu duyệt lại.** Tạo delegation policy V2 riêng,
+không sửa V1, packet cũ hoặc hash evidence.
+
+Đối chiếu đúng security/event/field/đơn vị/phạm vi/hiệu lực; nguồn thứ ba có gốc
+tài liệu riêng, không tính bản copy đăng lại thành phiếu mới. Kiểm revision trước
+khi đếm xác nhận. Nguồn thứ ba thiếu/không đủ điều kiện hoặc khác cả hai thì
+giữ unresolved; không bỏ nguồn bất đồng, lấy trung bình hoặc tìm chọn lọc để ép
+đồng thuận. Selection receipt phải giữ ba nguồn, value, cặp xác nhận, nguồn bất
+đồng, locator/hash/receipt, nguồn gốc, thứ tự tìm và scope review.
+
+Stage đạt `PASS_RULE_RECORDING`, 0 request và 0 lựa chọn field ORS mới. Pipeline
+deterministic/canonical chưa bật; các phần ủy quyền khác không tự được coi là
+approved bởi chỉ đạo riêng này. Tám tình huống kỳ vọng là đặc tả, không phải kết
+quả chạy engine. Input hash, liên kết và guards kiểm đạt; 14 test revision và
+compileall đạt. V3 vẫn đủ toàn văn 85/85 bài, hai conflict chưa được giải quyết.
+
+**Bước tiếp theo đề xuất:** tìm/đối chiếu nguồn thứ ba cho giá trị danh nghĩa bổ
+sung 2021 và đơn vị quyền 2024 trong stage ORS được giao. Đủ chứng cứ thì chọn
+theo quy tắc đã chỉ định; chưa đủ thì giữ unresolved, không giao owner đọc PDF
+hoặc xin lại approval cho chính quy tắc này. Không tự mở nhóm 7/418 mã/canonical.
+
+## Corporate action — đề xuất ủy quyền agent tự review, 06/11/2026
+
+Bước 13 đã lập [quy tắc CA-REVIEW-DELEGATION-V1](../data/corporate_actions/work/ors_review_delegation_proposal_20261106_v1/QUY_TAC_UY_QUYEN_REVIEW.md),
+gồm 12 quy tắc, 12 tình huống kỳ vọng và mapping D01–D06 của packet cũ.
+**Đây là đề xuất chờ duyệt một lần, chưa kích hoạt**; config đề xuất nằm riêng trong
+artifact, không đưa vào runtime. Đọc quy tắc và nguyên gói ủy quyền thay vì yêu cầu
+owner chọn 54 field hoặc sáu mục D01–D06.
+
+Agent nhận trách nhiệm kiểm chứng kỹ thuật, phân loại nguồn/field/lineage và tự
+giữ `UNRESOLVED`/`DEFERRED` khi chưa đủ chứng cứ. Exception mặc định không tạo việc
+owner phải đọc PDF/chọn nguồn. Một nguồn chính thức nêu rõ field có thể đủ cho
+technical review; cho phép ngày từ doanh nghiệp với provenance doanh nghiệp là
+acceptance mới được đề xuất, chưa áp dụng cho ORS 2021. Mâu thuẫn cùng field vẫn
+giữ mọi observation, không tự ưu tiên PDF/nguồn Sở hoặc lấy trung bình.
+
+Đính chính cách bàn giao bước 12: D01–D06 là các điểm review đã ghi nhận, không
+phải sáu việc owner bắt buộc tự thẩm định. AGENTS yêu cầu approval khi cần đổi
+methodology/freeze; không yêu cầu owner đọc từng bài. Config hiện vẫn tắt automatic
+field approval/canonical. Phê duyệt quy tắc không tương đương freeze canonical,
+chọn price basis, gán available_at hoặc mở PIT/identity/research gates.
+
+Stage chuẩn bị đề xuất đạt `PASS_PROPOSAL_PREPARATION`; policy giữ
+`PROPOSED_MANUAL_REVIEW_REQUIRED`, `active=false`. Không có request nguồn,
+không sửa production code, config đang chạy, quyết định packet cũ hoặc inventory.
+Kiểm tra input hash, cấu trúc quy tắc/ủy quyền, link, 14 test revision và compileall
+đạt. Các design case là đặc tả hành vi kỳ vọng, không phải test engine đã chạy.
+
+**Bước tiếp theo đề xuất:** owner chấp thuận nguyên gói CA-REVIEW-DELEGATION-V1;
+sau đó giao một stage áp dụng bằng agent cho 54 field ORS và báo đạt/unresolved.
+Không cần owner trả lời D01–D06. Pipeline deterministic tự review chưa được triển
+khai; stage triển khai sau phải có config/version/tests và smoke khi thay pipeline.
+Không tự mở nhóm 7/418 mã, chạy stage kế tiếp hoặc freeze canonical.
+
+## Corporate action — packet quyết định offline ba sự kiện ORS, 06/11/2026
+
+Bước 12 đã chuẩn bị [packet để owner review](../data/corporate_actions/work/ors_three_event_decision_packet_20261106_v1/ORS_DECISION_PACKET.md)
+tại `data/corporate_actions/work/ors_three_event_decision_packet_20261106_v1/`.
+Packet có **54 dòng field, 22 tham chiếu nguồn và sáu quyết định D01–D06**;
+artifact máy đọc giữ riêng observation, nguồn, vị trí review, đề xuất và quyết định
+owner. `owner_decision`, `selected_option`, `approved_value` đều chưa được điền;
+không coi yêu cầu lập packet là phê duyệt các lựa chọn.
+
+Sáu quyết định gồm bộ điều khoản/phạm vi số lượng và giá; ex-date 2021 từ nguồn
+doanh nghiệp; khác biệt đơn vị quyền 2024; giá trị danh nghĩa bổ sung 2021 khác
+giữa HTML/PDF; giới hạn revision coverage; mức liên kết kết quả/hậu kiểm.
+Mỗi quyết định có phương án, đề xuất và lý do cụ thể, chưa thực thi. Tỷ lệ CP
+cũ:mới, đơn vị quyền, số kế hoạch/kết quả và giá quyền gốc/phần dư được giữ riêng.
+
+Stage packet đạt `PASS_PACKET_PREPARATION`; readiness sự kiện vẫn
+`PARTIAL_MANUAL_REVIEW_REQUIRED`. Gửi **0 request nguồn**, pin và kiểm lại 441 input;
+inventory V3 vẫn đủ 85/85 bài, 0 bài thiếu toàn văn. Kiểm tra field/source/JSON
+pointer và link trong packet đạt; 14 test revision và compileall đạt. Không đổi
+runtime, policy, source priority, canonical, available_at hoặc gate PIT/identity.
+
+**Bước tiếp theo đề xuất:** owner review D01–D06 ngay trong packet. Khi được giao
+stage ghi nhận, chỉ ghi các lựa chọn rõ ràng vào version mới và giữ các mục chưa
+quyết định ở trạng thái unresolved. Theo AGENTS, lựa chọn nguồn/trường hoặc final
+freeze cần `MANUAL_REVIEW_REQUIRED`; config offline giữ automatic approval và
+canonical build tắt. Chưa mở stage thu thập mới, canonical hay nhóm 7/418 mã.
+
+## Corporate action — bổ sung nguồn Sở và lineage ba sự kiện ORS, 06/11/2026
+
+Đã hoàn tất review có giới hạn tại
+`data/corporate_actions/work/ors_three_event_lineage_supplement_20261106_v1/`;
+readiness giữ `PARTIAL_HNX_EXDATE_AND_UNCERTIFIED_GLOBAL_REVISION_COVERAGE`.
+Snapshot ORS vẫn đủ **85/85 bài toàn văn, 0 bài thiếu**; không thu lại inventory.
+
+- Tải PDF gốc HOSE 79/TB-SGDHCM ngày 15/01/2024 qua chuỗi API/tệp đính kèm công
+  khai. SHA-256 khớp hoàn toàn copy Vietstock đã review ở bước 10; khép gap host
+  gốc cho ex-date quyền mua 18/01/2024, không thay hash hay sửa bản cũ.
+- UBCKNN 1914 ngày 29/03/2024 ghi đã phân phối 100.000.000 cổ phiếu của giấy phép
+  442; UBCKNN 3994 ngày 27/06/2024 ghi phân phối cổ tức 35.999.743 cổ phiếu.
+  Đây là số lượng kết quả, giữ riêng số lượng kế hoạch và điều khoản quyền gốc.
+- NQ05 ngày 21/03/2024 ghi 94.919.294 cổ phiếu đăng ký/nộp tiền, 5.080.706 cổ
+  phiếu dư. NQ11 ngày 22/07/2021 ghi 99.122.718 cổ phiếu bán cho cổ đông và
+  877.282 cổ phiếu dư. Cả hai đợt phân phối lại phần dư ở giá **11.000 đồng/CP**;
+  không thay giá quyền mua ban đầu **10.000 đồng/CP** hoặc tự coi hạn nộp tiền
+  cho phần dư là gia hạn kỳ đăng ký ban đầu.
+- PDF HNX 430/2651/2716 trên host doanh nghiệp xác nhận thêm 100 triệu cổ phiếu
+  năm 2021; 99.122.718 cổ phiếu giao dịch từ 27/08/2021, 877.282 cổ phiếu hạn chế
+  từ 01/08/2022. Đây không phải ex-date. Direct GET host HNX lỗi TLS; không tắt
+  kiểm chứng chứng chỉ. Thông báo HNX xác nhận ex-date 10/06/2021 vẫn thiếu;
+  chứng cứ ngày này tiếp tục là HTML doanh nghiệp postId 769 đã lưu.
+- NQ17/2023 bổ sung NQ11/2023 về sử dụng vốn/ủy quyền, thay rõ Điều 4. Đính chính
+  postId 1849 thuộc trái phiếu **ORSH2328001**, loại khỏi ba sự kiện cổ phiếu.
+  Hoãn phát hành postId 1225 thuộc phương án 2022 lên vốn 4.000 tỷ, không gắn vào
+  đợt 2021 lên 2.000 tỷ.
+
+Đã lưu 69 receipt request (65 GET200, hai lỗi transport, một 301, một 404), thêm
+một body chưa có receipt do lỗi encoding cục bộ và GET lại bằng key mới; tổng
+70 lần GET được ghi rõ trong accounting. Giữ body chưa receipt đúng loại, không
+gán HTTP200. 14 PDF có receipt; đọc hình ảnh 27 trang của 13 PDF mới, tái dùng
+review hai trang PDF HOSE do byte khớp. Không kiểm chứng chữ ký số bằng mật mã.
+
+Review tiêu đề 110 ID trên hai khoảng trang liên tiếp; các snapshot bộ lọc quyền
+mua/cổ tức/phát hành đủ tương ứng 21/4/59 ID. Không phải review toàn bộ nội dung
+413 bài doanh nghiệp. Chưa chứng nhận không còn revision trong PDF/nguồn/khoảng
+thời gian khác. Giữ hai discrepancy: HTML doanh nghiệp về giá trị đăng ký bổ sung
+2021 khác PDF HNX; cách diễn đạt đơn vị quyền ở NQ11/2023 khác VSDC sau đó dù tỷ
+lệ kinh tế cổ phiếu cũ:mới cùng 2:1. Không tự ưu tiên nguồn hay chuẩn hóa khác biệt.
+
+Evidence/input cũ giữ nguyên; 14 test revision và compileall đạt. Không sửa
+runtime/pipeline, policy, canonical, PIT/identity hoặc tính hệ số điều chỉnh.
+
+**Bước tiếp theo đề xuất:** lập packet quyết định offline cho ba sự kiện, gồm bảng
+từng field/nguồn, các discrepancy và lựa chọn giữ unresolved phần HNX/revision.
+Owner review trước lựa chọn field/source hoặc freeze canonical
+(`MANUAL_REVIEW_REQUIRED` theo AGENTS và config đang tắt automatic approval).
+Không tự chạy stage kế tiếp hoặc mở nhóm 7 mã lớn/418 mã.
+
+## Corporate action — review ba candidate ORS và ex-date, 06/11/2026
+
+Đã hoàn tất phần review được giao, tạo ba hồ sơ sự kiện tại
+`data/corporate_actions/work/ors_three_event_review_20261106_v1/`.
+Điều khoản và ex-date quan sát được đạt `PASS_3_OF_3`; mức sẵn sàng event tổng thể
+giữ `PARTIAL_EVENT_READINESS_REVISION_ARCHIVE_NOT_CERTIFIED`.
+
+| Bài VSDC | Sự kiện | Ngày đăng ký cuối cùng | Ex-date đọc trực tiếp | Nguồn bổ sung |
+| --- | --- | --- | --- | --- |
+| 171704 | Cổ tức cổ phiếu 100:12 | 17/06/2024 | 14/06/2024 | PDF HOSE ngày 10/06/2024, tải trực tiếp từ host HOSE |
+| 166577 | Quyền mua 2:1, giá 10.000 đồng/CP | 19/01/2024 | 18/01/2024 | Bản thông báo HOSE 79/TB-SGDHCM ngày 15/01/2024 trên Vietstock |
+| 142284 | Quyền mua 1:1, giá 10.000 đồng/CP | 11/06/2021 | 10/06/2021 | Nội dung công bố doanh nghiệp, postId 769; PDF VSDC 950 đối chiếu điều khoản |
+
+Đã xem đủ bảy trang của ba PDF. PDF 2021 không nêu ex-date; ngày 10/06/2021 được
+nêu trong HTML doanh nghiệp, không suy từ ngày đăng ký cuối cùng. Bản HOSE 79 tải
+từ Vietstock có chữ ký/dấu nhìn thấy, chưa đối chiếu byte với host HOSE và chưa
+kiểm chữ ký số. Các trường được ghi để review, không tự chọn thành canonical.
+
+Review cache 31 bài cổ phiếu của snapshot 85 ID: không tìm thấy revision gắn trực
+tiếp với ba candidate trong phạm vi đó; ba thông báo hủy thuộc quyền họp/lấy ý kiến.
+Từ `điều chỉnh` trong boilerplate đối chiếu TVLK không tự tạo revision. Search công
+khai và bộ lọc doanh nghiệp chưa tạo được archive revision hoàn chỉnh, nên không
+chứng nhận không có sửa/hủy/gia hạn khác. Bổ sung HTTP raw của hai thông báo VSDC
+`170753`, `173807`, liên kết rõ ngày đăng ký cuối cùng tương ứng 19/01/2024 và
+17/06/2024, nêu ngày giao dịch cổ phiếu phát hành thêm 13/05/2024 và 12/08/2024.
+Hai ngày này không phải ex-date và không tự chứng nhận hoàn tất mọi khâu phát hành.
+
+Evidence gồm ba text cũ dùng lại, bốn HTTP raw GET200 mới, hai text DOM và một PDF
+tải qua Chrome không có HTTP receipt. Giữ raw/receipt/hash đúng loại; inventory V3
+và 85 ID cũ không thay đổi. Không đổi runtime/policy, không tính hệ số điều chỉnh,
+không mở gate PIT/historical identity. Bộ 14 test revision và compileall đạt.
+
+**Bước tiếp theo đề xuất:** owner review ba hồ sơ cụ thể để quyết định nguồn/trường
+và yêu cầu evidence lineage còn thiếu; ưu tiên bản gốc HOSE 79 và thông báo HNX
+2021 nếu cần đối chiếu nguồn Sở. `automatic_field_approval=false` và
+`canonical_build=false` trong config offline reconciliation tiếp tục có hiệu lực.
+Giữ `MANUAL_REVIEW_REQUIRED` cho lựa chọn field/source và freeze canonical; chưa
+tự triển khai canonical hoặc mở stage nhóm 7 mã lớn/418 mã.
+
+## Corporate action — ORS đủ toàn văn 85/85 bài trong snapshot, 06/11/2026
+
+Stage đạt `PASS_ORS_REMAINING_41_FULLTEXT`: thu một lượt qua Chrome toàn bộ 36 bài
+trái phiếu còn thiếu và bổ sung toàn văn năm bài cổ phiếu chỉ có fields review.
+Lưu 41 text vùng bài hiển thị, 41 receipt thu nhận DOM và SHA-256 tại
+`data/corporate_actions/work/vsdc_ors_remaining_fulltext_20261106_v1/`.
+Không gặp challenge/access control, không có bài deferred. Đây là rendered DOM,
+không gán HTTP status hoặc coi capture mới là HTTP raw.
+
+Inventory V3 ở `data/corporate_actions/work/vsdc_ors_cache_inventory_20261106_v3/`
+ghi nhận **85/85 bài có toàn văn, 0 bài thiếu nội dung, 0 bài chỉ có fields**:
+20 HTTP raw có hash/receipt và 65 rendered text có hash/receipt thu nhận DOM.
+Trong snapshot có 31 bài cổ phiếu đúng mã ORS và 54 bài trái phiếu có mã đầy đủ
+khác ORS; phân biệt bằng trường mã và loại chứng khoán trong từng bài.
+
+36 bài mới gồm 35 thông báo trả lãi và một thông báo lấy ý kiến trái chủ
+(`186160`, mã `ORS12101`). Năm bài cổ phiếu xác nhận lại bốn họp thường niên,
+một họp bất thường; ngày đăng ký cuối cùng, ISIN, sàn, ngày cập nhật và lịch họp
+dự kiến khớp fields cũ. Giữ khác biệt nhãn Tiên Phong/Phương Đông ở `9509`, `5416`.
+Không có candidate điều chỉnh giá cổ phiếu mới từ 41 bài này; ba candidate trong
+stage trước và trạng thái revision/canonical giữ nguyên.
+
+Self-review đối chiếu chính xác 41 ID cần bổ sung, 82 tệp capture mới, toàn bộ
+85 tham chiếu evidence và manifest/input đã pin. Các version cũ giữ nguyên.
+Không sửa runtime, policy, hash cũ hoặc áp dụng canonical; không chạy lại batch
+đã hoàn thành. Phạm vi đủ toàn văn chỉ áp dụng cho snapshot tìm kiếm 85 ID đã
+quan sát; 65 bài vẫn chưa có HTTP raw và chưa audit file đính kèm ngoài nội dung
+inline. Chưa chứng nhận full historical event coverage.
+
+Phần thu toàn văn ORS trong snapshot đã xong. Bước tiếp theo đề xuất là
+review/reconcile ex-date và revision của ba candidate cổ phiếu trước khi xét
+canonical. Nhóm 7 mã lớn và 418 mã của chiến dịch chưa thực hiện trong stage này.
+
+### Stage tiếp theo đề xuất — review ba sự kiện điều chỉnh giá ORS
+
+Mục tiêu là lập hồ sơ sự kiện có thể kiểm tra cho `171704` (cổ tức cổ phiếu),
+`166577` và `142284` (quyền mua). Đọc lại evidence đã lưu và tìm trong cache các
+thông báo sửa/hủy/gia hạn liên quan; chỉ bổ sung nguồn công khai cho trường còn
+thiếu. Không thu lại 85 bài đã có toàn văn.
+
+1. Đối chiếu ngày đăng ký cuối cùng, tỷ lệ cổ phiếu/quyền mua, giá phát hành và
+   lịch chuyển nhượng/đăng ký mua với text từng bài; tách ngày cập nhật nguồn.
+2. Xác minh ngày giao dịch không hưởng quyền (ex-date) bằng thông báo của Sở hoặc
+   nguồn có thẩm quyền theo contract hiện hành; không tự suy từ ngày đăng ký cuối cùng.
+3. Kiểm tra revision, hủy hoặc gia hạn của từng sự kiện; phân biệt với ba thông
+   báo hủy quyền họp/lấy ý kiến đã review. Thiếu liên kết thì giữ unresolved.
+4. Tạo bảng review có source/evidence/hash cho từng trường và kết luận mức sẵn
+   sàng của từng sự kiện. Chưa tự áp dụng canonical hoặc hệ số điều chỉnh giá.
+
+Đầu ra mong đợi là ba hồ sơ sự kiện, danh sách trường còn thiếu và kết luận
+`PASS`/`PARTIAL` theo evidence. Nếu cần đổi methodology hoặc freeze canonical,
+ghi `MANUAL_REVIEW_REQUIRED` và dừng để owner review. Đây là đề xuất; chưa execute.
+Sau stage này mới đề xuất riêng phần rà soát nhóm 7 mã lớn/418 mã của chiến dịch.
+
+## Corporate action — bổ sung/review đủ 24 bài cổ phiếu ORS, 06/11/2026
+
+Stage đạt `PASS_ORS_24_MISSING_EQUITY_CONTENT_REVIEW` trên nhánh
+`feature/indicators-v1`. Đọc đủ 24/24 ID cổ phiếu trong queue đã pin qua Chrome,
+lưu toàn text vùng bài hiển thị, receipt thu nhận DOM và SHA-256 vào
+`data/corporate_actions/work/vsdc_ors_equity_detail_review_20261106_v1/`.
+Đây là rendered DOM, không phải HTTP raw; không gán HTTP200 cho capture mới.
+Không chạy lại batch V7, đổi hash/policy, chuyển nhánh hoặc áp dụng canonical.
+
+Ba bài ưu tiên xác nhận từ nội dung:
+
+| ID | Nội dung | Ngày đăng ký cuối cùng | Điều khoản đọc được |
+| --- | --- | --- | --- |
+| 171704 | Cổ tức bằng cổ phiếu | 17/06/2024 | 100 cổ phiếu nhận 12 cổ phiếu mới |
+| 166577 | Quyền mua | 19/01/2024 | 2 quyền mua 1 cổ phiếu mới; 10.000 đồng/cổ phiếu |
+| 142284 | Quyền mua | 11/06/2021 | 1 quyền mua 1 cổ phiếu mới; 10.000 đồng/cổ phiếu |
+
+Ba thông báo hủy `182168`, `68163`, `50840` lần lượt khớp nội dung/ngày đăng ký
+cuối cùng của `179241`, `64007`, `50492`; đều là quyền họp/lấy ý kiến, không phải
+hủy ba sự kiện giá trên. Thông báo hủy có số/ngày văn bản gốc; mapping ID bài theo
+mã, loại quyền và ngày trong snapshot, không có hyperlink ID gốc. Các bài sau
+`182169`, `68162`, `51446` chỉ là possible successor, chưa xác nhận supersedes.
+Ngày cập nhật bài và ngày văn bản được dẫn chiếu có thể khác nhau.
+
+Tái dùng hai bài raw và năm review fields, tổng 31 bài cổ phiếu có review: ba
+price-action candidate, ba cancellation và 25 thông báo không điều chỉnh giá.
+Đọc offline 18 raw trái phiếu: mã chi tiết đều khác chính xác `ORS`, loại chứng
+khoán là trái phiếu; 36 bài trái phiếu còn lại vẫn chỉ được phân loại theo tiêu đề.
+Inventory mới ở `data/corporate_actions/work/vsdc_ors_cache_inventory_20261106_v2/`,
+gồm 20 HTTP raw + 24 rendered text + 5 fields-only + 36 thiếu detail; version cũ
+giữ nguyên và đối chiếu manifest đạt. Review fields của năm bài trang cuối vẫn
+chưa có full text; 24 bài mới vẫn chưa có HTTP raw. Không audit file đính kèm
+ngoài nội dung inline, không suy ex-date, hệ số điều chỉnh hay full history.
+
+Self-review kiểm tra đủ ID, hash/receipt/URL, loại chứng khoán và liên kết hủy.
+Đối chiếu 53 tệp artifact mới và 34 input đã pin đạt; compileall và synthetic
+smoke đạt. Bộ kiểm thử liên quan chạy 46 test: 45 đạt, một lỗi legacy do test tìm
+helper ở `tests/unit/scripts/review_cached_corporate_actions26_v1.py` không tồn tại.
+Giữ nguyên test/runtime; chưa sửa lỗi đường dẫn ngoài scope. Log, self-review và
+validation ở `tmp/ors_equity_detail_review_20261106_v1/`.
+Bước tiếp theo đề xuất là review/reconcile ba candidate với evidence ex-date và
+revision theo contract hiện hành trước khi xét canonical. Nhóm 7 mã lớn và 418
+mã của chiến dịch chưa thực hiện; không tự mở stage đó.
+
+## Corporate action — kiểm kê cache chi tiết ORS, 06/11/2026
+
+Đối chiếu đủ 85 ID danh sách với index raw đã pin, inventory reusable V7 và năm bài
+đã review DOM. Có 20 bài với raw, SHA-256 và receipt GET HTTP200 đã đối chiếu. Năm bài
+trang cuối có các trường review từ DOM. Còn 60 bài vắng trong cache chi tiết đã audit,
+gồm 24 tiêu đề mã cổ phiếu ORS và 36 tiêu đề mã trái phiếu bắt đầu bằng ORS.
+
+Toàn bộ danh sách gồm 31 bài gắn tiêu đề/nội dung cổ phiếu ORS và 54 tiêu đề trái
+phiếu ORS*. Hai bài cổ phiếu và 18 bài trái phiếu thuộc nhóm có raw. Năm review DOM
+chỉ lưu trường đã đọc. Inventory ghi riêng mức evidence này. Kết quả kiểm kê đạt
+`PASS_ORS_85_DETAIL_CACHE_INVENTORY`, với 0 network request.
+
+Bước tiếp theo là bổ sung/review nội dung 24 bài tiêu đề cổ phiếu ORS. Ưu tiên
+`171704` (cổ tức cổ phiếu), `166577` và `142284` (quyền mua) theo tiêu đề, sau đó
+kiểm tra các thông báo hủy danh sách/ngày đăng ký cuối cùng để nối revision.
+Evidence và queue ở `data/corporate_actions/work/vsdc_ors_cache_inventory_20261106_v1/`.
+Prompt bàn giao cho chat mới nằm trong `handoff_prompt.txt` tại cùng thư mục.
+
+## Corporate action — phân loại năm thông báo ORS, 06/11/2026
+
+Đã đọc nội dung chính của năm bài ở trang 5 và đối chiếu ID với hồ sơ danh sách ORS.
+Cả năm là thông báo chốt quyền họp và biểu quyết, gồm bốn ĐHĐCĐ thường niên và một
+ĐHĐCĐ bất thường. Phân loại `NON_PRICE_ACTION_NOTICE` theo cách phân loại của bộ
+thu thập VSDC. Mệnh giá 10.000 đồng nằm trong phần thông tin chứng khoán. Có 0 ứng
+viên sự kiện điều chỉnh giá từ năm bài này.
+
+Bài `9509` và `5416` hiển thị Tiên Phong trong phần thông tin tổ chức phát hành và
+Phương Đông trong nội dung họp. Ghi nhận cả hai nhãn trong review. Hồ sơ lưu ngày
+đăng ký cuối cùng và lịch họp dự kiến đọc từ DOM, với 0 trường canonical áp dụng.
+Xem `data/corporate_actions/work/vsdc_ors_detail_review_20261106_v1/review.json`.
+
+## Corporate action — đối chiếu đủ danh sách ORS trên Chrome, 06/11/2026
+
+Đã quan sát đủ năm trang của cùng truy vấn ORS trên tab Chrome người dùng đang mở.
+Danh sách có 85 ID khác nhau trên 85 bản ghi được báo. Các trang 1–4 khớp đúng thứ tự
+của 80 ID đã review. Trang 5 bổ sung ID `21128`, `16287`, `9509`, `7739`, `5416`.
+Số bản ghi chưa quan sát trong danh sách ORS giảm từ 5 xuống 0. Bằng chứng là
+phạm vi hiển thị và link ID trên DOM, lưu trong
+`data/corporate_actions/work/vsdc_ors_browser_list_review_20261106_v1/review.json`.
+
+Năm ID trên vắng trong inventory danh sách và cache chi tiết V7. Bước tiếp theo là
+review riêng năm bài để phân loại nội dung trước khi dùng ở lớp corporate action.
+Kết quả trên Chrome xác minh phạm vi danh sách hiển thị. Hai phiên thu thập cũ ghi
+nhận phản hồi rỗng ở hai lần khác nhau và vẫn là bằng chứng của các lần đó.
+
+## Corporate action — chẩn đoán ORS dừng ở trang 1, 06/11/2026
+
+Phiên riêng `run-20261106T012817260681Z` dùng Chrome ẩn và giới hạn năm request danh
+sách. Request GET đầu tiên nhận HTTP 200 với body 0 byte. DOM thiếu vùng danh sách,
+chờ selector hết thời gian. Phiên đã seal ZIP và giải phóng lock sau một request.
+Kết quả `PARTIAL_QUERY_HOLD_REVIEW_REQUIRED` chưa xác minh được trang nào trong phiên
+mới. ORS vẫn HOLD với mốc đã review là 80/85 bản ghi. Chưa xác định nguyên nhân nguồn
+trả body rỗng. Phiên này chưa đến bước kiểm tra trang 5.
+
+Đã kiểm tra lại ZIP, manifest và ledger. Bộ kiểm thử liên quan đạt 14 test,
+compileall và synthetic smoke đạt. Evidence trong
+`data/corporate_actions/work/vsdc_ors_gap_diagnostic_v1/run-20261106T012817260681Z/`.
+Bước tiếp theo là xác minh trang tìm kiếm ORS có hiển thị danh sách trong trình
+duyệt thường trước khi thử phân trang ở một phiên chẩn đoán riêng.
+
+## Corporate action — review offline phiên V7, 06/11/2026
+
+Phiên `run-20261104T041619408451Z` đạt review offline cho **1.072/1.072 mã trong scope**
+qua 54 batch. Đối chiếu SHA-256 của 43.883 tệp trong ZIP và 616 checkpoint nhập với
+seed đã review. Parse lại 1.225 trang của 456 truy vấn mới, kiểm tra ZIP con, ledger,
+budget và log tiến độ. Có 9.278 ID bài mới trong danh sách. Review dùng dữ liệu trong
+ZIP và có 0 request VSDC. Kết quả áp dụng cho danh sách truy vấn trong scope. Các gate
+canonical, PIT, historical identity và full history vẫn chờ quy trình review tương ứng.
+
+ORS giữ `HOLD_SOURCE_COUNT_GAP`. Bốn trang đầu có 80 ID khác nhau trên tổng 85 được
+nguồn báo. Trang 5 trả HTTP 200, body 33 byte và không có vùng danh sách. Bước tiếp
+theo là chuẩn bị một phiên chẩn đoán giới hạn cho ORS để xác minh phần chênh 5 bản ghi.
+Hồ sơ review nằm tại `data/corporate_actions/work/vsdc_v7_offline_review_20261106_v1/review.json`.
+
 ## Corporate action — sửa supervisor nhận diện chính phiên đang chạy, 04/11/2026
 
 V6 preflight đã đạt nhưng worker coi thư mục vừa được supervisor tạo là phiên cũ chưa
