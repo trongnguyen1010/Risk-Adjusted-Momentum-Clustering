@@ -1,5 +1,29 @@
 # Hướng dẫn cho automated coding/research agents
 
+## Owner override tạm thời — dừng DATE_ONLY trong corporate_actions (07/11/2026)
+
+Chỉ đạo mới nhất của owner: “tạm ngừng DATE_ONLY trong `corporate_actions` thôi
+nhé”. Chỉ áp dụng cho xử lý mới của corporate_actions, gồm dữ liệu corporate
+action đưa sang Product/M3/research, cho đến khi owner yêu cầu dùng lại.
+Phạm vi toàn DELTA ghi trước đó đã được thay thế bởi chỉ đạo hẹp này.
+Financial và các phạm vi ngoài corporate_actions tiếp tục dùng DATE_ONLY theo
+đúng policy đã được duyệt trước đây; không tạo acceptance hoặc mở gate mới.
+
+- Tập trung tìm timestamp công bố đúng tài liệu, có ngày/giờ, múi giờ/quy ước
+  clock được xác minh và provenance. Không tự suy giờ, offset hoặc lấy
+  updated/modified/created/fetched time thay publication.
+- Chỉ có ngày hoặc timestamp chưa xác minh thì giữ evidence và ghi gap/DEFERRED;
+  trong corporate_actions không dùng DATE_ONLY để gán availability/usable_from_date
+  hoặc mở PIT gate.
+- Giữ immutable raw, policy version và artifact cũ; không chạy lại batch đã
+  hoàn thành để áp chỉ đạo này. Ngày kỳ báo cáo, record date, ex-date và ngày
+  vận hành vẫn giữ đúng nghĩa riêng; chỉ đạo này về publication/availability.
+- Chỉ đạo thực thi được lưu tại
+  `configs/data/publication_timestamp_only_execution_20261107_v2.json`.
+  Chưa triển khai hard guard trên mọi CLI legacy; không khẳng định các CLI cũ
+  đã tự từ chối DATE_ONLY. Agent không chạy mới route DATE_ONLY corporate_actions
+  khi override còn hiệu lực. Version V1 giữ làm lịch sử, không còn là chỉ đạo hiện hành.
+
 Đọc `README.md`, `docs/README.md`, `docs/CURRENT_STATUS.md`, `docs/PROJECT_MAP.md`, `docs/ROADMAP.md` và `CONTRIBUTING.md` trước khi thay đổi kiến trúc. Tất cả thay đổi project nằm trong `SourceCode`; không sửa các PDF dưới `../TaiLieu`.
 
 ## Lớp chỉ số sản phẩm (D-IND-01)

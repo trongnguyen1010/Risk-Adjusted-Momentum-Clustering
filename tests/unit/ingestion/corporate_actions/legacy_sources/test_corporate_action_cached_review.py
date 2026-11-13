@@ -4,7 +4,8 @@ from pathlib import Path
 import sys
 import unittest
 
-ROOT=Path(__file__).resolve().parents[3]
+# File test đã chuyển sâu thêm hai cấp so với tests/unit/ingestion.
+ROOT=Path(__file__).resolve().parents[5]
 sys.path.insert(0,str(ROOT/"src"))
 from delta_t1.ingestion.corporate_action_cached_review import split_components,parse_scoped_article,review_link,primary_prices
 

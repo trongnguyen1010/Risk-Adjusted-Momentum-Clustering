@@ -2,6 +2,10 @@
 
 ## Corporate actions — nhánh feature/indicators-v1
 
+- `src/delta_t1/ingestion/corporate_actions/third_source_reconcile.py` và
+  `scripts/corporate_actions/reconcile_third_source_v1.py`: workflow offline version riêng,
+  kiểm pin/provenance đã review, chọn A/B theo nguồnC hoặc ghi unresolved queue;
+  config `configs/data/corporate_actions/third_source_reconcile_ors_v1.json`, không canonical/network.
 - `scripts/corporate_actions/collect_vsdc_recovery_supervisor_v7.py` là public supervisor
   hiện hành, hỗ trợ `--check` offline và `--pause`, dùng worker và preparation V6.
 - `src/delta_t1/ingestion/corporate_actions/`, `configs/data/corporate_actions/`,

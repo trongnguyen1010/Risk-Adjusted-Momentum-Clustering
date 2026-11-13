@@ -12,17 +12,57 @@ Notebook 04 chưa chạy vì Final thiếu dữ liệu 2026; M3-C tổng thể c
 [Kết quả CSV đã công bố trong Git](../M3/outputs/README.md): 62 CSV canonical Dev/Holdout và hai CSV
 Combined dễ đọc, tổng 64 tệp. Danh mục SHA256 và receipt tải lại từ GitHub nằm cùng thư mục outputs.
 
-## Corporate actions trên nhánh Indicators — 04/11/2026
+## Corporate actions trên nhánh Indicators — cập nhật 06/11/2026
+
+[Nhật ký kết quả từng bước](NHAT_KY_CORPORATE_ACTIONS.md) tổng hợp theo thứ tự thực
+hiện: mục tiêu, kết quả, kiểm tra, evidence, phần còn thiếu và bước tiếp theo.
+
+**Cập nhật ORS 06/11/2026:** đã lưu đủ toàn văn 85/85 bài trong snapshot tìm kiếm;
+inventory V3 gồm 20 HTTP raw và 65 rendered text, không còn bài thiếu nội dung
+hoặc chỉ có fields. Nội dung xác nhận 31 bài cổ phiếu ORS và 54 bài trái phiếu.
+Ba candidate cổ tức/quyền mua chưa áp dụng canonical. Xem phạm vi và bước tiếp theo trong
+[trạng thái hiện tại](CURRENT_STATUS.md).
+
+**Review sự kiện ORS:** đã có ex-date trực tiếp cho cả ba candidate. Bước 11 bổ
+sung PDF gốc HOSE 79 khớp hash copy cũ, kết quả phân phối 2024 và PDF HNX về đăng
+ký/giao dịch bổ sung 2021 trên host doanh nghiệp. Đã tách giá phân phối lại phần
+dư 11.000 khỏi giá quyền mua 10.000 đồng/CP. Readiness còn PARTIAL: thiếu thông báo
+HNX về ex-date, chưa chứng nhận đầy đủ revision; cần review hai discrepancy nguồn.
+**Bước 12:** đã lập [packet quyết định offline](../data/corporate_actions/work/ors_three_event_decision_packet_20261106_v1/ORS_DECISION_PACKET.md)
+gồm 54 dòng field, 22 tham chiếu nguồn và sáu lựa chọn D01–D06 để owner review.
+Gửi 0 request mới, chưa ghi quyết định hoặc áp dụng canonical.
+**Bước 13:** [đề xuất ủy quyền tự review](../data/corporate_actions/work/ors_review_delegation_proposal_20261106_v1/QUY_TAC_UY_QUYEN_REVIEW.md)
+thay việc owner chọn từng field bằng agent tự kiểm chứng và giữ ngoại lệ unresolved.
+Đề xuất chưa bật pipeline/canonical.
+**Bước 14:** owner đã chỉ định [quy tắc nguồn thứ ba](../data/corporate_actions/work/ors_third_source_rule_20261106_v1/QUY_TAC_NGUON_THU_BA.md):
+nguồn thứ ba độc lập khớp một trong hai nguồn đang khác nhau thì chọn giá trị
+được xác nhận, giữ nguồn bất đồng. Quy tắc không cần duyệt lại.
+**Bước 15:** [đối chiếu xong hai conflict ORS](../data/corporate_actions/work/ors_third_source_resolution_20261106_v1/KET_QUA_DOI_CHIEU.md):
+chọn một CP cũ nhận một quyền/hai quyền mua một CP mới (VSDC+HOSE) và1.000 tỷ
+phần đăng ký bổ sung2021 (HNX+VSDC143656). Giữ nguồn bất đồng, selection receipt
+riêng và các gate canonical/PIT/identity chưa mở.
+**Bước16:** [workflow đối chiếu offline đã chạy](../data/corporate_actions/work/ors_third_source_reconcile_20261106_v1/KET_QUA_TICH_HOP.md)
+tự tính lại chọn2/2 từ A/B/C đã pin; có unresolved queue và guards,78 targeted
+tests/compileall/synthetic smoke đạt. Chưa tự tìm nguồn/đọc PDF; canonical vẫn tắt.
+Xem bước10–16 trong
+[nhật ký kết quả](NHAT_KY_CORPORATE_ACTIONS.md).
 
 CLI hiện hành là `scripts/corporate_actions/collect_vsdc_recovery_supervisor_v7.py`,
 supervisor V7 chạy worker V6 đã freeze. Xem hướng dẫn bên dưới cho lệnh chạy và pause.
 
 Code/config và tests corporate action được chuyển từ `m3-backtest@8827ebf` sang
-`feature/indicators-v1`. [Hướng dẫn chạy V6](../M3/CORPORATE_ACTIONS_V1_COLLECTION_GUIDE.md)
-và [nhật ký thu thập](../M3/NHAT_KY_THU_THAP_VA_XU_LY_CORPORATE_ACTIONS_20261102.md)
-đi cùng module. Dữ liệu local ở `data/corporate_actions/work`, gồm prefix 616 mã và
-preparation V6 để xử lý tiếp 456 mã trong scope, ORS còn HOLD.
-Kết quả kiểm tra chuyển nhánh được ghi trong [trạng thái hiện tại](CURRENT_STATUS.md).
+`feature/indicators-v1`. Nhật ký thực hiện hiện có trong
+[trạng thái hiện tại](CURRENT_STATUS.md): chuyển nhánh, phiên V7, đối chiếu danh
+sách ORS, kiểm kê cache và bổ sung toàn văn. Các mốc prefix 616 mã/preparation V6
+là lịch sử; review offline V7 đã đạt 1.072/1.072 query trong scope. Dữ liệu local
+ở `data/corporate_actions/work`. [Changelog](../CHANGELOG.md) tóm tắt các thay đổi.
+
+**Stage tiếp theo đề xuất:** owner review ba hồ sơ ORS, quyết định nguồn/trường và
+yêu cầu bổ sung lineage còn thiếu trước khi xét canonical. Phạm vi và kết quả đã
+ghi ở đầu [trạng thái hiện tại](CURRENT_STATUS.md). Hai tài liệu từng được
+dẫn dưới `M3/` (`CORPORATE_ACTIONS_V1_COLLECTION_GUIDE.md` và
+`NHAT_KY_THU_THAP_VA_XU_LY_CORPORATE_ACTIONS_20261102.md`) không có trong checkout
+hiện tại; không dùng các đường dẫn đó làm điểm bàn giao.
 
 ## Hướng chính thức (D-DIR-01, 26/10/2026)
 
