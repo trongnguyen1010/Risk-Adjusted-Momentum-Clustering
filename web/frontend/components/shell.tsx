@@ -6,6 +6,7 @@ import {
   ArrowRight,
   ArrowUpRight,
   Boxes,
+  ChartLine,
   Check,
   Command,
   FlaskConical,
@@ -27,6 +28,7 @@ const nav = [
   { href: "/stocks", label: "Tra cứu cổ phiếu", icon: Search, tag: "03" },
   { href: "/financial", label: "Góc nhìn tài chính", icon: Layers3, tag: "04" },
   { href: "/lab", label: "Phòng nghiên cứu", icon: FlaskConical, tag: "05" },
+  { href: "/backtest", label: "Kiểm định chiến lược", icon: ChartLine, tag: "06" },
 ];
 const steps = [
   {
@@ -53,6 +55,11 @@ const steps = [
     path: "/lab",
     title: "Kiểm tra bằng chứng",
     text: "Xem cấu hình mô hình, định nghĩa đặc trưng, dấu vân tay dữ liệu và các điều kiện chưa hoàn tất.",
+  },
+  {
+    path: "/backtest",
+    title: "Kiểm định chiến lược",
+    text: "So sánh năm chiến lược với VNINDEX trên hai đoạn Development và Holdout đã niêm phong. Đây là kết quả lịch sử, không phải khuyến nghị.",
   },
 ];
 export function Shell({ children }: { children: React.ReactNode }) {

@@ -9,7 +9,7 @@ KMeans k3/seed42/n_init20/max_iter300, no clipping/PCA/imputation. 7 models hộ
 5.593assignments trên2019–2025; independent verification PASS. C2025 có663/479/6mã;
 cả7năm có cụm dưới10, quality REVIEW_REQUIRED. Không sửa A/B hoặc tối ưu bằng returns.
 
-- [Report A/B/C](../artifacts/reports/cluster-comparison-v1/report.md).
+- [Report A/B/C](../../artifacts/reports/cluster-comparison-v1/report.md).
 - [Bảng nhãn A/B/C cuối năm](../artifacts/reports/cluster-comparison-v1/memberships-a-b-c-year-end.csv):9.213unionrows,5.593BOTH có C.
 - [Catalog219profiles](../artifacts/reports/cluster-comparison-v1/cluster-catalog-a-b-c.csv).
 - [Protocol C](../configs/experiments/combined_reference_v1.json).
@@ -99,7 +99,7 @@ Các artifacts ngoài master report thường bị ignore; Git clone riêng khô
 
 ## 3. Input hiện hành và giới hạn
 
-- [Handoff dễ tìm](../data/handoffs/financial-reference-2016-2025/README.md).
+- [Handoff dễ tìm](../../data/handoffs/financial-reference-2016-2025/README.md).
 - Feature CSV: `data/handoffs/financial-reference-2016-2025/financial-ratios-1172-symbols-2016-2025.csv`.
 - Cohort CSV: `data/handoffs/financial-reference-2016-2025/securities-1172-symbols.csv`.
 - Handoff manifest giữ hashes và original paths; driver kiểm khớp delivery gốc.
@@ -157,9 +157,9 @@ có selection/survivorship bias.
 
 ## 5. Output và bằng chứng
 
-- [Report tổng toàn quá trình](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md),
+- [Report tổng toàn quá trình](../../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md),
   đọc phần **Execution56** cuối file và latest status đầu file.
-- [Report baseline](../artifacts/reports/financial-full10-baseline-v1/report.md).
+- [Report baseline](../../artifacts/reports/financial-full10-baseline-v1/report.md).
 - [Result pointer](../artifacts/reports/financial-full10-baseline-v1/result-ref.json).
 - [Verification](../artifacts/reports/financial-full10-baseline-v1/verification.json).
 - [180 dòng review cực trị](../artifacts/reports/financial-full10-baseline-v1/outlier-review.csv).
@@ -240,12 +240,12 @@ Các ràng buộc còn hiệu lực:
 - Giữ source hashes, counters và blocked boundaries; không reset budget khi resume.
 - Cleanup53–55 đã gom lịch sử vào archive; không xóa tiếp evidence dựa vào report
   tóm tắt. Current input dependencies còn cần giữ để verifier chạy được.
-  [Kho lịch sử/restore](../artifacts/archives/financial-history-20261023/README.md),
-  [cache archive](../artifacts/archives/financial-cache-20261023/README.md).
+  [Kho lịch sử/restore](../../artifacts/archives/financial-history-20261023/README.md),
+  [cache archive](../../artifacts/archives/financial-cache-20261023/README.md).
 
 ## 9. Prompt gợi ý để bắt đầu session mới
 
-> Hãy đọc AGENTS.md và docs/FINANCIAL_SESSION_HANDOFF.md trong
+> Hãy đọc AGENTS.md và docs/plans/FINANCIAL_SESSION_HANDOFF.md trong
 > C:\Projects\Intern\SourceCode-CafeF rồi kiểm trạng thái Git và result pointers.
 > Execution56 đã chạy baseline 1.172 mã × 10 năm; không cần crawl/refit lại.
 > Tiếp tục review outliers từ cache, xác định nguyên nhân cụm nhỏ, viết đề xuất

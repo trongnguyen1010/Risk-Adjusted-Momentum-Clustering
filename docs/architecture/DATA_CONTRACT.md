@@ -2,7 +2,7 @@
 
 ## Source of truth
 
-Executable contracts là các JSON trong `src/delta_t1/schemas`; `contracts.py` thực hiện normalize/validate. Đổi type, key, unit hoặc semantics phải đi cùng schema version, migration note, tests, `CHANGELOG.md` và [Decisions](DECISIONS.md).
+Executable contracts là các JSON trong `src/delta_t1/schemas`; `contracts.py` thực hiện normalize/validate. Đổi type, key, unit hoặc semantics phải đi cùng schema version, migration note, tests, `CHANGELOG.md` và [Decisions](../DECISIONS.md).
 
 Canonical row giữ `source`, `fetched_at` và `data_version`. Missing nullable dùng `null`, không dùng chuỗi rỗng, NaN hoặc zero giả. Provider column chưa map ở lại immutable raw envelope.
 
@@ -74,4 +74,4 @@ Row giữ history/observation/missing counts, `na_reason` và segment. Gap khôn
 
 Duplicate key, invalid type/date/number, overlapping identity, impossible OHLC, timing violation, unknown basis và broken relation phải quarantine kèm rule ID. Blocking issue chặn downstream feature. Sửa mapping/policy tạo run mới; raw/canonical artifact không bị overwrite.
 
-Coverage report missing session và segment count nhưng không tự coi missing price là holiday. Completed run resume chỉ đọc/verify khi config/code/raw hashes khớp. KBS pilot decisions chỉ còn tại [legacy semantics](data/kbs_pilot_semantics.md), không định nghĩa production contract.
+Coverage report missing session và segment count nhưng không tự coi missing price là holiday. Completed run resume chỉ đọc/verify khi config/code/raw hashes khớp. KBS pilot decisions chỉ còn tại [legacy semantics](../data/kbs_pilot_semantics.md), không định nghĩa production contract.
