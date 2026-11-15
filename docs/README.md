@@ -2,7 +2,7 @@
 
 ## M3-C — tái lập Dev/Holdout và báo cáo kỹ thuật, 04/11/2026
 
-[Hướng dẫn chạy notebook](../M3/HUONG_DAN_THUC_HIEN_M3.md),
+Hướng dẫn chạy notebook (đã gộp vào notebook, file riêng xóa 04/11),
 [báo cáo kỹ thuật](../M3/reports/BAO_CAO_KY_THUAT_M3.md) và
 [tiến độ thực hiện](REPORT_BACKTEST.md) dùng hai run M3-A đã seal.
 Notebook 01–03 tái lập dữ liệu/PIT, lựa chọn danh mục, backtest và VNINDEX bằng module chính thức.
@@ -69,7 +69,7 @@ hiện tại; không dùng các đường dẫn đó làm điểm bàn giao.
 - **Phân cụm thị trường (M2):** mô hình A của bundle web v4 — 9 đặc trưng, lọc thanh khoản nhẹ, log + cắt đuôi +
   z-score, K-Means k=3 học trên mã có giao dịch (chọn bằng `clustering_rework_v2`; chọn lại chỉ trên 2019–2023 vẫn k=3).
 - **Phân cụm tài chính:** mô hình B của bundle v4 (9 chỉ số, k=3, chưa đạt ngưỡng ổn định — giới hạn đã ghi).
-- **M3:** `docs/M3_PLAN.md`, đọc A/B v4 + Indicators v1 + ngày công bố CafeF.
+- **M3:** `docs/m3/M3_PLAN.md`, đọc A/B v4 + Indicators v1 + ngày công bố CafeF.
 - **Hướng cũ (LEGACY, chỉ làm đối chứng/tái lập):** bàn giao M2 K=2 trong `M2/`, báo cáo `Bao_cao_M2_Nhiem_vu_4.*`,
   dashboard Streamlit `m3_dashboard.py`, web cũ `web/index.html|app.js|styles.css`. Giữ nguyên đường dẫn vì code/test
   cũ còn đọc; không dùng làm input cho việc mới.
@@ -174,69 +174,18 @@ không dùng chúng để tái tạo current84. Xem `M2/artifacts/market-financi
 Đọc [report tổng](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md) để xem kết quả,
 outlier queue và giới hạn M2/M3. Các ghi chú chưa phân cụm bên dưới thuộc các lượt cũ.
 
-**M3-B Market-only (2026-10-23):** dashboard Streamlit tại
-[`m3_dashboard.py`](../m3_dashboard.py), đọc bộ handoff hiện hành 84 snapshot
+**M3-B Market-only (2026-10-23, LEGACY):** dashboard Streamlit `m3_dashboard.py` (đã xóa 04/11, còn trong lịch sử git), đọc bộ handoff hiện hành 84 snapshot
 2019–2025 trên dữ liệu nền 2016–2025. Hướng dẫn Windows, checklist và ví dụ đối
 chiếu source ở đầu [Current status](CURRENT_STATUS.md). Giao diện chỉ còn Overview
 và bảng thành viên tìm kiếm/phân trang, trục cố định liquidity_21/beta_126;
 không Financial, ranking hoặc backtest. Các mốc cũ bên dưới giữ bối cảnh
 lịch sử, không phải next stage của phiên M3-B này.
 
-## Chạy dashboard sau khi pull Git và nhận dữ liệu riêng
-
-Yêu cầu Python >=3.11 (môi trường đã kiểm tra: Python 3.12). Người chia sẻ cần
-commit `m3_dashboard.py`, `.streamlit/config.toml`, `pyproject.toml`,
-`.gitattributes`, tests/docs và bộ `M2/artifacts/m2-final-handoff-v1/` hiện hành.
-Hai manifest development/holdout dưới `M2/artifacts/` đã nằm trong Git. Không
-commit `.venv/` hoặc bỏ ignore của toàn bộ `artifacts/`.
-
-Người nhận đặt **đúng ba file của bộ C8 hiện hành** do owner gửi riêng vào:
-
-```text
-<repository>/artifacts/cafef_primary/cafef-c8-complete-only-v2/
-├── manifest.json
-└── canonical/
-    ├── feature_snapshots.jsonl
-    └── securities.jsonl
-```
-
-Giữ nguyên bytes, không mở rồi lưu lại CSV/JSONL bằng Excel/editor. Không dùng
-bộ C8 cũ đến 28/08/2026 hoặc chỉ đổi tên thư mục để thay thế. Dashboard kiểm
-tra checksum và lineage với handoff/development/holdout hiện hành; dữ liệu thiếu
-hoặc sai phiên bản sẽ bị chặn. Không cần chạy lại crawl, features hoặc model.
-
-Từ thư mục gốc repository, chạy PowerShell:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -e ".[dashboard]"
-.\.venv\Scripts\python.exe -m streamlit run .\m3_dashboard.py
-```
-
-Mở `http://localhost:8501`. Những lần sau chỉ chạy lệnh cuối; Ctrl+C để dừng.
-Extra `dashboard` pin Streamlit 1.66.1 và pandas 2.3.3, tương ứng API/table
-Styler đang dùng. Không cần cài extra `research` để xem dashboard.
-
-Kiểm tra offline bộ dữ liệu trước khi mở giao diện:
-
-```powershell
-.\.venv\Scripts\python.exe -c "from m3_dashboard import load_market_data; d = load_market_data(); print(d['audit'])"
-```
-
-Kỳ vọng audit `status=PASS`, 84 snapshot/75.801 assignments và không thiếu
-feature rows/values. Git handoff dùng `-text` để tránh tự chuyển đổi xuống dòng
-làm sai checksum khi clone trên Windows/Linux. Hướng dẫn này chưa thay thế một
-lần thử clone/install trên máy người nhận.
-
-Repository đang ở trạng thái **C8 executed and verified; R1 consolidated; M1-REPORT complete**. M1 market foundation đủ cho market-only experiment preparation, còn strict research gate vẫn `NOT READY`. Bắt đầu bằng:
-
-**Cleanup55:** `data/financial` còn **59** thư mục (trước221), `artifacts/reports` còn **13** (trước57). Các lượt cũ đã gom vào [kho lịch sử](../artifacts/archives/financial-history-20261023/README.md); chỉ dùng handoff hiện hành cho M2.
-
 ## Công việc hiện hành
 
 M2 Nhiệm vụ 1 đã freeze protocol và Nhiệm vụ 2 đã hoàn tất runner preparation/testing. Stage chính xác tiếp theo là **M2 Nhiệm vụ 3 — GLOBAL K TRÊN DEVELOPMENT**; chưa chạy trong stage hiện tại. Eligibility vẫn theo từng snapshot; 905 chỉ là latest-snapshot count và không phải strict research universe.
 
-Chuyển session: đọc [bản bàn giao Execution56](FINANCIAL_SESSION_HANDOFF.md)
+Chuyển session: đọc [bản bàn giao Execution56](plans/FINANCIAL_SESSION_HANDOFF.md)
 để biết trạng thái Git, kết quả model, tests và bước review tiếp theo.
 
 | Nội dung | Tài liệu |
@@ -280,8 +229,8 @@ Chuyển session: đọc [bản bàn giao Execution56](FINANCIAL_SESSION_HANDOFF
   Task 12/13 lịch sử chưa áp dụng cho workflow hiện tại, thực hiện riêng.
 - Thu thập CafeF có kiểm soát: [Data collection](crawl/README.md) và [CafeF semantics](crawl/sources/CAFEF.md).
 - Quyết định methodology: [Decisions](DECISIONS.md), [Research questions](research/RESEARCH_QUESTIONS.md), [Literature matrix](research/LITERATURE_MATRIX.md), [Dynamic clustering review](research/DYNAMIC_CLUSTERING_REVIEW.md).
-- Evaluation/product: [Evaluation and backtest](EVALUATION_AND_BACKTEST.md), [Product](PRODUCT.md).
-- Governance: [Roadmap](ROADMAP.md), [Reproducibility](REPRODUCIBILITY.md), [Contributing](../CONTRIBUTING.md).
+- Evaluation/product: [Evaluation and backtest](architecture/EVALUATION_AND_BACKTEST.md), [Product](architecture/PRODUCT.md).
+- Governance: [Roadmap](ROADMAP.md), [Reproducibility](architecture/REPRODUCIBILITY.md), [Contributing](../CONTRIBUTING.md).
 - Historical source caveat còn được artifact tham chiếu: [KBS pilot semantics](data/kbs_pilot_semantics.md) và [data usage risk acceptance](data/DATA_USAGE_RISK_ACCEPTANCE.md).
 
 Dataset mới nhất là kết quả50:1.172 full10/13.529 reference rows; lượt52 review 95 gaps
