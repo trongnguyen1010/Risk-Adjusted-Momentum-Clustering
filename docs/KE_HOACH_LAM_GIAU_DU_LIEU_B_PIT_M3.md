@@ -78,36 +78,62 @@ Các chỉ số gồm `roe`, `roa`, `gross_margin`, `net_margin`, `debt_to_equit
 
 **Điều kiện chuyển bước** · Mọi ô đổi giá trị truy được về rule, cutoff và bảng trung vị. Hồ sơ thiếu nhiều chỉ số ghi rõ số ô điền, tới 6 ô trên một dòng. SHA-256 baseline giữ nguyên.
 
-## 5. Giai đoạn D — Build B-PIT phiên bản thử nghiệm
+## 5. Giai đoạn D — Chọn và kiểm định cấu hình phân cụm B-PIT (M2)
 
-1. Dùng builder [build_financial_pit_clusters.py](../scripts/build_financial_pit_clusters.py) làm entry point. Builder hiện đọc pointer `configs/product/indicators_v1.json`. Thêm đầu vào tường minh cho pointer/dữ liệu và thư mục artifact thử nghiệm ở lượt triển khai, với mặc định cũ cho các lệnh hiện hành. Giữ pointer gốc.
-2. Fit lại T1 và K-Means `k=3`, `n_init=10`, seed `42` theo từng FY, trên tập fit gốc cộng nhóm hoàn tất 9/9 tại cutoff. Tính thứ tự cụm theo đúng rule baseline. Với FY ngoài phạm vi, giữ hành vi và kết quả mô hình gốc. Đối chiếu cutoff trước/sau. Nếu việc mở rộng tập khiến builder tính ra cutoff khác baseline, dừng để xác định nguyên nhân và áp dụng đúng cutoff đã chốt.
-3. Lưu `labels.csv`, `models.json`, `audit.json`, `manifest.json` tại `data/financial/b_pit_enriched_v1/<run_id>/`. Manifest liên kết bản chỉ số dẫn xuất, availability, artifact cha và hash đầu ra. Thống kê số fit trước/sau, phân bố cụm, số mã cũ đổi nhãn và độ tương đồng trên tập mã chung bằng ARI.
-4. Chạy test của loader, B-PIT và M3, gồm trường hợp opt-in, dữ liệu gốc, cutoff và FY ngoài phạm vi. Chạy `python -m compileall -q src tests scripts run.py` và synthetic smoke theo `configs/data/synthetic_smoke.example.json` nếu có thay đổi pipeline.
+**Đầu vào bắt buộc** · Dùng `indicators.sqlite` đã làm giàu từ Giai đoạn C cho mọi lượt fit và kiểm định B-PIT trong thử nghiệm, kể cả đối chứng K-Means k=3. Xác minh đường dẫn, run ID và SHA-256 theo manifest Giai đoạn C trước khi chạy.
 
-**Điều kiện chuyển bước** · `fit_leaks` rỗng, mỗi FY có group thêm vào fit đúng theo dữ liệu đã xác minh, cutoff và thứ tự cụm có đủ evidence, đầu ra truy xuất được từ manifest.
+1. Khi triển khai D, sao chép [build_financial_pit_clusters.py](../scripts/build_financial_pit_clusters.py) sang `scripts/build_financial_pit_clusters_enriched.py` làm entry point riêng. Script mới nhận tường minh SQLite chỉ số dẫn xuất, availability, artifact B-PIT gốc, cấu hình thử nghiệm và thư mục đầu ra. Bật opt-in cho `IMPUTED_MEDIAN` tại loader thử nghiệm. Tái sử dụng logic cutoff, T1, audit và xếp hạng cụm hiện có. Giữ builder, pointer, config M3 và artifact baseline ở chế độ chỉ đọc trong lượt thử.
+2. Đóng băng tập fit theo từng FY2017–FY2024: dùng cutoff đã lưu trong artifact gốc và tập FIT gốc cộng các mã–năm hoàn tất 9/9 ở Giai đoạn C có `usable_from_date <= cutoff`. Dùng cùng tập fit cho mọi cặp cấu hình trong một FY. Fit T1 (cắt đuôi 1–99% và z-score) và mọi tham số mô hình, kể cả PCA, trên tập đó. Hồ sơ có ngày muộn chỉ được gán bằng mô hình đã đóng băng và chỉ dùng từ `usable_from_date`. Hồ sơ thiếu ngày tiếp tục tuân theo rule loại khỏi tập dùng cho M3. Đối chiếu cutoff trước/sau và giữ kết quả baseline cho các FY ngoài phạm vi.
+3. Thử **đồng thời 24 cặp (thuật toán, k)** theo [cấu hình sàng lọc của A](../configs/experiments/clustering_rework_v2.json): K-Means, PCA + K-Means (giữ 80% phương sai), Ward và GMM, mỗi phương án chạy với `k = 3, 4, 5, 6, 7, 8`. Pin tham số và seed theo cấu hình tham chiếu. Giữ K-Means `k=3`, `n_init=10`, seed `42` trên cùng tập làm giàu để đối chiếu với cấu hình được chọn và với B-PIT gốc. Ghi rõ quy tắc gán sau cutoff: K-Means dùng tâm đã fit trong không gian tương ứng, GMM dùng xác suất hậu nghiệm của mô hình đã fit, Ward gán theo tâm gần nhất của các cụm đã fit trong không gian T1. Thứ tự cụm theo ROE rồi D/E chỉ tính từ thành viên FIT và được lưu cùng mô hình.
+4. Chọn một cặp chung cho các FY trong phạm vi. Tập chọn cấu hình phân cụm gồm các FY có cutoff đến hết `2023-12-29` (FY2017–FY2022 theo artifact gốc). Mốc này được đặt trùng ngày kết thúc Development của backtest. Dùng nhãn của tập FIT và đo silhouette, Davies–Bouldin, Calinski–Harabasz trên cùng không gian T1. Tính độ ổn định bằng ARI giữa fit đầy đủ và refit trên mẫu con 90% với các seed đã pin. Tính ARI giữa hai FY liên tiếp trên tập mã FIT chung. Yêu cầu cụm nhỏ nhất chiếm ít nhất 5% ở tối thiểu 80% số FY sàng lọc và ARI trung vị lấy mẫu con đạt ít nhất 0,80. Xếp hạng các cặp đạt theo trung bình hạng của 5 thước đo. Khi hòa, ưu tiên k nhỏ hơn rồi theo thứ tự K-Means, PCA + K-Means, Ward, GMM. Đóng băng cặp đã chọn trước khi kiểm định trên các FY có cutoff sau mốc chọn cấu hình. Lợi suất, Sharpe và kết quả backtest nằm ngoài tiêu chí chọn.
+   **Tập kiểm định cấu hình phân cụm B-PIT (M2)** · Dùng FY2023 và FY2024, có cutoff lần lượt là `2024-04-30` và `2025-04-30`. Với cặp thuật toán và k đã chốt, fit T1, mô hình và thứ tự cụm riêng cho từng FY trên tập FIT hợp lệ tại cutoff. Báo cáo chất lượng và độ ổn định của cụm trên các FY này riêng với kết quả chọn cấu hình. Giữ cố định thuật toán và k sau kiểm định.
 
-## 6. Giai đoạn E — Backtest M3 với phiên bản mới
+5. Lưu cấu hình, cohort và cutoff theo FY, kết quả từng cặp theo FY, bảng tổng hợp 24 cặp, lý do loại và quyết định chọn vào thư mục run riêng. Artifact chuyển cho M3 tại `data/financial/b_pit_enriched_v1/<run_id>/` gồm `labels.csv`, `models.json`, `audit.json` và `manifest.json`. Manifest pin chỉ số dẫn xuất, availability, artifact cha, code, cấu hình và hash đầu ra. Lưu tham số mô hình theo thuật toán và thống kê số fit trước/sau, phân bố cụm, tỷ lệ mã đổi nhãn sau khi đối sánh nhãn, ARI trên tập mã chung với baseline và với đối chứng K-Means k=3.
+6. Kiểm tra loader opt-in, việc tái lập baseline, tập FIT, cutoff, gán sau cutoff, FY ngoài phạm vi và cách ly tập chọn cấu hình khỏi tập kiểm định phân cụm. Kiểm tra loader M3 đọc được nhãn và thứ tự đủ k cụm, đồng thời ghi số mã qua rule Va `not_weakest` theo FY trước khi chuyển bước. Chạy targeted tests của B-PIT và M3, `python -m compileall -q src tests scripts run.py` và synthetic smoke theo `configs/data/synthetic_smoke.example.json` nếu có thay đổi pipeline.
 
-1. Tạo file cấu hình mới, ví dụ `configs/experiments/m3_strategy_enriched_v1.json`, dựa trên config baseline. Pin path, SHA-256 nhãn và xác minh hash `models.json` của B-PIT mới. Runner hiện cho chọn `--config` nhưng vẫn dùng đường dẫn Indicators v1 mặc định và cache giá trần/sàn dùng chung. Khi tích hợp, bổ sung tùy chọn đường dẫn chỉ số, hash và cache riêng cho thử nghiệm. Truyền cùng đường dẫn chỉ số cho phần đọc scoring, sectors và ghi input hash. Giữ cấu hình và cache baseline nguyên vẹn. Thư mục run mới theo từng segment có run ID riêng.
-2. Chạy thử `targets-only` cho cả hai đoạn với config mới để xác nhận nguồn là `B_PIT`, hash đầu vào khớp, cutoff hoạt động và lịch quyết định đúng. Chạy test cách ly giá và Q17. Khi readiness đạt, khóa code, config và dữ liệu của thử nghiệm trước full Development.
-3. Chạy Development trước và seal artifact. Sau đó chạy Holdout với cùng code, config, bảng trung vị và B-PIT. Dùng đầy đủ SHA-256 C8 ở full run. Lệnh dự kiến sau khi tích hợp các đầu vào mới:
+**Điều kiện chuyển bước** · `fit_leaks` rỗng, tập FIT và cutoff khớp evidence, đầu ra truy xuất được từ manifest, kiểm tra tương thích với M3 đạt. Ghi `MANUAL_REVIEW_REQUIRED` và trình owner bảng xếp hạng cùng tác động của cấu hình đề xuất lên rule Va trước khi pin cho Giai đoạn E. Nếu không cặp nào đạt, báo rõ kết quả và trình đối chứng K-Means k=3 để owner quyết định bước tiếp theo.
 
-```powershell
-$cfg = 'configs/experiments/m3_strategy_enriched_v1.json'
-& $py scripts/run_m3.py --config $cfg --segment development --targets-only
-& $py scripts/run_m3.py --config $cfg --segment holdout --targets-only
-# Sau khi kiểm tra readiness và khóa config
-& $py scripts/run_m3.py --config $cfg --segment development
-# Sau khi kiểm tra và seal Development
-& $py scripts/run_m3.py --config $cfg --segment holdout
-```
+## 6. Giai đoạn E — Backtest M3 với B-PIT đã làm giàu
 
-4. Đối chiếu 60 kỳ quyết định/59 kỳ thực thi của Development và 24/23 của Holdout. Kỳ cuối mỗi đoạn không thực thi. Kiểm tra không đọc giá sau biên segment, manifest ghi đúng hash chỉ số mới, availability và dữ liệu giá khớp baseline. Benchmark và ba strategy Market-only, Equal-weight, Momentum-only phải khớp baseline theo dữ liệu nghiệp vụ. Điều tra sai khác trước khi tiếp tục.
+**Đầu vào bắt buộc** · Mọi lượt kiểm tra và backtest thử nghiệm ở cả Development và Holdout phải dùng cùng SQLite chỉ số đã làm giàu từ Giai đoạn C và artifact B-PIT được build từ SQLite đó ở Giai đoạn D. Dùng đường dẫn SQLite đã pin cho chấm điểm, đọc dữ liệu ngành và ghi hash đầu vào. Xác minh `indicators_sha256` và `b_pit_labels_sha256` trong manifest từng run khớp các artifact đã bàn giao. Dừng nếu runner còn đọc SQLite mặc định hoặc nếu hash không khớp.
 
-**Điều kiện chuyển bước** · Hai manifest và thư mục kết quả riêng đầy đủ. Kiểm tra hash và hành vi kiểm soát đạt. Các artefact gốc giữ nguyên.
+Bắt đầu khi các Giai đoạn A–D đã đạt điều kiện bàn giao và owner đã duyệt cấu hình phân cụm. M3 đọc nhãn đã build và áp dụng cutoff cùng `usable_from_date` tại từng ngày quyết định. Trình tự dưới đây dựa trên Bước 2–5 của [hướng dẫn M3 Readiness](../M3/M3_READINESS.md#bước-2--pin-b-pit-vào-config).
+
+1. **Pin đầu vào vào config thử nghiệm.** Tạo `configs/experiments/m3_strategy_enriched_v1.json` từ config baseline, đặt trạng thái `READY_TO_LOCK_AFTER_BPIT`. Pin đường dẫn B-PIT, SHA-256 của `labels.csv` và `models.json`, cùng đường dẫn và SHA-256 của SQLite chỉ số đã làm giàu. Runner và công cụ feasibility phải đọc cùng config, kể cả chỉ số dùng cho scoring, dữ liệu ngành và hash trong manifest. Dùng cache giá trần/sàn riêng. Hoàn tất phần tích hợp này trước khi chạy vì `m3_feasibility_variants.py` hiện đọc config baseline cố định và `run_m3.py` vẫn lấy chỉ số từ đường dẫn mặc định.
+
+2. **Chạy feasibility trước khi tính lợi suất.** Dùng `scripts/m3_feasibility_variants.py` với config thử nghiệm sau khi script hỗ trợ `--config`. Với cả hai đoạn, ghi trung vị và số ứng viên thấp nhất, số kỳ dưới `N_min=10`, cùng tỷ lệ loại theo lý do. Dùng kết quả `official config (after FINANCIAL_CRITERIA_MISSING)` để đối chiếu baseline. Nếu số kỳ dưới ngưỡng tăng rõ, trình owner xem xét trước khi chạy full backtest.
+
+3. **Chạy và xác minh `targets-only` cho cả hai đoạn.** Kiểm tra manifest ghi `financial_source=B_PIT`, hash khớp config và `git_dirty=false`. Development phải có **60 quyết định / 59 kỳ thực thi theo lịch / 1 kỳ cuối không thực thi**. Holdout phải có **24 / 23 / 1**. Theo từng kỳ và từng strategy, đối chiếu số ứng viên giữa `universe_audit_*.csv` và `targets_*.csv`, kiểm tra cutoff, lý do loại và tổng tỷ trọng mục tiêu khi có phân bổ. `targets-only` không tính lợi suất và có thể ghi `c8_prices_sha256=null` theo contract của runner.
+
+   ```powershell
+   $cfg = 'configs/experiments/m3_strategy_enriched_v1.json'
+   & $py scripts/run_m3.py --config $cfg --segment development --targets-only
+   & $py scripts/run_m3.py --config $cfg --segment holdout --targets-only
+   ```
+
+4. **Kiểm tra ranh giới giá và khóa config.** Sau khi cả hai lượt `targets-only` đạt, kiểm tra Q17 và cách ly giá theo segment, gồm cả các phiên liền kề dùng để kiểm tra giá. Chuyển config sang `LOCKED`, commit code và config, ghi Git commit, `config_sha256` và hash đầu vào. Full run phải ghi đủ SHA-256 của giá C8.
+
+5. **Chạy Development → kiểm tra → seal.** Chạy đoạn **31/01/2019–29/12/2023**:
+
+   ```powershell
+   & $py scripts/run_m3.py --config $cfg --segment development
+   ```
+
+   Đối chiếu targets và universe audit với lượt `targets-only`. Kiểm tra `trade_ledger`, dòng tiền, holdings, NAV và metrics. NAV phải kết thúc đúng ngày `2023-12-29`. Rà các kỳ `UNIVERSE_TOO_SMALL` và các lệnh `LIMIT_DATA_MISSING`. Xác minh VNINDEX và ba strategy Market-only, Equal-weight, Momentum-only khớp baseline theo dữ liệu nghiệp vụ. Khi kiểm tra đạt, lưu `seal.json` riêng cùng trạng thái `PASS`, run ID và SHA-256 của manifest, đầu vào, đầu ra. [Ví dụ verify và seal Development](REPORT_BACKTEST.md#321-development-chạy-lại-sau-sửa-q17-verify-và-seal-pass)
+
+6. **Chạy Holdout → kiểm tra → seal.** Sau khi Development đã seal, chạy đoạn **31/01/2024–31/12/2025** bằng đúng commit, config và bộ đầu vào đã khóa:
+
+   ```powershell
+   & $py scripts/run_m3.py --config $cfg --segment holdout
+   ```
+
+   Lặp lại các kiểm tra của Development và đối chiếu hash với seal Development. Holdout khởi tạo danh mục và NAV riêng, kết thúc NAV ngày `2025-12-31`. Ghi số kỳ dưới `N_min` cùng kết quả từng đoạn. Giữ hai chuỗi NAV riêng và chỉ báo cáo Sharpe ở Final nếu đủ điều kiện. [Ví dụ verify và seal Holdout](REPORT_BACKTEST.md#322-holdout-chính-thức-verify-và-seal-pass)
+
+**Điều kiện bàn giao sang Giai đoạn F** · Cả hai full run có run ID, manifest và seal riêng. Các kiểm tra trên targets, giao dịch, NAV, ranh giới giá và đối chứng đều đạt. Nếu có sai lệch, ghi rõ bằng chứng và xử lý trước khi chuyển bước.
 
 ## 7. Giai đoạn F — Đối sánh và bàn giao
+
+**Đầu vào bắt buộc** · Lập báo cáo thử nghiệm từ dữ liệu chỉ số đã làm giàu ở Giai đoạn C, artifact B-PIT ở Giai đoạn D và các run Development/Holdout ở Giai đoạn E đã xác minh dùng đúng hai artifact đó. Đối chiếu run ID và SHA-256 qua các manifest trước khi tổng hợp. Kết quả gốc được đọc làm baseline đối sánh.
 
 - Với B-PIT, báo cáo số ô điền theo FY và chỉ số, số mã–năm theo số ô điền, độ phủ 9/9, số mã fit, phân bố cụm và thay đổi nhãn trên tập chung.
 - Với M3, đối chiếu Combined và Financial-only với baseline theo từng đoạn. Ghi số ứng viên, kỳ thiếu ứng viên, số mã chọn/thực giữ, lệnh thất bại, tiền mặt, NAV, lợi suất và drawdown. Giữ đủ số liệu của các strategy đối chứng. VNINDEX là price index, còn NAV strategy dùng giá điều chỉnh của nhà cung cấp. Khi trình bày chênh lệch, ghi rõ cơ sở giá của hai chuỗi.

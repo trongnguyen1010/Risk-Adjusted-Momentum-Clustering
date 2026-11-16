@@ -1577,7 +1577,7 @@ khi hoàn tất, pause hoặc gặp lỗi để review. ORS còn HOLD. Budget ba
 - **Phân cụm thị trường (M2):** mô hình A của bundle web v4 — 9 đặc trưng, lọc thanh khoản nhẹ, log + cắt đuôi +
   z-score, K-Means k=3 học trên mã có giao dịch (chọn bằng `clustering_rework_v2`; chọn lại chỉ trên 2019–2023 vẫn k=3).
 - **Phân cụm tài chính:** mô hình B của bundle v4 (9 chỉ số, k=3, chưa đạt ngưỡng ổn định — giới hạn đã ghi).
-- **M3:** `docs/m3/KE_HOACH_M3_SCHEMA_GITHUB.md` + ADR D-M3-01 (03/11/2026); đọc A v4 + B-PIT + Indicators v1 + ngày công bố CafeF. `docs/m3/M3_PLAN.md` là lịch sử đề xuất.
+- **M3:** `M3/KE_HOACH_M3_SCHEMA_GITHUB.md` + ADR D-M3-01 (03/11/2026); đọc A v4 + B-PIT + Indicators v1 + ngày công bố CafeF. `M3/M3_PLAN.md` là lịch sử đề xuất.
 - **Hướng cũ (LEGACY, chỉ làm đối chứng/tái lập):** bàn giao M2 K=2 trong `M2/`, báo cáo `Bao_cao_M2_Nhiem_vu_4.*`,
   dashboard Streamlit `m3_dashboard.py`, web cũ `web/index.html|app.js|styles.css`. Giữ nguyên đường dẫn vì code/test
   cũ còn đọc; không dùng làm input cho việc mới.
@@ -1594,15 +1594,15 @@ Kết quả: `docs/REPORT_BACKTEST.md`, `M3/reports/BAO_CAO_KY_THUAT_M3.md`; CSV
 
 ## M3 — methodology khóa, code sync, chờ build B-PIT trên máy có dữ liệu (03/11/2026)
 
-ADR D-M3-01; kế hoạch chuẩn `docs/m3/KE_HOACH_M3_SCHEMA_GITHUB.md`. Code/config đã sync; B-PIT đã có code nhưng chưa
-build (cần `data/` local). Việc tiếp theo và lệnh chạy: `docs/m3/M3_READINESS.md`.
+ADR D-M3-01; kế hoạch chuẩn `M3/KE_HOACH_M3_SCHEMA_GITHUB.md`. Code/config đã sync; B-PIT đã có code nhưng chưa
+build (cần `data/` local). Việc tiếp theo và lệnh chạy: `M3/M3_READINESS.md`.
 
 ## M3 giai đoạn 0 và lõi engine (25/10/2026)
 
 `scripts/m3_stage0.py`: manifest đầu vào có hash, đếm tập ứng viên từng tháng, kiểm cơ sở lợi suất (không tính lợi
 suất danh mục). Development: trung vị 8 ứng viên, 38/60 tháng dưới 10 → cần mentor chốt lại Q5/Q6. `adj_close` đã gồm
 cổ tức tiền mặt; 1.030 lỗi adj lệch một phiên (đề xuất Q17). Engine `src/delta_t1/m3/` + 16 test PASS.
-Chi tiết: `docs/m3/M3_PLAN.md` mục 7.
+Chi tiết: `M3/M3_PLAN.md` mục 7.
 
 ## Ngày công bố BCTC cho M3 — đã crawl (25/10/2026)
 
@@ -1610,7 +1610,7 @@ Theo D-CRAWL-02: `scripts/crawl_cafef_disclosure_dates.py` lấy "Thời gian g�
 CafeF cho 1.362 mã có nhãn B (`data/financial/disclosure_dates_v1/full-20261025`, không bị chặn).
 `scripts/build_financial_availability.py` → `availability-0c412f60f7c21bd3/availability.csv`: FY ≥ 2022 dùng ngày CafeF
 (1.257–1.327 mã/năm), trước 2022 dùng quy tắc trễ 30/06 năm sau (CafeF nhập lại lịch sử ngày 26/11/2022).
-Đối chiếu 9 mã-năm kiểm tay: không ngày nào sớm hơn thực tế. Chi tiết: `docs/m3/M3_PLAN.md` nhiệm vụ 0.2.
+Đối chiếu 9 mã-năm kiểm tay: không ngày nào sớm hơn thực tế. Chi tiết: `M3/M3_PLAN.md` nhiệm vụ 0.2.
 
 ## Bundle v4 = v3 + giải thích (bản đồ mô hình, tên cụm) — đã build, CHỜ OWNER KIỂM TRA (25/10/2026)
 
