@@ -130,11 +130,14 @@ class FinancialEnrichmentEligibility:
                 if status == "OK" and val is not None:
                     ok_metrics.append(m)
                 elif status == "MISSING_INPUT":
+                    if inp_str and "NO_ANNUAL_REPORT" in inp_str:
+                        formula_gap_metrics.append((m, "NO_ANNUAL_REPORT"))
+                        continue
                     # Quy tắc đặc thù cfo_to_ni
                     if m == "cfo_to_ni":
                         try:
                             inp_data = json.loads(inp_str) if inp_str else {}
-                            ni = inp_data.get("ni")
+                            ni = inp_data.get("net_profit@t", inp_data.get("ni"))
                             if ni is not None and ni > 0:
                                 imputable_metrics.append((m, "CFO_MISSING_POSITIVE_NI"))
                             else:
