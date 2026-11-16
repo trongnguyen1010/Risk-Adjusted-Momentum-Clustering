@@ -742,7 +742,7 @@ Tài liệu nguồn: “Phien_am_noi_dung_buoi_bao_cao (1).docx”. Các yêu c�
 
 **• configs/product/indicators_v1.json:** https://github.com/trongnguyen1010/Risk-Adjusted-Momentum-Clustering/blob/feature/indicators-v1/configs/product/indicators_v1.json
 
-**• docs/m3/KE_HOACH_M3_SCHEMA_GITHUB.md:** https://github.com/trongnguyen1010/Risk-Adjusted-Momentum-Clustering/blob/feature/indicators-v1/docs/m3/KE_HOACH_M3_SCHEMA_GITHUB.md
+**• M3/KE_HOACH_M3_SCHEMA_GITHUB.md:** https://github.com/trongnguyen1010/Risk-Adjusted-Momentum-Clustering/blob/feature/indicators-v1/M3/KE_HOACH_M3_SCHEMA_GITHUB.md
 
 ## 19.3. Trạng thái bằng chứng
 

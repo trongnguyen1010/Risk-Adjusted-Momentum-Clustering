@@ -1,5 +1,14 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Cập nhật cấu trúc M3 và hoàn thiện kế hoạch làm giàu dữ liệu B-PIT — 16/11/2026
+
+Chuyển toàn bộ tài liệu kế hoạch M3 từ `docs/m3/` sang trực tiếp thư mục `M3/`
+(`KE_HOACH_M3_SCHEMA_GITHUB.md`, `M3_PLAN.md`, `M3_READINESS.md`, `M3_MENTOR_QUESTIONS.md`).
+Đồng bộ toàn bộ đường dẫn tham chiếu và liên kết nội bộ trong tài liệu, docstrings,
+scripts và AGENTS.md. Cập nhật chi tiết 24 cặp (thuật toán, k) và quy trình kiểm tra
+targets-only / backtest cho Giai đoạn D và E trong kế hoạch làm giàu dữ liệu B-PIT M3.
+
+
 ## Áp 13 timestamp TNCK/Mekong, overlay pilot V2 — 11/11/2026
 
 Bước44 thực thi approval cho7rowTNCK2021 ở16:55:48+07 ngày02/06/2021 và6row
@@ -251,13 +260,13 @@ ADR D-M3-01. Config `m3_strategy_v1` sync theo methodology đã khóa (`not_weak
 trạng thái `READY_TO_LOCK_AFTER_BPIT`). Mới: `src/delta_t1/m3/bpit.py` + `scripts/build_financial_pit_clusters.py`
 (B-PIT, audit không rò rỉ, ARI so với B v4). `run_m3.py`: strict segment boundary, `universe_audit_<strategy>.csv`,
 manifest có git commit + hash input, B-PIT bắt buộc cho full run. Chiến lược: N_min sau khi loại mã thiếu FC, thứ tự
-cụm tài chính đóng băng, chặn lệnh khi thiếu dữ liệu trần/sàn. 35 test M3. Hướng dẫn: `docs/m3/M3_READINESS.md`.
+cụm tài chính đóng băng, chặn lệnh khi thiếu dữ liệu trần/sàn. 35 test M3. Hướng dẫn: `M3/M3_READINESS.md`.
 
 ## Hướng chính thức và M3 chuẩn bị (26/10/2026)
 
 D-DIR-01: mô hình thị trường chính thức = A bundle v4 (k=3; chọn lại trên 2019–2023 vẫn k=3), tài chính = B v4; M2 K=2
 thành đối chứng (`artifacts/reports/m2-vs-rework-v1`). Hướng cũ đánh dấu LEGACY, không xóa. D-CRAWL-02: crawl thực dụng,
-ngày gửi BCTC CafeF cho 1.362 mã. M3: `docs/m3/M3_PLAN.md`, giai đoạn 0 (`scripts/m3_stage0.py`), lõi engine
+ngày gửi BCTC CafeF cho 1.362 mã. M3: `M3/M3_PLAN.md`, giai đoạn 0 (`scripts/m3_stage0.py`), lõi engine
 `src/delta_t1/m3` + 16 test.
 
 ## Thử nghiệm giao diện Blueprint (nhánh `feature/ui-blueprint`, 2026-10-25)
