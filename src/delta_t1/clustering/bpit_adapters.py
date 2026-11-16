@@ -15,8 +15,9 @@ Nguyên tắc:
 
 from typing import Dict, List, Tuple, Any, Optional
 import numpy as np
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.decomposition import PCA
+from sklearn.mixture import GaussianMixture
 
 from delta_t1.clustering.robust_transforms import nearest_centroid
 
@@ -123,3 +124,80 @@ class BpitPcaKMeansAdapter:
             raise ValueError("Mô hình chưa được fit.")
         x_late_pca = self.pca.transform(x_late)
         return nearest_centroid(x_late_pca, self.centroids_pca)
+
+class BpitWardAdapter:
+    """Adapter cho thuật toán phân cụm phân cấp Ward (linkage='ward')."""
+    def __init__(self, k: int):
+        self.k = k
+        self.model: Optional[AgglomerativeClustering] = None
+        self.centroids: Optional[np.ndarray] = None
+        self.cluster_order: Optional[List[int]] = None
+
+    def fit(self, x_fit: np.ndarray, raw_fit: np.ndarray, features: Tuple[str, ...]) -> np.ndarray:
+        ward = AgglomerativeClustering(n_clusters=self.k, linkage="ward")
+        raw_labels = ward.fit_predict(x_fit)
+        labels_fit, _ = renumber_by_size(raw_labels, self.k)
+
+        # Trọng tâm cụm trong không gian T1
+        centroids = np.array([x_fit[labels_fit == c].mean(axis=0) for c in range(self.k)])
+
+        self.model = ward
+        self.centroids = centroids
+        self.cluster_order = compute_cluster_order(raw_fit, labels_fit, features, self.k)
+        return labels_fit
+
+    def assign_late(self, x_late: np.ndarray) -> np.ndarray:
+        if self.centroids is None:
+            raise ValueError("Mô hình chưa được fit.")
+        # Ward gán late bằng trọng tâm gần nhất trong không gian T1
+        return nearest_centroid(x_late, self.centroids)
+
+class BpitGmmAdapter:
+    """Adapter cho mô hình Gaussian Mixture Model (GMM)."""
+    def __init__(
+        self,
+        k: int,
+        seed: int = 42,
+        covariance_type: str = "full",
+        n_init: int = 2,
+        reg_covar: float = 1e-4,
+        max_iter: int = 300,
+    ):
+        self.k = k
+        self.seed = seed
+        self.covariance_type = covariance_type
+        self.n_init = n_init
+        self.reg_covar = reg_covar
+        self.max_iter = max_iter
+        self.model: Optional[GaussianMixture] = None
+        self.remap: Optional[np.ndarray] = None
+        self.centroids: Optional[np.ndarray] = None
+        self.cluster_order: Optional[List[int]] = None
+
+    def fit(self, x_fit: np.ndarray, raw_fit: np.ndarray, features: Tuple[str, ...]) -> np.ndarray:
+        gmm = GaussianMixture(
+            n_components=self.k,
+            covariance_type=self.covariance_type,
+            n_init=self.n_init,
+            reg_covar=self.reg_covar,
+            max_iter=self.max_iter,
+            random_state=self.seed,
+        )
+        raw_labels = gmm.fit_predict(x_fit)
+        labels_fit, remap = renumber_by_size(raw_labels, self.k)
+
+        # Tính centroids theo nhãn đã renumber
+        centroids = np.array([x_fit[labels_fit == c].mean(axis=0) for c in range(self.k)])
+
+        self.model = gmm
+        self.remap = remap
+        self.centroids = centroids
+        self.cluster_order = compute_cluster_order(raw_fit, labels_fit, features, self.k)
+        return labels_fit
+
+    def assign_late(self, x_late: np.ndarray) -> np.ndarray:
+        if self.model is None or self.remap is None:
+            raise ValueError("Mô hình chưa được fit.")
+        raw_preds = self.model.predict(x_late)
+        return self.remap[raw_preds]
+
