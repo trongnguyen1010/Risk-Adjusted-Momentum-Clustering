@@ -212,12 +212,86 @@ class OfflineAssessmentBuilder:
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
 
+        # 1. assessments.jsonl
         assessments_jsonl = output_dir / "assessments.jsonl"
         with open(assessments_jsonl, "w", encoding="utf-8") as f:
             for p in payloads:
                 f.write(json.dumps(asdict(p), ensure_ascii=False) + "\n")
 
+        # 2. peer_benchmarks.csv
+        peer_benchmarks_csv = output_dir / "peer_benchmarks.csv"
+        with open(peer_benchmarks_csv, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(
+                f,
+                fieldnames=[
+                    "ticker",
+                    "metric",
+                    "peer_basis",
+                    "peer_count",
+                    "peer_median",
+                    "p25",
+                    "p75",
+                ],
+            )
+            writer.writeheader()
+            for p in payloads:
+                for m, comp in p.peer_comparisons.items():
+                    writer.writerow({
+                        "ticker": p.ticker,
+                        "metric": m,
+                        "peer_basis": comp.get("peer_basis", ""),
+                        "peer_count": comp.get("peer_count", 0),
+                        "peer_median": comp.get("peer_median"),
+                        "p25": comp.get("p25"),
+                        "p75": comp.get("p75"),
+                    })
+
+        # 3. coverage.csv
+        coverage_csv = output_dir / "coverage.csv"
+        all_features = [(m, "FINANCIAL") for m in FINANCIAL_FEATURES] + [(m, "MARKET") for m in MARKET_FEATURES]
+        total_n = len(payloads)
+        with open(coverage_csv, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(
+                f,
+                fieldnames=["feature", "category", "total_tickers", "valid_count", "coverage_pct"],
+            )
+            writer.writeheader()
+            for feat, cat in all_features:
+                if cat == "FINANCIAL":
+                    valid_c = sum(1 for p in payloads if p.financial_features.get(feat) is not None)
+                else:
+                    valid_c = sum(1 for p in payloads if p.market_features.get(feat) is not None)
+                pct = round(valid_c / float(total_n) * 100.0, 2) if total_n > 0 else 0.0
+                writer.writerow({
+                    "feature": feat,
+                    "category": cat,
+                    "total_tickers": total_n,
+                    "valid_count": valid_c,
+                    "coverage_pct": pct,
+                })
+
+        # 4. feature_history.jsonl
+        feature_history_jsonl = output_dir / "feature_history.jsonl"
+        with open(feature_history_jsonl, "w", encoding="utf-8") as f:
+            for p in payloads:
+                hist_pts = self.history_builder.get_ticker_history(p.ticker, start_year=2016, end_year=2024)
+                for pt in hist_pts:
+                    f.write(json.dumps(asdict(pt), ensure_ascii=False) + "\n")
+
         content_hash = compute_payload_content_hash(payloads)
+
+        # Hashes
+        in_hashes = {
+            "indicators_sqlite_sha256": sha256_file(self.resolver.indicators_db_path),
+            "availability_csv_sha256": sha256_file(self.resolver.availability_csv_path),
+            "bpit_labels_csv_sha256": sha256_file(self.resolver.bpit_labels_path),
+        }
+        out_files = {
+            "assessments.jsonl": sha256_file(assessments_jsonl),
+            "peer_benchmarks.csv": sha256_file(peer_benchmarks_csv),
+            "coverage.csv": sha256_file(coverage_csv),
+            "feature_history.jsonl": sha256_file(feature_history_jsonl),
+        }
 
         manifest = {
             "version": "investment_assessment_v1",
@@ -229,8 +303,13 @@ class OfflineAssessmentBuilder:
                 v: sum(1 for p in payloads if p.verdict == v)
                 for v in [VERDICT_WORTH_CONSIDERING, VERDICT_MONITOR, VERDICT_LOW_PRIORITY, VERDICT_INSUFFICIENT_EVIDENCE]
             },
+            "input_hashes": in_hashes,
+            "output_files": out_files,
             "outputs": {
-                "assessments_jsonl_sha256": sha256_file(assessments_jsonl),
+                "assessments_jsonl_sha256": out_files["assessments.jsonl"],
+                "peer_benchmarks_csv_sha256": out_files["peer_benchmarks.csv"],
+                "coverage_csv_sha256": out_files["coverage.csv"],
+                "feature_history_jsonl_sha256": out_files["feature_history.jsonl"],
             },
         }
         manifest_path = output_dir / "manifest.json"
