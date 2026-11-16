@@ -1,0 +1,3002 @@
+{
+  "schema_version": "delta-work-breakdown-v3.1",
+  "document": "docs/plans/KE_HOACH_TRIEN_KHAI_B_PIT_VA_DANH_GIA_DAU_TU.md",
+  "status": "DRAFT_FOR_REVIEW",
+  "baseline_commit": "1751e9ce271e298fa846a2390672c041615b383a",
+  "source_documents": [
+    {
+      "id": "BPIT",
+      "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+      "git_blob": "ebfee5aa570a11bcf9333ed9d4ac00a610f21658"
+    },
+    {
+      "id": "ASSESSMENT",
+      "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+      "git_blob": "b95bf97d917d181f9b2402bfa5179b77229a5965"
+    }
+  ],
+  "roles": {
+    "R1": {
+      "assignee": "Người 1",
+      "title": "Dữ liệu tài chính, B-PIT và builder Assessment",
+      "responsibilities": [
+        "Môi trường/nguồn và enrichment A–C, bao gồm các kiểm tra bắt buộc đi kèm",
+        "Cohort, thuật toán, screening và artifacts D; tự kiểm cutoff/leakage/replay",
+        "Notebook điều phối chạy và audit",
+        "Input/Peers/history/builder Assessment S1–S3"
+      ],
+      "handoff_to": [
+        "Người 2: SQLite/B-PIT/pins và evidence kiểm tra cho M3",
+        "Người 3: artifact Assessment đã build để verify/serving",
+        "Người 4: đặc trưng, lịch sử và evidence cho báo cáo/giao diện"
+      ]
+    },
+    "R2": {
+      "assignee": "Người 2",
+      "title": "Tích hợp M3, backtest và rulebook",
+      "responsibilities": [
+        "Loader k mới và nguồn enriched xuyên runner/feasibility",
+        "Config, targets, verify/seal Dev và Holdout",
+        "Đối sánh M3 theo segment",
+        "Policy, điều kiện, verdict và rationale D-ASS-01"
+      ],
+      "handoff_to": [
+        "Người 1: rule APIs và rationale cho builder",
+        "Người 4: số liệu và giải thích cho báo cáo"
+      ]
+    },
+    "R3": {
+      "assignee": "Người 3",
+      "title": "Backend read-only và verifier Assessment",
+      "responsibilities": [
+        "Verifier độc lập Assessment S3 theo kế hoạch Output",
+        "Cấu hình bản phát hành, manifest/payload reader và lookup",
+        "Repository, lifecycle/response mapper, schema/API/revision/cache",
+        "Integration, OpenAPI và smoke serving"
+      ],
+      "handoff_to": [
+        "Người 1: kết quả verifier Assessment S3",
+        "Người 4: API contract/examples/error matrix và revision"
+      ]
+    },
+    "R4": {
+      "assignee": "Người 4",
+      "title": "Đối sánh, frontend và tài liệu",
+      "responsibilities": [
+        "Report data/model/M3 và hồ sơ F",
+        "UI18features/onechart/Peers/rationale/nguồn",
+        "Tab stocks, API/URL state và revision handling",
+        "UAT, hướng dẫn và hồ sơ nghiệm thu"
+      ],
+      "handoff_to": [
+        "Người 1/2/3: lỗi UAT hoặc integration",
+        "Nhóm dự án: reports/UI/guide và evidence bàn giao"
+      ]
+    }
+  },
+  "stage_order": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6"
+  ],
+  "stages": {
+    "A": {
+      "title": "Khóa môi trường và baseline",
+      "exit_condition": "Môi trường import được, pip check sạch, tests M3 và dung lượng đạt theo kế hoạch làm giàu mục2."
+    },
+    "B": {
+      "title": "Nhận và kiểm dữ liệu",
+      "exit_condition": "Đủ nguồn bắt buộc, hash/schema/integrity/readiness đúng theo mục3."
+    },
+    "C": {
+      "title": "Làm giàu9chỉ số",
+      "exit_condition": "Audit từng ô, median/cohort/DB invariants và manifest đúng theo mục4."
+    },
+    "D": {
+      "title": "Sàng lọc và kiểm định B-PIT",
+      "exit_condition": "Artifacts/cohort/cutoff/fit_leaks/compatibility đạt; owner review cấu hình và tác động Va trước E theo mục5."
+    },
+    "E": {
+      "title": "Feasibility và backtest M3",
+      "exit_condition": "Targets/LOCKED/Devseal/Holdoutseal cùng HEAD/config/inputs; checks đạt theo mục6."
+    },
+    "F": {
+      "title": "Đối sánh và bàn giao",
+      "exit_condition": "Bộ C/D/E có report/status/config/commit/hashes/run IDs và nơi nhận theo mục7; Assessment nhận đúng nguồn mục6.4."
+    },
+    "S1": {
+      "title": "Contract, eligibility và Peers",
+      "exit_condition": "Chỉ bắt đầu sau F; pin/provenance/18features/Peers/fixtures đạt theo Assessment mục14/S1."
+    },
+    "S2": {
+      "title": "Rulebook D-ASS-01",
+      "exit_condition": "Policy versioned và bảng conditions/priority/boundaries được kiểm thử, nghiệm thu theo mục8.3 và14/S2."
+    },
+    "S3": {
+      "title": "Builder và QA offline",
+      "exit_condition": "Assessment artifact, independent verifier, coverage và replay đạt theo mục9.3 và14/S3."
+    },
+    "S4": {
+      "title": "Backend read-only",
+      "exit_condition": "API/schema/revision và contract200/404/409/422/503 đạt theo mục10 và14/S4."
+    },
+    "S5": {
+      "title": "Frontend stocks",
+      "exit_condition": "Tab thứ5, một chart18features,5/10năm,Peers/nguồn/URL/mobile đạt theo mục11 và14/S5."
+    },
+    "S6": {
+      "title": "UAT và bàn giao",
+      "exit_condition": "Smoke/UAT demo và các cases mục17 đạt, evidence/limitations đầy đủ; release theo quyền đã duyệt trong kế hoạch nguồn."
+    }
+  },
+  "execution_policy": {
+    "one_open_stage_per_session": true,
+    "automatic_stage_advance": false,
+    "subagents": false,
+    "modify_source_plans": false,
+    "auto_commit": false,
+    "auto_push": false,
+    "auto_deploy": false,
+    "source_precedence": "Hai tài liệu nguồn và AGENTS.md quyết định methodology, policy và điều kiện chuyển bước. Bản phân công chỉ chi tiết hóa việc thực hiện.",
+    "planned_files": "Các file/helper/test ở tasks là đường dẫn dự kiến. Tái sử dụng module hiện có, không tạo triển khai trùng; script enriched và notebook dùng cùng logic.",
+    "checks": "Test mới phải được triển khai rồi chạy với số test thực >0; skipped-only không phải PASS. Dùng đúng Python/kernel A, compileall khi đổi Python và synthetic smoke khi đổi pipeline theo AGENTS.",
+    "stage_scope": "Chuẩn bị đọc tài liệu/fixture không chứng nhận stage sau đã mở. S1 chỉ nhận và nghiệm thu sau F; không dùng fixture thay source thật.",
+    "notebook": "Notebook điều phối B-PIT theo yêu cầu giao diện chạy, giữ entrypoint enriched trong nguồn D.1 và baseline read-only; không nhân bản logic.",
+    "checks_assignment": {
+      "enrichment_and_bpit": "Người 1",
+      "m3": "Người 2",
+      "assessment_verifier_and_serving": "Người 3"
+    }
+  },
+  "acceptance_test_mapping": {
+    "T01": [
+      "R1-20",
+      "R4-14"
+    ],
+    "T02": [
+      "R1-14",
+      "R3-14"
+    ],
+    "T03": [
+      "R3-13",
+      "R4-14"
+    ],
+    "T04": [
+      "R1-14"
+    ],
+    "T05": [
+      "R1-20",
+      "R4-14"
+    ],
+    "T06": [
+      "R1-20",
+      "R4-14"
+    ],
+    "T07": [
+      "R1-15",
+      "R4-08"
+    ],
+    "T08": [
+      "R1-14",
+      "R4-05"
+    ],
+    "T09": [
+      "R2-13",
+      "R1-14"
+    ],
+    "T10": [
+      "R1-14",
+      "R3-14",
+      "R3-02"
+    ],
+    "T11": [
+      "R3-11",
+      "R4-13"
+    ],
+    "T12": [
+      "R4-13"
+    ],
+    "T13": [
+      "R1-16",
+      "R3-10",
+      "R4-07"
+    ],
+    "T14": [
+      "R3-07",
+      "R4-13"
+    ],
+    "T15": [
+      "R1-19",
+      "R3-14"
+    ],
+    "T16": [
+      "R4-14"
+    ],
+    "T17": [
+      "R3-11",
+      "R3-13"
+    ],
+    "T18": [
+      "R3-13"
+    ],
+    "T19": [
+      "R1-20",
+      "R4-14"
+    ],
+    "T20": [
+      "R1-14",
+      "R4-05"
+    ],
+    "T21": [
+      "R3-12",
+      "R3-13"
+    ],
+    "T22": [
+      "R3-09",
+      "R3-13"
+    ],
+    "T23": [
+      "R1-17",
+      "R3-14"
+    ],
+    "T24": [
+      "R4-06"
+    ],
+    "T25": [
+      "R1-14",
+      "R3-13"
+    ],
+    "T26": [
+      "R1-14"
+    ],
+    "T27": [
+      "R1-14",
+      "R3-13"
+    ],
+    "T28": [
+      "R1-15",
+      "R4-08"
+    ],
+    "T29": [
+      "R2-13",
+      "R2-14"
+    ],
+    "T30": [
+      "R2-15",
+      "R1-15"
+    ],
+    "T31": [
+      "R3-11"
+    ],
+    "T32": [
+      "R1-14",
+      "R3-14",
+      "R3-02"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "R1-01",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "A",
+      "title": "Khóa môi trường và baseline",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "2"
+        }
+      ],
+      "dependencies": [],
+      "required_prior_stages": [],
+      "files": [
+        "M3/notebooks/05_B_PIT_Enriched.ipynb"
+      ],
+      "work": "Kiểm HEAD/local diff, Python/kernel, pip check và SQLite/NumPy/scikit-learn; đối chiếu Python3.12.7, SQLite3.45.3, NumPy2.2.6, scikit-learn1.8.0 của baseline. Ghi phiên bản thực tế, pip freeze, test M3 và dung lượng.",
+      "acceptance": "Môi trường import được, pip check sạch, test M3 đạt và đủ dung lượng; khác biệt môi trường/baseline có ghi nhận trước khi chuyển B.",
+      "verification": {
+        "planned_test": "tests/unit/test_m3_*.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_m3_*.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Khóa môi trường và baseline",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-02",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "B",
+      "title": "Kiểm kê và pin đầu vào",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "3"
+        }
+      ],
+      "dependencies": [
+        "R1-01"
+      ],
+      "required_prior_stages": [
+        "A"
+      ],
+      "files": [
+        "M3/notebooks/05_B_PIT_Enriched.ipynb"
+      ],
+      "work": "Kiểm dữ liệu local trước; nhận đúng revision HF trong kế hoạch nguồn khi thiếu, lưu receipt/hash rồi mới copy logical path. Pin Indicators, availability, v4, C8 prices/calendar/VNINDEX, B-PIT baseline và hai run đối chứng; kiểm SQLite/schema. Người 1 tự kiểm hash tất cả nguồn, PRAGMA integrity_check, bảng/cột/unique keys, missingness/coverage và Q-date như mục3.4–3.5 trước khi làm giàu.",
+      "acceptance": "Đủ file bắt buộc, hash/schema/integrity/readiness đúng; file khác hash được cô lập để đối chiếu, không ghi đè baseline.",
+      "verification": {
+        "planned_test": "tests/unit/test_m3_*.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_m3_*.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Kiểm kê và pin đầu vào",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-03",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "C",
+      "title": "Phân loại các ô đủ điều kiện làm giàu",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "4.1–4.2"
+        }
+      ],
+      "dependencies": [
+        "R1-02"
+      ],
+      "required_prior_stages": [
+        "B"
+      ],
+      "files": [
+        "src/delta_t1/features/financial_enrichment/eligibility.py"
+      ],
+      "work": "Lập inventory ticker/FY/metric/status/inputs_json cho FY2017–2024. Xét phi tài chính, báo cáo năm, usable date/cutoff và toàn bộ ô thiếu; CFO thiếu chỉ điền khi NI quan sát dương; ROE giữ điều kiện vốn chủ.",
+      "acceptance": "NI0/âm/unknown, equity không hợp lệ, NOT_APPLICABLE hoặc thiếu báo cáo không bị điền. Đối chiếu1045mã–năm/1111ô theo nguồn; nếu lệch ghi nguyên nhân.",
+      "verification": {
+        "planned_test": "tests/unit/test_financial_enrichment_eligibility.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_financial_enrichment_eligibility.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Phân loại các ô đủ điều kiện làm giàu",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-04",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "C",
+      "title": "Tính median từ tập FIT gốc",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "4.3"
+        }
+      ],
+      "dependencies": [
+        "R1-03"
+      ],
+      "required_prior_stages": [
+        "B"
+      ],
+      "files": [
+        "src/delta_t1/features/financial_enrichment/medians.py"
+      ],
+      "work": "Đọc baseline role=FIT, đủ9/9 tại cutoff từng FY. Tính median theo FY/metric trên raw ratios chưa winsorize/scale; đóng băng donor IDs/counts và median table. Tự đối chiếu median bằng fixture tính tay, donor IDs/counts và thử loại late/imputed donor; các kiểm tra này đi cùng bước tính median.",
+      "acceptance": "Median khớp phép tính độc lập; không có donor imputed/late/khácFY; count khớp n_fit. Thiếu donor không tự tạo giá trị.",
+      "verification": {
+        "planned_test": "tests/unit/test_financial_enrichment_medians.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_financial_enrichment_medians.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Tính median từ tập FIT gốc",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-05",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "C",
+      "title": "Điền giá trị và ghi lineage theo ô",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "4.4"
+        }
+      ],
+      "dependencies": [
+        "R1-04"
+      ],
+      "required_prior_stages": [
+        "B"
+      ],
+      "files": [
+        "src/delta_t1/features/financial_enrichment/engine.py"
+      ],
+      "work": "Áp median cho đúng các ô đủ điều kiện, hỗ trợ một hoặc nhiều ô thiếu trên một row. Giữ observed/F/Z/usable date; receipt gồm original status/value, rule, median/count, cutoff và số ô điền.",
+      "acceptance": "Chỉ ô được phép thay đổi; imputed có status riêng. Replay cùng source/rule cho cùng giá trị, không dùng ô vừa điền làm donor.",
+      "verification": {
+        "planned_test": "tests/unit/test_financial_enrichment_engine.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_financial_enrichment_engine.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Điền giá trị và ghi lineage theo ô",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-06",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "C",
+      "title": "Xuất SQLite dẫn xuất và audit",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "4.5"
+        }
+      ],
+      "dependencies": [
+        "R1-05"
+      ],
+      "required_prior_stages": [
+        "B"
+      ],
+      "files": [
+        "src/delta_t1/features/financial_enrichment/export.py"
+      ],
+      "work": "Tạo run riêng gồm indicators.sqlite, imputed_cells.csv, medians_by_year_metric.csv, imputation_summary.csv, manifest.json. Pin commit/source/availability/FIT/rules và hashes đầu ra. Người 1 tự đối chiếu DB diff với receipts/manifest, baseline hashes, observed/F/Z/availability và FY ngoài scope trước khi bàn giao C.",
+      "acceptance": "Integrity/unique keys/DB diff/receipts khớp; observed và FY ngoài scope không đổi, hash baseline giữ nguyên; run có sẵn không bị sửa.",
+      "verification": {
+        "planned_test": "tests/unit/test_financial_enrichment_export.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_financial_enrichment_export.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Xuất SQLite dẫn xuất và audit",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-07",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "D",
+      "title": "Chuẩn hóa cohort và loader enriched",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "5.1–5.2"
+        }
+      ],
+      "dependencies": [
+        "R1-06"
+      ],
+      "required_prior_stages": [
+        "C"
+      ],
+      "files": [
+        "src/delta_t1/experiments/bpit_enriched.py",
+        "configs/experiments/bpit_enriched_v1.json"
+      ],
+      "work": "Nhận đúng SQLite C; loader thử nghiệm opt-in IMPUTED_MEDIAN. Cohort từng FY = FIT gốc cộng rows hoàn tất9/9 có usable<=cutoff gốc; T1 chỉ fit cohort này, cùng cohort cho mọi candidate. Tự kiểm cohort/cutoff/T1 trên fixture, late/no-date và FY ngoài phạm vi; không cần một người khác chạy lại bước này.",
+      "acceptance": "Cutoff/availability không đổi; late/no-date không tham gia FIT. Config enriched pin rõ parameters, scope, selection/validation và đối chứng; baseline builder/pointer giữ read-only.",
+      "verification": {
+        "planned_test": "tests/unit/test_bpit_enriched_cohorts.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_bpit_enriched_cohorts.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Chuẩn hóa cohort và loader enriched",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-08",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "D",
+      "title": "Thực hiện K-Means và PCA + K-Means",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "5.3"
+        }
+      ],
+      "dependencies": [
+        "R1-07"
+      ],
+      "required_prior_stages": [
+        "C"
+      ],
+      "files": [
+        "src/delta_t1/clustering/bpit_adapters.py"
+      ],
+      "work": "Tái sử dụng fitting/transform hiện có; KMeans và PCA-KMeans k3..8, PCA80%, parameters/seed theo config. Lưu state/feature order/label mapping; giữ đối chứng k3 seed42 n_init10 trên cùng dữ liệu enriched.",
+      "acceptance": "Reload cho cùng assignment; late dùng frozen transform và centroid trong đúng không gian, không refit PCA/T1/model.",
+      "verification": {
+        "planned_test": "tests/unit/test_bpit_kmeans_pca.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_bpit_kmeans_pca.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Thực hiện K-Means và PCA + K-Means",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-09",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "D",
+      "title": "Thực hiện Ward và GMM",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "5.3"
+        }
+      ],
+      "dependencies": [
+        "R1-08"
+      ],
+      "required_prior_stages": [
+        "C"
+      ],
+      "files": [
+        "src/delta_t1/clustering/bpit_adapters.py"
+      ],
+      "work": "Bổ sung adapters Ward/GMM theo config tham chiếu; Ward gán late bằng centroid FIT trong T1, GMM bằng posterior của frozen model. Lưu đầy đủ model state và label mapping.",
+      "acceptance": "Replay đúng assignments sau reload; nonconvergence/không đủ cụm được ghi evidence. Late inference không sửa model.",
+      "verification": {
+        "planned_test": "tests/unit/test_bpit_ward_gmm.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_bpit_ward_gmm.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Thực hiện Ward và GMM",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-10",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "D",
+      "title": "Tính chất lượng và độ ổn định cụm",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "5.4"
+        }
+      ],
+      "dependencies": [
+        "R1-08",
+        "R1-09"
+      ],
+      "required_prior_stages": [
+        "C"
+      ],
+      "files": [
+        "src/delta_t1/evaluation/bpit_screening.py"
+      ],
+      "work": "Silhouette/DB/CH đo trong T1; size/share theo FY; ARI subsample90% với seeds đã pin và temporal ARI trên mã FIT chung. Giữ metrics riêng khỏi portfolio evaluation.",
+      "acceptance": "Đối chiếu metric trên fixture; label permutation không đổi ARI; case không tính được có status/null rõ và không được giả0.",
+      "verification": {
+        "planned_test": "tests/unit/test_bpit_screening_metrics.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_bpit_screening_metrics.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Tính chất lượng và độ ổn định cụm",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-11",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "D",
+      "title": "Sàng lọc và khóa cấu hình chung",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "5.3–5.4"
+        }
+      ],
+      "dependencies": [
+        "R1-10"
+      ],
+      "required_prior_stages": [
+        "C"
+      ],
+      "files": [
+        "src/delta_t1/experiments/bpit_enriched.py"
+      ],
+      "work": "Chạy đủ24cặp trên FY2017–2022; admissibility minshare5% ở≥80%FY và median stability≥0.80; mean rank5metrics, tie nhỏk rồi KMeans/PCA-KMeans/Ward/GMM. Khóa trước validation FY2023–2024.",
+      "acceptance": "Thay validation/returns không đổi selection. Validation fit riêng từng FY với algorithm/k đã khóa. Không candidate đạt thì trình đối chứng k3, không tự nới ngưỡng.",
+      "verification": {
+        "planned_test": "tests/unit/test_bpit_screening_selection.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_bpit_screening_selection.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Sàng lọc và khóa cấu hình chung",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-12",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "D",
+      "title": "Xuất mô hình, labels và manifest B-PIT",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "5.1,5.5–5.6"
+        }
+      ],
+      "dependencies": [
+        "R1-11"
+      ],
+      "required_prior_stages": [
+        "C"
+      ],
+      "files": [
+        "src/delta_t1/experiments/bpit_enriched.py",
+        "scripts/build_financial_pit_clusters_enriched.py"
+      ],
+      "work": "Tạo entrypoint enriched riêng theo nguồn, dùng chung logic với notebook. Xuất labels/models/audit/manifest; pin C/availability/parent/code/config; lưu cohort, transforms, đủk, FIT-only order ROE/D-E, change labels/ARI/đối chứng. Tự reload artifacts và replay inference bốn thuật toán, kiểm feature order/label mapping/model hash và đối chứng k=3 trước xuất bàn giao.",
+      "acceptance": "fit_leaks rỗng; model/labels/order/hashes đúng; serializable/reload đạt; không sửa baseline. Loader M3 đọc đủk theo phần Người2.",
+      "verification": {
+        "planned_test": "tests/unit/test_bpit_enriched_artifacts.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_bpit_enriched_artifacts.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Xuất mô hình, labels và manifest B-PIT",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-13",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "D",
+      "title": "Hoàn thiện notebook chạy và bàn giao B-PIT",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "5.1–5.6"
+        }
+      ],
+      "dependencies": [
+        "R1-12",
+        "R2-01"
+      ],
+      "required_prior_stages": [
+        "C"
+      ],
+      "files": [
+        "M3/notebooks/05_B_PIT_Enriched.ipynb"
+      ],
+      "work": "Tổ chức notebook cấu hình→preflight→C→D→audit→bàn giao, gọi module/entrypoint chung. Run All trên fixture; chạy D thật khi A–C đạt; lập ranking và tác động Va cho owner review. Tổng hợp kết quả self-check C/D, fit_leaks và tương thích loader vào packet owner review; không thêm gate audit dữ liệu bởi Người 3.",
+      "acceptance": "Không hidden state/fit ngầm ở chart hoặc sửa run cũ. D chỉ chuyển E sau owner duyệt theo nguồn; chưa được duyệt giữ MANUAL_REVIEW_REQUIRED.",
+      "verification": {
+        "planned_test": null,
+        "commands": [],
+        "manual": [
+          "Validate notebook và Restart Kernel → Run All trên fixture; chỉ chạy data thật khi A–C đạt và D đang mở."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Hoàn thiện notebook chạy và bàn giao B-PIT",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-14",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "S1",
+      "title": "Nhận pin và chọn input Assessment",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "6.4,7.3,14/S1"
+        }
+      ],
+      "dependencies": [
+        "R4-03",
+        "R2-10"
+      ],
+      "required_prior_stages": [
+        "F"
+      ],
+      "files": [
+        "src/delta_t1/experiments/assessment/inputs.py",
+        "tests/fixtures/assessment_v1/"
+      ],
+      "work": "Sau F nhận cùng cặp B-PIT/SQLite enriched; kiểm labels/model/SQLite/availability hashes. Resolve ticker, demo as_of/session,18features/status/provenance, FY usable mới nhất/cutoff/18tháng; không fallback baseline hoặc modelFY cũ. Người 1 tự nhận và đối chiếu đủ pins C/D/E/F trước S1 theo mục6.4; hash thiếu hoặc sai vẫn phải dừng dù không có vai trò QA enrichment riêng.",
+      "acceptance": "Pin mismatch/thiếu nguồn dừng build. Case mới usable nhưng thiếu model, sector không áp dụng, missing và stale theo đúng nguồn; không tự thêm policy nhận imputed.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_inputs.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_inputs.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T02",
+        "T04",
+        "T08",
+        "T09",
+        "T10",
+        "T20",
+        "T25",
+        "T26",
+        "T27",
+        "T32"
+      ],
+      "commit_message": "feat(assessment): Nhận pin và chọn input Assessment",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-15",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "S1",
+      "title": "Tạo Peers theo từng đặc trưng",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "6.3,14/S1"
+        }
+      ],
+      "dependencies": [
+        "R1-14"
+      ],
+      "required_prior_stages": [
+        "F"
+      ],
+      "files": [
+        "src/delta_t1/experiments/assessment/peers.py"
+      ],
+      "work": "Ưu tiên cùngA+B, dưới3 thì financial cùngB/market cùngA. Loại self/trùng/null/sai identity/kỳ/unit/source. ≥3 tính median/IQR, lưu basis/count/ref theo metric; missingB không tạoPeers.",
+      "acceptance": "0–2 không median, đúng3 có median; Peers ít không tự đổi verdict. Opt-in imputed theo policy đã duyệt, không kế thừa tự động từ M3.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_peers.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_peers.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T07",
+        "T28",
+        "T30"
+      ],
+      "commit_message": "feat(assessment): Tạo Peers theo từng đặc trưng",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-16",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "S3",
+      "title": "Dựng lịch sử và coverage",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "5.1,9.3,11.2,14/S3"
+        }
+      ],
+      "dependencies": [
+        "R1-15",
+        "R2-15"
+      ],
+      "required_prior_stages": [
+        "S2"
+      ],
+      "files": [
+        "src/delta_t1/experiments/assessment/history.py"
+      ],
+      "work": "Xuất feature_history.jsonl và coverage.csv cho đúng18features, ngày/FY/usable/status/unit/source. Lookback5/10 từ as_of, giữ gap và coverage thực; dòng tài chính theo FY và market theo snapshot hợp lệ.",
+      "acceptance": "Không tạo số liệu/nội suy/đổi missing thành0; không dùng FY tương lai. Đổi lookback chỉ thay phần lịch sử, không đổi evidence/nhãn/verdict.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_history.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_history.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T13"
+      ],
+      "commit_message": "feat(assessment): Dựng lịch sử và coverage",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-17",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "S3",
+      "title": "Nối engine đánh giá offline",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.2–9.3,14/S3"
+        }
+      ],
+      "dependencies": [
+        "R1-16",
+        "R2-15"
+      ],
+      "required_prior_stages": [
+        "S2"
+      ],
+      "files": [
+        "src/delta_t1/experiments/investment_assessment_v1.py"
+      ],
+      "work": "Orchestrate inputs, rule evaluation/verdict/rationale của Người2, Peers/history. Tạo kết quả từng ticker trong danh mục hỗ trợ; không dùng NAV/trades/return để quyết định assessment.",
+      "acceptance": "Fixture đủ4verdict, evidence thuộc18features, kết quả đúng mã/as_of/source. Rationale/Peers không thay điều kiện kết luận đã chốt.",
+      "verification": {
+        "planned_test": "tests/integration/test_assessment_offline_builder.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/integration -p 'test_assessment_offline_builder.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T23"
+      ],
+      "commit_message": "feat(assessment): Nối engine đánh giá offline",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-18",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "S3",
+      "title": "Bổ sung CLI build Assessment",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.2,14/S3"
+        }
+      ],
+      "dependencies": [
+        "R1-17"
+      ],
+      "required_prior_stages": [
+        "S2"
+      ],
+      "files": [
+        "scripts/build_investment_assessment_v1.py"
+      ],
+      "work": "CLI mỏng nhận source manifest/policy/output root rõ, gọi orchestrator. Preflight pins rồi build run mới; báo paths/counts/status, không crawl/fit realtime hoặc sửa pointer production.",
+      "acceptance": "Thiếu input/sai pin/policy/version thì exit lỗi rõ; existing output không bị ghi đè; không dùng default baseline thay nguồn enriched.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_build_cli.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_build_cli.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Bổ sung CLI build Assessment",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-19",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "S3",
+      "title": "Khóa manifest và deterministic payload",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.3,13/T15,14/S3"
+        }
+      ],
+      "dependencies": [
+        "R1-18"
+      ],
+      "required_prior_stages": [
+        "S2"
+      ],
+      "files": [
+        "src/delta_t1/experiments/investment_assessment_v1.py"
+      ],
+      "work": "Xuất manifest,assessments.jsonl,peer_benchmarks.csv,coverage.csv,feature_history.jsonl; pin A/B-PIT/SQLite/availability/policy/code. Tách operational metadata khỏi deterministic assessment content hash.",
+      "acceptance": "Cùng inputs/policy cho cùng nội dung/hash dù run_id/generated_at khác. Mọi file/hash và references truy được, không tự gắn verificationPASS.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_reproducibility.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_reproducibility.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T15"
+      ],
+      "commit_message": "feat(assessment): Khóa manifest và deterministic payload",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R1-20",
+      "assignee": "Người 1",
+      "role": "R1",
+      "status": "PLANNED",
+      "stage": "S3",
+      "title": "Nghiệm thu builder trên bộ bàn giao thật",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "13/T01,T19,T32;17.1–17.4;14/S3"
+        }
+      ],
+      "dependencies": [
+        "R1-19",
+        "R3-14"
+      ],
+      "required_prior_stages": [
+        "S2"
+      ],
+      "files": [
+        "tests/integration/test_assessment_real_handoff.py"
+      ],
+      "work": "Build từ F, đối chiếu FPT+ít nhất1mã hợp lệ khác, VCB/mã thiếu lịch sử và missing cases; chạy verifier độc lập, kiểm labels/FY/value/provenance và demo dates.",
+      "acceptance": "FPT không bị hard-code verdict; nguồn thiếu/sai không dùng fixture thay thật. Có actual run IDs/hashes/coverage và verifier results trước bàn giao API.",
+      "verification": {
+        "planned_test": "tests/integration/test_assessment_real_handoff.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/integration -p 'test_assessment_real_handoff.py' -v"
+        ],
+        "manual": [
+          "Build/verify trên chính bộ pin F; thiếu nguồn thật ghi thiếu và dừng, không thay bằng synthetic."
+        ]
+      },
+      "source_test_cases": [
+        "T01",
+        "T05",
+        "T06",
+        "T19"
+      ],
+      "commit_message": "feat(assessment): Nghiệm thu builder trên bộ bàn giao thật",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-01",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "D",
+      "title": "Sửa loader M3 nhận đủ k cụm",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "5.6"
+        }
+      ],
+      "dependencies": [
+        "R1-07"
+      ],
+      "required_prior_stages": [
+        "C"
+      ],
+      "files": [
+        "src/delta_t1/m3/inputs.py",
+        "tests/unit/test_m3_cutoff.py"
+      ],
+      "work": "Sửa loader theo metadata k, thứ tự và nhãn cụm thay cho điều kiện cố định ba cụm. Giữ interface và kiểm tra legacy; bổ sung fixture k=3,4,8.",
+      "acceptance": "Model có đầy đủ metadata giữ được cutoff; order/labels thiếu hoặc trùng bị chặn, legacy k=3 vẫn tái lập đúng.",
+      "verification": {
+        "planned_test": "tests/unit/test_m3_cutoff.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_m3_cutoff.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Sửa loader M3 nhận đủ k cụm",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-02",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "E",
+      "title": "Truyền nguồn enriched xuyên runner",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "6.1"
+        }
+      ],
+      "dependencies": [
+        "R1-13"
+      ],
+      "required_prior_stages": [
+        "D"
+      ],
+      "files": [
+        "scripts/run_m3.py",
+        "src/delta_t1/m3/inputs.py"
+      ],
+      "work": "Resolve SQLite từ config, truyền cùng path cho scoring, sectors và hash trong manifest. Kiểm nhãn/model/availability và mở dữ liệu read-only.",
+      "acceptance": "Fixture baseline/enriched cho đúng values, sector và hash cùng một nguồn; không bỏ sót default arguments của loader.",
+      "verification": {
+        "planned_test": "tests/unit/test_m3_enriched_sources.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_m3_enriched_sources.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Truyền nguồn enriched xuyên runner",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-03",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "E",
+      "title": "Tạo config thử nghiệm và cache riêng",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "6.1"
+        }
+      ],
+      "dependencies": [
+        "R2-02"
+      ],
+      "required_prior_stages": [
+        "D"
+      ],
+      "files": [
+        "configs/experiments/m3_strategy_enriched_v1.json",
+        "scripts/run_m3.py"
+      ],
+      "work": "Tạo config enriched từ baseline với trạng thái READY_TO_LOCK_AFTER_BPIT. Pin C/D/models/availability và dùng limits cache riêng; giữ các quy tắc M3 đã chốt.",
+      "acceptance": "Không tự đổi A, Va, Q-date, 18 tháng, ranking, lịch, basis, chi phí hoặc execution; sai hash thì dừng.",
+      "verification": {
+        "planned_test": "tests/unit/test_m3_enriched_sources.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_m3_enriched_sources.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Tạo config thử nghiệm và cache riêng",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-04",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "E",
+      "title": "Thêm --config cho feasibility",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "6.2"
+        }
+      ],
+      "dependencies": [
+        "R2-03"
+      ],
+      "required_prior_stages": [
+        "D"
+      ],
+      "files": [
+        "scripts/m3_feasibility_variants.py"
+      ],
+      "work": "Thêm --config, dùng cùng nguồn chỉ số/ngành/scoring/cutoff với runner. Báo official config sau FINANCIAL_CRITERIA_MISSING cho từng segment, gồm median/min và số kỳ N<10.",
+      "acceptance": "Counts và lý do loại khớp runner trên fixture; không đọc ngầm config hoặc SQLite baseline khi đã truyền enriched.",
+      "verification": {
+        "planned_test": "tests/unit/test_m3_feasibility_config.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_m3_feasibility_config.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Thêm --config cho feasibility",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-05",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "E",
+      "title": "Mở rộng regression giá/cutoff/targets",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "6.3–6.4"
+        }
+      ],
+      "dependencies": [
+        "R2-04"
+      ],
+      "required_prior_stages": [
+        "D"
+      ],
+      "files": [
+        "tests/unit/test_m3_cutoff.py",
+        "tests/unit/test_m3_prices_boundary.py",
+        "tests/unit/test_m3_engine.py"
+      ],
+      "work": "Mở rộng tests hiện có cho nguồn enriched, k mới, targets/audit và Q17. Thử thêm giá/lịch tương lai ngoài segment và các phiên lân cận ranh giới.",
+      "acceptance": "Future append không đổi Dev; kỳ cuối và NAV bounds đúng, missing limits giữ hành vi đã duyệt; không giảm assertion cũ.",
+      "verification": {
+        "planned_test": "tests/unit/test_m3_*.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_m3_*.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Mở rộng regression giá/cutoff/targets",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-06",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "E",
+      "title": "Chuẩn bị verifier và seal hai đoạn",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "6.5–6.6"
+        }
+      ],
+      "dependencies": [
+        "R2-05"
+      ],
+      "required_prior_stages": [
+        "D"
+      ],
+      "files": [
+        "scripts/verify_m3_enriched_run.py"
+      ],
+      "work": "Viết verifier cho manifest, targets, audit, ledger, cash, holdings, NAV, metrics, controls và hashes. Seal là file riêng; Holdout phải có Dev seal PASS và cùng code/config/inputs.",
+      "acceptance": "Fixture sai dòng tiền, date bounds hoặc pin bị phát hiện trước seal; run bytes giữ nguyên và NAV hai đoạn tách riêng.",
+      "verification": {
+        "planned_test": "tests/unit/test_m3_enriched_verifier.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_m3_enriched_verifier.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Chuẩn bị verifier và seal hai đoạn",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-07",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "E",
+      "title": "Feasibility thật, targets-only và khóa config",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "6.2–6.4"
+        }
+      ],
+      "dependencies": [
+        "R1-13",
+        "R2-06"
+      ],
+      "required_prior_stages": [
+        "D"
+      ],
+      "files": [
+        "configs/experiments/m3_strategy_enriched_v1.json"
+      ],
+      "work": "Sau khi D được duyệt, chạy feasibility và targets-only cả hai đoạn; kiểm pins, financial_source, git_dirty, candidates/audit/weights và Q17. Review rồi LOCKED, commit code/config và ghi execution SHA.",
+      "acceptance": "Dev60/59/1 và Holdout24/23/1 theo lịch; trường hợp số kỳ N<10 tăng được trình owner theo nguồn trước full run.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "& $py scripts/m3_feasibility_variants.py --config configs/experiments/m3_strategy_enriched_v1.json",
+          "& $py scripts/run_m3.py --config configs/experiments/m3_strategy_enriched_v1.json --segment development --targets-only",
+          "& $py scripts/run_m3.py --config configs/experiments/m3_strategy_enriched_v1.json --segment holdout --targets-only"
+        ],
+        "manual": [
+          "Kiểm targets/audit/source/pins/Q17, review theo nguồn rồi LOCKED và commit code/config trước full run."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Feasibility thật, targets-only và khóa config",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-08",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "E",
+      "title": "Chạy và seal Development",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "6.5"
+        }
+      ],
+      "dependencies": [
+        "R2-07"
+      ],
+      "required_prior_stages": [
+        "D"
+      ],
+      "files": [
+        "data/experiments/m3/development/<run_id>/"
+      ],
+      "work": "Full Dev từ HEAD/config đã khóa; đối chiếu targets-only, ledger, cash, holdings, NAV và controls với baseline. Rà UNIVERSE_TOO_SMALL/LIMIT_DATA_MISSING, verify rồi seal.",
+      "acceptance": "NAV kết thúc2023-12-29, pins đúng C/D và controls khớp nghiệp vụ; không thay code/config trước Holdout.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "& $py scripts/run_m3.py --config configs/experiments/m3_strategy_enriched_v1.json --segment development"
+        ],
+        "manual": [
+          "Verify rồi seal theo mục6.5/6.6 kế hoạch làm giàu. Holdout chỉ chạy sau Dev seal PASS và cùng execution SHA/config/inputs."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Chạy và seal Development",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-09",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "E",
+      "title": "Chạy và seal Holdout",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "6.6"
+        }
+      ],
+      "dependencies": [
+        "R2-08"
+      ],
+      "required_prior_stages": [
+        "D"
+      ],
+      "files": [
+        "data/experiments/m3/holdout/<run_id>/"
+      ],
+      "work": "Sau Dev seal, chạy full Holdout cùng execution HEAD/config/inputs, khởi tạo NAV riêng, verify và seal. Chỉ commit receipts sau khi hai full run hoàn tất.",
+      "acceptance": "NAV kết thúc2025-12-31; pins bằng Dev, không Sharpe. Nếu sửa lỗi code/config phải dùng SHA mới và chạy lại phần chịu ảnh hưởng.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "& $py scripts/run_m3.py --config configs/experiments/m3_strategy_enriched_v1.json --segment holdout"
+        ],
+        "manual": [
+          "Verify rồi seal theo mục6.5/6.6 kế hoạch làm giàu. Holdout chỉ chạy sau Dev seal PASS và cùng execution SHA/config/inputs."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Chạy và seal Holdout",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-10",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "F",
+      "title": "Xuất đối sánh M3 theo segment",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "7"
+        }
+      ],
+      "dependencies": [
+        "R2-09"
+      ],
+      "required_prior_stages": [
+        "E"
+      ],
+      "files": [
+        "scripts/export_backtest_comparison_metrics.py"
+      ],
+      "work": "Đọc baseline và enriched runs/seals, xuất Combined/Financial-only cùng controls theo từng segment. Báo N, cash, failed trades, selected/held, NAV, return, drawdown và cơ sở giá.",
+      "acceptance": "Các bảng truy được series và pins; không gộp NAV hai đoạn hoặc dùng performance để chọn lại mô hình; giữ kết quả bất lợi.",
+      "verification": {
+        "planned_test": "tests/unit/test_m3_comparison_export.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_m3_comparison_export.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(bpit-m3): Xuất đối sánh M3 theo segment",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-11",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "S2",
+      "title": "Mã hóa policy D-ASS-01",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "6.4.3,8.3,14/S2"
+        }
+      ],
+      "dependencies": [
+        "R1-15"
+      ],
+      "required_prior_stages": [
+        "S1"
+      ],
+      "files": [
+        "configs/product/assessment_policy_v1.json"
+      ],
+      "work": "Chuyển bảng D-ASS-01 thành policy versioned: whitelist18, mandatory/optional, threshold, priority, Peers và cách nhận ô imputed theo policy đã duyệt.",
+      "acceptance": "Không tự thêm điểm tổng/penalty hoặc quyết định imputed mới. Ô bắt buộc chưa được phép dùng xử lý đúng mục6.4.3 và8.3 trước verdict thật.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_policy.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_policy.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Mã hóa policy D-ASS-01",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-12",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "S2",
+      "title": "Hiện thực điều kiện thị trường",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "8.3"
+        }
+      ],
+      "dependencies": [
+        "R2-11"
+      ],
+      "required_prior_stages": [
+        "S1"
+      ],
+      "files": [
+        "src/delta_t1/experiments/assessment/rules_market.py"
+      ],
+      "work": "Hiện thực xu hướng thuận lợi khi mom_63>0 và mom_126>0, đồng thời mom_21>0 hoặc mom_252>0; bất lợi theo điều kiện âm đối xứng. Tổ hợp còn lại mixed; ILLIQUID là cảnh báo trọng yếu.",
+      "acceptance": "Ngưỡng 0, missing và mixed đúng; rule results có evidence/status, không dùng cluster ID như thứ hạng hoặc future return.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_market_rules.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_market_rules.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Hiện thực điều kiện thị trường",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-13",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "S2",
+      "title": "Hiện thực tài chính và dòng tiền",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "8.3"
+        }
+      ],
+      "dependencies": [
+        "R2-11"
+      ],
+      "required_prior_stages": [
+        "S1"
+      ],
+      "files": [
+        "src/delta_t1/experiments/assessment/rules_financial.py"
+      ],
+      "work": "Hiện thực ROA/net_margin/CFO và các cảnh báo đúng bảng8.3. Chỉ đọc dấu CFO qua tỷ lệ khi NI dương và ratio hợp lệ; watch khi gross_margin<0, current_ratio<1 hoặc revenue_growth<0.",
+      "acceptance": "Giá trị bằng ngưỡng không kích hoạt warning; một watch đủ chặn favorable, CFO0 không thuận lợi; imputed/denominator theo policy đã duyệt.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_financial_rules.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_financial_rules.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T09",
+        "T29"
+      ],
+      "commit_message": "feat(assessment): Hiện thực tài chính và dòng tiền",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-14",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "S2",
+      "title": "Kết hợp eligibility và bốn verdict",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "7.3,8.3"
+        }
+      ],
+      "dependencies": [
+        "R1-14",
+        "R2-12",
+        "R2-13"
+      ],
+      "required_prior_stages": [
+        "S1"
+      ],
+      "files": [
+        "src/delta_t1/experiments/assessment/verdict.py"
+      ],
+      "work": "Kết hợp eligibility/freshness/model gates với thứ tự INSUFFICIENT_EVIDENCE→CAUTION→RESEARCH_FAVORABLE→WATCH. Optional missing bỏ phép kiểm tương ứng, major warning ưu tiên CAUTION.",
+      "acceptance": "Có bảng kiểm bốn verdict và ca biên; thiếu Peers không tự insufficient, FY mới có dữ liệu nhưng chưa có model không fallback năm cũ.",
+      "verification": {
+        "planned_test": "tests/unit/test_d_ass_01_rules.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_d_ass_01_rules.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T29"
+      ],
+      "commit_message": "feat(assessment): Kết hợp eligibility và bốn verdict",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R2-15",
+      "assignee": "Người 2",
+      "role": "R2",
+      "status": "PLANNED",
+      "stage": "S2",
+      "title": "Dựng rationale và counter-evidence",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "8.1–8.5,10.2,13/T30"
+        }
+      ],
+      "dependencies": [
+        "R2-14",
+        "R1-15"
+      ],
+      "required_prior_stages": [
+        "S1"
+      ],
+      "files": [
+        "src/delta_t1/experiments/assessment/rationale.py"
+      ],
+      "work": "Dựng drivers/risks/counter_evidence từ templates có rule ID, value, status, unit, kỳ và evidence_ref thuộc18features. Peers là bằng chứng giải thích G4; kiểm replay và mutation Peers.",
+      "acceptance": "Lý do truy được nguồn, không text tự do thiếu evidence hoặc đổi verdict do Peers; không mô tả giá trị median như CFO quan sát của doanh nghiệp.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_rationale.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_rationale.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T30"
+      ],
+      "commit_message": "feat(assessment): Dựng rationale và counter-evidence",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-01",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Cấu hình đọc bản phát hành Assessment",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.2,12.3,14/S4"
+        }
+      ],
+      "dependencies": [
+        "R1-20"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "configs/product/assessment_release_v1.json",
+        "src/delta_t1/product/assessment_repository.py"
+      ],
+      "work": "Khai báo pointer tới artifact Assessment đã verify, release context và revision. Reader resolve đường dẫn từ cấu hình, kiểm trường bắt buộc và phân biệt chưa có bản phát hành; không sửa model/data nguồn.",
+      "acceptance": "Cấu hình hợp lệ resolve đúng artifact; pointer thiếu hoặc không tồn tại được báo trạng thái chưa sẵn sàng, không tự chọn baseline hoặc run mới nhất.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_release_config.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_release_config.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Cấu hình đọc bản phát hành Assessment",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-02",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Kiểm manifest khi mở artifact phục vụ API",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "10.3,12.3,14/S4"
+        }
+      ],
+      "dependencies": [
+        "R3-01"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "src/delta_t1/product/assessment_repository.py"
+      ],
+      "work": "Khi reader mở bản phát hành, đối chiếu manifest, hashes của các file cần phục vụ và source/policy revision. Dùng evidence đã bàn giao, không chạy lại imputation hoặc kiểm lại donor median.",
+      "acceptance": "File bị sửa, thiếu hoặc khác revision bị từ chối trước serving; artifact đúng được mở read-only. Không tạo một lượt audit enrichment riêng.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_manifest_reader.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_manifest_reader.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T10",
+        "T32"
+      ],
+      "commit_message": "feat(assessment): Kiểm manifest khi mở artifact phục vụ API",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-03",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Nạp payload Assessment theo schema",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.3,10.2,14/S4"
+        }
+      ],
+      "dependencies": [
+        "R3-02",
+        "R3-07"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "src/delta_t1/product/assessment_repository.py"
+      ],
+      "work": "Đọc assessments, peer_benchmarks, coverage và feature_history từ bản phát hành; parse types/status/null theo contract. Giữ nguyên dữ liệu và provenance đã build, không tính lại features, Peers hoặc verdict.",
+      "acceptance": "Payload hợp lệ nạp đúng; bản ghi thiếu required, sai status hoặc không tương thích schema bị phát hiện. Null không biến thành0.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_payload_reader.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_payload_reader.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Nạp payload Assessment theo schema",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-04",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Tra cứu đúng mã và ngữ cảnh phát hành",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "10.1–10.3,14/S4"
+        }
+      ],
+      "dependencies": [
+        "R3-03"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "src/delta_t1/product/assessment_repository.py"
+      ],
+      "work": "Bổ sung lookup theo ticker, assessment_context, as_of, required_price_session và revision. Phân biệt mã không tồn tại với mã tồn tại nhưng thiếu bằng chứng; đọc kết quả đã có, không suy nhãn.",
+      "acceptance": "Lookup trả đúng mã/ngày/context/revision; demo không được trả như current, mã thiếu dữ liệu không bị coi là mã không tồn tại.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_lookup.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_lookup.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Tra cứu đúng mã và ngữ cảnh phát hành",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-05",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Gắn repository vào vòng đời FastAPI",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.2,10.3,14/S4"
+        }
+      ],
+      "dependencies": [
+        "R3-08"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "web/backend/app/main.py"
+      ],
+      "work": "Khởi tạo repository theo cấu hình trong lifespan/app state và hỗ trợ dependency injection cho tests. Giữ các endpoint cũ hoạt động khi chưa có artifact Assessment; quản lý tài nguyên đọc đúng vòng đời.",
+      "acceptance": "App khởi động khi artifact vắng; dịch vụ Assessment biểu thị chưa sẵn sàng, không làm hỏng API hiện hữu. Tests dùng repository fixture được inject rõ.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_lifespan.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_lifespan.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Gắn repository vào vòng đời FastAPI",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-06",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Ánh xạ payload sang response API",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "10.1–10.3,14/S4"
+        }
+      ],
+      "dependencies": [
+        "R3-08",
+        "R3-07"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "web/backend/app/assessment.py"
+      ],
+      "work": "Mapper chuyển payload offline sang response Pydantic, bổ sung request_time của lần gọi và giữ nguyên as_of/context/nhãn/evidence từ bản phát hành. Không tạo rationale, Peers hoặc kết luận mới trong request.",
+      "acceptance": "Response giữ nguyên nội dung quyết định, dates/status/nguồn đúng; request_time cập nhật riêng, payload dùng cache không giữ metadata request cũ.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_response_mapper.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_response_mapper.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Ánh xạ payload sang response API",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-07",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Khai báo response schema Assessment",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.2,10.2,14/S4"
+        }
+      ],
+      "dependencies": [
+        "R1-20"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "web/backend/app/schemas.py"
+      ],
+      "work": "Thêm Pydantic response cho dates/context/status, A/B profiles,18features, evidence, Peers, history và references. Ánh xạ đúng offline artifact, giữ hợp đồng API cũ.",
+      "acceptance": "Fixture hợp lệ parse được; invalid status hoặc thiếu required bị bắt; null khác0, public API không nhận as_of tùy ý.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_response_models.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_response_models.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T14"
+      ],
+      "commit_message": "feat(assessment): Khai báo response schema Assessment",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-08",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Reader artifact read-only",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.2,12.3,14/S4"
+        }
+      ],
+      "dependencies": [
+        "R3-04",
+        "R3-07"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "src/delta_t1/product/assessment_repository.py"
+      ],
+      "work": "Reader kiểm manifest/hash/policy/source pins rồi tra theo ticker/as_of/context/revision. Phân biệt chưa phát hành, ticker không tồn tại, thiếu evidence và corruption.",
+      "acceptance": "Không network/write/recompute; sai nguồn không fallback baseline hoặc tráo demo/current; absent artifact khác unknown ticker.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_repository.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_repository.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Reader artifact read-only",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-09",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Đăng ký endpoint đánh giá",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "10.1,14/S4"
+        }
+      ],
+      "dependencies": [
+        "R3-05",
+        "R3-06"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "web/backend/app/assessment.py",
+        "web/backend/app/main.py"
+      ],
+      "work": "Đăng ký GET stock assessment, repository injection/lifespan, release context cố định và request_time. Dùng revision middleware hiện có, không lấy nhãn từ legacy overview/peers.",
+      "acceptance": "App vẫn khởi động khi chưa có artifact và endpoint trả503; đúng ticker/context/date, không crawl/fit/build trong request.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_api.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_api.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T22"
+      ],
+      "commit_message": "feat(assessment): Đăng ký endpoint đánh giá",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-10",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Projection lịch sử 5/10 năm",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "5.1,10.1–10.2"
+        }
+      ],
+      "dependencies": [
+        "R3-09"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "web/backend/app/assessment.py",
+        "src/delta_t1/product/assessment_repository.py"
+      ],
+      "work": "Nhận lookback_years5/10, mặc định10; đọc và cắt feature_history từ as_of. Giữ nguyên verdict, evidence quyết định và peer_basis; dùng endpoint stock assessment đã chốt.",
+      "acceptance": "Đổi lookback chỉ đổi history; giá trị khác trả422, không lọt FY tương lai hoặc nội suy khoảng trống.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_history_api.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_history_api.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T13"
+      ],
+      "commit_message": "feat(assessment): Projection lịch sử 5/10 năm",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-11",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "HTTP errors và khóa revision",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "10.3"
+        }
+      ],
+      "dependencies": [
+        "R3-10"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "web/backend/app/assessment.py",
+        "web/backend/app/main.py"
+      ],
+      "work": "Ánh xạ200 cho mã tồn tại nhưng insufficient,404 unknown,409 revision mismatch,422 invalid query và503 unpublished. Kiểm ticker/path/SQL injection và compatibility source/policy.",
+      "acceptance": "HTTP matrix đúng, không query tùy ý theo input ticker; existing endpoints giữ meaning và dữ liệu hỏng không thành verdict hợp lệ.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_api.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_api.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T11",
+        "T17",
+        "T31"
+      ],
+      "commit_message": "feat(assessment): HTTP errors và khóa revision",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-12",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Cache đúng context và nguồn",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "10.3"
+        }
+      ],
+      "dependencies": [
+        "R3-11"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "web/backend/app/assessment_cache.py",
+        "web/backend/app/assessment.py"
+      ],
+      "work": "Cache bounded với key ticker/context/as_of/required session/evidence cutoff/lookback/policy/bundle revision. Request_time cập nhật riêng; invalidate khi artifact/model/rule/date đổi.",
+      "acceptance": "Demo/current không dùng nhầm payload; cache hit không giữ request_time cũ; có ca key mismatch và eviction.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_cache.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_cache.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T21"
+      ],
+      "commit_message": "feat(assessment): Cache đúng context và nguồn",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-13",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Integration API và regression",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "13/T03,T10–12,T17–18,T21–22,T25–28,T31"
+        }
+      ],
+      "dependencies": [
+        "R3-12"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "tests/integration/test_assessment_endpoints.py",
+        "tests/unit/test_terminal_api.py"
+      ],
+      "work": "Integration trên injected fixtures và verified artifact; kiểm revision/cache/error/payload/read-only, chặn network/fit calls. Giữ Overview/Fundamentals/Scores/Peers cũ.",
+      "acceptance": "Có test thực chạy và ghi rõ skip; payload lỗi bị từ chối, không legacy fallback hoặc thay nghĩa endpoint hiện có.",
+      "verification": {
+        "planned_test": "tests/integration/test_assessment_endpoints.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/integration -p 'test_assessment_endpoints.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T03",
+        "T17",
+        "T18",
+        "T21",
+        "T22",
+        "T25",
+        "T27"
+      ],
+      "commit_message": "feat(assessment): Integration API và regression",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-14",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S3",
+      "title": "Xây dựng validator kiểm tra toàn vẹn artifact",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.2,9.3,13/T15,T23,T32,14/S3"
+        }
+      ],
+      "dependencies": [
+        "R1-19"
+      ],
+      "required_prior_stages": [
+        "S2"
+      ],
+      "files": [
+        "scripts/verify_investment_assessment_v1.py"
+      ],
+      "work": "Xây dựng CLI tool scripts/verify_investment_assessment_v1.py để backend tự động kiểm tra tính toàn vẹn của artifact (files, manifest, hash, schema, whitelist 18, không rò rỉ tương lai) trước khi nạp serving.",
+      "acceptance": "Tool phát hiện đúng sai lệch dữ liệu, thiếu file hoặc hash không khớp; xuất verification.json làm điều kiện khởi động backend an toàn.",
+      "verification": {
+        "planned_test": "tests/unit/test_assessment_release_verifier.py",
+        "commands": [
+          "& $py -m unittest discover -s tests/unit -p 'test_assessment_release_verifier.py' -v"
+        ],
+        "manual": []
+      },
+      "source_test_cases": [
+        "T02",
+        "T10",
+        "T15",
+        "T23",
+        "T32"
+      ],
+      "commit_message": "feat(assessment): Xây dựng validator kiểm tra toàn vẹn artifact",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R3-15",
+      "assignee": "Người 3",
+      "role": "R3",
+      "status": "PLANNED",
+      "stage": "S4",
+      "title": "Xuất OpenAPI và smoke API",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "10,13/GATEC,14/S4"
+        }
+      ],
+      "dependencies": [
+        "R3-13"
+      ],
+      "required_prior_stages": [
+        "S3"
+      ],
+      "files": [
+        "docs/api/OPENAPI_ASSESSMENT_SPEC.json",
+        "web/README.md"
+      ],
+      "work": "Xuất OpenAPI từ app version thực, examples và HTTP matrix. Smoke với artifact Assessment đã verify, ghi revision/context/pins và lệnh tái lập.",
+      "acceptance": "Spec parse được, examples và response đúng artifact; không ghi đã deploy khi mới nghiệm thu local.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "git diff --check"
+        ],
+        "manual": [
+          "Parse OpenAPI/examples và smoke endpoint trên artifact đã verify; ghi context/revision/response/error matrix."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Xuất OpenAPI và smoke API",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-01",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "F",
+      "title": "Tổng hợp đối sánh B-PIT",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "7"
+        }
+      ],
+      "dependencies": [
+        "R1-13",
+        "R1-06"
+      ],
+      "required_prior_stages": [
+        "E"
+      ],
+      "files": [
+        "docs/REPORT_BACKTEST.md"
+      ],
+      "work": "Báo ô điền theo FY/metric, mã–năm theo số ô điền, coverage9/9, n_fit, sizes, thay nhãn/common ARI và đối chứng k=3 từ audit C/D đã verify.",
+      "acceptance": "Số liệu khớp pins; phân biệt tác động mở cohort, refit và ROE scoring; không sửa baseline.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "git diff --check"
+        ],
+        "manual": [
+          "Kiểm links/JSON và đối chiếu số liệu, hashes, run IDs với evidence; không chạy lại model chỉ để kiểm tài liệu."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "docs(bpit-m3): Tổng hợp đối sánh B-PIT",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-02",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "F",
+      "title": "Tổng hợp đối sánh M3",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "7"
+        }
+      ],
+      "dependencies": [
+        "R4-01",
+        "R2-10"
+      ],
+      "required_prior_stages": [
+        "E"
+      ],
+      "files": [
+        "docs/REPORT_BACKTEST.md"
+      ],
+      "work": "Nhập bảng đối sánh Combined/Financial-only/controls từ Người2 theo từng segment: N, cash, trades, NAV, return, drawdown. Ghi price basis và các giới hạn.",
+      "acceptance": "Không gộp NAV hoặc báo Sharpe ở Dev/Holdout; kết quả bất lợi và source references được giữ đủ.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "git diff --check"
+        ],
+        "manual": [
+          "Kiểm links/JSON và đối chiếu số liệu, hashes, run IDs với evidence; không chạy lại model chỉ để kiểm tài liệu."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "docs(bpit-m3): Tổng hợp đối sánh M3",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-03",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "F",
+      "title": "Hoàn tất hồ sơ bàn giao và tài liệu liên quan",
+      "source_refs": [
+        {
+          "path": "docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md",
+          "section": "7"
+        }
+      ],
+      "dependencies": [
+        "R4-02"
+      ],
+      "required_prior_stages": [
+        "E"
+      ],
+      "files": [
+        "docs/REPORT_BACKTEST.md",
+        "docs/DECISIONS.md",
+        "CHANGELOG.md"
+      ],
+      "work": "Ghi mục4 công việc còn lại, phase status/evidence, config/HEAD/hash/run IDs và đường dẫn nhận có quyền. Cập nhật Decisions/Changelog khi quy tắc được triển khai; chuẩn bị bộ bàn giao F.",
+      "acceptance": "Bộ C/D/E và đối sánh đủ cho Assessment; owner review theo nguồn trước cân nhắc promote. ADR/Changelog đi cùng PR đổi behavior liên quan.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "git diff --check"
+        ],
+        "manual": [
+          "Kiểm links/JSON và đối chiếu số liệu, hashes, run IDs với evidence; không chạy lại model chỉ để kiểm tài liệu."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "docs(bpit-m3): Hoàn tất hồ sơ bàn giao và tài liệu liên quan",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-04",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S5",
+      "title": "Types và trạng thái dữ liệu frontend",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.2,10.2,14/S5"
+        }
+      ],
+      "dependencies": [
+        "R3-15"
+      ],
+      "required_prior_stages": [
+        "S4"
+      ],
+      "files": [
+        "web/frontend/lib/types.ts"
+      ],
+      "work": "Bổ sung types theo response đã nghiệm thu S4: status, dates, provenance,18features, Peers và history. Đọc tài liệu Next local theo AGENTS trước khi code.",
+      "acceptance": "Typecheck đạt, null/status mapping đúng; không dùng fixture làm fallback production hoặc tạo contract API khác.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Types và trạng thái dữ liệu frontend",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-05",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S5",
+      "title": "Verdict và availability states",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "8.3,11.3,14/S5"
+        }
+      ],
+      "dependencies": [
+        "R4-04"
+      ],
+      "required_prior_stages": [
+        "S4"
+      ],
+      "files": [
+        "web/frontend/components/stock/verdict-badge.tsx",
+        "web/frontend/components/stock/assessment-status.tsx"
+      ],
+      "work": "Hiển thị bốn verdict, loading/error/insufficient/stale, demo/as_of/session/context bằng text và trạng thái accessible. Reset kết luận cũ khi đổi mã.",
+      "acceptance": "Giá trị lấy đúng API, pending/404/503/409 rõ; không đồng nhất availability với verdict.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [
+        "T08",
+        "T20"
+      ],
+      "commit_message": "feat(assessment): Verdict và availability states",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-06",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S5",
+      "title": "Một biểu đồ chuyển đổi chỉ số",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "11.2,13/T24,14/S5"
+        }
+      ],
+      "dependencies": [
+        "R4-04"
+      ],
+      "required_prior_stages": [
+        "S4"
+      ],
+      "files": [
+        "web/frontend/components/stock/single-feature-chart.tsx"
+      ],
+      "work": "Một vùng chart với selector18feature hoặc nhóm cùng unit/tần suất/basis. Trục tài chính theo FY, market theo snapshot; chỉ vẽ điểm hợp lệ tại as_of.",
+      "acceptance": "Không ghép line khác đơn vị/tần suất; gap giữ trống, selector không tính lại verdict hoặc model labels.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [
+        "T24"
+      ],
+      "commit_message": "feat(assessment): Một biểu đồ chuyển đổi chỉ số",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-07",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S5",
+      "title": "Lookback và thông tin coverage",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "5.1,11.2,13/T13"
+        }
+      ],
+      "dependencies": [
+        "R4-06"
+      ],
+      "required_prior_stages": [
+        "S4"
+      ],
+      "files": [
+        "web/frontend/components/stock/single-feature-chart.tsx"
+      ],
+      "work": "Thêm selector5/10 năm mặc định10 tính lùi từ as_of; hiển thị coverage thực và thông tin ngày/status/nguồn. Query theo hợp đồng API.",
+      "acceptance": "Đổi lookback không đổi as_of/verdict/evidence; thiếu kỳ chỉ hiện phần thực có, không tạo dữ liệu.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [
+        "T13"
+      ],
+      "commit_message": "feat(assessment): Lookback và thông tin coverage",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-08",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S5",
+      "title": "Bảng Peers theo đặc trưng",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "6.3,11.2,13/T07,T28"
+        }
+      ],
+      "dependencies": [
+        "R4-04"
+      ],
+      "required_prior_stages": [
+        "S4"
+      ],
+      "files": [
+        "web/frontend/components/stock/peer-comparison-table.tsx"
+      ],
+      "work": "Render basis/count/date/source và median/IQR từng metric;0–2 ghi thiếu đối chứng, đúng3 có median. Missing B-PIT không lập Peers, dữ liệu lấy từ artifact.",
+      "acceptance": "Không gọi legacy peers hoặc tính lại nhóm trên client; thiếu Peers không tự đổi verdict.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [
+        "T07",
+        "T28"
+      ],
+      "commit_message": "feat(assessment): Bảng Peers theo đặc trưng",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-09",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S5",
+      "title": "Bảng chi tiết 18 đặc trưng",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "6.1–6.2,11.2"
+        }
+      ],
+      "dependencies": [
+        "R4-04"
+      ],
+      "required_prior_stages": [
+        "S4"
+      ],
+      "files": [
+        "web/frontend/components/stock/assessment-feature-table.tsx"
+      ],
+      "work": "Bảng đủ9A+9B với value/unit/period/status/coverage/ref, phân biệt observed/imputed/missing/NOT_APPLICABLE. Dùng formatters và primitives hiện có.",
+      "acceptance": "Không thêm metric ngoài18, null khác0; ô imputed có provenance, optional missing không bị trình bày như giá trị quan sát.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Bảng chi tiết 18 đặc trưng",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-10",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S5",
+      "title": "Giải thích tín hiệu và rủi ro",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "8.1–8.5,11.2"
+        }
+      ],
+      "dependencies": [
+        "R4-05"
+      ],
+      "required_prior_stages": [
+        "S4"
+      ],
+      "files": [
+        "web/frontend/components/stock/rationale-card.tsx"
+      ],
+      "work": "Render drivers/risks/counter_evidence từ response, kèm nguồn/ngày/status, giải thích bốn verdict và tín hiệu trái chiều.",
+      "acceptance": "Không sinh text thiếu evidence hoặc tính score/đổi rule trên client; Peers chỉ bổ sung giải thích.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Giải thích tín hiệu và rủi ro",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-11",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S5",
+      "title": "Nguồn và chất lượng dữ liệu",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "6.2,10.2,11.2"
+        }
+      ],
+      "dependencies": [
+        "R4-09",
+        "R4-10"
+      ],
+      "required_prior_stages": [
+        "S4"
+      ],
+      "files": [
+        "web/frontend/components/stock/evidence-provenance-modal.tsx"
+      ],
+      "work": "Expander/modal nguồn cạnh chart/bảng, ghi FY/snapshot/usable/as_of/status/revision/evidence. Hỗ trợ keyboard/focus và link phù hợp.",
+      "acceptance": "Không lộ token/absolute local paths hoặc tạo dashboard QA riêng; long references đọc được trên mobile.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Nguồn và chất lượng dữ liệu",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-12",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S5",
+      "title": "Ghép panel đánh giá",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "11.1–11.4,14/S5"
+        }
+      ],
+      "dependencies": [
+        "R4-05",
+        "R4-07",
+        "R4-08",
+        "R4-09",
+        "R4-10",
+        "R4-11"
+      ],
+      "required_prior_stages": [
+        "S4"
+      ],
+      "files": [
+        "web/frontend/components/stock/assessment-panel.tsx"
+      ],
+      "work": "Ghép verdict, A/B profiles, một chart, bảng18feature, Peers, rationale, provenance và empty states trong panel Assessment.",
+      "acceptance": "Panel read-only, không compute/fit; tại một thời điểm một chart, case stale/insufficient hiển thị đúng.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "feat(assessment): Ghép panel đánh giá",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-13",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S5",
+      "title": "Tab, API và URL state",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "9.2,10.3,11.4,13/T11–12"
+        }
+      ],
+      "dependencies": [
+        "R4-12",
+        "R3-15"
+      ],
+      "required_prior_stages": [
+        "S4"
+      ],
+      "files": [
+        "web/frontend/app/stocks/page.tsx",
+        "web/frontend/lib/api.ts"
+      ],
+      "work": "Thêm tab thứ5, nối API và URL state ticker/tab/metric/lookback. Xử lý409 reset/reload và race A→B/Back; giữ các tab hiện hữu.",
+      "acceptance": "Response mã cũ không ghi đè mã mới; revision lock đúng; lookback chỉ đổi history, không có nút chọn as_of hoặc mode công khai.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [
+        "T11",
+        "T12",
+        "T14"
+      ],
+      "commit_message": "feat(assessment): Tab, API và URL state",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-14",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S6",
+      "title": "UAT và regression giao diện",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "13/T01–T32;17;14/S6"
+        }
+      ],
+      "dependencies": [
+        "R4-13",
+        "R1-20"
+      ],
+      "required_prior_stages": [
+        "S5"
+      ],
+      "files": [
+        "web/frontend/",
+        "tests/integration/"
+      ],
+      "work": "UAT FPT+mã hợp lệ khác, VCB/mã mới, stale/current fixtures, mismatch/missing; kiểm18selector5/10, một chart, navigation, mobile/keyboard/theme. Ghi rõ manual và automated.",
+      "acceptance": "Typecheck/build và ca nghiệm thu đạt; screenshots/response đúng pins, không bỏ case fail để ghi PASS.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "npm --prefix web/frontend run typecheck",
+          "npm --prefix web/frontend run build"
+        ],
+        "manual": [
+          "Thực hiện ca tương tác/empty state ghi trong task; dùng hạ tầng test hiện có, ghi rõ manual hoặc automated."
+        ]
+      },
+      "source_test_cases": [
+        "T01",
+        "T03",
+        "T05",
+        "T06",
+        "T16",
+        "T19"
+      ],
+      "commit_message": "feat(assessment): UAT và regression giao diện",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    },
+    {
+      "id": "R4-15",
+      "assignee": "Người 4",
+      "role": "R4",
+      "status": "PLANNED",
+      "stage": "S6",
+      "title": "Hướng dẫn và hồ sơ nghiệm thu",
+      "source_refs": [
+        {
+          "path": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+          "section": "12–15,18,14/S6"
+        }
+      ],
+      "dependencies": [
+        "R4-14",
+        "R3-15"
+      ],
+      "required_prior_stages": [
+        "S5"
+      ],
+      "files": [
+        "docs/HUONG_DAN_SU_DUNG_TOOL_DANH_GIA_DAU_TU.md",
+        "README.md",
+        "docs/README.md"
+      ],
+      "work": "Hướng dẫn demo, tra mã, bốn verdict, Peers/history/nguồn; setup/commands/pins/coverage/limitations/rollback. Tổng hợp API/UI/verifier/UAT evidence và index.",
+      "acceptance": "Giữ M2/M3/artifact frozen, công bố đúng phần đạt/chưa đạt; production release theo approval của kế hoạch nguồn, không tự deploy.",
+      "verification": {
+        "planned_test": null,
+        "commands": [
+          "git diff --check"
+        ],
+        "manual": [
+          "Kiểm links/JSON và đối chiếu số liệu, hashes, run IDs với evidence; không chạy lại model chỉ để kiểm tài liệu."
+        ]
+      },
+      "source_test_cases": [],
+      "commit_message": "docs(assessment): Hướng dẫn và hồ sơ nghiệm thu",
+      "stop_when": [
+        "Nguồn/pin/dependency bắt buộc chưa sẵn sàng hoặc chưa đạt điều kiện chuyển bước của tài liệu nguồn.",
+        "Kiểm tra thất bại hoặc thay đổi ngoài scope; giữ evidence, không tự nới quy tắc.",
+        "Điểm tài liệu nguồn yêu cầu owner review/approval chưa được chấp thuận."
+      ]
+    }
+  ]
+}

@@ -1,5 +1,12 @@
 # Documentation — START HERE
 
+## Kế hoạch triển khai B-PIT và đánh giá đầu tư — bản nháp 16/11/2026
+
+[Kế hoạch triển khai B-PIT và hệ thống đánh giá đầu tư](plans/KE_HOACH_TRIEN_KHAI_B_PIT_VA_DANH_GIA_DAU_TU.md)
+chi tiết hóa hai kế hoạch nguồn B-PIT/M3 và Investment Assessment thành công việc
+cho Người 1–4, có dependency, file, đầu ra và kiểm tra. Giữ nguyên quy tắc và
+điều kiện chuyển bước của tài liệu nguồn; bản phân công chưa phải bằng chứng thực thi.
+
 ## M3-C — tái lập Dev/Holdout và báo cáo kỹ thuật, 04/11/2026
 
 Hướng dẫn chạy notebook (đã gộp vào notebook, file riêng xóa 04/11),
