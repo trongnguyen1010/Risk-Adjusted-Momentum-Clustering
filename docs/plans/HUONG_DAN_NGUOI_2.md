@@ -16,6 +16,24 @@
 
 ---
 
+## Chuẩn bị Dữ liệu (Bắt buộc trước khi chạy)
+
+Do tệp cơ sở dữ liệu `indicators.sqlite` có dung lượng ~106 MB (vượt giới hạn 100 MB của GitHub), thư mục `data/` được đưa vào `.gitignore`. Người 1 đã xuất và đóng gói toàn bộ dữ liệu làm giàu và đánh giá.
+
+Bạn chuẩn bị dữ liệu bằng **1 trong 2 cách sau**:
+* **Cách 1 (Nhanh nhất & Khuyên dùng):** Tải file `data.zip` (~40 MB do Người 1 bàn giao tại thư mục `Downloads/data.zip` hoặc trên Google Drive / nhóm chat), giải nén vào thư mục gốc của repo sao cho đường dẫn là `data/...`.
+* **Cách 2 (Tự sinh từ baseline):** Nếu máy bạn đã có sẵn thư mục `data` gốc baseline, mở terminal chạy 3 lệnh sau để tự sinh toàn bộ dữ liệu trong 30 giây:
+  ```powershell
+  $env:PYTHONPATH="src"
+  python scripts/build_enriched_indicators.py
+  python scripts/build_financial_pit_clusters_enriched.py
+  python scripts/build_investment_assessment_v1.py
+  ```
+
+---
+
+---
+
 ## Danh mục các nhiệm vụ chi tiết
 
 ### Task 01 (R2-01) — Sửa loader M3 nhận đủ k cụm
