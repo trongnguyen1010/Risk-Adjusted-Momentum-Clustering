@@ -1,8 +1,51 @@
 # Hướng dẫn thực hiện công việc — Người 1
 
 **Phạm vi phụ trách:** Nguồn dữ liệu, Làm giàu data, B-PIT và Builder Đánh giá đầu tư.  
-**Tổng số nhiệm vụ:** 20 tasks.  
+**Trạng thái:** **ĐÃ HOÀN THÀNH 100% (20/20 tasks)** — Đã push 20 commits lên `origin/feature/indicators-v1`.  
 **Tài liệu tham chiếu:** [Kế hoạch tổng thể](KE_HOACH_TRIEN_KHAI_B_PIT_VA_DANH_GIA_DAU_TU.md) · [PHAN_CONG_CONG_VIEC_B_PIT_VA_DANH_GIA_DAU_TU.json](PHAN_CONG_CONG_VIEC_B_PIT_VA_DANH_GIA_DAU_TU.json).
+
+---
+
+## Biên bản bàn giao kết quả thực tế của Người 1
+
+1. **Bộ dữ liệu làm giàu B-PIT (Stage C):**
+   * Vị trí: `data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/indicators.sqlite`
+   * Số liệu nghiệm thu: Khớp chính xác 1.045 mã-năm, 1.111 ô điền median; bảo toàn nguyên vẹn 319.620 dòng của database gốc.
+2. **Bộ mô hình & nhãn phân cụm B-PIT Enriched (Stage D):**
+   * Vị trí: `data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/` (`labels.csv`, `models.json`, `audit.json`, `manifest.json`)
+   * Kết quả: Cấu hình K-Means (k=3) đạt độ ổn định 0.922, Silhouette 0.230; 0 lỗi rò rỉ dữ liệu (`fit_leaks = 0`).
+3. **Bộ dữ liệu đánh giá đầu tư ngoại tuyến D-ASS-01 (Stage S3):**
+   * Vị trí: `data/experiments/assessment/assessment_v1_run01/` (`assessments.jsonl`, `peer_benchmarks.csv`, `coverage.csv`, `feature_history.jsonl`, `manifest.json`)
+   * Kết quả: Chấm điểm đầy đủ 1.428 mã (335 Đáng cân nhắc, 837 Cần theo dõi, 256 Không đủ cơ sở); verifier độc lập `PASS` 100%.
+4. **Gói đóng gói bàn giao (Dành cho Người 2, 3, 4):**
+   * Đã nén thành tệp: `Downloads/data.zip` (40.83 MB) chứa toàn bộ thư mục `data/` hoàn chỉnh.
+
+---
+
+## Bảng tổng hợp 20 Atomic Commits đã thực hiện
+
+| STT | Task ID | Commit Hash | Tiêu đề Commit | Trạng thái |
+|:---:|:---:|:---:|:---|:---:|
+| 1 | R1-01 | `4c53565` | feat(bpit-m3): Khóa môi trường và baseline | PASS |
+| 2 | R1-02 | `2ede0af` | feat(bpit-m3): Kiểm kê và pin đầu vào | PASS |
+| 3 | R1-03 | `9aaf722` | feat(bpit-m3): Phân loại các ô đủ điều kiện làm giàu | PASS |
+| 4 | R1-04 | `3d0727f` | feat(bpit-m3): Tính median từ tập FIT gốc | PASS |
+| 5 | R1-05 | `262dc5f` | feat(bpit-m3): Điền giá trị và ghi lineage theo ô | PASS |
+| 6 | R1-06 | `85aa97b` & `5b02403` | feat(bpit-m3): Xuất SQLite dẫn xuất và audit | PASS |
+| 7 | R1-07 | `ea63ed6` | feat(bpit-m3): Chuẩn hóa cohort và loader enriched | PASS |
+| 8 | R1-08 | `1b070d3` | feat(bpit-m3): Thực hiện K-Means và PCA + K-Means | PASS |
+| 9 | R1-09 | `240d49f` | feat(bpit-m3): Thực hiện Ward và GMM | PASS |
+| 10 | R1-10 | `07545c8` | feat(bpit-m3): Tính chất lượng và độ ổn định cụm | PASS |
+| 11 | R1-11 | `86aff9b` | feat(bpit-m3): Sàng lọc và khóa cấu hình chung | PASS |
+| 12 | R1-12 | `f841343` | feat(bpit-m3): Xuất mô hình, labels và manifest B-PIT | PASS |
+| 13 | R1-13 | `c5f5ba6` | feat(bpit-m3): Hoàn thiện notebook chạy và bàn giao B-PIT | PASS |
+| 14 | R1-14 | `4ae316c` | feat(assessment): Nhận pin và chọn input Assessment | PASS |
+| 15 | R1-15 | `4981e0a` | feat(assessment): Tạo Peers theo từng đặc trưng | PASS |
+| 16 | R1-16 | `d11a6f9` | feat(assessment): Dựng lịch sử và coverage | PASS |
+| 17 | R1-17 | `007c831` | feat(assessment): Nối engine đánh giá offline | PASS |
+| 18 | R1-18 | `a01ef8a` | feat(assessment): Bổ sung CLI build Assessment | PASS |
+| 19 | R1-19 | `2062dec` | feat(assessment): Khóa manifest và deterministic payload | PASS |
+| 20 | R1-20 | `3478cef` | feat(assessment): Nghiệm thu builder trên bộ bàn giao thật | PASS |
 
 ---
 
