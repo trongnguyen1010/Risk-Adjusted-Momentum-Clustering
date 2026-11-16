@@ -88,3 +88,4 @@ def export_medians_csv(records: List[Dict], out_path: Path) -> None:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(records)
+

@@ -28,10 +28,10 @@ class FinancialEnrichmentEligibilityTests(unittest.TestCase):
         cur.execute("INSERT INTO company VALUES ('BBB', 'NON_FINANCIAL')")
         cur.execute("INSERT INTO company VALUES ('CCC', 'BANK')") # Ngân hàng (loại)
 
-        # AAA: 8 OK, 1 MISSING_INPUT (cfo_to_ni có NI > 0) -> Đủ điều kiện làm giàu
+        # AAA: 8 OK, 1 MISSING_INPUT (cfo_to_ni có net_profit@t > 0) -> Đủ điều kiện làm giàu
         for m in FEATURES:
             if m == "cfo_to_ni":
-                cur.execute("INSERT INTO indicator_values VALUES ('AAA', 2020, ?, NULL, 'MISSING_INPUT', ?)", (m, json.dumps({'ni': 1000000})))
+                cur.execute("INSERT INTO indicator_values VALUES ('AAA', 2020, ?, NULL, 'MISSING_INPUT', ?)", (m, json.dumps({'net_profit@t': 1000000})))
             else:
                 cur.execute("INSERT INTO indicator_values VALUES ('AAA', 2020, ?, 0.15, 'OK', '{}')", (m,))
 
@@ -85,3 +85,4 @@ class FinancialEnrichmentEligibilityTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
