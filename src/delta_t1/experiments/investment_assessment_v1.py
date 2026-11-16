@@ -152,6 +152,27 @@ class InvestmentAssessmentEngine:
             peer_comparisons=peer_comps,
         )
 
+def compute_payload_content_hash(payloads: List[SingleAssessmentPayload]) -> str:
+    """Tính mã băm nội dung bất biến độc lập với thời gian sinh hoặc run_id."""
+    sorted_p = sorted(payloads, key=lambda p: p.ticker)
+    h = hashlib.sha256()
+    for p in sorted_p:
+        content_repr = json.dumps(
+            {
+                "ticker": p.ticker,
+                "as_of": p.as_of,
+                "verdict": p.verdict,
+                "cluster_a": p.cluster_a,
+                "cluster_b": p.cluster_b,
+                "latest_fy": p.latest_fy,
+                "favorable": sorted(p.favorable_signals),
+                "caution": sorted(p.caution_signals),
+            },
+            sort_keys=True,
+        )
+        h.update(content_repr.encode("utf-8"))
+    return h.hexdigest()
+
 class OfflineAssessmentBuilder:
     """Bộ điều phối toàn bộ pipeline xây dựng dữ liệu Investment Assessment."""
     def __init__(
@@ -196,10 +217,13 @@ class OfflineAssessmentBuilder:
             for p in payloads:
                 f.write(json.dumps(asdict(p), ensure_ascii=False) + "\n")
 
+        content_hash = compute_payload_content_hash(payloads)
+
         manifest = {
             "version": "investment_assessment_v1",
             "as_of": self.as_of,
             "created_at": datetime.now(timezone.utc).isoformat(),
+            "deterministic_content_sha256": content_hash,
             "total_tickers": len(payloads),
             "verdict_summary": {
                 v: sum(1 for p in payloads if p.verdict == v)
