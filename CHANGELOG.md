@@ -1,5 +1,14 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Release pointer read-only cho Investment Assessment — 18/11/2026
+
+Thêm cấu hình `assessment-release-pointer-v1` ghim duy nhất artifact
+`assessment_v1_run01`, context mô phỏng, `as_of`, phiên giá yêu cầu và revision.
+Resolver chỉ trả `READY` cho pointer hợp lệ và thư mục artifact tồn tại; config,
+pointer hoặc artifact thiếu trả `NOT_READY`, không quét fallback/run mới nhất.
+Chưa kiểm manifest/hash hoặc nạp payload (các stage R3-02/R3-03), không sửa data
+hay model nguồn.
+
 ## Cập nhật cấu trúc M3 và hoàn thiện kế hoạch làm giàu dữ liệu B-PIT — 16/11/2026
 
 Chuyển toàn bộ tài liệu kế hoạch M3 từ `docs/m3/` sang trực tiếp thư mục `M3/`
