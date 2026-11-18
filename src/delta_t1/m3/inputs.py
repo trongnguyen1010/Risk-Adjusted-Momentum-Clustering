@@ -109,10 +109,31 @@ def bpit(artifact_dir, *, include_cutoffs=False):
     labels = defaultdict(dict)
     with open(artifact_dir / 'labels.csv', encoding='utf-8') as f:
         for r in csv.DictReader(f):
-            labels[int(r['fiscal_year'])][r['ticker']] = (int(r['cluster']), {})
+            year, ticker = int(r['fiscal_year']), r['ticker']
+            if ticker in labels[year]:
+                raise ValueError(f'Duplicate B-PIT label: {ticker}, FY{year}')
+            labels[year][ticker] = (int(r['cluster']), {})
     order = {int(y): m.get('cluster_order', []) for y, m in models.items()}
     if include_cutoffs:
-        cutoffs = {int(y): date.fromisoformat(m['cutoff']).isoformat() for y, m in models.items()
-                   if m.get('cutoff') and sorted(order[int(y)]) == [0, 1, 2]}
+        cutoffs = {}
+        for y, model in models.items():
+            year = int(y)
+            # Old artifacts without k retain their three-cluster contract.
+            k = model.get('k', 3)
+            ranked = order[year]
+            if type(k) is not int or k < 3 or not isinstance(ranked, list):
+                continue
+            if (any(type(c) is not int for c in ranked)
+                    or sorted(ranked) != list(range(k))):
+                continue
+            observed = {c for c, _ in labels.get(year, {}).values()}
+            expected = set(range(k))
+            if not observed or not observed <= expected:
+                continue
+            # Explicit k identifies the complete model export; every cluster must occur.
+            if 'k' in model and observed != expected:
+                continue
+            if model.get('cutoff'):
+                cutoffs[year] = date.fromisoformat(model['cutoff']).isoformat()
         return dict(labels), order, manifest, cutoffs
     return dict(labels), order, manifest
