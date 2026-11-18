@@ -26,5 +26,11 @@ class TestAssessmentApi(unittest.TestCase):
             response=client.get('/api/v2/stocks/ZZZ999/assessment')
         self.assertEqual(response.status_code,404)
 
+    def test_revision_mismatch_and_invalid_ticker_are_rejected(self):
+        app=create_app(repository=FakeRepository(),assessment_repository=AssessmentRepository.from_config())
+        with TestClient(app) as client:
+            self.assertEqual(client.get('/api/v2/stocks/A32/assessment?revision=wrong').status_code,409)
+            self.assertEqual(client.get('/api/v2/stocks/%40%40%40/assessment').status_code,422)
+
 
 if __name__=='__main__':unittest.main()
