@@ -1,5 +1,11 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Tra cứu Assessment theo release pin — 18/11/2026
+
+Lookup chuẩn hóa ticker và chỉ trả record thuộc context/as-of/phiên giá/revision đã
+phát hành. Mã không có record là `NOT_FOUND`; mã có record thiếu chứng cứ giữ
+`INSUFFICIENT_EVIDENCE`; mọi override release bị từ chối. Không suy nhãn hay đổi data.
+
 ## Nạp payload Assessment read-only — 18/11/2026
 
 Reader nạp assessments, peers, coverage và history chỉ sau release pin đã PASS.
