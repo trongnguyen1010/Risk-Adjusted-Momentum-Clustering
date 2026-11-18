@@ -35,6 +35,14 @@ Test API cần FastAPI: `python -m venv --system-site-packages .venv-web` rồi 
 
 `GET /api/v2/stocks/{ticker}/assessment` chỉ đọc release đã verify, không là deploy production. Spec local: `docs/api/OPENAPI_ASSESSMENT_SPEC.json`; context demo là `SIMULATED_AS_OF`.
 
+| HTTP | Ý nghĩa |
+|---|---|
+| 200 | Record trong release, kể cả `INSUFFICIENT_EVIDENCE` |
+| 404 | Ticker không thuộc release |
+| 409 | Revision yêu cầu không khớp |
+| 422 | Ticker hoặc `lookback_years` không hợp lệ |
+| 503 | Release chưa sẵn sàng trên server |
+
 ### Lỗi thiếu bundle terminal khi chạy Uvicorn
 
 Backend web đầy đủ còn cần `data/web/delta-intelligence-v4/manifest.json`. Nếu file này
