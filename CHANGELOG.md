@@ -1,5 +1,9 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Hồ sơ bàn giao Stage F B-PIT/M3 — 19/11/2026
+
+Tổng hợp provenance, hash, run ID và tình trạng truy cập artifact C/D/E trong báo cáo backtest để chuẩn bị owner review. Chỉ cập nhật tài liệu; không đổi methodology, official M3 config/pin, artifact nguồn hoặc trạng thái Final. B-PIT enriched và Assessment vẫn là ứng viên/chứng cứ review, chưa được promote.
+
 ## AssessmentRepository trong FastAPI lifecycle — 18/11/2026
 
 FastAPI khởi tạo repository Assessment trong lifespan và hỗ trợ injection cho test.

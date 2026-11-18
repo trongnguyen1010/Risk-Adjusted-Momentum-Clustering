@@ -1134,7 +1134,24 @@ VNINDEX là benchmark riêng, không có N/cash/lệnh danh mục: Development c
 
 **Kết quả bất lợi được giữ nguyên:** trong Development, Combined có return thấp hơn Market-only, Equal-weight và Momentum-only; trong Holdout, Combined thấp hơn Momentum-only và VNINDEX về tổng return, đồng thời drawdown sâu hơn mọi strategy đối chứng và VNINDEX. Các con số mô tả kết quả của các strategy đã khóa, không chứng minh đóng góp nhân quả của phân cụm hay hiệu quả sau chi phí.
 
+### 3.32. Bàn giao Stage F (R4-03)
+
+**Trạng thái hồ sơ: `PASS`; sẵn sàng promote: `PARTIAL`, chờ owner review theo nguồn.** Hash Assessment và các input pin đã được kiểm tra cục bộ; việc này không phải phê duyệt nghiệp vụ. Task này không đổi methodology, official pin/config hoặc trạng thái Final.
+
+| Phần | Artifact/run và trạng thái | Pin/hash bàn giao |
+|---|---|---|
+| C — Indicators enriched | `data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/`, artifact ứng viên; source commit `85aa97b7f7e56a715720d78913011a32b395da04`; manifest SHA `ac4a2c81e7415f1179bc3b012097201c5a3cb0ff5be3521a1eed6fbc10074e7f`. | Input DB `26bfc2d922a8f39f1fb8234e6b50c788ef83ac4b229059ed339a14ebd1213023`; availability `4f0f83108e761daeb86289e290de3aff0379abbf1ed630ac31c842146186648f`; enriched SQLite `d0f7b4d80b7d1bc1da6a98738670ab480c1319794946e22bdfb626a1af1340e0`; tổng 1.111 ô impute/1.045 dòng/393 mã. |
+| D — B-PIT enriched | `data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/`, ứng viên; audit `OK`, K-Means `k=3`; source commit `2062decbc6a608fd6f6e2ec46d08f427da87c994`. | Config `6a08324029f7d1d3bda57276fa4dab5295b8276e3b35fbac07d7a91eb57fceaa`; labels `384e36e4521700acb92c8bd69f38204f782e9ab269ba80fe18a6e283a6cf2e35`; models `7e8242c4df6958dfb4df32f1725e96c01c5c5aae4d91c40f3f8b1dd831987b08`; audit `30425ce3a478463c285f25a855ed81ea87670cf11f1a6532dfe7201f970432fb`. |
+| Assessment | `data/experiments/assessment/assessment_v1_run01/`; as-of `2026-01-02`, 1.428 tickers. | Deterministic content SHA `418def26a0db719205f01b73d71467adcd6d1930bd549bc509c9183309f3f8bb`; input hashes khớp C SQLite, availability và D labels. Bốn output (`assessments.jsonl`, `peer_benchmarks.csv`, `coverage.csv`, `feature_history.jsonl`) khớp manifest; manifest SHA `63a0b747d200638151052e0168b542316e013d8561916860416d1e4118bd09a8`. Đây là kiểm tra hash cục bộ, không phải owner approval. |
+| E — M3 official Dev/Holdout | Dev `20261104T121107Z-5557288c`; Holdout `20261104T133507Z-5557288c`; xem đối sánh tại Mục 3.31. | Source commit `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`; dataset revision `08c24867b11177072bfe457a4623a38abf9bbc48`; config SHA `b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d`; seal Dev `39784248f3777700ebc0261ef53f20053bc4429920785472bba416150e902661`; seal Holdout `f54ea2fb1d0da107d684178c541c9f9c634a11f4de463ad4352e4967ec152cbc`. Config checkout có CRLF; SHA chuẩn hóa LF khớp manifest. Cả hai run dùng B-PIT gốc `4a9d2e87f0de84ec9e80364b24043cb6091aa4f34f7dcfd187d8526e9f44579a`, không dùng labels D enriched. |
+
+**Nơi nhận và quyền truy cập:** tài liệu nằm trên nhánh `feature/indicators-v1` của [GitHub repository](https://github.com/trongnguyen1010/Risk-Adjusted-Momentum-Clustering/tree/feature/indicators-v1); người nhận cần quyền đọc repo. C/D/Assessment trong `data/` bị Git ignore và không được chuyển qua commit/GitHub. Cần cấp quyền đọc hoặc chuyển riêng các artifact tại những path FNMS nêu trên; không giả định quyền đã có. E đã được xuất tại `M3/outputs` theo manifest; task này không thay đổi thư mục M3 độc lập.
+
+**Checkpoint và việc còn lại:** HEAD trước cập nhật là `579ff173ded2f246c5a99df8d753ac0f10c88bcc`; Task 1 commit `e2ad3bba`, Task 2 commit `579ff173`. Commit R4-03 sẽ chỉ chứa tài liệu bàn giao. Owner cần review C/D/E theo nguồn và xác nhận quyền nhận artifact trước khi cân nhắc promote. Muốn đánh giá D trong M3 cần protocol khóa cùng run/seal mới; không chạy trong task này. Final Evaluation tiếp tục `NOT_READY` do thiếu dữ liệu 2026. Không có quyết định methodology mới được triển khai nên `docs/DECISIONS.md` không phát sinh ADR mới.
+
 ## 4. Công việc còn lại và gate chuyển bước
+
+**Cập nhật Stage F (R4-03):** hồ sơ C/D/E đã tổng hợp tại Mục 3.30–3.32; Task 1 commit `e2ad3bba`, Task 2 commit `579ff173`; trạng thái tài liệu `PASS`. C/D còn chờ owner review theo nguồn; M3 Dev/Holdout official dùng B-PIT gốc. Chưa promote hay chạy lại M3 bằng labels enriched. Final Evaluation giữ `NOT_READY` đến khi dữ liệu 2026 và readiness gate sẵn sàng. C/D/Assessment trong `data/` cần được bàn giao/cấp quyền riêng theo Mục 3.32.
 
 | Thứ tự | Công việc | Điều kiện hoàn tất |
 |---:|---|---|
