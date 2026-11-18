@@ -1,0 +1,518 @@
+{
+  "policy_id": "D-ASS-01",
+  "version": "1.0.0",
+  "status": "POLICY_CODED_TESTED_ONLY",
+  "runtime_enabled": false,
+  "source_document": "docs/Ke_hoach_Output_DELTA_Investment_Assessment.md",
+  "source_sections": [
+    "5.2",
+    "5.3",
+    "6.1",
+    "6.3",
+    "6.4.3",
+    "7.3",
+    "8.3",
+    "14/S2"
+  ],
+  "scope": {
+    "market_model": "A_V4",
+    "financial_model": "B_PIT_ENRICHED",
+    "context": "SIMULATED_AS_OF",
+    "as_of": "2026-01-02",
+    "required_price_session": "2025-12-31",
+    "market_snapshot_date": "2025-12-31",
+    "fiscal_years_enriched": [
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "financial_stale_months": 18,
+    "market_frequency": "MONTHLY",
+    "fixed_session_age_limit": null,
+    "cluster_id_is_rank": false,
+    "model_selection_uses_portfolio_performance": false
+  },
+  "features": {
+    "market": [
+      "mom_21",
+      "mom_63",
+      "mom_126",
+      "mom_252",
+      "vol_63",
+      "downside_vol_63",
+      "mdd_126",
+      "beta_126",
+      "liquidity_21"
+    ],
+    "financial": [
+      "roe",
+      "roa",
+      "gross_margin",
+      "net_margin",
+      "debt_to_equity",
+      "current_ratio",
+      "asset_turnover",
+      "revenue_growth",
+      "cfo_to_ni"
+    ],
+    "whitelist": [
+      "mom_21",
+      "mom_63",
+      "mom_126",
+      "mom_252",
+      "vol_63",
+      "downside_vol_63",
+      "mdd_126",
+      "beta_126",
+      "liquidity_21",
+      "roe",
+      "roa",
+      "gross_margin",
+      "net_margin",
+      "debt_to_equity",
+      "current_ratio",
+      "asset_turnover",
+      "revenue_growth",
+      "cfo_to_ni"
+    ],
+    "mandatory": [
+      "mom_21",
+      "mom_63",
+      "mom_126",
+      "mom_252",
+      "roa",
+      "net_margin"
+    ],
+    "conditional_mandatory": {
+      "cfo_to_ni": {
+        "when": {
+          "all": [
+            {
+              "metadata": "ni_denominator_sign",
+              "op": "==",
+              "value": "POSITIVE"
+            },
+            {
+              "metadata": "ni_denominator_observed",
+              "op": "==",
+              "value": true
+            }
+          ]
+        },
+        "unknown_denominator_action": "INSUFFICIENT_EVIDENCE",
+        "otherwise_action": "SKIP_CFO_SIGN_INFERENCE"
+      }
+    },
+    "optional": [
+      "vol_63",
+      "downside_vol_63",
+      "mdd_126",
+      "beta_126",
+      "liquidity_21",
+      "roe",
+      "gross_margin",
+      "debt_to_equity",
+      "current_ratio",
+      "asset_turnover",
+      "revenue_growth"
+    ],
+    "optional_missing_action": "SKIP_CORRESPONDING_CHECK",
+    "missing_is_zero": false
+  },
+  "eligibility": {
+    "required_metadata": [
+      "a_label_valid",
+      "b_pit_label_valid",
+      "required_price_session_matches",
+      "liquidity_flag_present",
+      "market_snapshot_valid_for_month",
+      "latest_usable_fiscal_year_selected",
+      "b_pit_cutoff_pass",
+      "financial_age_within_18_months",
+      "core_evidence_verified"
+    ],
+    "required_source_pins": [
+      "market_bundle",
+      "trading_calendar",
+      "b_pit_labels",
+      "b_pit_models",
+      "indicators_sqlite",
+      "availability",
+      "policy"
+    ],
+    "accept_only_statuses": [
+      "OK",
+      "IMPUTED_MEDIAN"
+    ],
+    "mandatory_unusable_action": "INSUFFICIENT_EVIDENCE",
+    "latest_fy_without_model_action": "INSUFFICIENT_EVIDENCE",
+    "allow_fallback_to_older_fy": false,
+    "allow_fallback_to_baseline": false,
+    "current_context_requires_accepted_monthly_release_schedule": true
+  },
+  "imputed_policy": {
+    "status": "IMPUTED_MEDIAN",
+    "approval": {
+      "status": "APPROVED_BY_USER",
+      "date": "2026-11-19",
+      "evidence": "User confirmed in this conversation: approved for both rulebook and Peers.",
+      "scope": [
+        "RULEBOOK",
+        "PEERS"
+      ]
+    },
+    "allowed_for_rulebook": true,
+    "allowed_for_peers": true,
+    "preserve_status": true,
+    "preserve_cell_provenance": true,
+    "treat_as_observed": false,
+    "require_verified_source_hash_and_cell_lineage": true,
+    "require_compatible_metric_unit_period": true,
+    "cfo_sign_requires_observed_positive_denominator": true,
+    "describe_median_as_observed_company_cfo": false,
+    "add_score_or_penalty": false,
+    "allow_new_imputation": false,
+    "if_approval_missing": {
+      "mandatory": "INSUFFICIENT_EVIDENCE",
+      "optional": "SKIP_CORRESPONDING_CHECK",
+      "peers": "EXCLUDE_CELL"
+    }
+  },
+  "rules": {
+    "market": {
+      "favorable": {
+        "all": [
+          {
+            "feature": "mom_63",
+            "op": ">",
+            "value": 0
+          },
+          {
+            "feature": "mom_126",
+            "op": ">",
+            "value": 0
+          },
+          {
+            "any": [
+              {
+                "feature": "mom_21",
+                "op": ">",
+                "value": 0
+              },
+              {
+                "feature": "mom_252",
+                "op": ">",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "adverse": {
+        "all": [
+          {
+            "feature": "mom_63",
+            "op": "<",
+            "value": 0
+          },
+          {
+            "feature": "mom_126",
+            "op": "<",
+            "value": 0
+          },
+          {
+            "any": [
+              {
+                "feature": "mom_21",
+                "op": "<",
+                "value": 0
+              },
+              {
+                "feature": "mom_252",
+                "op": "<",
+                "value": 0
+              }
+            ]
+          }
+        ]
+      },
+      "otherwise": "MIXED"
+    },
+    "financial": {
+      "cash_positive": {
+        "all": [
+          {
+            "metadata": "ni_denominator_sign",
+            "op": "==",
+            "value": "POSITIVE"
+          },
+          {
+            "metadata": "ni_denominator_observed",
+            "op": "==",
+            "value": true
+          },
+          {
+            "metadata": "cfo_ratio_valid",
+            "op": "==",
+            "value": true
+          },
+          {
+            "feature": "cfo_to_ni",
+            "op": ">",
+            "value": 0
+          }
+        ]
+      },
+      "cash_negative": {
+        "all": [
+          {
+            "metadata": "ni_denominator_sign",
+            "op": "==",
+            "value": "POSITIVE"
+          },
+          {
+            "metadata": "ni_denominator_observed",
+            "op": "==",
+            "value": true
+          },
+          {
+            "metadata": "cfo_ratio_valid",
+            "op": "==",
+            "value": true
+          },
+          {
+            "feature": "cfo_to_ni",
+            "op": "<",
+            "value": 0
+          }
+        ]
+      },
+      "favorable": {
+        "all": [
+          {
+            "feature": "roa",
+            "op": ">",
+            "value": 0
+          },
+          {
+            "feature": "net_margin",
+            "op": ">",
+            "value": 0
+          },
+          {
+            "rule_ref": "financial.cash_positive"
+          }
+        ]
+      },
+      "profitability_adverse": {
+        "all": [
+          {
+            "feature": "roa",
+            "op": "<",
+            "value": 0
+          },
+          {
+            "feature": "net_margin",
+            "op": "<",
+            "value": 0
+          }
+        ]
+      },
+      "cash_zero_action": "NOT_FINANCIALLY_FAVORABLE"
+    },
+    "warnings": {
+      "major": {
+        "any": [
+          {
+            "metadata": "liquidity_flag",
+            "op": "==",
+            "value": "ILLIQUID"
+          },
+          {
+            "rule_ref": "financial.cash_negative"
+          }
+        ]
+      },
+      "watch": {
+        "any": [
+          {
+            "feature": "gross_margin",
+            "op": "<",
+            "value": 0
+          },
+          {
+            "feature": "current_ratio",
+            "op": "<",
+            "value": 1
+          },
+          {
+            "feature": "revenue_growth",
+            "op": "<",
+            "value": 0
+          }
+        ]
+      }
+    },
+    "explanatory_features": [
+      "vol_63",
+      "downside_vol_63",
+      "mdd_126",
+      "beta_126",
+      "liquidity_21",
+      "roe",
+      "debt_to_equity",
+      "asset_turnover"
+    ]
+  },
+  "verdicts": {
+    "priority": [
+      "INSUFFICIENT_EVIDENCE",
+      "CAUTION",
+      "RESEARCH_FAVORABLE",
+      "WATCH"
+    ],
+    "first_match_wins": true,
+    "labels_vi": {
+      "INSUFFICIENT_EVIDENCE": "Không đủ cơ sở đánh giá",
+      "CAUTION": "Chưa nên ưu tiên đầu tư",
+      "RESEARCH_FAVORABLE": "Đáng cân nhắc đầu tư",
+      "WATCH": "Cần theo dõi"
+    },
+    "conditions": {
+      "INSUFFICIENT_EVIDENCE": {
+        "not": {
+          "state": "eligibility_pass"
+        }
+      },
+      "CAUTION": {
+        "any": [
+          {
+            "rule_ref": "warnings.major"
+          },
+          {
+            "all": [
+              {
+                "rule_ref": "market.adverse"
+              },
+              {
+                "rule_ref": "financial.profitability_adverse"
+              }
+            ]
+          }
+        ]
+      },
+      "RESEARCH_FAVORABLE": {
+        "all": [
+          {
+            "rule_ref": "market.favorable"
+          },
+          {
+            "rule_ref": "financial.favorable"
+          },
+          {
+            "not": {
+              "rule_ref": "warnings.major"
+            }
+          },
+          {
+            "not": {
+              "rule_ref": "warnings.watch"
+            }
+          }
+        ]
+      },
+      "WATCH": {
+        "always": true
+      }
+    },
+    "total_score": null,
+    "penalty": null
+  },
+  "peers": {
+    "required_target_labels": [
+      "A_V4",
+      "B_PIT"
+    ],
+    "allow_a_only_target_fallback": false,
+    "min_valid_peers": 3,
+    "preferred_basis": "SAME_A_AND_B_PIT",
+    "fallback_basis": {
+      "financial": "SAME_B_PIT",
+      "market": "SAME_A_V4"
+    },
+    "pool": "ALL_COMPATIBLE_VALID_MEMBERS",
+    "exclude_self": true,
+    "deduplicate": true,
+    "comparability": [
+      "definition",
+      "unit",
+      "fiscal_year_or_snapshot",
+      "report_type",
+      "source",
+      "available_at_as_of"
+    ],
+    "exclude_missing_and_not_applicable": true,
+    "below_minimum_action": "NO_MEDIAN_SHOW_AVAILABLE_PEER_VALUES",
+    "missing_peers_block_verdict": false,
+    "peer_values_change_verdict": false,
+    "role": "G4_EXPLANATION_ONLY"
+  },
+  "evidence": {
+    "allowed_features": [
+      "mom_21",
+      "mom_63",
+      "mom_126",
+      "mom_252",
+      "vol_63",
+      "downside_vol_63",
+      "mdd_126",
+      "beta_126",
+      "liquidity_21",
+      "roe",
+      "roa",
+      "gross_margin",
+      "net_margin",
+      "debt_to_equity",
+      "current_ratio",
+      "asset_turnover",
+      "revenue_growth",
+      "cfo_to_ni"
+    ],
+    "required_fields": [
+      "rule_id",
+      "metric",
+      "value",
+      "status",
+      "unit",
+      "period",
+      "evidence_ref"
+    ],
+    "denominator_metadata_is_qualifier_not_feature": true,
+    "cluster_metadata_is_qualifier_not_feature": true,
+    "free_text_without_evidence_allowed": false,
+    "predict_future_returns": false
+  },
+  "activation": {
+    "required_gates": [
+      "F_HANDOFF_ACCEPTED",
+      "S1_REAL_PINNED_INPUTS_AND_PEERS_ACCEPTED",
+      "S2_RULES_VERDICT_RATIONALE_TESTS_PASS",
+      "S3_INDEPENDENT_QA_PASS"
+    ],
+    "current_blockers": [
+      "S1_LOADER_STILL_USES_CONSTANT_MARKET_FEATURES_AND_CLUSTER_A",
+      "EXISTING_ASSESSMENT_ARTIFACT_USES_LEGACY_VERDICT_CODES"
+    ],
+    "do_not_rebuild_or_publish_real_verdicts": true
+  },
+  "integration": {
+    "status": "NOT_INTEGRATED",
+    "current_builder_reads_policy": false,
+    "activation_enforcement_verified": false
+  }
+}

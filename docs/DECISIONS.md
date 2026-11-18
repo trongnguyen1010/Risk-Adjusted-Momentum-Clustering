@@ -1,5 +1,30 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-19 — R2-11: policy D-ASS-01 và xác nhận quyền dùng ô imputed
+
+Mã hóa bảng8.3, mục6.1/6.3/6.4.3 và freshness/PIT vào
+`configs/product/assessment_policy_v1.json`, version1.0.0. Whitelist đúng9A+9B;
+mandatory gồm4momentum, ROA/net_margin và metadata cốt lõi; CFO/NI bắt buộc khi
+mẫu số lợi nhuận quan sát được dương. Optional missing/NOT_APPLICABLE bỏ phép
+kiểm tương ứng, không thay0. Giữ ngưỡng strict>,< và thứ tự
+INSUFFICIENT_EVIDENCE→CAUTION→RESEARCH_FAVORABLE→WATCH, không tổng điểm/penalty.
+Peers ≥3 theo từng feature, ưu tiên giao A+B rồi mở rộng B-PIT/tài chính hoặc
+A-v4/thị trường; thiếu Peers và giá trị Peers không đổi verdict.
+
+Người dùng xác nhận ngày19/11/2026: nhóm đã duyệt IMPUTED_MEDIAN cho cả rulebook
+và Peers. Ghi xác nhận này trong policy; không suy quyền từ M3. Giữ trạng thái,
+lineage/pins/kỳ/đơn vị; không coi median là quan sát CFO doanh nghiệp; dấu CFO chỉ
+đọc khi NI quan sát dương và ratio hợp lệ. Không thêm imputation hoặc penalty.
+Nếu thiếu xác nhận, ô mandatory chưa được phép→INSUFFICIENT_EVIDENCE, optional
+bỏ phép kiểm và ô Peer bị loại, đúng mục6.4.3/8.3.
+
+Đây là chuẩn bị policy/tests S2, chưa nghiệm thu S1 hoặc release Assessment. S1
+hiện còn gán market_features=0.1 và cluster_a=0; artifact Assessment bàn giao dùng
+legacy verdict codes. runtime_enabled=false là khai báo policy, chưa phải hard
+guard của CLI builder hiện tại vì builder chưa đọc policy. Ghi NOT_INTEGRATED,
+không rebuild/publish verdict thật và không sửa dữ liệu cũ. Người1 cần hoàn thiện
+S1 với A-v4 thật và pin/provenance đầy đủ trước nghiệm thu tích hợp.
+
 ## 2026-11-19 — R2-10: đối sánh M3 baseline/enriched theo từng segment
 
 `scripts/export_backtest_comparison_metrics.py` chỉ đọc sealed artifacts; hỗ trợ seal
