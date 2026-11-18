@@ -1050,6 +1050,35 @@ Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Fi
 
 ## 4. Công việc còn lại và gate chuyển bước
 
+### R2-10 — đối sánh enriched và baseline đã seal, 19/11/2026
+
+Bộ báo cáo: `data/experiments/m3/comparison/20261118T173627755165Z/` gồm summary,
+periods, nav_series, comparison và manifest. Hash nguồn khớp cả4sealedruns;
+Dev/Holdout enriched cùng execution8e515f7, không gộp NAV. Các đường dẫn nguồn,
+run IDs, execution/config/input pins và hash từng file được lưu trong manifest.
+
+| Segment | Strategy | Return baseline | Return enriched | Max DD baseline | Max DD enriched |
+|---|---|---:|---:|---:|---:|
+| Development | Combined | 116,15% | 151,67% | -44,60% | -44,45% |
+| Development | Financial-only | 40,74% | 53,57% | -27,20% | -24,28% |
+| Holdout | Combined | 38,95% | 53,07% | -26,27% | -22,55% |
+| Holdout | Financial-only | 28,37% | 30,97% | -3,95% | -3,83% |
+
+Median ứng viên Combined Dev27→20 (bất lợi), Holdout30→31; N<10 Dev13→12,
+Holdout1→1. Financial-only Dev có cash bình quân tăng1,02%→1,52%; Combined
+Holdout cash tăng8,92%→9,22%. Giữ các kết quả này, không chọn lại k hoặc strategy
+bằng return. Toàn bộ N/cash/failed trades/selected/held/limits/stale nằm trong CSV;
+raw metrics giữ đủ độ chính xác, bảng trên chỉ làm tròn để đọc.
+
+Ba market controls và VNINDEX khớp baseline. Giá strategy là vendor-adjusted
+adj_close gồm cash dividends; VNINDEX là price index không gồm cổ tức. Chi phí
+và slippage0 theo phương pháp đã chốt; drawdown theo các mốc định giá của run,
+không diễn giải thành daily drawdown. Không có Sharpe Dev/Holdout.
+
+Phần đối sánh Người2 đã chuẩn bị; hồ sơ F/S1 của nhóm phải được tiếp nhận trước
+khi đưa nguồn vào Assessment. Không tự đổi trạng thái gate ngoài phạm vi Task10.
+
+
 ### R2-07 enriched — review dữ liệu thật ngày 18/11/2026
 
 Người dùng xác nhận D đã duyệt. Bundle v4 lấy từ Hugging Face revision
