@@ -1048,6 +1048,60 @@ chưa có quyền ghi. Đã push commit `79d659057cc150789b89b86ede3cdab69fa030c
 không sửa `M3_READINESS.md`. Hugging Face chưa được upload, giữ lịch sử ở Mục 3.28; việc thiếu quyền
 Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Final Evaluation tiếp tục NOT_READY.
 
+### 3.30. Đối sánh B-PIT sau làm giàu dữ liệu (R4-01)
+
+Đối chiếu này đọc artifact Indicators làm giàu ngày 16/11/2026 và B-PIT `bpit_enriched_v1_run01`, so với B-PIT gốc đã pin `bpit-4a9d2e87f0de84ec`. B-PIT làm giàu chọn K-Means `k=3`, cùng số cụm với baseline. Các kết quả dưới đây là phân tích ứng viên; **không thay pin B-PIT chính thức, config M3 hoặc baseline**.
+
+Manifest C pin Indicators làm giàu SHA256 `d0f7b4d80b7d1bc1da6a98738670ab480c1319794946e22bdfb626a1af1340e0`, availability `4f0f83108e761daeb86289e290de3aff0379abbf1ed630ac31c842146186648f` và config `6a08324029f7d1d3bda57276fa4dab5295b8276e3b35fbac07d7a91eb57fceaa`. Manifest D nhận đúng hash Indicators và availability này; audit có `status=OK`, `winning_k=3`, `fit_leaks={}`. B-PIT gốc có `audit_status=PASS`; SHA256 labels khớp pin ở Mục 3.3. [Manifest Indicators làm giàu](../data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/manifest.json), [danh sách ô điền](../data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/imputed_cells.csv), [audit B-PIT làm giàu](../data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/audit.json), [manifest B-PIT làm giàu](../data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/manifest.json), [audit B-PIT gốc](../data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec/audit.json).
+
+#### Ô được điền và mức sử dụng
+
+Có **1.111 ô** được điền trên **1.045 cặp mã–FY** thuộc **393 mã**. Mỗi dòng trong B-PIT fit có đủ **9/9 chỉ số bắt buộc**; đây là coverage trong cohort đủ điều kiện fit, không phải tuyên bố rằng toàn bộ cơ sở dữ liệu có coverage 100%.
+
+| FY | ROE | ROA | Gross margin | Net margin | Debt/equity | Current ratio | Asset turnover | Revenue growth | CFO/NI | Tổng ô |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2017 | 2 | 2 | 0 | 0 | 2 | 2 | 2 | 39 | 176 | 225 |
+| 2018 | 1 | 0 | 0 | 0 | 1 | 2 | 0 | 32 | 216 | 252 |
+| 2019 | 2 | 2 | 1 | 1 | 2 | 2 | 2 | 18 | 196 | 226 |
+| 2020 | 0 | 0 | 2 | 2 | 0 | 0 | 0 | 11 | 177 | 192 |
+| 2021 | 0 | 0 | 3 | 3 | 0 | 0 | 0 | 16 | 143 | 165 |
+| 2022 | 3 | 1 | 1 | 1 | 3 | 2 | 1 | 2 | 1 | 15 |
+| 2023 | 0 | 1 | 4 | 4 | 0 | 0 | 1 | 6 | 0 | 16 |
+| 2024 | 0 | 3 | 4 | 4 | 0 | 0 | 3 | 6 | 0 | 20 |
+| **Tổng** | **8** | **9** | **15** | **15** | **8** | **8** | **9** | **130** | **909** | **1.111** |
+
+| Số ô điền trên một cặp mã–FY | Số cặp |
+|---:|---:|
+| 1 | 1.005 |
+| 2 | 25 |
+| 3 trở lên | 15 |
+| **Tổng** | **1.045** |
+
+#### Fit, phân bố cụm và đối sánh nhãn
+
+`n_fit` tăng từ **7.952 lên 8.997** trong FY giao nhau 2017–2024, tức cohort fit tăng 1.045 cặp mã–FY có ô được điền. Artifact gốc còn 135 fit ở FY2016 mà artifact làm giàu không bao gồm; vì vậy tổng fit giữa hai artifact lần lượt là 8.087 và 8.997, chênh ròng 910. Bảng sizes ghi tổng labels theo cluster ID, bao gồm cả nhãn gán sau cutoff nếu có. ARI dùng toàn bộ mã–FY chung giữa hai file labels; số nhãn đổi được đếm sau khi ánh xạ mỗi cluster theo thứ tự `cluster_order` đã đóng băng. Với FY2022–2024, tập chung gồm cả nhãn được gán sau cutoff.
+
+| FY | `n_fit` gốc → làm giàu | Sizes gốc (0/1/2) → làm giàu (0/1/2) | Mã–FY chung | Nhãn đổi | ARI chung: gốc vs làm giàu | ARI B-PIT gốc vs B v4 `k=3` (audit D) |
+|---:|---:|---|---:|---:|---:|---:|
+| 2017 | 951 → 1.160 | 577/199/175 → 703/290/167 | 951 | 372 | 0,8650 | 1,0000 |
+| 2018 | 947 → 1.193 | 527/229/191 → 712/289/192 | 947 | 417 | 0,4594 | 1,0000 |
+| 2019 | 972 → 1.189 | 680/274/18 → 825/302/62 | 972 | 36 | 0,9172 | 1,0000 |
+| 2020 | 977 → 1.166 | 610/224/143 → 737/261/168 | 977 | 13 | 0,9600 | 1,0000 |
+| 2021 | 1.043 → 1.201 | 745/285/13 → 785/350/66 | 1.043 | 784 | 0,6739 | 1,0000 |
+| 2022 | 1.048 → 1.055 | 709/227/210 → 860/279/14 | 1.146 | 298 | 0,3908 | 0,9553 |
+| 2023 | 972 → 980 | 720/256/149 → 732/251/150 | 1.125 | 10 | 0,9703 | 0,9369 |
+| 2024 | 1.042 → 1.053 | 700/254/211 → 705/261/210 | 1.165 | 9 | 0,9750 | 0,8077 |
+
+Trên **8.326 mã–FY chung**, ARI tổng thể giữa B-PIT gốc và B-PIT làm giàu là **0,6909**; **1.939** nhãn đổi sau căn chỉnh cluster order. Riêng các **7.952** cặp FIT chung, ARI là **0,6906** và 1.909 nhãn đổi. Cột cuối giữ nguyên đối chứng B v4 `k=3` từ audit B-PIT gốc; các giá trị này không phải ARI của artifact làm giàu so trực tiếp với B v4.
+
+#### Diễn giải và giới hạn
+
+- **Mở cohort:** 1.045 cặp mã–FY được điền làm tăng cohort FIT ở các năm giao nhau. CFO/NI chiếm 909/1.111 ô; Revenue growth chiếm 130. Đây là thay đổi về lượng mẫu có thể fit.
+- **Refit:** mô hình đã được fit lại trên cohort và giá trị đầu vào mới. Các ARI và số nhãn đổi ở trên mô tả tác động chung của cohort mới cùng refit; không diễn giải riêng chúng như tác động của một chỉ số đơn lẻ.
+- **ROE scoring:** chỉ 8 ô ROE được điền. Artifact không có lượt scoring phản thực giữ nguyên model/cohort rồi chỉ đổi ROE, nên chưa thể tách định lượng riêng ảnh hưởng scoring của ROE khỏi ảnh hưởng refit. Không suy ra rằng 8 ô này gây ra toàn bộ thay đổi nhãn.
+
+Các phép tính trong mục này chỉ đọc các artifact theo manifest và hash nêu trên. Không build lại, refit baseline, sửa config M3 hoặc đổi pin chính thức.
+
 ## 4. Công việc còn lại và gate chuyển bước
 
 | Thứ tự | Công việc | Điều kiện hoàn tất |
