@@ -1,5 +1,14 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-02: nguồn enriched xuyên runner M3 — 18/11/2026
+
+- Resolve nguồn từ `financial_data`; dùng chung SQLite cho scoring, ngành và hash.
+- Kiểm labels/models/availability pins và provenance B-PIT; chặn fallback sai nguồn.
+- Mở SQLite read-only bằng URI an toàn với khoảng trắng/ký tự đặc biệt, đóng kết nối.
+- Bổ sung 9 tests nguồn; tổng 56 tests nguồn/cutoff/giá/engine đạt, compile và synthetic
+  smoke đạt. Chưa chạy được readiness suite vì môi trường thiếu `scipy`.
+- Chưa thay config/cache (R2-03), chưa chạy backtest enriched trên dữ liệu thật.
+
 ## Cập nhật cấu trúc M3 và hoàn thiện kế hoạch làm giàu dữ liệu B-PIT — 16/11/2026
 
 Chuyển toàn bộ tài liệu kế hoạch M3 từ `docs/m3/` sang trực tiếp thư mục `M3/`

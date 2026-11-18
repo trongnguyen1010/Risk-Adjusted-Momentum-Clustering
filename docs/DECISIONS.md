@@ -1,5 +1,17 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-18 — R2-02: truyền nguồn tài chính đã pin xuyên runner M3
+
+Triển khai yêu cầu Giai đoạn E trong kế hoạch B-PIT; không đổi phương pháp đầu tư.
+Config có `financial_data` phải khai báo `indicators_path`, `indicators_sha256`,
+`availability_path`, `availability_sha256`; path tương đối tính từ gốc repo.
+Runner dùng cùng SQLite cho scoring/ngành/hash, kiểm pin labels/models và đối chiếu
+nguồn SQLite/availability trong manifest B-PIT. Thiếu hoặc sai pin thì dừng;
+artifact enriched không được rơi về SQLite baseline hoặc B v4. Config baseline cũ
+không có block này giữ nguồn mặc định. SQLite mở read-only và đóng sau khi đọc.
+Manifest run bổ sung `b_pit_models_sha256`. Config enriched/cache riêng thuộc R2-03.
+Tests dùng fixture; chưa xác nhận dữ liệu thật, chưa mở gate hoặc chạy full backtest.
+
 ## 2026-11-11 — chấp nhận TNCK7/Mekong6, overlay Product/M3 pilot V2
 
 Owner yêu cầu “hãy thực hiện” ngay sau đề xuất cụ thể ở bước43: chấp nhận

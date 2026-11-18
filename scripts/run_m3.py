@@ -70,26 +70,50 @@ def git_state():
     return head or None, bool(dirty)
 
 
-def input_hashes(bpit_dir, skip_c8_prices):
-    files = dict(terminal_sha256=inputs.BUNDLE, indicators_sha256=inputs.INDICATORS,
-                 availability_sha256=inputs.AVAILABILITY, c8_benchmark_sha256=inputs.BENCHMARK,
+def input_hashes(bpit_dir, skip_c8_prices, *, indicators_path=None, availability_path=None):
+    files = dict(terminal_sha256=inputs.BUNDLE,
+                 indicators_sha256=indicators_path if indicators_path is not None else inputs.INDICATORS,
+                 availability_sha256=availability_path if availability_path is not None else inputs.AVAILABILITY,
+                 c8_benchmark_sha256=inputs.BENCHMARK,
                  c8_calendar_sha256=inputs.CALENDAR)
     out = {k: inputs.sha256(p) for k, p in files.items()}
     out['c8_prices_sha256'] = None if skip_c8_prices else inputs.sha256(inputs.PRICES_C8)
     out['b_pit_labels_sha256'] = inputs.sha256(bpit_dir / 'labels.csv') if bpit_dir else None
+    out['b_pit_models_sha256'] = inputs.sha256(bpit_dir / 'models.json') if bpit_dir else None
     return out
 
 
 def load_financial(cfg, targets_only):
     """B-PIT when the config pins it; B v4 reference only for targets-only readiness runs."""
     pin = cfg.get('financial_pit') or {}
+    explicit_sources = 'financial_data' in cfg
     if pin.get('artifact'):
         bpit_dir = ROOT / pin['artifact']
-        actual = inputs.sha256(bpit_dir / 'labels.csv')
-        if pin.get('labels_sha256') and actual != pin['labels_sha256']:
-            sys.exit(f'B-PIT labels.csv sha256 {actual} does not match the pinned {pin["labels_sha256"]}')
-        labels, order, _, cutoffs = inputs.bpit(bpit_dir, include_cutoffs=True)
+        for filename, key in (('labels.csv', 'labels_sha256'), ('models.json', 'models_sha256')):
+            expected = pin.get(key)
+            if explicit_sources and not expected:
+                raise ValueError(f'financial_pit requires {key} with financial_data')
+            if expected:
+                actual = inputs.sha256(bpit_dir / filename)
+                if actual != expected:
+                    raise ValueError(f'B-PIT {filename} sha256 {actual} does not match pinned {expected}')
+        labels, order, manifest, cutoffs = inputs.bpit(bpit_dir, include_cutoffs=True)
+        if manifest.get('version') == 'bpit_enriched_v1' and not explicit_sources:
+            raise ValueError('Enriched B-PIT requires financial_data; no baseline SQLite fallback')
+        if explicit_sources:
+            sources = cfg['financial_data']
+            provenance = manifest.get('inputs', {})
+            # Both baseline and enriched builders publish source hashes, in different shapes.
+            for name, enriched_key in (('indicators', 'indicators_enriched_sha256'),
+                                       ('availability', 'availability_sha256')):
+                recorded = provenance.get(enriched_key)
+                if recorded is None:
+                    recorded = provenance.get(name, {}).get('sha256')
+                if recorded != sources[f'{name}_sha256']:
+                    raise ValueError(f'B-PIT manifest {name} source does not match financial_data')
         return labels, order, 'B_PIT', bpit_dir, cutoffs
+    if explicit_sources:
+        raise ValueError('financial_data requires financial_pit.artifact; no B v4 fallback')
     if not targets_only:
         sys.exit('Config does not pin a B-PIT artifact (financial_pit.artifact). Build it with '
                  'scripts/build_financial_pit_clusters.py; official runs never use B v4.')
@@ -111,10 +135,13 @@ def main():
         sys.exit(f'Segment {args.segment!r} has no start/end in the config (final is locked after readiness, Q16).')
     start, _ = cfg['segments'][args.segment]
     segment_end = cfg['segment_end_dates'][args.segment]
+    sources = inputs.financial_sources(cfg, root=ROOT)
     fin_labels, fin_order, fin_source, bpit_dir, fin_cutoffs = load_financial(cfg, args.targets_only)
     market = inputs.market_snapshots()
-    availability = inputs.availability(historical_reference=fin_source == 'B_V4_REFERENCE_NOT_PIT')
-    strategies = Strategies(cfg, market, fin_labels, availability, inputs.sectors(), inputs.indicators(),
+    availability = inputs.availability(sources['availability_path'],
+                                       historical_reference=fin_source == 'B_V4_REFERENCE_NOT_PIT')
+    strategies = Strategies(cfg, market, fin_labels, availability,
+                            inputs.sectors(sources['indicators_path']), inputs.indicators(sources['indicators_path']),
                             fin_order=fin_order, financial_cutoffs=fin_cutoffs)
     calendar = inputs.calendar()
     nxt_session = lambda d: calendar[i] if (i := bisect_right(calendar, d)) < len(calendar) else None  # noqa: E731
@@ -157,7 +184,7 @@ def main():
                     status=cfg.get('status'), segment=args.segment, segment_start=start, segment_end_date=segment_end,
                     end_date=end_date, run_id=run_id, targets_only=args.targets_only, financial_source=fin_source,
                     git_commit=commit, git_dirty=dirty,
-                    inputs_sha256=input_hashes(bpit_dir, args.skip_c8_prices_hash or args.targets_only),
+                    inputs_sha256=input_hashes(bpit_dir, args.skip_c8_prices_hash or args.targets_only, **sources),
                     counts=counts)
     if not args.targets_only:
         exec_dates = sorted({e for s in schedules.values() for _, e, _ in s} | {end_date})
