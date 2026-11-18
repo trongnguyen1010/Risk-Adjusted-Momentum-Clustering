@@ -1,5 +1,16 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-06: verifier và seal Development/Holdout — 18/11/2026
+
+- Thêm verifier cho manifest/pins, targets/audit, giá/limits, ledger, dòng tiền,
+  holdings, NAV, turnover, metrics và baseline controls; đối chiếu targets-only.
+- Seal riêng, không ghi đè; Holdout yêu cầu Dev seal PASS cùng code/config/inputs,
+  kiểm bytes sealed và references, NAV từng segment khởi tạo riêng ở 1.
+- 12 tests mới gồm mutation output, cash, dates, hash, metrics/Sharpe, controls,
+  source/run đổi lúc verify, Dev seal giả/sửa và kiểm bất biến bytes.
+- Toàn bộ 93 tests M3 đạt, không skip; compile, pip check, CLI help và synthetic
+  smoke đạt bằng `.venv-m3`. Chưa chạy hoặc seal backtest enriched thật.
+
 ## R2-05: regression giá/cutoff/targets — 18/11/2026
 
 - Thêm 5 tests, giữ toàn bộ assertions cũ: k=3/4/8 theo frozen order/cutoff, append FY

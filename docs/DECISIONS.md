@@ -1,5 +1,26 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-18 — R2-06: verifier và seal riêng cho hai segment M3
+
+Thêm `scripts/verify_m3_enriched_run.py` nhận `--run`, `--targets-run`,
+`--baseline-run`, tùy chọn `--development-seal` và `--seal`. Chỉ nhận full run
+LOCKED, B-PIT, git_dirty=false, cùng execution HEAD/config/input pins hiện hành;
+không chấp nhận bỏ hash giá C8. Đối chiếu targets/audit từ nguồn pinned và
+reference targets-only cùng code/config/inputs, đúng start/end/calendar; reference
+không được chứa NAV hoặc metrics. Replay execution từ nguồn giá/limits chỉ đọc,
+không ghi cache; kiểm ledger/holdings/NAV/turnover/metrics và bảo toàn tiền mặt
+độc lập từ executed ledger, CASH weight và NAV. So VNINDEX và ba market controls
+với baseline cùng segment và nguồn thị trường. Dev/Holdout không có Sharpe.
+
+Chỉ sau PASS mới tạo `seal.json` bằng exclusive create; không sửa output gốc hoặc
+ghi đè seal cũ. Receipt lưu execution pins, manifest/output hashes và hashes
+references. Holdout bắt buộc Dev seal đúng version, PASS, đủ checks, cùng execution
+pins; kiểm lại bytes Dev và references. Hai run có thư mục/NAV khởi tạo riêng.
+Rehash inputs/config và kiểm code/run/reference bytes trước khi chấp nhận PASS.
+Verifier dùng chung engine để replay, bổ sung cash-conservation check riêng;
+không coi replay là một implementation engine độc lập. Hiện chỉ nghiệm thu trên
+fixture, chưa seal dữ liệu thật, chưa mở gate D hoặc đổi trạng thái config READY.
+
 ## 2026-11-18 — R2-04: feasibility đọc cùng config và nguồn với runner
 
 `m3_feasibility_variants.py --config PATH` dùng resolver nguồn và loader B-PIT của
