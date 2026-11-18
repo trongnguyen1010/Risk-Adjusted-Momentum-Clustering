@@ -1,5 +1,16 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-13: hiện thực tài chính và dòng tiền — 19/11/2026
+
+- Thêm evaluate_financial: ROA/net margin/CFO, watch/major warnings và evidence;
+  NI là qualifier quan sát, CFO sign chỉ khi NIdương và ratio usable/cùng FY.
+- CFO0 không favorable; NI0/âm không suy CFO; unknown/imputed NI bị chặn. Một watch
+  đủ chặn favorable, bằng ngưỡng không warning, optional unusable được SKIPPED.
+- Helper metadata boolean strict và cell lineage cho imputed; không đổi whitelist,
+  policy/quyền đã duyệt, không score/penalty hoặc mở Assessment runtime.
+- 16tests mới (27tổ hợp dấu),15market và11policy đạt; compile đạt. Chưa nối builder
+  hoặc phát verdict thật, giữ blocker S1 đã ghi nhận ở R2-11.
+
 ## R2-12: hiện thực điều kiện thị trường — 19/11/2026
 
 - Thêm evaluate_market và helper policy/evidence dùng chung: FAVORABLE/ADVERSE/

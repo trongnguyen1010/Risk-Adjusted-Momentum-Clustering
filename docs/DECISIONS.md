@@ -1,5 +1,31 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-19 — R2-13: component tài chính và dấu CFO có điều kiện
+
+Thêm `assessment/rules_financial.py::evaluate_financial`. Đầu vào gồm evidence cells
+9financial whitelist, evidence NI mẫu số quan sát và cờ ratio_validity dạng boolean
+đã được S1 xác minh. NI chỉ là qualifier, không thành feature thứ19 hoặc tín hiệu
+sinh lời mới. Component không tự chứng nhận nguồn/cờ upstream hoặc bật builder.
+
+ROA/net_margin bắt buộc; CFO/NI chỉ bắt buộc khi NI quan sát dương. Chỉ suy dấu CFO
+khi NI dương quan sát, ratio hợp lệ, cùng FY và ô CFO/NI usable. NI0/âm→không suy
+dấu CFO (SKIPPED); NI thiếu/imputed/chưa xác minh→thiếu cơ sở. CFO0 chưa thuận lợi;
+CFOâm với NIdương→major_warning. Profitability_adverse riêng là ROA<0 và margin<0,
+không tự coi mọi adverse tài chính là CAUTION cuối cùng khi thị trường chưa kết hợp.
+
+Chỉ một watch hợp lệ (gross_margin<0/current_ratio<1/revenue_growth<0) chặn favorable.
+Bằng ngưỡng không warning. Optional missing/NOT_APPLICABLE/sai kỳ→SKIPPED, không0;
+không làm G1 fail. Giữ base favorable, financial_favorable sau watch, major/watch và
+profitability flags riêng cho R2-14. Mọi rule có evidence/qualifier và trạng thái.
+
+Helper dùng chung hỗ trợ boolean metadata có type chính xác, numeric NI qualifier;
+imputed financial chỉ usable khi có quyền RULEBOOK và cell_lineage_verified=true,
+ngoài hash/provenance/kỳ/đơn vị đã kiểm. Giữ IMPUTED_MEDIAN/is_observed=false, không
+mô tả CFO median như dòng tiền quan sát. NI/metadata imputed không được dùng như
+mẫu số quan sát. Không đổi policy đã duyệt, không mới imputation/score/penalty.
+16tests mới +15market +11policy đạt; compile đạt. S1/builder thật còn chưa nghiệm
+thu; chỉ component/fixture PASS, chưa phát verdict hoặc sửa artifact đã bàn giao.
+
 ## 2026-11-19 — R2-12: component điều kiện thị trường D-ASS-01
 
 Thêm `assessment/rules_market.py::evaluate_market` và `rules_common.py` cho
