@@ -1050,6 +1050,15 @@ Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Fi
 
 ## 4. Công việc còn lại và gate chuyển bước
 
+### R2-12 — component thị trường đã kiểm fixture, chưa bật Assessment thật
+
+`evaluate_market` đã mã hóa logic momentum và ILLIQUID theo policy R2-11, trả
+condition/status/evidence và major warning; không phát nhãn đầu tư cuối.15tests
+mới gồm81tổ hợp dấu, zero/missing/provenance/liquidity và11policytests đạt.
+Cờ xác minh evidence do S1 cung cấp; component không tự chứng nhận nguồn là thật.
+Blocker S1 đã ghi ở R2-11 vẫn còn. Chưa nối builder hoặc sửa artifact bàn giao.
+
+
 ### R2-11 — chuẩn bị policy Assessment; S1 thực tế chưa được nghiệm thu
 
 Đã mã hóa D-ASS-01 version1.0.0 và11tests hợp đồng theo kế hoạch, bao gồm xác

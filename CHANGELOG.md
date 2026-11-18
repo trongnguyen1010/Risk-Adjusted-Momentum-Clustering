@@ -1,5 +1,15 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-12: hiện thực điều kiện thị trường — 19/11/2026
+
+- Thêm evaluate_market và helper policy/evidence dùng chung: FAVORABLE/ADVERSE/
+  MIXED/UNKNOWN, ILLIQUID major warning, rule status và evidence/qualifiers đầy đủ.
+- Bốn momentum mandatory, strict zero; missing/NaN/Inf/bool/string sai kiểu, thiếu
+  provenance hoặc lệch kỳ/đơn vị không bị coi là0. Không lấy cluster/future return
+  làm tín hiệu, không điền market features bằng median.
+- 15tests mới và11policytests đạt, compile đạt; chưa phát verdict hoặc tích hợp
+  builder S1/S3, chưa thay policy activation hoặc artifact hiện có.
+
 ## R2-11: mã hóa policy D-ASS-01 — 19/11/2026
 
 - Thêm policy version1.0.0: whitelist18, mandatory/conditional/optional, ngưỡng,
