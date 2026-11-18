@@ -25,7 +25,7 @@
 | R3-09 | S4 | PASS | `feat(assessment): Đăng ký endpoint đánh giá` | Endpoint read-only trả A32 đúng context; ticker lạ 404. |
 | R3-10 | S4 | PASS | `feat(assessment): Projection lịch sử 5/10 năm` | Lookback chỉ đổi history; 5/10 hợp lệ, khác trả 422. |
 | R3-11 | S4 | PASS | `feat(assessment): HTTP errors và khóa revision` | HTTP matrix 200/404/409/422 được kiểm tra. |
-| R3-12 | S4 | CHƯA MỞ | — | Chờ R3-11. |
+| R3-12 | S4 | PASS | `feat(assessment): Cache đúng context và nguồn` | Cache lookup theo toàn bộ context/revision/lookback, request_time không cache. |
 | R3-13 | S4 | CHƯA MỞ | — | Chờ R3-12. |
 | R3-15 | S4 | CHƯA MỞ | — | Chờ R3-13. |
 
