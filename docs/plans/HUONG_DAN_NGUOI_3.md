@@ -23,7 +23,7 @@
 | R3-05 | S4 | PASS | `feat(assessment): Gắn repository vào vòng đời FastAPI` | Lifespan injection PASS; thiếu artifact không làm app dừng. |
 | R3-06 | S4 | PASS | `feat(assessment): Ánh xạ payload sang response API` | Mapper giữ nội dung artifact, chỉ thêm request_time. |
 | R3-09 | S4 | PASS | `feat(assessment): Đăng ký endpoint đánh giá` | Endpoint read-only trả A32 đúng context; ticker lạ 404. |
-| R3-10 | S4 | CHƯA MỞ | — | Chờ R3-09. |
+| R3-10 | S4 | PASS | `feat(assessment): Projection lịch sử 5/10 năm` | Lookback chỉ đổi history; 5/10 hợp lệ, khác trả 422. |
 | R3-11 | S4 | CHƯA MỞ | — | Chờ R3-10. |
 | R3-12 | S4 | CHƯA MỞ | — | Chờ R3-11. |
 | R3-13 | S4 | CHƯA MỞ | — | Chờ R3-12. |

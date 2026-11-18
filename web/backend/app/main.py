@@ -123,11 +123,12 @@ def create_app(repository=None,fundamentals=None,availability=None,backtest=None
         if found is None:raise HTTPException(status_code=503,detail='Assessment artifact chưa được phát hành hoặc chưa qua kiểm tra.')
         return found
     @app.get('/api/v2/stocks/{ticker}/assessment',response_model=AssessmentResponse)
-    def stock_assessment(request:Request,ticker:str):
+    def stock_assessment(request:Request,ticker:str,lookback_years:int=Query(10,ge=5,le=10)):
+        if lookback_years not in (5,10):raise HTTPException(status_code=422,detail='lookback_years chỉ nhận 5 hoặc 10.')
         result=assessment_repository_for(request).lookup(ticker)
         if result.status=='NOT_FOUND':raise HTTPException(status_code=404,detail='Assessment ticker không tồn tại trong release đã phát hành.')
         if result.status=='NOT_READY':raise HTTPException(status_code=503,detail=result.reason or 'Assessment release chưa sẵn sàng.')
-        return map_assessment_response(result)
+        return map_assessment_response(result,lookback_years=lookback_years,history_rows=assessment_repository_for(request).payload.feature_history.get(result.assessment['ticker'],()))
     @app.get('/api/v2/backtest')
     def backtest_summary(request:Request):return backtest_results(request).summary()
     @app.get('/api/v2/backtest/{segment}/series')
