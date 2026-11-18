@@ -1,5 +1,13 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Response schema cho Investment Assessment — 18/11/2026
+
+Thêm Pydantic response model cho context/dates/status, profile A/B, đúng whitelist
+18 features, evidence, peer, history và provenance release. Giá trị thiếu giữ
+`null`; status không hợp lệ hoặc thiếu trường bắt buộc bị từ chối. Query công khai
+chỉ nhận `lookback_years` 5/10 và cấm `as_of` tự do; chưa đăng ký endpoint hay map
+payload artifact.
+
 ## Kiểm manifest khi mở Assessment release — 18/11/2026
 
 Reader chỉ mở release sau khi manifest SHA-256, version/as-of, deterministic content

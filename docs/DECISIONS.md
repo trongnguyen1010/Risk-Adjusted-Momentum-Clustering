@@ -10,8 +10,10 @@ phải tham số người dùng. Khi config, pointer hoặc thư mục artifact 
 reader trả `NOT_READY`; không được tự chọn baseline, sibling run hoặc run mới nhất.
 Khi mở release, Product bắt buộc đối chiếu manifest SHA-256, version/as-of,
 deterministic content hash, ba source pin và bốn file serving với các pin trong
-config; khác revision hoặc bất kỳ hash nào đều `NOT_READY`. Nạp payload/schema vẫn
-thuộc stage kế tiếp. Cơ chế này không tự mở serving, research hoặc current assessment.
+config; khác revision hoặc bất kỳ hash nào đều `NOT_READY`. Nạp payload artifact vẫn
+thuộc stage kế tiếp. Response schema chỉ chấp nhận đúng 18 feature ID, status/context
+đã định nghĩa và null nguyên nghĩa; query công khai không nhận `as_of` hay context
+để ghi đè release. Cơ chế này không tự mở serving, research hoặc current assessment.
 
 ## 2026-11-11 — chấp nhận TNCK7/Mekong6, overlay Product/M3 pilot V2
 
