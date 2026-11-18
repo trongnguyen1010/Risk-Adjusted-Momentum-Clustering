@@ -132,7 +132,7 @@ class AssessmentFeature(BaseModel):
 
 
 class AssessmentEvidence(BaseModel):
-    feature_id: FeatureId
+    feature_id: FeatureId | None
     direction: Literal['FAVORABLE', 'CAUTION', 'COUNTER_EVIDENCE']
     message: str
     value: float | None
