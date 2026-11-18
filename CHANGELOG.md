@@ -1,5 +1,13 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Kiểm manifest khi mở Assessment release — 18/11/2026
+
+Reader chỉ mở release sau khi manifest SHA-256, version/as-of, deterministic content
+hash, ba source pin và hash của bốn file serving cùng khớp cấu hình release. Sai
+revision, manifest/source pin hoặc file bị sửa đều trả `NOT_READY`; không chạy lại
+imputation, tính feature hay tạo assessment. Cấu hình release bổ sung các pin cần
+thiết, còn artifact/data nguồn không thay đổi.
+
 ## Release pointer read-only cho Investment Assessment — 18/11/2026
 
 Thêm cấu hình `assessment-release-pointer-v1` ghim duy nhất artifact
