@@ -105,6 +105,18 @@ class TestAssessmentManifestReader(unittest.TestCase):
             self.assertFalse(result.ready)
             self.assertEqual(result.reason, "ARTIFACT_VERSION_MISMATCH")
 
+    def test_open_rejects_manifest_missing_a_serving_output_pin(self):
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            root = Path(temporary_directory)
+            artifact, config_path = self.build_release(root)
+            manifest_path = artifact / "manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            del manifest["output_files"]["coverage.csv"]
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            result = open_assessment_release(config_path, repository_root=root)
+            self.assertFalse(result.ready)
+            self.assertEqual(result.reason, "MANIFEST_HASH_MISMATCH")
+
 
 if __name__ == "__main__":
     unittest.main()
