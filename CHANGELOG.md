@@ -1,5 +1,19 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-15: rationale và counter-evidence — 19/11/2026
+
+- Thêm build_rationale với templates tiếng Việt version D-ASS-01-RATIONALE-1;
+  drivers/risks/counter_evidence/context giữ metric, value, status, unit, kỳ,
+  rule ID, chiều tác động và evidence_ref trong whitelist 18 features.
+- Giữ bằng chứng trái chiều và qualifiers NI/liquidity riêng; IMPUTED_MEDIAN
+  có lineage, không mô tả là CFO quan sát. Nguồn/thời điểm sai không tạo claim.
+- G4 Peers nhận member evidence đã được S1 xác minh membership/comparability;
+  tự loại self/duplicate/ô thiếu hoặc lệch unit/kỳ, đủ 3 mới tính median/IQR.
+  Thay Peers không đổi verdict; không dùng summary legacy thiếu member evidence.
+- 21 tests mới, tổng 82 tests Task 11–15 và compile đạt. Chưa tích hợp builder,
+  chưa chạy/publish Assessment thật; S1/S3 và kích hoạt vẫn cần nghiệm thu riêng.
+
+
 ## R2-14: kết hợp eligibility và bốn verdict — 19/11/2026
 
 - Thêm evaluate_verdict kết hợp component thị trường/tài chính theo thứ tự

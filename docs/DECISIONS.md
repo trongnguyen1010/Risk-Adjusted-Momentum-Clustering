@@ -1,5 +1,46 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-19 — R2-15: giải thích bằng evidence, Peers chỉ thuộc G4
+
+`assessment/rationale.py::build_rationale` gọi evaluator R2-14 từ input cells,
+không nhận verdict hoặc text tự do từ caller. Templates tiếng Việt có version
+D-ASS-01-RATIONALE-1; mỗi claim giữ rule_id/template_id, metric, value, status,
+unit, period, evidence_ref, direction và trạng thái observed/imputed. Chỉ whitelist
+18 features. Dấu từng momentum/ROA/net_margin là tín hiệu riêng, không đồng nghĩa
+rule tổng thể đã đạt; features bối cảnh không chấm điểm hoặc đổi verdict.
+
+CFO sign chỉ giải thích khi component R2-13 đã kiểm NI quan sát dương và tỷ số hợp
+lệ; qualifiers đi kèm không thành feature thứ19. NI0/âm/unknown không suy dấu CFO.
+CFO/NI IMPUTED_MEDIAN giữ lineage và câu nêu rõ là giá trị điền trung vị, không
+phải số liệu quan sát của doanh nghiệp. Liquidity warning giữ riêng dưới metadata
+và truy nguồn qua qualifiers. Optional unusable/missing được ghi skipped; không
+biến thành zero hoặc lời khẳng định không có nguồn. Context sai nguồn/date/FY/model
+không sinh feature claim hoặc thống kê Peers. Thiếu eligibility giữ danh sách gap;
+không có driver đề xuất đầu tư khi verdict INSUFFICIENT_EVIDENCE.
+
+Counter-evidence giữ tín hiệu thuận khi CAUTION/thiếu cơ sở; giữ tín hiệu bất lợi
+khi favorable; WATCH giữ cả hai chiều. Không lọc bỏ tín hiệu ngược verdict. Peers
+chỉ giải thích vị trí tương đối; cao/thấp hơn median không tự nghĩa tốt/xấu.
+
+Hợp đồng Peers mới cho renderer: mapping metric -> peer_basis, membership_verified,
+comparability_verified, evidence_ref, members=[{ticker,cell}]. S1 phải xác minh
+membership, toàn bộ pool, PIT/availability, definition, report type và source trước
+khi cấp receipts; renderer không thay S1 resolver hoặc tự chọn/mở rộng pool.
+Cần cả label A-v4+B-PIT của mã đích và target_ticker để self-exclude. Chỉ nhận basis
+SAME_A_AND_B_PIT hoặc fallback đúng loại SAME_B_PIT/SAME_A_V4; summary legacy thiếu
+member cells không được coi là verified. Cell Peers phải hợp lệ, cùng unit/kỳ với
+mã đích; loại self, loại toàn bộ identity duplicate để không tùy ý chọn một giá trị.
+Giữ các ô hợp lệ hiện có khi dưới 3; median/p25/p75 đều null. Đủ 3 mới tính median
+và quartiles nội suy tuyến tính; giữ member evidence/status và target evidence.
+Imputed Peers cần quyền PEERS đã duyệt và cell lineage; không tạo thêm imputation.
+
+Replay không đổi input; đảo thứ tự member không đổi output, thay Peers chỉ đổi
+G4/peer_median đính kèm claim, không đổi assessment/verdict. 21 tests mới và tổng
+82 tests Task 11–15 đạt, compile đạt. Runtime vẫn tắt; chưa nối builder/CLI legacy
+hoặc chạy lại artifact thật. Code/fixture phần S2 Người2 đã có; S1 dữ liệu/Peers
+thật, S3 independent QA và các gate kích hoạt chưa được thay bằng kết quả fixture.
+
+
 ## 2026-11-19 — R2-14: eligibility trước bốn verdict D-ASS-01
 
 Thêm `assessment/verdict.py::evaluate_verdict`, tự gọi lại hai component từ cells
