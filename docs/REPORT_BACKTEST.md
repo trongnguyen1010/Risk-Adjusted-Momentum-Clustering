@@ -1050,6 +1050,32 @@ Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Fi
 
 ## 4. Công việc còn lại và gate chuyển bước
 
+### R2-07 enriched — review dữ liệu thật ngày 18/11/2026
+
+Người dùng xác nhận D đã duyệt. Bundle v4 lấy từ Hugging Face revision
+`8b0d78e4edb3dd4bd7dcea9cddcbe36d7a0815c5`; bundle/C8 v2 khớp hash baseline.
+Pre-lock review tại code `d492948`, git_dirty=false; config được chuẩn bị LOCKED.
+
+| Chỉ tiêu | Development | Holdout |
+|---|---:|---:|
+| Quyết định / kỳ thực thi / kỳ cuối không thực thi | 60 / 59 / 1 | 24 / 23 / 1 |
+| Kỳ N<10 baseline → enriched | 13 → 12 | 1 → 1 |
+| Median ứng viên baseline → enriched | 27 → 20 | 30 → 31 |
+| Min ứng viên baseline → enriched | 3 → 3 | 4 → 4 |
+
+Pins/source B_PIT, audit/candidates, rank/weights và targets/audit ba market controls
+đạt. Giữ giảm median Dev như evidence bất lợi; không thay k hoặc tiêu chí đầu tư.
+Enriched feasibility: `data/experiments/m3/feasibility-variants/20261118T163652276119Z`.
+Baseline feasibility: `data/experiments/m3/feasibility-variants/20261118T163651806641Z`.
+Targets Dev: `data/experiments/m3/development/20261118T163646Z-dd7b9a9e`.
+Targets Holdout: `data/experiments/m3/holdout/20261118T163644Z-dd7b9a9e`.
+
+**Việc còn lại:** commit config/code, ghi execution HEAD và chạy lại targets-only
+cả hai đoạn từ HEAD sạch để reference cuối khớp SHA/config với full run. Chưa chạy
+full enriched Dev/Holdout, chưa có seal hoặc lợi suất enriched. Không dùng hai
+pre-lock targets trên làm reference cuối cho verifier của full run.
+
+
 | Thứ tự | Công việc | Điều kiện hoàn tất |
 |---:|---|---|
 | 1 | Chấp nhận snapshot đầu vào đã `PASS` theo owner | Xem quyết định ở Mục 3.5. Dùng Indicators v1 đã pin và disclosure các giới hạn ghi tại Mục 3.2. |

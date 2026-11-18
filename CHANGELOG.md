@@ -1,5 +1,15 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-07: feasibility thật, targets-only và khóa config — 18/11/2026
+
+- Nhận bundle v4 và C8 v2 đúng hash baseline; dữ liệu để ở ổ D và vẫn bị Git ignore.
+- Pre-lock feasibility/targets thật PASS: Dev60/59/1, Holdout24/23/1; git_dirty=false,
+  pins/audit/candidates/weights/ranks và ba market controls khớp.
+- N<10 Dev13→12, Holdout1→1; median ứng viên Dev27→20, Holdout30→31; giữ đủ evidence.
+- Config chuyển LOCKED, lưu run IDs/pins/review; tests chuyển vòng đời, giữ READY guard.
+- Cần user commit, ghi execution SHA và tái sinh targets-only tại HEAD sạch trước full
+  Development. Chưa chạy hoặc seal backtest enriched, không có số lợi suất mới.
+
 ## R2-06: verifier và seal Development/Holdout — 18/11/2026
 
 - Thêm verifier cho manifest/pins, targets/audit, giá/limits, ledger, dòng tiền,

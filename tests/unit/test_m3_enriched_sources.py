@@ -189,10 +189,20 @@ class EnrichedSourceTests(unittest.TestCase):
         baseline = json.loads((ROOT / 'configs/experiments/m3_strategy_v1.json').read_text(encoding='utf-8'))
         enriched = json.loads((ROOT / 'configs/experiments/m3_strategy_enriched_v1.json').read_text(encoding='utf-8'))
         allowed = {'version', 'status', 'status_note', 'financial_model', 'financial_pit',
-                   'financial_data', 'limits_cache'}
+                   'financial_data', 'limits_cache', 'readiness_review'}
         self.assertEqual({k: v for k, v in baseline.items() if k not in allowed},
                          {k: v for k, v in enriched.items() if k not in allowed})
-        self.assertEqual(enriched['status'], 'READY_TO_LOCK_AFTER_BPIT')
+        self.assertEqual(enriched['status'], 'LOCKED')
+        review = enriched['readiness_review']
+        self.assertEqual(review['status'], 'PASS')
+        self.assertRegex(review['pre_lock_config_sha256'], r'^[0-9a-f]{64}$')
+        self.assertRegex(review['pre_lock_code_commit'], r'^[0-9a-f]{40}$')
+        self.assertTrue(review['owner_approval'])
+        for segment, expected in (('development', (60, 59, 1)), ('holdout', (24, 23, 1))):
+            counts = review['segments'][segment]['counts']
+            self.assertEqual((counts['decisions'], counts['executed'], counts['not_executed_segment_end']), expected)
+            self.assertLessEqual(review['segments'][segment]['enriched_below_10'],
+                                 review['segments'][segment]['baseline_below_10'])
         self.assertEqual(enriched['financial_data']['indicators_path'],
                          'data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/indicators.sqlite')
         self.assertEqual(enriched['financial_pit']['artifact'],
@@ -216,12 +226,17 @@ class EnrichedSourceTests(unittest.TestCase):
                     runner.limits_cache_path(cfg)
 
     def test_ready_config_rejects_full_run_before_loading_data(self):
-        config = ROOT / 'configs/experiments/m3_strategy_enriched_v1.json'
-        with patch.object(sys, 'argv', ['run_m3', '--config', str(config), '--segment', 'development']), \
-                patch.object(runner, 'load_financial') as loader:
-            with self.assertRaisesRegex(SystemExit, 'only --targets-only'):
-                runner.main()
-            loader.assert_not_called()
+        # The real config is LOCKED after R2-07; keep testing the READY gate explicitly.
+        with TemporaryDirectory() as folder:
+            config = Path(folder) / 'ready.json'
+            cfg = json.loads((ROOT / 'configs/experiments/m3_strategy_enriched_v1.json').read_text(encoding='utf-8'))
+            cfg['status'] = 'READY_TO_LOCK_AFTER_BPIT'
+            config.write_text(json.dumps(cfg), encoding='utf-8')
+            with patch.object(sys, 'argv', ['run_m3', '--config', str(config), '--segment', 'development']), \
+                    patch.object(runner, 'load_financial') as loader:
+                with self.assertRaisesRegex(SystemExit, 'only --targets-only'):
+                    runner.main()
+                loader.assert_not_called()
 
     def test_full_runner_passes_enriched_cache_to_limits_loader(self):
         # A synthetic LOCKED fixture verifies wiring; the real config remains READY.

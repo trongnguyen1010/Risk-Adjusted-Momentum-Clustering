@@ -1,7 +1,7 @@
 {
   "version": "m3-strategy-enriched-v1",
-  "status": "READY_TO_LOCK_AFTER_BPIT",
-  "status_note": "R2-03: pin bo ban giao C/D; cho owner review D, feasibility, targets-only va verifier truoc khi LOCKED o R2-07. Chua cho phep full backtest.",
+  "status": "LOCKED",
+  "status_note": "R2-07: D approved by user; real feasibility/targets review PASS (Dev 60/59/1, Holdout 24/23/1); N<10 Dev 13->12, Holdout 1->1; controls match baseline. Commit code/config and regenerate clean-HEAD targets-only before full Development; seal Dev before Holdout using identical execution HEAD/config/inputs.",
   "decision": "D-M3-01",
   "market_model": "bundle v4 model A (k=3, liquid stocks only)",
   "financial_model": "B-PIT enriched v1: artifact D duoc pin; thu tu cum va cutoff doc tu models.json, khong chon lai bang performance.",
@@ -63,5 +63,50 @@
     "availability_path": "data/financial/disclosure_dates_v1/availability-4f0f83108e761dae/availability.csv",
     "availability_sha256": "4f0f83108e761daeb86289e290de3aff0379abbf1ed630ac31c842146186648f"
   },
-  "limits_cache": "data/experiments/m3/inputs/enriched_v1/limits.json"
+  "limits_cache": "data/experiments/m3/inputs/enriched_v1/limits.json",
+  "readiness_review": {
+    "status": "PASS",
+    "feasibility_run": "data/experiments/m3/feasibility-variants/20261118T163652276119Z",
+    "baseline_feasibility_run": "data/experiments/m3/feasibility-variants/20261118T163651806641Z",
+    "segments": {
+      "development": {
+        "targets_run": "data/experiments/m3/development/20261118T163646Z-dd7b9a9e",
+        "counts": {
+          "decisions": 60,
+          "executed": 59,
+          "too_small": 12,
+          "not_executed_segment_end": 1
+        },
+        "baseline_below_10": 13,
+        "enriched_below_10": 12,
+        "baseline_min": 3,
+        "enriched_min": 3,
+        "baseline_median": 27.0,
+        "enriched_median": 20.0
+      },
+      "holdout": {
+        "targets_run": "data/experiments/m3/holdout/20261118T163644Z-dd7b9a9e",
+        "counts": {
+          "decisions": 24,
+          "executed": 23,
+          "too_small": 1,
+          "not_executed_segment_end": 1
+        },
+        "baseline_below_10": 1,
+        "enriched_below_10": 1,
+        "baseline_min": 4,
+        "enriched_min": 4,
+        "baseline_median": 30.0,
+        "enriched_median": 31.0
+      }
+    },
+    "controls": "all three market controls targets/audit match published baseline",
+    "financial_source": "B_PIT",
+    "git_dirty": false,
+    "pre_lock_config_sha256": "0517790b68bad1cfc452645ae5a45b7ad1aa74b0c8f09654406f6a0b62868e73",
+    "pre_lock_code_commit": "d492948cfee701a286857813787af0e9fdd9c8f2",
+    "owner_approval": "User confirmed Stage D approved and Task 07 authorized on 2026-11-18.",
+    "market_bundle_source": "https://huggingface.co/datasets/ngyen/delta-intelligence-data/tree/8b0d78e4edb3dd4bd7dcea9cddcbe36d7a0815c5/data/web/delta-intelligence-v4",
+    "execution_note": "Commit this config and supporting files, record HEAD, then regenerate targets-only at that clean HEAD before any full run. Full Dev and Holdout must share that execution HEAD and config."
+  }
 }
