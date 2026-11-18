@@ -103,6 +103,65 @@ class FinancialCutoffTests(unittest.TestCase):
             }), encoding='utf-8')
             self.assertEqual(inputs.bpit(artifact, include_cutoffs=True)[3], {})
 
+    def write_k_artifact(self, folder, k):
+        artifact = self.write_artifact(folder)
+        models = {'2023': dict(k=k, cutoff=self.cutoffs[2023], cluster_order=list(reversed(range(k))))}
+        (artifact / 'models.json').write_text(json.dumps(models), encoding='utf-8')
+        rows = 'ticker,fiscal_year,cluster\n' + ''.join(f'T{c},2023,{c}\n' for c in range(k))
+        (artifact / 'labels.csv').write_text(rows, encoding='utf-8')
+        return artifact, models, rows
+
+    def test_artifact_loader_preserves_k_order_labels_and_cutoff(self):
+        for k in (3, 4, 8):
+            with self.subTest(k=k), TemporaryDirectory() as folder:
+                artifact, _, _ = self.write_k_artifact(Path(folder), k)
+                labels, order, manifest, cutoffs = inputs.bpit(artifact, include_cutoffs=True)
+                self.assertEqual(order, {2023: list(reversed(range(k)))})
+                self.assertEqual(labels, {2023: {f'T{c}': (c, {}) for c in range(k)}})
+                self.assertEqual(manifest, {})
+                self.assertEqual(cutoffs, {2023: self.cutoffs[2023]})
+                self.assertEqual(inputs.bpit(artifact), (labels, order, manifest))
+
+    def test_artifact_loader_blocks_invalid_k_and_order(self):
+        mutations = [dict(k=k) for k in (None, True, '4', 4.0, 0, -1, 2)]
+        mutations += [dict(cluster_order=order) for order in (
+            [], [0, 1, 2], [0, 1, 2, 2], [0, 1, 2, 4],
+            [False, 1, 2, 3], ['0', 1, 2, 3], None, {'0': 0})]
+        mutations += [dict(cutoff=None)]
+        for mutation in mutations:
+            with self.subTest(mutation=mutation), TemporaryDirectory() as folder:
+                artifact, models, _ = self.write_k_artifact(Path(folder), 4)
+                models['2023'].update(mutation)
+                (artifact / 'models.json').write_text(json.dumps(models), encoding='utf-8')
+                self.assertEqual(inputs.bpit(artifact, include_cutoffs=True)[3], {})
+
+    def test_artifact_loader_blocks_missing_or_out_of_range_labels(self):
+        for k in (3, 4, 8):
+            for clusters in ([], list(range(k - 1)), list(range(k - 1)) + [k],
+                             list(range(k - 1)) + [-1]):
+                with self.subTest(k=k, clusters=clusters), TemporaryDirectory() as folder:
+                    artifact, _, _ = self.write_k_artifact(Path(folder), k)
+                    rows = 'ticker,fiscal_year,cluster\n' + ''.join(
+                        f'T{i},2023,{c}\n' for i, c in enumerate(clusters))
+                    (artifact / 'labels.csv').write_text(rows, encoding='utf-8')
+                    self.assertEqual(inputs.bpit(artifact, include_cutoffs=True)[3], {})
+
+    def test_artifact_loader_rejects_duplicate_ticker_year_labels(self):
+        for duplicate in ('T0,2023,0\n', 'T0,2023,1\n'):
+            for include_cutoffs in (False, True):
+                with self.subTest(duplicate=duplicate, include_cutoffs=include_cutoffs), TemporaryDirectory() as folder:
+                    artifact, _, rows = self.write_k_artifact(Path(folder), 4)
+                    (artifact / 'labels.csv').write_text(rows + duplicate, encoding='utf-8')
+                    with self.assertRaisesRegex(ValueError, 'Duplicate B-PIT label'):
+                        inputs.bpit(artifact, include_cutoffs=include_cutoffs)
+
+    def test_artifact_loader_does_not_infer_enriched_k_from_order(self):
+        with TemporaryDirectory() as folder:
+            artifact, models, _ = self.write_k_artifact(Path(folder), 4)
+            del models['2023']['k']
+            (artifact / 'models.json').write_text(json.dumps(models), encoding='utf-8')
+            self.assertEqual(inputs.bpit(artifact, include_cutoffs=True)[3], {})
+
     def test_runner_and_feasibility_read_cutoffs_from_pinned_artifact(self):
         runner = load_script('run_m3')
         feasibility = load_script('m3_feasibility_variants')
