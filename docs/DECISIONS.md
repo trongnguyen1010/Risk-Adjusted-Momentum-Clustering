@@ -14,7 +14,8 @@ config; khác revision hoặc bất kỳ hash nào đều `NOT_READY`. Reader n�
 artifact sau gate này, giữ null/provenance và từ chối schema hoặc verdict sai.
 Response schema chỉ chấp nhận đúng 18 feature ID, status/context
 đã định nghĩa và null nguyên nghĩa; query công khai không nhận `as_of` hay context
-để ghi đè release. Cơ chế này không tự mở serving, research hoặc current assessment.
+để ghi đè release. Lookup phân biệt ticker không tồn tại với record thiếu chứng cứ,
+và chỉ trả dữ liệu thuộc release đã pin. Cơ chế này không tự mở serving, research hoặc current assessment.
 
 ## 2026-11-11 — chấp nhận TNCK7/Mekong6, overlay Product/M3 pilot V2
 
