@@ -171,7 +171,8 @@ class FinancialCutoffTests(unittest.TestCase):
             cfg = dict(self.cfg, financial_pit=dict(artifact=str(artifact),
                        labels_sha256=inputs.sha256(artifact / 'labels.csv')),
                        status='READY_TO_LOCK_AFTER_BPIT', strategies=['combined', 'financial_only'],
-                       segments=dict(holdout=[DATES[0], DATES[-1]]), segment_end_dates=dict(holdout=DATES[-1]))
+                       segments=dict(development=['2023-07-31', '2023-07-31'], holdout=[DATES[0], DATES[-1]]),
+                       segment_end_dates=dict(development='2023-07-31', holdout=DATES[-1]))
             config = root / 'config.json'
             config.write_text(json.dumps(cfg), encoding='utf-8')
             market = dict(self.market, **{'2023-07-31': self.market[DATES[0]]})
@@ -197,6 +198,7 @@ class FinancialCutoffTests(unittest.TestCase):
                     self.assertEqual([r['candidates'] for r in targets], ['0', '1', '1'])
                 self.assertFalse((run / 'metrics.json').exists())
                 with patch.object(feasibility, 'ROOT', root), patch.object(feasibility, 'CONFIG', config), \
+                        patch.object(feasibility, 'financial_input_hashes', return_value={}), \
                         patch.object(sys, 'argv', ['m3_feasibility_variants']):
                     feasibility.main()
                 result = next((root / 'data/experiments/m3/feasibility-variants').glob('*/variants.json'))

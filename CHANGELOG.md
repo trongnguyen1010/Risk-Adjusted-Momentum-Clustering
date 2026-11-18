@@ -1,5 +1,14 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-04: thêm --config cho feasibility — 18/11/2026
+
+- Dùng cùng resolver, B-PIT loader/pins, SQLite ngành/scoring và availability với runner.
+- Lấy ranh giới segment từ config; thống kê min/median/N<10 và lý do/tỷ lệ loại sau
+  FINANCIAL_CRITERIA_MISSING, lưu hashes và trạng thái code trong output.
+- Giữ default baseline, chặn ép enriched về B v4, xử lý segment rỗng.
+- 6 tests mới đối chiếu counts/audit với runner và 34 regression tests đạt; compile,
+  CLI help và synthetic smoke đạt. Chưa chạy feasibility thật hoặc full backtest.
+
 ## R2-03: config thử nghiệm M3 enriched và cache riêng — 18/11/2026
 
 - Thêm config enriched ở trạng thái READY, pin hash thực tế C/D/models/availability.
