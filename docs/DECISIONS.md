@@ -1,5 +1,38 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-19 — R2-14: eligibility trước bốn verdict D-ASS-01
+
+Thêm `assessment/verdict.py::evaluate_verdict`, tự gọi lại hai component từ cells
+đầu vào, không nhận kết luận component do caller tự gán. Áp đúng first-match của
+policy: INSUFFICIENT_EVIDENCE trước CAUTION, rồi RESEARCH_FAVORABLE, cuối WATCH.
+Major warning ưu tiên CAUTION sau eligibility; market adverse kết hợp profitability
+adverse cũng CAUTION. Optional missing không thành zero; Peers là G4 nên không
+tham gia eligibility/verdict, kể cả thiếu hoặc thay đổi median.
+
+Hợp đồng context gồm assessment_context/as_of, required_price_session/last_price_date,
+required_market_snapshot_date/market_snapshot_date, usable_from_date/model_cutoff,
+fiscal_year/latest_usable_fiscal_year/model_fiscal_year, market_model/financial_model;
+metadata chứa các boolean required_metadata và metadata_evidence_refs tương ứng.
+source_pins chứa expected_sha256, actual_sha256, verified và evidence_ref cho đủ
+bảy nguồn policy. Đây là receipts S1 phải xác minh từ nguồn thật, không phải module
+này tự đọc/hash/chứng nhận raw files. Cờ gate sai/thiếu và receipt không hợp lệ đều
+thiếu cơ sở. Không fallback khi FY mới nhất chưa có model hoặc dùng model baseline.
+
+SIMULATED_AS_OF giữ đúng scope đã khóa 02/01/2026, phiên/snapshot 31/12/2025.
+CURRENT_AS_OF cần monthly_release_schedule_accepted và monthly_release_schedule_ref
+đã được upstream xác minh, cùng required snapshot theo lịch phát hành; không dùng
+ngưỡng cứng 22/23 phiên. Ngày evidence/cutoff không được sau as_of; đúng ngày được
+phép. Financial dùng cùng stale_after 18 tháng với M3, ngày hết hạn còn dùng được;
+sau ngày đó bị chặn. Evidence cells phải thuộc snapshot/FY được chọn.
+
+fixture_only=True chỉ để phân loại kiểm thử, luôn publishable=False/verdict_issued=False.
+Route mặc định còn kiểm runtime_enabled, cờ cấm publish, integration và đủ activation
+receipts PASS có evidence_ref. Policy hiện chưa bật nên route này không phát verdict
+thật. Guard chỉ bảo vệ evaluator mới; không tuyên bố CLI/builder legacy đã tích hợp.
+Không sửa policy đã duyệt, artifact nguồn hoặc chạy lại M3/Assessment. 19 tests mới
+và tổng 61 tests Task 11–14 đạt; compile đạt. Task 15 rationale và S1/S3 còn riêng.
+
+
 ## 2026-11-19 — R2-13: component tài chính và dấu CFO có điều kiện
 
 Thêm `assessment/rules_financial.py::evaluate_financial`. Đầu vào gồm evidence cells

@@ -1,5 +1,18 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-14: kết hợp eligibility và bốn verdict — 19/11/2026
+
+- Thêm evaluate_verdict kết hợp component thị trường/tài chính theo thứ tự
+  INSUFFICIENT_EVIDENCE → CAUTION → RESEARCH_FAVORABLE → WATCH từ policy.
+- Kiểm gate có evidence refs, source-pin receipts, thời điểm usable/cutoff,
+  phiên giá/snapshot, FY mới nhất và model cùng FY, nguồn A-v4/B-PIT enriched;
+  tuổi báo cáo dùng stale_after 18 tháng hiện có, không fallback baseline/năm cũ.
+- Optional missing bỏ phép kiểm; Peers không tham gia verdict. Fixture phải bật
+  tường minh và luôn không publishable. Route mặc định chặn khi chưa đủ activation.
+- 19 tests mới gồm bảng 108 tổ hợp và ca biên; tổng 61 tests Task 11–14, compile đạt.
+  Không nối builder cũ, không chạy lại/publish Assessment thật; S1/S3 vẫn còn gate.
+
+
 ## R2-13: hiện thực tài chính và dòng tiền — 19/11/2026
 
 - Thêm evaluate_financial: ROA/net margin/CFO, watch/major warnings và evidence;
