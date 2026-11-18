@@ -1,5 +1,24 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-18 — R2-07: khóa config enriched sau feasibility và targets thật
+
+Người dùng xác nhận D đã được duyệt và cho phép Task07. Nhận bundle v4 từ Hugging
+Face revision `8b0d78e4edb3dd4bd7dcea9cddcbe36d7a0815c5` và C8 v2 ZIP; hash SQLite,
+lịch, benchmark và giá khớp nguồn thị trường baseline. Không đổi A/Va/Q-date/18tháng,
+ranking, lịch, basis, chi phí hoặc execution. Pre-lock code `d492948`, config/input
+pins và git_dirty=false được kiểm tra trên feasibility và targets-only thật.
+
+Dev60/59/1, Holdout24/23/1; candidates khớp audit, ranks/weights đúng, ba market
+controls targets/audit khớp baseline đã công bố. Kỳ N<10 Dev13→12, Holdout1→1;
+median ứng viên Dev27→20, Holdout30→31; min3/4 không đổi. Giữ kết quả bất lợi Dev,
+không chọn lại mô hình bằng backtest. Chuyển config sang LOCKED, lưu receipt
+pre-lock trong readiness_review; chưa có full run hoặc seal enriched.
+
+Sau commit code/config, ghi execution HEAD ngoài config để tránh hash tự tham chiếu,
+rồi chạy lại targets-only cả hai đoạn ở HEAD sạch. Verifier full run yêu cầu cùng
+SHA/config với reference targets-only; không dùng pre-lock receipts làm reference
+cuối. Tests config chuyển sang kiểm LOCKED+receipt, READY gate vẫn có fixture riêng.
+
 ## 2026-11-18 — R2-06: verifier và seal riêng cho hai segment M3
 
 Thêm `scripts/verify_m3_enriched_run.py` nhận `--run`, `--targets-run`,
