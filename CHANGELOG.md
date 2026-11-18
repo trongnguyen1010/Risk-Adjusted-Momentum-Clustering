@@ -1,5 +1,11 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Nạp payload Assessment read-only — 18/11/2026
+
+Reader nạp assessments, peers, coverage và history chỉ sau release pin đã PASS.
+Kiểu số/null, ticker, verdict, whitelist feature và cột bắt buộc được kiểm; không
+tính lại feature, peer hoặc verdict và không ghi artifact.
+
 ## Response schema cho Investment Assessment — 18/11/2026
 
 Thêm Pydantic response model cho context/dates/status, profile A/B, đúng whitelist
