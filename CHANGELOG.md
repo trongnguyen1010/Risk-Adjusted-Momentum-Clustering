@@ -1,5 +1,11 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## Repository read-only cho Assessment — 18/11/2026
+
+Thêm `AssessmentRepository` chỉ khởi tạo từ release đã verify, nạp vào bộ nhớ và
+tra cứu không network/write/recompute. Artifact/config không sẵn sàng khác rõ với
+ticker không có record; không fallback sang baseline hoặc release khác.
+
 ## Tra cứu Assessment theo release pin — 18/11/2026
 
 Lookup chuẩn hóa ticker và chỉ trả record thuộc context/as-of/phiên giá/revision đã
