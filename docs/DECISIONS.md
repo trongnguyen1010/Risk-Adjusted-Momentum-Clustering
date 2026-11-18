@@ -1,5 +1,29 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-19 — R2-12: component điều kiện thị trường D-ASS-01
+
+Thêm `assessment/rules_market.py::evaluate_market` và `rules_common.py` cho
+policy/evidence/biểu thức ba giá trị dùng chung. Đầu vào là mapping evidence cells
+(value/status/unit/period/evidence_ref, cờ S1 source_hash_verified và provenance_verified),
+cùng evidence cờ thanh khoản. Component không tự mở file nguồn để xác minh các cờ
+S1, không nối builder hiện tại hoặc phát verdict cuối; status PASS chỉ là kết quả
+kiểm component với các khai báo/bằng chứng đầu vào, không thay nghiệm thu S1.
+
+Dùng ngưỡng/logic từ policy: mom63>0 và mom126>0, cùng mom21>0 hoặc mom252>0;
+bất lợi đối xứng âm. Zero/tổ hợp còn lại→MIXED. Thiếu một trong bốn momentum,
+status/value/evidence không hợp lệ hoặc lệch kỳ/đơn vị→UNKNOWN và thiếu cơ sở.
+Cờ thanh khoản thiếu/không hợp lệ/khác kỳ→major_warning=null, không tự coi LIQUID.
+ILLIQUID→major_warning=true nhưng không tự trả CAUTION khi G1 chưa được kết hợp.
+
+Evidence metric chỉ thuộc whitelist; liquidity_flag lưu trong qualifiers metadata,
+không trở thành feature thứ19. Chỉ bốn momentum được dùng cho xu hướng; context
+optional không đổi hướng; không dùng cluster ID/future return. Imputed tài chính
+được duyệt ở R2-11 không cho phép điền market features bị thiếu (mục6.1).
+Giữ nguyên status/provenance, không đổi missing→0 hoặc tạo citation giả. Helpers
+không mutate input/policy; không phụ thuộc thứ tự các nhánh cảnh báo trong JSON.
+15tests mới (gồm81tổ hợp dấu) và11policytests đạt; compile đạt. Vẫn fixture-only,
+chưa kiểm toàn bộ eligibility/freshness, chưa nghiệm thu hoặc publish Assessment thật.
+
 ## 2026-11-19 — R2-11: policy D-ASS-01 và xác nhận quyền dùng ô imputed
 
 Mã hóa bảng8.3, mục6.1/6.3/6.4.3 và freshness/PIT vào
