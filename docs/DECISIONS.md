@@ -1,5 +1,17 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-18 — R2-03: config M3 enriched và cache riêng
+
+Tạo `configs/experiments/m3_strategy_enriched_v1.json` từ baseline, giữ nguyên
+A/Va/Q-date/18 tháng, ranking, lịch, giá, chi phí và execution. Pin SQLite C,
+availability và labels/models D bằng hash đối chiếu manifest bàn giao; các path
+đều tương đối từ gốc repo. Trạng thái `READY_TO_LOCK_AFTER_BPIT` chưa cho full run.
+`limits_cache` của enriched nằm ở `data/experiments/m3/inputs/enriched_v1/limits.json`;
+runner từ chối thiếu cache hoặc cache trùng baseline khi có `financial_data`.
+Config legacy giữ đường dẫn cache cũ. Manifest run ghi đường dẫn cache sử dụng.
+Đối chiếu hash/provenance artifact thật đạt, FY2017–2024 có cutoff hợp lệ; đây chỉ
+là kiểm tra tích hợp, không thay owner review D hoặc nghiệm thu full backtest.
+
 ## 2026-11-18 — R2-02: truyền nguồn tài chính đã pin xuyên runner M3
 
 Triển khai yêu cầu Giai đoạn E trong kế hoạch B-PIT; không đổi phương pháp đầu tư.

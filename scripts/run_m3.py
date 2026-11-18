@@ -83,6 +83,20 @@ def input_hashes(bpit_dir, skip_c8_prices, *, indicators_path=None, availability
     return out
 
 
+def limits_cache_path(cfg):
+    """Keep legacy cache location; explicit financial sources require a separate cache."""
+    baseline = (ROOT / 'data/experiments/m3/inputs/limits.json').resolve()
+    value = cfg.get('limits_cache')
+    if not value:
+        if 'financial_data' in cfg:
+            raise ValueError('financial_data requires a separate limits_cache')
+        return baseline
+    path = (ROOT / value).resolve()
+    if 'financial_data' in cfg and path == baseline:
+        raise ValueError('Enriched limits_cache must not reuse the baseline cache')
+    return path
+
+
 def load_financial(cfg, targets_only):
     """B-PIT when the config pins it; B v4 reference only for targets-only readiness runs."""
     pin = cfg.get('financial_pit') or {}
@@ -135,6 +149,7 @@ def main():
         sys.exit(f'Segment {args.segment!r} has no start/end in the config (final is locked after readiness, Q16).')
     start, _ = cfg['segments'][args.segment]
     segment_end = cfg['segment_end_dates'][args.segment]
+    limits_cache = limits_cache_path(cfg)
     sources = inputs.financial_sources(cfg, root=ROOT)
     fin_labels, fin_order, fin_source, bpit_dir, fin_cutoffs = load_financial(cfg, args.targets_only)
     market = inputs.market_snapshots()
@@ -185,12 +200,13 @@ def main():
                     end_date=end_date, run_id=run_id, targets_only=args.targets_only, financial_source=fin_source,
                     git_commit=commit, git_dirty=dirty,
                     inputs_sha256=input_hashes(bpit_dir, args.skip_c8_prices_hash or args.targets_only, **sources),
+                    limits_cache=cfg.get('limits_cache', 'data/experiments/m3/inputs/limits.json'),
                     counts=counts)
     if not args.targets_only:
         exec_dates = sorted({e for s in schedules.values() for _, e, _ in s} | {end_date})
         assert exec_dates[-1] <= segment_end, 'a valuation date fell after segment_end_date'
         book = PriceBook(exec_dates, calendar, segment_start=start, segment_end=segment_end,
-                         limits=load_limits(exec_dates, cache=ROOT / 'data/experiments/m3/inputs/limits.json'))
+                         limits=load_limits(exec_dates, cache=limits_cache))
         allow = args.segment in cfg['sharpe_allowed_segments']
         bench = benchmark_nav(inputs.benchmark(), exec_dates)
         summary = dict(vnindex=metrics(bench, [], [], [], allow), adj_glitches_repaired=len(book.flags))
