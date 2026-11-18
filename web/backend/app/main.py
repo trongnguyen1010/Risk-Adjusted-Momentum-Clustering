@@ -14,6 +14,7 @@ from .availability import FinancialAvailability, financial_tickers
 from .backtest import BacktestResults
 from delta_t1.product.assessment_repository import AssessmentArtifactUnavailable, AssessmentRepository
 from .assessment import map_assessment_response
+from .assessment_cache import AssessmentCache
 from .schemas import AssessmentResponse
 
 ROOT=Path(__file__).resolve().parents[3]
@@ -41,6 +42,7 @@ def create_app(repository=None,fundamentals=None,availability=None,backtest=None
             try:app.state.backtest=BacktestResults.from_config(ROOT)
             except (MissingData,FileNotFoundError):app.state.backtest=None  # Endpoints answer 404 until published.
         app.state.assessment_repository=assessment_repository
+        app.state.assessment_cache=AssessmentCache()
         if assessment_repository is None:
             try:app.state.assessment_repository=AssessmentRepository.from_config(repository_root=ROOT)
             except AssessmentArtifactUnavailable:app.state.assessment_repository=None  # Assessment endpoint will answer 503.
@@ -128,7 +130,11 @@ def create_app(repository=None,fundamentals=None,availability=None,backtest=None
         source=assessment_repository_for(request)
         if revision is not None and revision!=source.release.release_revision:raise HTTPException(status_code=409,detail='Assessment release revision mismatch.')
         if not ticker.strip() or not ticker.strip().replace('-','').isalnum():raise HTTPException(status_code=422,detail='Ticker không hợp lệ.')
-        result=source.lookup(ticker)
+        cache_key=request.app.state.assessment_cache.key(source.release,ticker,lookback_years)
+        result=request.app.state.assessment_cache.get(cache_key)
+        if result is None:
+            result=source.lookup(ticker)
+            if result.found:request.app.state.assessment_cache.put(cache_key,result)
         if result.status=='NOT_FOUND':raise HTTPException(status_code=404,detail='Assessment ticker không tồn tại trong release đã phát hành.')
         if result.status=='NOT_READY':raise HTTPException(status_code=503,detail=result.reason or 'Assessment release chưa sẵn sàng.')
         return map_assessment_response(result,lookback_years=lookback_years,history_rows=source.payload.feature_history.get(result.assessment['ticker'],()))
