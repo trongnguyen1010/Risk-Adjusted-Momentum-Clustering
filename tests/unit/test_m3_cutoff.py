@@ -162,6 +162,48 @@ class FinancialCutoffTests(unittest.TestCase):
             (artifact / 'models.json').write_text(json.dumps(models), encoding='utf-8')
             self.assertEqual(inputs.bpit(artifact, include_cutoffs=True)[3], {})
 
+    def test_k3_k4_k8_targets_and_audit_use_frozen_order_after_cutoff(self):
+        for k in (3, 4, 8):
+            with self.subTest(k=k), TemporaryDirectory() as folder:
+                artifact, _, _ = self.write_k_artifact(Path(folder), k)
+                labels, order, _, cutoffs = inputs.bpit(artifact, include_cutoffs=True)
+                names = [f'T{c}' for c in range(k)]
+                market = {d: [dict(ticker=t, cluster=0, liquidity='LIQUID',
+                                   features=dict(mom_126=c + 1, mdd_126=-0.1, liquidity_21=1))
+                              for c, t in enumerate(names)] for d in DATES}
+                avail = {(t, 2023): dict(usable_from_date='2024-03-15') for t in names}
+                missing = f'T{k - 2}'
+                indicators = {(t, 2023): dict(roe=c + 1) for c, t in enumerate(names) if t != missing}
+                strategies = Strategies(self.cfg, market, labels, avail, {}, indicators,
+                                        fin_order=order, financial_cutoffs=cutoffs)
+                for name in ('combined', 'financial_only'):
+                    before = strategies.target_for(name, DATES[0])
+                    self.assertEqual(before['candidates'], 0)
+                    self.assertEqual({a['reason'] for a in before['audit']}, {'FINANCIAL_MODEL_BEFORE_CUTOFF'})
+                    for date in DATES[1:]:
+                        result = strategies.target_for(name, date)
+                        audit = {a['ticker']: a for a in result['audit']}
+                        self.assertEqual(result['candidates'], k - 2)
+                        self.assertEqual(sum(a['in_candidate_universe'] for a in result['audit']), k - 2)
+                        self.assertEqual(audit['T0']['reason'], 'FINANCIAL_NOT_IN_ALLOWED_CLUSTER')
+                        self.assertEqual(audit[missing]['reason'], 'FINANCIAL_CRITERIA_MISSING')
+                        self.assertEqual(result['picks'][0], f'T{k - 1}')
+                        self.assertAlmostEqual(sum(result['target'].values()), 1)
+                        self.assertEqual(result['engine_target'], result['target'])
+                        self.assertTrue(all(a['financial_year'] == 2023 for a in result['audit']))
+
+    def test_future_financial_year_append_does_not_change_current_targets_or_audit(self):
+        reference = self.strategies()
+        before = {name: reference.target_for(name, DATES[-1]) for name in ('combined', 'financial_only')}
+        self.fin[2024] = {'AAA': (2, {'roe': 1000})}
+        self.avail['AAA', 2024] = dict(usable_from_date='2025-03-17')
+        self.ind['AAA', 2024] = dict(roe=1000)
+        self.order[2024] = [2, 1, 0]
+        self.cutoffs[2024] = '2025-04-30'
+        after = self.strategies()
+        for name in before:
+            self.assertEqual(before[name], after.target_for(name, DATES[-1]))
+
     def test_runner_and_feasibility_read_cutoffs_from_pinned_artifact(self):
         runner = load_script('run_m3')
         feasibility = load_script('m3_feasibility_variants')
