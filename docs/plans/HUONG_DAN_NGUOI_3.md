@@ -17,7 +17,7 @@
 | R3-01 | S4 | PASS | `feat(assessment): Cấu hình đọc bản phát hành Assessment` | Config và resolver đều pin run cụ thể; test + resolve artifact thật PASS. |
 | R3-02 | S4 | PASS | `feat(assessment): Kiểm manifest khi mở artifact phục vụ API` | Manifest, hash file serving và pin nguồn/revision được fail-closed. |
 | R3-07 | S4 | PASS | `feat(assessment): Khai báo response schema Assessment` | Schema 18 features, context/status, evidence/peer/history và query guard PASS. |
-| R3-03 | S4 | CHƯA MỞ | — | Chờ R3-02 và R3-07. |
+| R3-03 | S4 | PASS | `feat(assessment): Nạp payload Assessment theo schema` | Nạp bốn payload read-only, giữ null và chặn schema/verdict sai. |
 | R3-04 | S4 | CHƯA MỞ | — | Chờ R3-03. |
 | R3-08 | S4 | CHƯA MỞ | — | Chờ R3-04 và R3-07. |
 | R3-05 | S4 | CHƯA MỞ | — | Chờ R3-08. |
