@@ -1,5 +1,17 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-10: xuất đối sánh M3 theo segment — 19/11/2026
+
+- Thêm exporter read-only cho baseline/enriched sealed Dev/Holdout, Combined,
+  Financial-only, ba market controls và VNINDEX; không fit/rerun/chọn model.
+- Xuất5file: summary24dòng, periods, NAV/drawdown riêng, deltas12dòng và provenance
+  manifest. Giữ kỳ cuối không thực thi với outcomes trống; không gộp NAV hai đoạn.
+- Kiểm hashes/pins, NAV bounds/return/MDD, cash/failed trades và controls; giữ cả
+  kết quả bất lợi, phân biệt adj_close có cash dividends và VNINDEX price index.
+- 9 tests mới kiểm mutation/seal/controls, traceability, negative outcomes và
+  source immutability; toàn bộ102tests M3, compile, pip check và synthetic smoke đạt.
+  Báo cáo thật xuất tại comparison/20261118T173627755165Z.
+
 ## R2-07: feasibility thật, targets-only và khóa config — 18/11/2026
 
 - Nhận bundle v4 và C8 v2 đúng hash baseline; dữ liệu để ở ổ D và vẫn bị Git ignore.

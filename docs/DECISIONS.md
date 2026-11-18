@@ -1,5 +1,27 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-19 — R2-10: đối sánh M3 baseline/enriched theo từng segment
+
+`scripts/export_backtest_comparison_metrics.py` chỉ đọc sealed artifacts; hỗ trợ seal
+baseline schema1 và enriched verifier-v1. Kiểm đủ33file nguồn, hash/seal/execution
+pins, Dev→Holdout seal dependency và cùng nguồn thị trường giữa baseline/enriched.
+Baseline seal được đối chiếu với source_seals trong M3/outputs/manifest.json.
+Không fit model, không chạy lại engine hoặc gộp/compound NAV của hai segment.
+
+Xuất summary.csv (24 dòng: 2nguồn×2segment×(5strategy+VNINDEX)), periods.csv,
+nav_series.csv, comparison.csv và manifest nguồn/output hashes. N/selected tính
+trên tất cả quyết định; held/cash chỉ tính các ngày đã thực thi. Kỳ cuối không
+thực thi giữ held/cash/trade outcome=null. Drawdown dùng helper báo cáo hiện có;
+return/MDD đối chiếu lại NAV, cash và failed trades đối chiếu series liên quan.
+Ba market controls cùng VNINDEX phải khớp baseline trước export. Giữ mọi delta,
+kể cả bất lợi; return/Sharpe không được dùng chọn lại model. Strategy dùng vendor
+adj_close gồm cash dividends; VNINDEX là price index không gồm cổ tức, chi phí0.
+
+Export riêng bất biến; không ghi đè thư mục cũ hoặc sửa run/seal nguồn. Chênh lệch
+return/drawdown/cash ghi đơn vị percentage points. JSON manifest truy tới4run,
+seal hashes, execution/config/input pins và toàn bộ nguồn CSV/JSON. Source run
+vẫn giữ execution8e515f7; commit báo cáo mới không thay danh tính backtest.
+
 ## 2026-11-18 — R2-07: khóa config enriched sau feasibility và targets thật
 
 Người dùng xác nhận D đã được duyệt và cho phép Task07. Nhận bundle v4 từ Hugging
