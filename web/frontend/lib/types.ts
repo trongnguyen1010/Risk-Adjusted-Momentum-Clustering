@@ -257,6 +257,124 @@ export interface StockPeers {
   basis: string;
   items: PeerRow[];
 }
+
+// Investment Assessment response (S4). Keep the nullable fields nullable: a missing
+// value/status is evidence state, not a value to fill from a fixture or another release.
+export type AssessmentContext = "SIMULATED_AS_OF" | "CURRENT_AS_OF";
+export type AssessmentAvailabilityStatus =
+  | "READY"
+  | "HISTORICAL_ONLY"
+  | "STALE"
+  | "NOT_ELIGIBLE"
+  | "NOT_FOUND"
+  | "DATA_MISSING";
+export type AssessmentStatus =
+  | "RESEARCH_FAVORABLE"
+  | "WATCH"
+  | "CAUTION"
+  | "INSUFFICIENT_EVIDENCE";
+export type AssessmentFeatureId =
+  | "roe"
+  | "roa"
+  | "gross_margin"
+  | "net_margin"
+  | "debt_to_equity"
+  | "current_ratio"
+  | "asset_turnover"
+  | "revenue_growth"
+  | "cfo_to_ni"
+  | "mom_21"
+  | "mom_63"
+  | "mom_126"
+  | "mom_252"
+  | "vol_63"
+  | "mdd_126"
+  | "beta_126"
+  | "liquidity_21"
+  | "downside_vol_63";
+export type AssessmentFeatureCategory = "MARKET" | "FINANCIAL";
+export type AssessmentFeatureValueStatus = "OK" | "DATA_MISSING";
+
+export interface AssessmentPeerComparison {
+  peer_basis: string;
+  peer_count: number;
+  peer_median: number | null;
+  p25: number | null;
+  p75: number | null;
+}
+
+export interface AssessmentFeature {
+  feature_id: AssessmentFeatureId;
+  category: AssessmentFeatureCategory;
+  value: number | null;
+  status: AssessmentFeatureValueStatus;
+  unit: string;
+  period: string | null;
+  usable_from_date: string | null;
+  peer: AssessmentPeerComparison | null;
+  evidence_ref: string | null;
+}
+
+export interface AssessmentClusterProfile {
+  id: number;
+  model_version: string;
+  date_or_fy: string;
+  profile: string | null;
+  quality_flags: string[];
+  source_revision: string;
+}
+
+export interface AssessmentEvidence {
+  feature_id: AssessmentFeatureId | null;
+  direction: "FAVORABLE" | "CAUTION" | "COUNTER_EVIDENCE";
+  message: string;
+  value: number | null;
+  status: string | null;
+  evidence_ref: string | null;
+}
+
+export interface AssessmentHistoryPoint {
+  feature_id: AssessmentFeatureId;
+  period: string;
+  value: number | null;
+  status: string;
+  usable_from_date: string | null;
+  source: string;
+}
+
+export interface AssessmentReferences {
+  release_revision: string;
+  policy_revision: string;
+  manifest_sha256: string;
+  deterministic_content_sha256: string;
+  source_hashes: Record<string, string>;
+}
+
+export interface AssessmentResponse {
+  ticker: string;
+  request_time: string;
+  as_of: string;
+  required_price_session: string;
+  evidence_cutoff_at: string | null;
+  assessment_context: AssessmentContext;
+  availability_status: AssessmentAvailabilityStatus;
+  assessment_status: AssessmentStatus;
+  rationale: string;
+  market_cluster: AssessmentClusterProfile | null;
+  financial_cluster: AssessmentClusterProfile | null;
+  features: AssessmentFeature[];
+  drivers: AssessmentEvidence[];
+  risks: AssessmentEvidence[];
+  counter_evidence: AssessmentEvidence[];
+  history: AssessmentHistoryPoint[];
+  references: AssessmentReferences;
+  scope: "AS_OF_ASSESSMENT_ONLY";
+}
+
+export interface AssessmentQuery {
+  lookback_years?: 5 | 10;
+}
+
 export type BacktestMetrics = {
   periods: number;
   total_return: number | null;
