@@ -1050,6 +1050,22 @@ Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Fi
 
 ## 4. Công việc còn lại và gate chuyển bước
 
+### R2-15 — rationale/counter-evidence đã kiểm fixture, còn gate tích hợp
+
+Đã thêm templates truy nguồn cho drivers/risks/counter_evidence và context trong
+18 features; giữ trạng thái imputed, qualifiers và bằng chứng trái chiều. G4 Peers
+chỉ giải thích, đủ 3 member cells hợp lệ mới tính median/IQR; thiếu Peers hoặc thay
+median không đổi verdict. Nguồn/thời điểm sai không tạo feature claim.
+21 tests mới gồm replay, mutation Peers, whitelist, provenance, CFO/NI imputed,
+self/duplicate/unit/kỳ và đủ/thiếu mẫu; tổng 82 tests Task 11–15 và compile đạt.
+
+Đây là phần code/fixture cuối của 15 tasks Người2; không đồng nghĩa Assessment thật
+đã nghiệm thu. Chưa nối builder/CLI legacy, runtime policy vẫn tắt. S1 phải hoàn
+thiện A-v4 thật, pin/provenance và Peers receipts; sau đó mới S3 offline build,
+independent QA/replay/coverage theo gate. Giữ nguyên artifact bàn giao cũ và M3;
+không dùng fixture để tuyên bố verdict thật hoặc chất lượng toàn thị trường.
+
+
 ### R2-14 — eligibility và bốn verdict đã kiểm fixture
 
 Đã thêm evaluator theo đúng priority D-ASS-01, kiểm gate/evidence refs/source pins,
