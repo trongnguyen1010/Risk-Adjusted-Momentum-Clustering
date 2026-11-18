@@ -1,9 +1,10 @@
 import unittest
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
 from app.main import create_app
-from delta_t1.product.assessment_repository import AssessmentRepository
+from delta_t1.product.assessment_repository import AssessmentArtifactUnavailable, AssessmentRepository
 
 
 class FakeRepository:
@@ -31,6 +32,12 @@ class TestAssessmentApi(unittest.TestCase):
         with TestClient(app) as client:
             self.assertEqual(client.get('/api/v2/stocks/A32/assessment?revision=wrong').status_code,409)
             self.assertEqual(client.get('/api/v2/stocks/%40%40%40/assessment').status_code,422)
+
+    def test_unavailable_release_returns_503(self):
+        app=create_app(repository=FakeRepository())
+        with patch('app.main.AssessmentRepository.from_config',side_effect=AssessmentArtifactUnavailable('CONFIG_NOT_FOUND')):
+            with TestClient(app) as client:
+                self.assertEqual(client.get('/api/v2/stocks/A32/assessment').status_code,503)
 
 
 if __name__=='__main__':unittest.main()
