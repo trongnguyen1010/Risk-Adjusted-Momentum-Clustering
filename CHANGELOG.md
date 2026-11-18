@@ -1,5 +1,11 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## AssessmentRepository trong FastAPI lifecycle — 18/11/2026
+
+FastAPI khởi tạo repository Assessment trong lifespan và hỗ trợ injection cho test.
+Thiếu artifact chỉ để state Assessment unavailable, không làm các endpoint hiện có
+ngừng khởi động; chưa đăng ký endpoint Assessment.
+
 ## Repository read-only cho Assessment — 18/11/2026
 
 Thêm `AssessmentRepository` chỉ khởi tạo từ release đã verify, nạp vào bộ nhớ và

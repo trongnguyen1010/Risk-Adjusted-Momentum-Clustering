@@ -12,10 +12,11 @@ from .previews import PreviewRepository
 from .fundamentals import FundamentalsRepository
 from .availability import FinancialAvailability, financial_tickers
 from .backtest import BacktestResults
+from delta_t1.product.assessment_repository import AssessmentArtifactUnavailable, AssessmentRepository
 
 ROOT=Path(__file__).resolve().parents[3]
 
-def create_app(repository=None,fundamentals=None,availability=None,backtest=None):
+def create_app(repository=None,fundamentals=None,availability=None,backtest=None,assessment_repository=None):
     @asynccontextmanager
     async def lifespan(app):
         app.state.repository=repository or TerminalRepository(os.environ.get('DELTA_BUNDLE',str(ROOT/'data/web/delta-intelligence-v4')))
@@ -37,6 +38,10 @@ def create_app(repository=None,fundamentals=None,availability=None,backtest=None
         if backtest is None:
             try:app.state.backtest=BacktestResults.from_config(ROOT)
             except (MissingData,FileNotFoundError):app.state.backtest=None  # Endpoints answer 404 until published.
+        app.state.assessment_repository=assessment_repository
+        if assessment_repository is None:
+            try:app.state.assessment_repository=AssessmentRepository.from_config(repository_root=ROOT)
+            except AssessmentArtifactUnavailable:app.state.assessment_repository=None  # Assessment endpoint will answer 503.
         yield
     app=FastAPI(title='DELTA Intelligence · Read-only Research API',version='1.0.0',lifespan=lifespan)
     def repo(request:Request):return request.app.state.repository

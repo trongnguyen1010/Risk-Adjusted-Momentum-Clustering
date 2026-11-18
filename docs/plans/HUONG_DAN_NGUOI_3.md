@@ -20,7 +20,7 @@
 | R3-03 | S4 | PASS | `feat(assessment): Nạp payload Assessment theo schema` | Nạp bốn payload read-only, giữ null và chặn schema/verdict sai. |
 | R3-04 | S4 | PASS | `feat(assessment): Tra cứu đúng mã và ngữ cảnh phát hành` | Phân biệt READY/INSUFFICIENT_EVIDENCE/NOT_FOUND và chặn override release. |
 | R3-08 | S4 | PASS | `feat(assessment): Reader artifact read-only` | Repository chỉ mở release pin; unavailable khác ticker không tồn tại. |
-| R3-05 | S4 | CHƯA MỞ | — | Chờ R3-08. |
+| R3-05 | S4 | PASS | `feat(assessment): Gắn repository vào vòng đời FastAPI` | Lifespan injection PASS; thiếu artifact không làm app dừng. |
 | R3-06 | S4 | CHƯA MỞ | — | Chờ R3-08 và R3-07. |
 | R3-09 | S4 | CHƯA MỞ | — | Chờ R3-05 và R3-06. |
 | R3-10 | S4 | CHƯA MỞ | — | Chờ R3-09. |
