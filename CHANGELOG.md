@@ -1,5 +1,16 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-11: mã hóa policy D-ASS-01 — 19/11/2026
+
+- Thêm policy version1.0.0: whitelist18, mandatory/conditional/optional, ngưỡng,
+  bốn verdict/priority, monthly freshness,18tháng, Peers theo6.3 và evidence.
+- Ghi xác nhận người dùng cho phép IMPUTED_MEDIAN trong rulebook và Peers, giữ
+  lineage/status; không giả CFO quan sát hoặc thêm điểm/penalty/imputation.
+- 11 tests hợp đồng policy/fixture đạt; compile đạt. Các module rules/verdict/
+  rationale thực thi thuộc R2-12..15, chưa tích hợp builder hoặc nghiệm thu thật.
+- Ghi rõ S1 còn market features/cluster A giả lập; artifact cũ dùng legacy labels.
+  Policy NOT_INTEGRATED/runtime_enabled=false, không coi đây là hard guard CLI.
+
 ## R2-10: xuất đối sánh M3 theo segment — 19/11/2026
 
 - Thêm exporter read-only cho baseline/enriched sealed Dev/Holdout, Combined,

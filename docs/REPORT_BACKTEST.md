@@ -1050,6 +1050,23 @@ Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Fi
 
 ## 4. Công việc còn lại và gate chuyển bước
 
+### R2-11 — chuẩn bị policy Assessment; S1 thực tế chưa được nghiệm thu
+
+Đã mã hóa D-ASS-01 version1.0.0 và11tests hợp đồng theo kế hoạch, bao gồm xác
+nhận của người dùng cho phép ô IMPUTED_MEDIAN dùng cho rulebook/Peers ngày
+19/11/2026. Phần này không thay M3 hoặc nội dung các run đã seal.
+
+Điểm bàn giao cần Người1 xử lý: `assessment/inputs.py` vẫn gán toàn bộ market
+features=0.1 và cluster_a=0; chưa nối A-v4 thật. Manifest Assessment cũ không pin
+A/model/policy và dùng verdict WORTH_CONSIDERING/MONITOR/LOW_PRIORITY thay cho
+bốn code D-ASS-01 hiện hành. Không dùng artifact đó làm bằng chứng PASS verdict
+thật. Không sửa/ghi đè artifact cũ hoặc coi ghi chú hoàn thành20/20 là QA thay thế.
+
+Policy được chuẩn bị để các task12–15 triển khai/test bằng fixture; chưa bật
+runtime, chưa tích hợp CLI builder, chưa tự mở gate F/S1/S3/release. Người1 cần
+bàn giao S1 với input thật và provenance; Người3 kiểm tra Assessment sau tích hợp.
+
+
 ### R2-10 — đối sánh enriched và baseline đã seal, 19/11/2026
 
 Bộ báo cáo: `data/experiments/m3/comparison/20261118T173627755165Z/` gồm summary,
