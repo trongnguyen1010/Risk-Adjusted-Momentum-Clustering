@@ -1050,6 +1050,18 @@ Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Fi
 
 ## 4. Công việc còn lại và gate chuyển bước
 
+### R2-14 — eligibility và bốn verdict đã kiểm fixture
+
+Đã thêm evaluator theo đúng priority D-ASS-01, kiểm gate/evidence refs/source pins,
+ngày usable/cutoff, phiên giá/snapshot, latest FY/model và tuổi báo cáo 18 tháng.
+Optional missing được bỏ phép kiểm; Peers không đổi verdict; không fallback FY cũ
+khi latest FY thiếu model. 19 tests mới gồm bảng 108 tổ hợp và ca biên; tổng 61 tests
+Task 11–14 và compile đạt. Fixture được đánh dấu không publishable, runtime policy
+vẫn tắt. Source receipts/cờ verified cần S1 xác minh thật; không thay QA upstream.
+Chưa nối builder legacy, chưa chạy/publish Assessment thật. Còn Task 15 rationale,
+S1 dữ liệu/provenance/Peers thật và S3 independent QA trước khi kích hoạt.
+
+
 ### R2-13 — component tài chính/CFO đã kiểm fixture
 
 Đã hiện thực ROA/net margin/CFO với NI quan sát và ratio-validity qualifiers;
