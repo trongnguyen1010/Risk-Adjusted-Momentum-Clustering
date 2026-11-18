@@ -49,6 +49,7 @@ class EnrichedSourceTests(unittest.TestCase):
                    financial_pit=dict(artifact=str(artifact),
                                       labels_sha256=inputs.sha256(artifact / 'labels.csv'),
                                       models_sha256=inputs.sha256(artifact / 'models.json')))
+        cfg['limits_cache'] = 'data/experiments/m3/inputs/enriched_v1/limits.json'
         cfg['financial_data'] = dict(
             indicators_path=databases['enriched'].name,
             indicators_sha256=inputs.sha256(databases['enriched']),
@@ -183,6 +184,72 @@ class EnrichedSourceTests(unittest.TestCase):
             (artifact / 'manifest.json').write_text(json.dumps(manifest), encoding='utf-8')
             with self.assertRaisesRegex(ValueError, 'no baseline SQLite fallback'):
                 runner.load_financial(cfg, True)
+
+    def test_enriched_config_preserves_all_baseline_strategy_rules(self):
+        baseline = json.loads((ROOT / 'configs/experiments/m3_strategy_v1.json').read_text(encoding='utf-8'))
+        enriched = json.loads((ROOT / 'configs/experiments/m3_strategy_enriched_v1.json').read_text(encoding='utf-8'))
+        allowed = {'version', 'status', 'status_note', 'financial_model', 'financial_pit',
+                   'financial_data', 'limits_cache'}
+        self.assertEqual({k: v for k, v in baseline.items() if k not in allowed},
+                         {k: v for k, v in enriched.items() if k not in allowed})
+        self.assertEqual(enriched['status'], 'READY_TO_LOCK_AFTER_BPIT')
+        self.assertEqual(enriched['financial_data']['indicators_path'],
+                         'data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/indicators.sqlite')
+        self.assertEqual(enriched['financial_pit']['artifact'],
+                         'data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01')
+        for section, keys in (('financial_data', ['indicators_sha256', 'availability_sha256']),
+                              ('financial_pit', ['labels_sha256', 'models_sha256'])):
+            for key in keys:
+                self.assertRegex(enriched[section][key], r'^[0-9a-f]{64}$')
+        self.assertNotEqual(runner.limits_cache_path(baseline), runner.limits_cache_path(enriched))
+
+    def test_enriched_cache_is_separate_and_alias_of_baseline_is_rejected(self):
+        with TemporaryDirectory() as folder, patch.object(runner, 'ROOT', Path(folder)):
+            baseline = Path(folder) / 'data/experiments/m3/inputs/limits.json'
+            self.assertEqual(runner.limits_cache_path({}), baseline)
+            cfg = {'financial_data': {}, 'limits_cache': 'data/experiments/m3/inputs/enriched_v1/limits.json'}
+            self.assertNotEqual(runner.limits_cache_path(cfg), baseline)
+            for value in (None, '', str(baseline),
+                          'data/experiments/m3/inputs/enriched_v1/../limits.json'):
+                cfg['limits_cache'] = value
+                with self.subTest(cache=value), self.assertRaisesRegex(ValueError, 'cache'):
+                    runner.limits_cache_path(cfg)
+
+    def test_ready_config_rejects_full_run_before_loading_data(self):
+        config = ROOT / 'configs/experiments/m3_strategy_enriched_v1.json'
+        with patch.object(sys, 'argv', ['run_m3', '--config', str(config), '--segment', 'development']), \
+                patch.object(runner, 'load_financial') as loader:
+            with self.assertRaisesRegex(SystemExit, 'only --targets-only'):
+                runner.main()
+            loader.assert_not_called()
+
+    def test_full_runner_passes_enriched_cache_to_limits_loader(self):
+        # A synthetic LOCKED fixture verifies wiring; the real config remains READY.
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            cfg, _, _, _ = self.fixture(root)
+            cfg.update(status='LOCKED', strategies=[], sharpe_allowed_segments=['final'])
+            config = root / 'config.json'
+            config.write_text(json.dumps(cfg), encoding='utf-8')
+            other = root / 'market_input'
+            other.write_text('fixture', encoding='utf-8')
+            with patch.object(runner, 'ROOT', root), \
+                    patch.object(inputs, 'BUNDLE', other), patch.object(inputs, 'BENCHMARK', other), \
+                    patch.object(inputs, 'CALENDAR', other), \
+                    patch.object(inputs, 'market_snapshots', return_value={}), \
+                    patch.object(inputs, 'calendar', return_value=['2024-03-29', '2024-04-30']), \
+                    patch.object(inputs, 'benchmark', return_value={'2024-04-30': 100}), \
+                    patch.object(runner, 'git_state', return_value=('fixture', False)), \
+                    patch.object(runner, 'PriceBook') as book, \
+                    patch.object(runner, 'load_limits', return_value={}) as limits, \
+                    patch.object(sys, 'argv', ['run_m3', '--config', str(config), '--segment', 'holdout',
+                                              '--skip-c8-prices-hash']), patch('builtins.print'):
+                book.return_value.flags = []
+                runner.main()
+                limits.assert_called_once_with(['2024-04-30'], cache=root / cfg['limits_cache'])
+            output = next((root / 'data/experiments/m3/holdout').iterdir())
+            manifest = json.loads((output / 'manifest.json').read_text(encoding='utf-8'))
+            self.assertEqual(manifest['limits_cache'], cfg['limits_cache'])
 
     def test_sqlite_special_character_path_is_read_only_and_missing_is_not_created(self):
         with TemporaryDirectory() as folder:

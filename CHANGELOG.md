@@ -1,5 +1,13 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-03: config thử nghiệm M3 enriched và cache riêng — 18/11/2026
+
+- Thêm config enriched ở trạng thái READY, pin hash thực tế C/D/models/availability.
+- Giữ toàn bộ quy tắc chiến lược baseline; cache riêng, chặn dùng lại cache baseline.
+- 13 tests nguồn/config/cache, 12 cutoff và 9 price-boundary đạt; compile và synthetic
+  smoke đạt. Hash/provenance bàn giao thật khớp, loader nhận FY2017–2024.
+- Chưa LOCKED hoặc chạy full backtest; readiness suite vẫn cần môi trường có scipy.
+
 ## R2-02: nguồn enriched xuyên runner M3 — 18/11/2026
 
 - Resolve nguồn từ `financial_data`; dùng chung SQLite cho scoring, ngành và hash.

@@ -1,0 +1,67 @@
+{
+  "version": "m3-strategy-enriched-v1",
+  "status": "READY_TO_LOCK_AFTER_BPIT",
+  "status_note": "R2-03: pin bo ban giao C/D; cho owner review D, feasibility, targets-only va verifier truoc khi LOCKED o R2-07. Chua cho phep full backtest.",
+  "decision": "D-M3-01",
+  "market_model": "bundle v4 model A (k=3, liquid stocks only)",
+  "financial_model": "B-PIT enriched v1: artifact D duoc pin; thu tu cum va cutoff doc tu models.json, khong chon lai bang performance.",
+  "financial_pit": {
+    "artifact": "data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01",
+    "labels_sha256": "384e36e4521700acb92c8bd69f38204f782e9ab269ba80fe18a6e283a6cf2e35",
+    "models_sha256": "7e8242c4df6958dfb4df32f1725e96c01c5c5aae4d91c40f3f8b1dd831987b08"
+  },
+  "market_rule": "leading",
+  "financial_rule": "not_weakest",
+  "market_criteria": {
+    "mom_126": true,
+    "downside_vol_63": false,
+    "liquidity_21": true
+  },
+  "market_criteria_note": "value = higher_is_better; downside_vol_63 false means lower is better (Q7)",
+  "financial_criteria": {
+    "roe": true,
+    "f_score": true,
+    "z_score": true
+  },
+  "combined_weight_market": 0.5,
+  "top_share": 0.3,
+  "n_min": 10,
+  "stale_months": 18,
+  "availability_lag_rule": "06-30",
+  "strategies": [
+    "combined",
+    "market_only",
+    "financial_only",
+    "equal_weight",
+    "momentum_only"
+  ],
+  "segments": {
+    "development": [
+      "2019-01-31",
+      "2023-12-29"
+    ],
+    "holdout": [
+      "2024-01-31",
+      "2025-12-31"
+    ]
+  },
+  "segment_end_dates": {
+    "development": "2023-12-29",
+    "holdout": "2025-12-31"
+  },
+  "costs_bps_one_way": [
+    0
+  ],
+  "cost_note": "Main run: cost 0, slippage 0 (mentor). 15/30 bps sensitivity is an extension, not part of the main run.",
+  "m2_k2_control": "candidate counts only (m3_stage0.py), no backtest",
+  "sharpe_allowed_segments": [
+    "final"
+  ],
+  "financial_data": {
+    "indicators_path": "data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/indicators.sqlite",
+    "indicators_sha256": "d0f7b4d80b7d1bc1da6a98738670ab480c1319794946e22bdfb626a1af1340e0",
+    "availability_path": "data/financial/disclosure_dates_v1/availability-4f0f83108e761dae/availability.csv",
+    "availability_sha256": "4f0f83108e761daeb86289e290de3aff0379abbf1ed630ac31c842146186648f"
+  },
+  "limits_cache": "data/experiments/m3/inputs/enriched_v1/limits.json"
+}
