@@ -52,6 +52,12 @@ class TestAssessmentResponseModels(unittest.TestCase):
         with self.assertRaises(ValidationError):
             AssessmentQuery.model_validate({'lookback_years': 10, 'as_of': '2020-01-01'})
 
+    def test_duplicate_feature_cannot_replace_a_whitelist_feature(self):
+        invalid = payload()
+        invalid['features'][-1]['feature_id'] = invalid['features'][0]['feature_id']
+        with self.assertRaises(ValidationError):
+            AssessmentResponse.model_validate(invalid)
+
 
 if __name__ == '__main__':
     unittest.main()
