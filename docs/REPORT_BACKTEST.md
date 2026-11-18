@@ -1102,6 +1102,38 @@ Trên **8.326 mã–FY chung**, ARI tổng thể giữa B-PIT gốc và B-PIT l�
 
 Các phép tính trong mục này chỉ đọc các artifact theo manifest và hash nêu trên. Không build lại, refit baseline, sửa config M3 hoặc đổi pin chính thức.
 
+### 3.31. Đối sánh M3 theo segment (R4-02)
+
+Các bảng dưới đây tổng hợp đầu ra đã seal của Người 2 cho Combined, Financial-only và bốn strategy đối chứng/benchmark. Nguồn là [báo cáo kỹ thuật M3](../M3/reports/BAO_CAO_KY_THUAT_M3.md), CSV canonical trong [danh mục đầu ra và pins](../M3/outputs/manifest.json), cùng hai run [Development](../M3/outputs/development/20261104T121107Z-5557288c/) và [Holdout](../M3/outputs/holdout/20261104T133507Z-5557288c/). Hai run dùng source commit `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`, config SHA256 `b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d` và dataset revision `08c24867b11177072bfe457a4623a38abf9bbc48`; seal hashes lần lượt là `39784248f3777700ebc0261ef53f20053bc4429920785472bba416150e902661` và `f54ea2fb1d0da107d684178c541c9f9c634a11f4de463ad4352e4967ec152cbc`. Đã đối chiếu SHA256 toàn bộ 64 CSV trong manifest với các file được công bố.
+
+**Quy ước bảng:** N ứng viên là trung vị (min–max) số dòng `in_candidate_universe=True` mỗi decision date. `Chọn/giữ` là số mã mục tiêu trung bình (min–max) mỗi quyết định / số mã thực giữ trung bình (min–max) mỗi execution; số mã giữ loại `CASH`. Vì Dev có 60 quyết định/59 execution và Holdout có 24/23, mẫu số của hai phần có thể khác. Cash là `avg_cash_after_trading`. Lệnh đã khớp BUY/SELL đếm các dòng `EXECUTED` hoặc `SCALED`; lệnh lỗi đếm riêng `BUY_FAILED`/`SELL_FAILED`; `SCALED` được tách riêng để giữ rõ các lệnh khớp một phần. Đây là số sự kiện/lệnh, không phải số mã duy nhất. NAV lấy từ điểm đầu và cuối của từng chuỗi; return là tổng lợi suất; drawdown là `max_drawdown` theo các điểm NAV được lưu.
+
+#### Development — run `20261104T121107Z-5557288c`
+
+| Strategy | N ứng viên: median (min–max) | Chọn/giữ: mean (min–max) | Cash TB | Lệnh khớp BUY/SELL | Lệnh lỗi BUY/SELL | `SCALED` | NAV đầu → cuối | Tổng return | Max drawdown |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Combined | 27 (3–215) | 12,90 (0–65) / 12,59 (0–64) | 22,40% | 577 / 564 | 47 / 33 | 263 | 1,0000 → 2,1615 | 116,15% | -44,60% |
+| Financial-only | 140 (25–424) | 66,87 (8–128) / 66,22 (11–126) | 1,02% | 2.137 / 1.807 | 267 / 280 | 1.301 | 1,0000 → 1,4074 | 40,74% | -27,20% |
+| Market-only | 61 (12–266) | 26,58 (4–80) / 25,78 (4–82) | 6,22% | 1.153 / 1.138 | 96 / 62 | 537 | 1,0000 → 2,2881 | 128,81% | -47,88% |
+| Equal-weight | 416,5 (246–631) | 427,45 (246–631) / 432,86 (253–587) | 0,48% | 13.770 / 10.415 | 1.836 / 2.027 | 11.115 | 1,0000 → 2,5903 | 159,03% | -37,01% |
+| Momentum-only | 416,5 (246–631) | 128,70 (74–190) / 129,08 (77–177) | 1,47% | 4.483 / 4.327 | 661 / 739 | 2.735 | 1,0000 → 2,6973 | 169,73% | -33,71% |
+
+#### Holdout — run `20261104T133507Z-5557288c`
+
+| Strategy | N ứng viên: median (min–max) | Chọn/giữ: mean (min–max) | Cash TB | Lệnh khớp BUY/SELL | Lệnh lỗi BUY/SELL | `SCALED` | NAV đầu → cuối | Tổng return | Max drawdown |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Combined | 30 (4–97) | 10,75 (0–30) / 11,09 (2–28) | 8,92% | 203 / 168 | 17 / 23 | 93 | 1,0000 → 1,3895 | 38,95% | -26,27% |
+| Financial-only | 236 (15–426) | 71,08 (5–128) / 71,70 (13–119) | 2,54% | 1.194 / 567 | 123 / 96 | 614 | 1,0000 → 1,2837 | 28,37% | -3,95% |
+| Market-only | 114,5 (50–252) | 34,50 (15–76) / 34,22 (15–77) | 3,75% | 618 / 582 | 40 / 25 | 254 | 1,0000 → 1,2243 | 22,43% | -18,91% |
+| Equal-weight | 767,5 (636–817) | 753,62 (636–817) / 771,09 (589–837) | 0,47% | 10.140 / 6.321 | 1.073 / 1.169 | 9.019 | 1,0000 → 1,2953 | 29,53% | -7,40% |
+| Momentum-only | 767,5 (636–817) | 226,62 (191–246) / 230,00 (174–258) | 0,82% | 3.176 / 2.730 | 409 / 464 | 2.430 | 1,0000 → 1,4137 | 41,37% | -8,92% |
+
+VNINDEX là benchmark riêng, không có N/cash/lệnh danh mục: Development có NAV `1,0000 → 1,2435`, tổng return **24,35%**, max drawdown **-33,02%**; Holdout có NAV `1,0000 → 1,5213`, tổng return **52,13%**, max drawdown **-5,87%**. Các số được tính trên cùng các ngày valuation của từng segment; nguồn benchmark nằm trong [CSV Development](../M3/outputs/development/20261104T121107Z-5557288c/benchmark_vnindex.csv) và [CSV Holdout](../M3/outputs/holdout/20261104T133507Z-5557288c/benchmark_vnindex.csv).
+
+**Cơ sở giá và giới hạn:** NAV mỗi segment được khởi tạo độc lập bằng 1; không ghép chuỗi Dev và Holdout. Strategy dùng vendor-adjusted close làm adjusted-return proxy, trong khi VNINDEX là price index nên cơ sở return và drawdown không tương đương; chưa xác nhận proxy là total-return chuẩn. Drawdown chỉ đo tại ngày valuation theo kỳ, không phải daily drawdown. Cash không sinh lãi, phí và slippage bằng 0; các lệnh `SCALED`, lệnh lỗi và mark `PRICE_STALE` vẫn được giữ trong số liệu. Giới hạn vintage/revision financial tại Mục 3.2 tiếp tục áp dụng. Không báo Sharpe cho Development hoặc Holdout.
+
+**Kết quả bất lợi được giữ nguyên:** trong Development, Combined có return thấp hơn Market-only, Equal-weight và Momentum-only; trong Holdout, Combined thấp hơn Momentum-only và VNINDEX về tổng return, đồng thời drawdown sâu hơn mọi strategy đối chứng và VNINDEX. Các con số mô tả kết quả của các strategy đã khóa, không chứng minh đóng góp nhân quả của phân cụm hay hiệu quả sau chi phí.
+
 ## 4. Công việc còn lại và gate chuyển bước
 
 | Thứ tự | Công việc | Điều kiện hoàn tất |
