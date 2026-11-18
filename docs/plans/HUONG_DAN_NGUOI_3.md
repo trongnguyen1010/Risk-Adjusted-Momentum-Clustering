@@ -6,6 +6,31 @@
 
 ---
 
+## Bảng tiến độ Người 3
+
+> Cập nhật một dòng ngay khi bắt đầu hoặc hoàn tất task. `PASS` chỉ được ghi sau khi
+> targeted test và self-review đạt; mỗi task hoàn tất có đúng một commit riêng.
+
+| Task | Giai đoạn | Trạng thái | Commit | Ghi chú ngắn |
+|---|---|---|---|---|
+| R3-14 | S3 | PASS | `feat(assessment): Xây dựng validator kiểm tra toàn vẹn artifact` | Unit + integration + artifact thật đều PASS; commit SHA ghi trong `git log`. |
+| R3-01 | S4 | CHƯA MỞ | — | Chờ R3-14 được nghiệm thu. |
+| R3-02 | S4 | CHƯA MỞ | — | Chờ R3-01. |
+| R3-07 | S4 | CHƯA MỞ | — | Chờ R3-14 được nghiệm thu. |
+| R3-03 | S4 | CHƯA MỞ | — | Chờ R3-02 và R3-07. |
+| R3-04 | S4 | CHƯA MỞ | — | Chờ R3-03. |
+| R3-08 | S4 | CHƯA MỞ | — | Chờ R3-04 và R3-07. |
+| R3-05 | S4 | CHƯA MỞ | — | Chờ R3-08. |
+| R3-06 | S4 | CHƯA MỞ | — | Chờ R3-08 và R3-07. |
+| R3-09 | S4 | CHƯA MỞ | — | Chờ R3-05 và R3-06. |
+| R3-10 | S4 | CHƯA MỞ | — | Chờ R3-09. |
+| R3-11 | S4 | CHƯA MỞ | — | Chờ R3-10. |
+| R3-12 | S4 | CHƯA MỞ | — | Chờ R3-11. |
+| R3-13 | S4 | CHƯA MỞ | — | Chờ R3-12. |
+| R3-15 | S4 | CHƯA MỞ | — | Chờ R3-13. |
+
+---
+
 ## Quy chuẩn làm việc và Commit (Bắt buộc)
 
 1. **Nguyên tắc Atomic Commit (1 Task = ĐÚNG 1 Commit riêng biệt):**
