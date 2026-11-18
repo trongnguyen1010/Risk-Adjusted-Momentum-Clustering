@@ -15,7 +15,7 @@
 |---|---|---|---|---|
 | R3-14 | S3 | PASS | `feat(assessment): Xây dựng validator kiểm tra toàn vẹn artifact` | Unit + integration + artifact thật đều PASS; commit SHA ghi trong `git log`. |
 | R3-01 | S4 | PASS | `feat(assessment): Cấu hình đọc bản phát hành Assessment` | Config và resolver đều pin run cụ thể; test + resolve artifact thật PASS. |
-| R3-02 | S4 | CHƯA MỞ | — | Chờ R3-01. |
+| R3-02 | S4 | PASS | `feat(assessment): Kiểm manifest khi mở artifact phục vụ API` | Manifest, hash file serving và pin nguồn/revision được fail-closed. |
 | R3-07 | S4 | CHƯA MỞ | — | Chờ R3-14 được nghiệm thu. |
 | R3-03 | S4 | CHƯA MỞ | — | Chờ R3-02 và R3-07. |
 | R3-04 | S4 | CHƯA MỞ | — | Chờ R3-03. |

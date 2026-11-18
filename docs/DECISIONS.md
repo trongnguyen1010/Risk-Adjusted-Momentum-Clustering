@@ -8,8 +8,10 @@ Product Assessment chỉ được mở artifact được pin rõ trong
 `required_price_session=2025-12-31`; revision/context là metadata release, không
 phải tham số người dùng. Khi config, pointer hoặc thư mục artifact không hợp lệ,
 reader trả `NOT_READY`; không được tự chọn baseline, sibling run hoặc run mới nhất.
-Kiểm manifest/hash và nạp payload vẫn thuộc các stage kế tiếp, nên quyết định này
-không tự mở serving, research hoặc current assessment.
+Khi mở release, Product bắt buộc đối chiếu manifest SHA-256, version/as-of,
+deterministic content hash, ba source pin và bốn file serving với các pin trong
+config; khác revision hoặc bất kỳ hash nào đều `NOT_READY`. Nạp payload/schema vẫn
+thuộc stage kế tiếp. Cơ chế này không tự mở serving, research hoặc current assessment.
 
 ## 2026-11-11 — chấp nhận TNCK7/Mekong6, overlay Product/M3 pilot V2
 

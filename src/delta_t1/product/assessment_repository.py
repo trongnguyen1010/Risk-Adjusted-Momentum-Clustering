@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import re
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
@@ -18,14 +20,22 @@ REQUIRED_FIELDS = frozenset(
         "release_status",
         "release_id",
         "release_revision",
+        "artifact_version",
         "artifact_dir",
         "assessment_context",
         "as_of",
         "required_price_session",
         "evidence_cutoff_at",
         "verification_status",
+        "policy_revision",
+        "manifest_sha256",
+        "deterministic_content_sha256",
+        "input_hashes",
     }
 )
+REQUIRED_INPUT_HASHES = frozenset({"indicators_sqlite_sha256", "availability_csv_sha256", "bpit_labels_csv_sha256"})
+REQUIRED_SERVING_FILES = frozenset({"assessments.jsonl", "peer_benchmarks.csv", "coverage.csv", "feature_history.jsonl"})
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 @dataclass(frozen=True)
@@ -34,12 +44,17 @@ class AssessmentRelease:
 
     release_id: str
     release_revision: str
+    artifact_version: str
     artifact_dir: Path
     assessment_context: str
     as_of: str
     required_price_session: str
     evidence_cutoff_at: str | None
     verification_status: str
+    policy_revision: str
+    manifest_sha256: str
+    deterministic_content_sha256: str
+    input_hashes: dict[str, str]
 
 
 @dataclass(frozen=True)
@@ -67,6 +82,18 @@ def _valid_date(value: Any) -> bool:
     except ValueError:
         return False
     return True
+
+
+def _valid_sha256(value: Any) -> bool:
+    return isinstance(value, str) and SHA256_RE.fullmatch(value) is not None
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _not_ready(reason: str) -> AssessmentReleaseResolution:
@@ -103,7 +130,10 @@ def resolve_assessment_release(
     if config.get("release_status") != "RELEASED":
         return _not_ready("RELEASE_NOT_PUBLISHED")
 
-    text_fields = ("release_id", "release_revision", "artifact_dir", "assessment_context", "verification_status")
+    text_fields = (
+        "release_id", "release_revision", "artifact_version", "artifact_dir", "assessment_context",
+        "verification_status", "policy_revision", "manifest_sha256", "deterministic_content_sha256",
+    )
     if any(not isinstance(config.get(field), str) or not config[field].strip() for field in text_fields):
         return _not_ready("RELEASE_POINTER_INVALID")
     if config["assessment_context"] not in VALID_CONTEXTS:
@@ -113,6 +143,13 @@ def resolve_assessment_release(
     cutoff = config["evidence_cutoff_at"]
     if cutoff is not None and (not isinstance(cutoff, str) or not cutoff.strip()):
         return _not_ready("RELEASE_CUTOFF_INVALID")
+    if not _valid_sha256(config["manifest_sha256"]) or not _valid_sha256(config["deterministic_content_sha256"]):
+        return _not_ready("RELEASE_HASH_PIN_INVALID")
+    input_hashes = config["input_hashes"]
+    if not isinstance(input_hashes, dict) or set(input_hashes) != REQUIRED_INPUT_HASHES:
+        return _not_ready("SOURCE_PIN_MISSING")
+    if any(not _valid_sha256(value) for value in input_hashes.values()):
+        return _not_ready("SOURCE_PIN_INVALID")
 
     configured_artifact = Path(config["artifact_dir"])
     if configured_artifact.is_absolute():
@@ -129,11 +166,70 @@ def resolve_assessment_release(
         release=AssessmentRelease(
             release_id=config["release_id"],
             release_revision=config["release_revision"],
+            artifact_version=config["artifact_version"],
             artifact_dir=artifact_dir,
             assessment_context=config["assessment_context"],
             as_of=config["as_of"],
             required_price_session=config["required_price_session"],
             evidence_cutoff_at=cutoff,
             verification_status=config["verification_status"],
+            policy_revision=config["policy_revision"],
+            manifest_sha256=config["manifest_sha256"],
+            deterministic_content_sha256=config["deterministic_content_sha256"],
+            input_hashes=dict(input_hashes),
         ),
     )
+
+
+def _validate_opened_artifact(release: AssessmentRelease) -> str | None:
+    """Verify the release pins and serving files without calculating any assessment."""
+
+    if release.verification_status != "PASS":
+        return "RELEASE_NOT_VERIFIED"
+    manifest_path = release.artifact_dir / "manifest.json"
+    if not manifest_path.is_file():
+        return "MANIFEST_NOT_FOUND"
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return "MANIFEST_INVALID"
+    if not isinstance(manifest, dict):
+        return "MANIFEST_INVALID"
+    if _sha256_file(manifest_path) != release.manifest_sha256:
+        return "MANIFEST_HASH_MISMATCH"
+    if manifest.get("version") != release.artifact_version:
+        return "ARTIFACT_VERSION_MISMATCH"
+    if manifest.get("as_of") != release.as_of:
+        return "ARTIFACT_AS_OF_MISMATCH"
+    if manifest.get("deterministic_content_sha256") != release.deterministic_content_sha256:
+        return "CONTENT_HASH_PIN_MISMATCH"
+    if manifest.get("input_hashes") != release.input_hashes:
+        return "SOURCE_PIN_MISMATCH"
+
+    output_files = manifest.get("output_files")
+    if not isinstance(output_files, dict) or not REQUIRED_SERVING_FILES.issubset(output_files):
+        return "SERVING_FILES_UNPINNED"
+    for filename in REQUIRED_SERVING_FILES:
+        expected_hash = output_files.get(filename)
+        payload_path = release.artifact_dir / filename
+        if not _valid_sha256(expected_hash):
+            return "SERVING_FILE_HASH_INVALID"
+        if not payload_path.is_file():
+            return "SERVING_FILE_NOT_FOUND"
+        if _sha256_file(payload_path) != expected_hash:
+            return "SERVING_FILE_HASH_MISMATCH"
+    return None
+
+
+def open_assessment_release(
+    config_path: Path | str | None = None,
+    *,
+    repository_root: Path | str | None = None,
+) -> AssessmentReleaseResolution:
+    """Open only a fully pinned release; reject tampered or mismatched artifacts."""
+
+    resolution = resolve_assessment_release(config_path, repository_root=repository_root)
+    if not resolution.ready:
+        return resolution
+    reason = _validate_opened_artifact(resolution.release)
+    return resolution if reason is None else _not_ready(reason)
