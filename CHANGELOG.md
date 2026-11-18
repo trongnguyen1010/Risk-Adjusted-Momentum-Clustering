@@ -1,5 +1,19 @@
 # Chưa phát hành — Baseline financial full10 (2026-10-23)
 
+## R2-05: regression giá/cutoff/targets — 18/11/2026
+
+- Thêm 5 tests, giữ toàn bộ assertions cũ: k=3/4/8 theo frozen order/cutoff, append FY
+  tương lai không đổi targets/audit; full Development synthetic enriched k=4/8 có
+  targets/audit/ledger/holdings/turnover/NAV/metrics giữ nguyên bytes khi append giá,
+  lịch, benchmark và market snapshot ngoài segment.
+- Kiểm kỳ cuối NOT_EXECUTED_SEGMENT_END, NAV chốt 2023-12-29, Q17 sửa trong segment,
+  hash nguồn bất biến, không Sharpe; thiếu limits giữ tiền mặt/failed trades/scaling,
+  N nhỏ bán mã bị loại nhưng không tái đầu tư phần tiền mặt.
+- Toàn bộ 81 tests M3 đạt, không skip; compile, pip check và synthetic smoke đạt.
+  Môi trường riêng `.venv-m3` trên ổ D: Python 3.12, numpy 2.2.6, scipy 1.15.3,
+  scikit-learn 1.6.1. Đã chạy được readiness suite từng thiếu scipy; không sửa Python
+  global, không đổi production code/config hoặc chạy backtest trên dữ liệu thật.
+
 ## R2-04: thêm --config cho feasibility — 18/11/2026
 
 - Dùng cùng resolver, B-PIT loader/pins, SQLite ngành/scoring và availability với runner.
