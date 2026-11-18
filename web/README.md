@@ -31,6 +31,10 @@ Mặc định local, Render và `publish_hf_data.py` dùng bundle v4 (phân cụ
 
 Test API cần FastAPI: `python -m venv --system-site-packages .venv-web` rồi `pip install -r web/backend/requirements.txt`.
 
+## Assessment API local smoke
+
+`GET /api/v2/stocks/{ticker}/assessment` chỉ đọc release đã verify, không là deploy production. Spec local: `docs/api/OPENAPI_ASSESSMENT_SPEC.json`; context demo là `SIMULATED_AS_OF`.
+
 
 ## Bổ sung EPS theo năm/quý và trải nghiệm chỉ số
 
