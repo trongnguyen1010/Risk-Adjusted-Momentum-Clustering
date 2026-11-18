@@ -1,10 +1,12 @@
 """Executable table contracts (project format, NOT a JSON Schema validator)."""
 import math
 from datetime import date, datetime
+from functools import lru_cache
 from importlib.resources import files
 import json
 
 
+@lru_cache(maxsize=None)
 def schema(table):
     return json.loads(files("delta_t1").joinpath("schemas", table + ".json").read_text(encoding="utf-8"))
 

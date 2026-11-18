@@ -1,0 +1,64 @@
+{
+  "version": "bpit_enriched_v1",
+  "description": "Cấu hình thử nghiệm phân cụm tài chính B-PIT trên tập dữ liệu làm giàu (Stage D: Task R1-07)",
+  "scope": {
+    "fiscal_years_selection": [2017, 2018, 2019, 2020, 2021, 2022],
+    "fiscal_years_validation": [2023, 2024],
+    "cutoff_selection_end": "2023-12-29"
+  },
+  "inputs": {
+    "indicators_enriched_path": "data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/indicators.sqlite",
+    "availability_path": "data/financial/disclosure_dates_v1/availability-4f0f83108e761dae/availability.csv",
+    "baseline_bpit_path": "data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec"
+  },
+  "features": [
+    "roe",
+    "roa",
+    "gross_margin",
+    "net_margin",
+    "debt_to_equity",
+    "current_ratio",
+    "asset_turnover",
+    "revenue_growth",
+    "cfo_to_ni"
+  ],
+  "loader": {
+    "opt_in_statuses": ["OK", "IMPUTED_MEDIAN"],
+    "sector_group": "NON_FINANCIAL"
+  },
+  "algorithms": {
+    "kmeans": {
+      "n_init": 10
+    },
+    "pca_kmeans": {
+      "variance": 0.8,
+      "n_init": 10
+    },
+    "ward": {
+      "linkage": "ward"
+    },
+    "gmm": {
+      "covariance_type": "full",
+      "n_init": 2,
+      "reg_covar": 0.0001,
+      "max_iter": 300
+    }
+  },
+  "k_candidates": [3, 4, 5, 6, 7, 8],
+  "seed": 42,
+  "stability": {
+    "subsample": 0.9,
+    "seeds": [1, 2, 3]
+  },
+  "admissible": {
+    "min_cluster_share": 0.05,
+    "share_of_snapshots": 0.8,
+    "median_stability": 0.8
+  },
+  "control": {
+    "algorithm": "kmeans",
+    "k": 3,
+    "seed": 42,
+    "n_init": 10
+  }
+}

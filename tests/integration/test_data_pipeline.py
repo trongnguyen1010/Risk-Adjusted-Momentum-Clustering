@@ -14,7 +14,10 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 from delta_t1.contracts import coerce, normalize, schema, validate_rows
 from delta_t1.features.market import momentum, returns, drawdown, build_features
-from delta_t1.features.compatibility import project_legacy_snapshot, validate_legacy_feature_snapshots
+from delta_t1.features.compatibility import (
+    project_legacy_snapshot, validate_legacy_1_4_feature_snapshots,
+    validate_legacy_feature_snapshots,
+)
 from delta_t1.ingestion.crawler import crawl
 from delta_t1.ingestion.quality import clean_tables
 from delta_t1.ingestion.sources.base import HttpClient, json_page
@@ -190,13 +193,44 @@ class PipelineTests(unittest.TestCase):
         self.assertNotIn('sharpe_126',last)
         self.assertTrue(last['eligibility'])
 
+    def test_provisional_identity_does_not_block_market_feature_readiness(self):
+        tables = copy.deepcopy(self.tables)
+        for row in tables['securities']:
+            row['identity_status'] = 'provisional'
+        result = build_features(tables, self.config['features'], 'provisional-test')
+        ready = [row for row in result if row['market_feature_ready']]
+        self.assertTrue(ready)
+        self.assertTrue(all(row['feature_complete'] for row in ready))
+        self.assertTrue(all(not row['historical_identity_ready'] for row in ready))
+        self.assertTrue(all(not row['research_ready'] for row in ready))
+        self.assertTrue(all(not row['eligibility'] for row in ready))
+        self.assertTrue(all(
+            row['na_reason'].get('historical_identity')
+            == 'provisional_observed_interval_only' for row in ready
+        ))
+
     def test_legacy_sharpe_snapshot_has_explicit_read_only_path(self):
-        legacy = dict(self.features[0], feature_version='1.3.0',
+        readiness_fields = {
+            'feature_complete', 'market_feature_ready',
+            'historical_identity_ready', 'research_ready',
+        }
+        legacy = dict({key: value for key, value in self.features[0].items()
+                       if key not in readiness_fields}, feature_version='1.3.0',
                       sharpe_63=None, sharpe_126=None)
         validate_legacy_feature_snapshots([legacy])
         projected = project_legacy_snapshot(legacy)
         self.assertNotIn('sharpe_63', projected)
         self.assertIn('mom_63', projected)
+
+    def test_legacy_1_4_snapshot_has_explicit_read_only_validation(self):
+        readiness_fields = {
+            'feature_complete', 'market_feature_ready',
+            'historical_identity_ready', 'research_ready',
+        }
+        legacy = {key: value for key, value in self.features[0].items()
+                  if key not in readiness_fields}
+        legacy['feature_version'] = '1.4.0'
+        validate_legacy_1_4_feature_snapshots([legacy])
 
     def test_market_contract_has_exchange_price_fields_and_qc(self):
         fields = schema('prices_daily')['fields']

@@ -1,33 +1,268 @@
-# Tài liệu DELTA — START HERE
+# Documentation — START HERE
 
-Đọc theo thứ tự onboarding sau:
+## Kế hoạch triển khai B-PIT và đánh giá đầu tư — bản nháp 16/11/2026
 
-1. [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) — mục tiêu và hai track.
-2. [PROJECT_MAP.md](PROJECT_MAP.md) — vị trí, milestone, trạng thái và dependency của từng component.
-3. [ROADMAP.md](ROADMAP.md) — gates M1, M2, M3.
-4. [ARCHITECTURE.md](ARCHITECTURE.md) — boundaries và data flow.
+[Kế hoạch triển khai B-PIT và hệ thống đánh giá đầu tư](plans/KE_HOACH_TRIEN_KHAI_B_PIT_VA_DANH_GIA_DAU_TU.md)
+chi tiết hóa hai kế hoạch nguồn B-PIT/M3 và Investment Assessment thành công việc
+cho Người 1–4, có dependency, file, đầu ra và kiểm tra. Giữ nguyên quy tắc và
+điều kiện chuyển bước của tài liệu nguồn; bản phân công chưa phải bằng chứng thực thi.
 
-## Data và feature
+## M3-C — tái lập Dev/Holdout và báo cáo kỹ thuật, 04/11/2026
 
-- [DATA_CONTRACT.md](DATA_CONTRACT.md)
-- [DATA_PIPELINE.md](DATA_PIPELINE.md)
-- [crawl/README.md](crawl/README.md) — **START HERE** cho source discovery, collection, smoke testing và team crawling.
-- [crawl/REPRESENTATIVE_PILOT.md](crawl/REPRESENTATIVE_PILOT.md) — official pilot runner, universe contract, dry-run và gate.
-- [FEATURE_SYSTEM.md](FEATURE_SYSTEM.md)
+Hướng dẫn chạy notebook (đã gộp vào notebook, file riêng xóa 04/11),
+[báo cáo kỹ thuật](../M3/reports/BAO_CAO_KY_THUAT_M3.md) và
+[tiến độ thực hiện](REPORT_BACKTEST.md) dùng hai run M3-A đã seal.
+Notebook 01–03 tái lập dữ liệu/PIT, lựa chọn danh mục, backtest và VNINDEX bằng module chính thức.
+Mã điều phối nằm trực tiếp trong notebook: chọn kernel theo hướng dẫn rồi Run All, không cần helper `.py` trong `M3`.
+Notebook 04 chưa chạy vì Final thiếu dữ liệu 2026; M3-C tổng thể còn `PARTIAL`.
 
-## Research và evaluation
+[Kết quả CSV đã công bố trong Git](../M3/outputs/README.md): 62 CSV canonical Dev/Holdout và hai CSV
+Combined dễ đọc, tổng 64 tệp. Danh mục SHA256 và receipt tải lại từ GitHub nằm cùng thư mục outputs.
 
-- [METHODOLOGY.md](METHODOLOGY.md)
-- [EVALUATION_AND_BACKTEST.md](EVALUATION_AND_BACKTEST.md)
-- [research/RESEARCH_QUESTIONS.md](research/RESEARCH_QUESTIONS.md)
-- [research/LITERATURE_MATRIX.md](research/LITERATURE_MATRIX.md)
-- [research/EXPERIMENT_PROTOCOL.md](research/EXPERIMENT_PROTOCOL.md)
-- [research/DYNAMIC_CLUSTERING_REVIEW.md](research/DYNAMIC_CLUSTERING_REVIEW.md)
+## Corporate actions trên nhánh Indicators — cập nhật 06/11/2026
 
-## Product và vận hành
+[Nhật ký kết quả từng bước](NHAT_KY_CORPORATE_ACTIONS.md) tổng hợp theo thứ tự thực
+hiện: mục tiêu, kết quả, kiểm tra, evidence, phần còn thiếu và bước tiếp theo.
 
-- [PRODUCT.md](PRODUCT.md)
-- [REPRODUCIBILITY.md](REPRODUCIBILITY.md)
-- [DECISIONS.md](DECISIONS.md)
+**Cập nhật ORS 06/11/2026:** đã lưu đủ toàn văn 85/85 bài trong snapshot tìm kiếm;
+inventory V3 gồm 20 HTTP raw và 65 rendered text, không còn bài thiếu nội dung
+hoặc chỉ có fields. Nội dung xác nhận 31 bài cổ phiếu ORS và 54 bài trái phiếu.
+Ba candidate cổ tức/quyền mua chưa áp dụng canonical. Xem phạm vi và bước tiếp theo trong
+[trạng thái hiện tại](CURRENT_STATUS.md).
 
-`data/kbs_pilot_semantics.md` là legacy evidence bắt buộc giữ nguyên path, không phải hướng dẫn phát triển hiện tại. Git history là archive; không tạo thư mục archive cho tài liệu superseded.
+**Review sự kiện ORS:** đã có ex-date trực tiếp cho cả ba candidate. Bước 11 bổ
+sung PDF gốc HOSE 79 khớp hash copy cũ, kết quả phân phối 2024 và PDF HNX về đăng
+ký/giao dịch bổ sung 2021 trên host doanh nghiệp. Đã tách giá phân phối lại phần
+dư 11.000 khỏi giá quyền mua 10.000 đồng/CP. Readiness còn PARTIAL: thiếu thông báo
+HNX về ex-date, chưa chứng nhận đầy đủ revision; cần review hai discrepancy nguồn.
+**Bước 12:** đã lập [packet quyết định offline](../data/corporate_actions/work/ors_three_event_decision_packet_20261106_v1/ORS_DECISION_PACKET.md)
+gồm 54 dòng field, 22 tham chiếu nguồn và sáu lựa chọn D01–D06 để owner review.
+Gửi 0 request mới, chưa ghi quyết định hoặc áp dụng canonical.
+**Bước 13:** [đề xuất ủy quyền tự review](../data/corporate_actions/work/ors_review_delegation_proposal_20261106_v1/QUY_TAC_UY_QUYEN_REVIEW.md)
+thay việc owner chọn từng field bằng agent tự kiểm chứng và giữ ngoại lệ unresolved.
+Đề xuất chưa bật pipeline/canonical.
+**Bước 14:** owner đã chỉ định [quy tắc nguồn thứ ba](../data/corporate_actions/work/ors_third_source_rule_20261106_v1/QUY_TAC_NGUON_THU_BA.md):
+nguồn thứ ba độc lập khớp một trong hai nguồn đang khác nhau thì chọn giá trị
+được xác nhận, giữ nguồn bất đồng. Quy tắc không cần duyệt lại.
+**Bước 15:** [đối chiếu xong hai conflict ORS](../data/corporate_actions/work/ors_third_source_resolution_20261106_v1/KET_QUA_DOI_CHIEU.md):
+chọn một CP cũ nhận một quyền/hai quyền mua một CP mới (VSDC+HOSE) và1.000 tỷ
+phần đăng ký bổ sung2021 (HNX+VSDC143656). Giữ nguồn bất đồng, selection receipt
+riêng và các gate canonical/PIT/identity chưa mở.
+**Bước16:** [workflow đối chiếu offline đã chạy](../data/corporate_actions/work/ors_third_source_reconcile_20261106_v1/KET_QUA_TICH_HOP.md)
+tự tính lại chọn2/2 từ A/B/C đã pin; có unresolved queue và guards,78 targeted
+tests/compileall/synthetic smoke đạt. Chưa tự tìm nguồn/đọc PDF; canonical vẫn tắt.
+Xem bước10–16 trong
+[nhật ký kết quả](NHAT_KY_CORPORATE_ACTIONS.md).
+
+CLI hiện hành là `scripts/corporate_actions/collect_vsdc_recovery_supervisor_v7.py`,
+supervisor V7 chạy worker V6 đã freeze. Xem hướng dẫn bên dưới cho lệnh chạy và pause.
+
+Code/config và tests corporate action được chuyển từ `m3-backtest@8827ebf` sang
+`feature/indicators-v1`. Nhật ký thực hiện hiện có trong
+[trạng thái hiện tại](CURRENT_STATUS.md): chuyển nhánh, phiên V7, đối chiếu danh
+sách ORS, kiểm kê cache và bổ sung toàn văn. Các mốc prefix 616 mã/preparation V6
+là lịch sử; review offline V7 đã đạt 1.072/1.072 query trong scope. Dữ liệu local
+ở `data/corporate_actions/work`. [Changelog](../CHANGELOG.md) tóm tắt các thay đổi.
+
+**Stage tiếp theo đề xuất:** owner review ba hồ sơ ORS, quyết định nguồn/trường và
+yêu cầu bổ sung lineage còn thiếu trước khi xét canonical. Phạm vi và kết quả đã
+ghi ở đầu [trạng thái hiện tại](CURRENT_STATUS.md). Hai tài liệu từng được
+dẫn dưới `M3/` (`CORPORATE_ACTIONS_V1_COLLECTION_GUIDE.md` và
+`NHAT_KY_THU_THAP_VA_XU_LY_CORPORATE_ACTIONS_20261102.md`) không có trong checkout
+hiện tại; không dùng các đường dẫn đó làm điểm bàn giao.
+
+## Hướng chính thức (D-DIR-01, 26/10/2026)
+
+- **Phân cụm thị trường (M2):** mô hình A của bundle web v4 — 9 đặc trưng, lọc thanh khoản nhẹ, log + cắt đuôi +
+  z-score, K-Means k=3 học trên mã có giao dịch (chọn bằng `clustering_rework_v2`; chọn lại chỉ trên 2019–2023 vẫn k=3).
+- **Phân cụm tài chính:** mô hình B của bundle v4 (9 chỉ số, k=3, chưa đạt ngưỡng ổn định — giới hạn đã ghi).
+- **M3:** `M3/M3_PLAN.md`, đọc A/B v4 + Indicators v1 + ngày công bố CafeF.
+- **Hướng cũ (LEGACY, chỉ làm đối chứng/tái lập):** bàn giao M2 K=2 trong `M2/`, báo cáo `Bao_cao_M2_Nhiem_vu_4.*`,
+  dashboard Streamlit `m3_dashboard.py`, web cũ `web/index.html|app.js|styles.css`. Giữ nguyên đường dẫn vì code/test
+  cũ còn đọc; không dùng làm input cho việc mới.
+- Bằng chứng: `artifacts/reports/m2-vs-rework-v1/report.md`.
+
+Các mục bên dưới là lịch sử theo thời gian; khi mâu thuẫn, mục này được ưu tiên.
+
+## Kế hoạch nâng cấp DELTA Intelligence — 24/10/2026
+
+[Review và plan chi tiết: dữ liệu sáu chỉ số, phân cụm và UI/UX](DELTA_UPGRADE_PLAN.md).
+Đã triển khai UI/data adapters local và execute R1 theo yêu cầu owner; xem **§11**
+trong plan để đọc trạng thái từng stage, evidence và giới hạn. Audit có 87 unique
+numeric observations/11 mã; R1 757 models được independent verifier PASS, chưa promote; 202 snapshots P1/P3 đã nối research preview.
+Browser gate 25 responsive cases PASS; full suite 984 tests còn một fixture legacy thiếu.
+Source/peer review, ba người nghiệm thu usability và public release vẫn chưa hoàn tất.
+
+## Execution59 — DELTA Intelligence demo web — 24/10/2026
+
+[Hướng dẫn chạy và ma trận prompt → implementation](../web/README.md).
+Next.js + FastAPI đọc presentation SQLite từ A/B/C, 5 modules, global search,
+time machine, migration alignment, price history, financial matrix và provenance.
+Targeted API 10 tests PASS; production build PASS; actual-bundle verification PASS
+(101 snapshots, 219 profiles, 3.214.287 prices, 22 source hashes). Full gate 240s
+vẫn PARTIAL tại crawl fixture, 254 tests OK trước timeout. Không mở research/PIT/M3 gates.
+
+## Execution58 — A/B đối chiếu và C kết hợp đã chạy — 24/10/2026
+
+Đã giữ A market-only (168 profiles/84tháng) và B financial-only (30 profiles/10năm)
+riêng, tạo bảng đối chiếu và chạy C theo cấu hình owner đã duyệt trong chat.
+C:14features, z-score từng năm trên common cohort, blockweights50/50,
+KMeans k3/seed42/n_init20/max_iter300, no clipping/PCA/imputation. 7 models hội tụ,
+5.593assignments trên2019–2025; independent verification PASS. C2025 có663/479/6mã;
+cả7năm có cụm dưới10, quality REVIEW_REQUIRED. Không sửa A/B hoặc tối ưu bằng returns.
+
+- [Report A/B/C](../artifacts/reports/cluster-comparison-v1/report.md).
+- [Bảng nhãn A/B/C cuối năm](../artifacts/reports/cluster-comparison-v1/memberships-a-b-c-year-end.csv):9.213unionrows,5.593BOTH có C.
+- [Catalog219profiles](../artifacts/reports/cluster-comparison-v1/cluster-catalog-a-b-c.csv).
+- [Protocol C](../configs/experiments/combined_reference_v1.json).
+- [C verification](../artifacts/reports/combined-reference-v1/verification.json).
+- [C result pointer](../artifacts/reports/combined-reference-v1/result-ref.json).
+
+Market liquidity_21 chiếm median99,997% phần tách centroid theo fittedmetric;
+không tự chứng minh dataerror. Financial180outlierrows/157vectors replay đúng
+selected inputs; scope/unit/facts chưa tự nghiệm thu. 0/11.720rows có published_at
+trong delivery: C là EX_POST_ANNUAL_DESCRIPTIVE_NOT_PIT, khônghistoricalPIT,
+khôngbacktest/M3, khôngnewholdout. Historical C vẫn cần gates theoUnifiedPlan§15–16.
+
+Integration tới efb7104 đã push; Execution58 là công việc mới local, chưa push.
+Full repository gate vẫn chưa có PASS; targeted và numerical verification ghi riêng.
+
+
+### Chốt integration — 24/10/2026
+
+Đã xử lý toàn bộ merge conflicts; imported data giữ local theo ignore policy.
+Financial checkpoint `819cd82`, market parent `340519d`; active branch `integration/market-financial`.
+PowerShell wrapper `scripts/market_financial_integration.ps1 -Mode Verify` đã PASS:
+market19C8outputs/68holdoutoutputs/84models/75.801assignments; financial1.786pins/11.720rows.
+Targeted76tests OK (4optionalStreamlit skips), PCA6tests PASS, importer/immutability5tests PASS
+(suite5 gồm4tests đã có trong targeted76 và1test bổ sung, không cộng trùng).
+Compile, synthetic smoke và webJS syntax PASS; importer replay20files PASS.
+
+Full repository gate vẫn PARTIAL: sandbox timeout240,2giây; ngoài sandbox timeout360,1giây,
+ít nhất250testlines kết thúcok, chưa cóFAIL/ERRORtrước timeout; cuối log ở
+`unit.experiments.test_financial_crawl_trial.TrialTests.test_invalid_payload_stops_next_wave_with_all_symbol_gap_rows`.
+Không khẳng định suite treo hoặc xác định nguyên nhân từ việc timeout; không bỏ assertions.
+Logs `.tmp/integration-full-suite*.log`, summaries `.tmp/integration-full-suite*.json`.
+
+Không fit lại model thực, không acquisition/PDF/OCR mới, không backtest; PIT/research/M3
+vẫn false, chất lượng cụm REVIEW_REQUIRED. Commit tích hợp chỉ local; chưa push remote.
+
+
+**Integration market + financial — 23/10/2026.** Nhánh `integration/market-financial`
+kế thừa financial checkpoint `819cd82` và market `340519d`. C8 V2 đã nhập từ
+`DELTA_02_ACTIVE_M2_M3.zip`, giữ đúng hashes và path. Market có 84 snapshots
+2019–2025, K=2/robust; financial có 1.172 mã × annual 2016–2025, K=3/zscore.
+Đây là hai baseline độc lập. Cả hai cần review chất lượng cụm; strict PIT/research/M3
+chưa được nghiệm thu. Giao ticker tại cuối 2025 là 1.148 mã, chưa phải historical PIT join.
+
+Chạy `scripts/verify_market_financial_integration.py --publish` để kiểm current
+60+24 artifacts và tạo manifest tham chiếu có version; script này không fit.
+`verify_m2_task12.py` và `generate_m2_task13_handoff.py` là historical V1,
+không dùng chúng để tái tạo current84. Xem `M2/artifacts/market-financial-integration-v1/`.
+
+### Kiểm chứng integration đã thực hiện
+
+- Market:19/19C8outputs,68holdoutoutputs,9frozenpins,84models và75.801assignments PASS;
+  kiểm sourceeligibility và nearestcentroid, không refit.
+- Financial:1.786inputpins,11.720rows, scaler/assignment/inertia/profiles/checkpoints PASS
+  với hai frozen source files đúng hash trong sourceoverlay có version; output review riêng.
+- 76 targeted tests: OK,4Streamlittests skipped do thiếu optionaldashboarddependency;
+  6 PCAartifacttests PASS. Importer/immutability tests bổ sung PASS.
+- compileall, synthetic smoke (`run-20261023T161947Z-e04ef3b8`), `node --check web/app.js` PASS.
+- Full repository suite chưa PASS: sandboxtimeout240giây; lượt ngoàisandbox được giới hạn360giây,
+  xem `.tmp/integration-full-suite-unsandboxed.json` và log. Không bỏ assertions.
+- Plain diffcheck toàn nhánh có inheritedCRLF/Markdownhardbreak warnings từ market artifacts;
+  scoped integrationdiffcheck với `cr-at-eol` không có whitespace errors. Không sửa sealedbytes để làm sạch warnings.
+
+## Ghi chú và lineage từ các giai đoạn trước
+
+**Hiện tại — Execution56:** [baseline 1.172 mã × 2016–2025 đã chạy](../artifacts/reports/financial-full10-baseline-v1/report.md).
+70.320 tỷ số được tính lại; kiểm tra độc lập PASS, nhưng cả 10 năm có cụm nhỏ.
+Đọc [report tổng](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md) để xem kết quả,
+outlier queue và giới hạn M2/M3. Các ghi chú chưa phân cụm bên dưới thuộc các lượt cũ.
+
+**M3-B Market-only (2026-10-23, LEGACY):** dashboard Streamlit `m3_dashboard.py` (đã xóa 04/11, còn trong lịch sử git), đọc bộ handoff hiện hành 84 snapshot
+2019–2025 trên dữ liệu nền 2016–2025. Hướng dẫn Windows, checklist và ví dụ đối
+chiếu source ở đầu [Current status](CURRENT_STATUS.md). Giao diện chỉ còn Overview
+và bảng thành viên tìm kiếm/phân trang, trục cố định liquidity_21/beta_126;
+không Financial, ranking hoặc backtest. Các mốc cũ bên dưới giữ bối cảnh
+lịch sử, không phải next stage của phiên M3-B này.
+
+## Công việc hiện hành
+
+M2 Nhiệm vụ 1 đã freeze protocol và Nhiệm vụ 2 đã hoàn tất runner preparation/testing. Stage chính xác tiếp theo là **M2 Nhiệm vụ 3 — GLOBAL K TRÊN DEVELOPMENT**; chưa chạy trong stage hiện tại. Eligibility vẫn theo từng snapshot; 905 chỉ là latest-snapshot count và không phải strict research universe.
+
+Chuyển session: đọc [bản bàn giao Execution56](plans/FINANCIAL_SESSION_HANDOFF.md)
+để biết trạng thái Git, kết quả model, tests và bước review tiếp theo.
+
+| Nội dung | Tài liệu |
+|---|---|
+| Dữ liệu financial dùng cho baseline | [Handoff1.172 mã/2016–2025](../data/handoffs/financial-reference-2016-2025/README.md) |
+| Lịch sử, kết quả và backlog | [Report tổng financial](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md) |
+| Financial acquisition/QA/PIT | [Plan financial](crawl/FINANCIAL_HISTORY_PIT_PLAN.md) |
+| Market history10năm | [Plan market](crawl/MARKET_HISTORY10Y_1500_PLAN.md) |
+| Universe và phân công team | [Registry](../configs/data/securities_collection_registry_v1.csv) |
+| Lệnh hiện hành | [scripts/README](../scripts/README.md) |
+| Cách bố trí dữ liệu/kết quả | [data/README](../data/README.md) · [artifacts/README](../artifacts/README.md) |
+
+- **PCA + K-Means nhiệm vụ 6–9:** dùng bộ kết quả đã khôi phục từ Git, nay đổi
+  về tên chuẩn không có hậu tố phiên bản. Tất cả đều complete trên 60 tháng
+  development 2019–2023, 45.646 assignments; kết quả số và trọng số giữ nguyên.
+  Notebook:
+  [06](../M2/notebooks/06_pca_kmeans.ipynb),
+  [07](../M2/notebooks/07_cluster_quality_evaluation_pca_kmeans.ipynb),
+  [08](../M2/notebooks/08_cluster_profiling_pca_kmeans.ipynb),
+  [09](../M2/notebooks/09_temporal_stability_pca_kmeans.ipynb).
+  Báo cáo:
+  [NV6](../M2/reports/Bao_cao_M2_Nhiem_vu_6_PCA_KMeans.md),
+  [NV7](../M2/reports/Bao_cao_M2_Nhiem_vu_7_Chat_luong_cum_PCA_KMeans.md),
+  [NV8](../M2/reports/Bao_cao_M2_Nhiem_vu_8_Ho_so_cum_PCA_KMeans.md),
+  [NV9](../M2/reports/Bao_cao_M2_Nhiem_vu_9_Do_on_dinh_thoi_gian_PCA_KMeans.md).
+  Kết quả tại `M2/artifacts/m2-task6-pca-kmeans/` và
+  `M2/artifacts/m2-evaluation-pca-kmeans/`, models tại `M2/models/pca_kmeans/`.
+- **Nhiệm vụ 11 đã hoàn tất trên nguồn C8 mới:** mở
+  [11_final_holdout_execution.ipynb](../M2/notebooks/11_final_holdout_execution.ipynb),
+  dùng kernel Python >=3.11 đã chạy M2. Kết quả complete: 24/24 tháng holdout
+  2024–2025, không skip, 30.155 assignments, 24 model và 23 cặp thời gian;
+  duy nhất KMeans Baseline/sklearn/K=2. Median Silhouette 0,949324,
+  delta so với development +0,008487; vẫn giữ cảnh báo lệch kích thước cụm.
+  Config [m2_final_holdout.json](../configs/experiments/m2_final_holdout.json) khóa
+  chín đầu vào development hiện tại, 60 model; seed=42, n_init=10, max_iter=300,
+  Robust Scaling độc lập từng tháng, threshold 100, không quét K hoặc comparator.
+  Kết quả tại `M2/artifacts/m2-final-holdout/`, models `M2/models/holdout/`;
+  [báo cáo đầy đủ](../M2/reports/Bao_cao_M2_Nhiem_vu_11_Final_Holdout.md)
+  giữ bố cục A/B/C của mẫu cũ và dùng số liệu mới.
+  Lần chạy lại chỉ verify/nạp bộ complete; run dở/failed hoặc input đổi phải dừng.
+  Task 12/13 lịch sử chưa áp dụng cho workflow hiện tại, thực hiện riêng.
+- Thu thập CafeF có kiểm soát: [Data collection](crawl/README.md) và [CafeF semantics](crawl/sources/CAFEF.md).
+- Quyết định methodology: [Decisions](DECISIONS.md), [Research questions](research/RESEARCH_QUESTIONS.md), [Literature matrix](research/LITERATURE_MATRIX.md), [Dynamic clustering review](research/DYNAMIC_CLUSTERING_REVIEW.md).
+- Evaluation/product: [Evaluation and backtest](architecture/EVALUATION_AND_BACKTEST.md), [Product](architecture/PRODUCT.md).
+- Governance: [Roadmap](ROADMAP.md), [Reproducibility](architecture/REPRODUCIBILITY.md), [Contributing](../CONTRIBUTING.md).
+- Historical source caveat còn được artifact tham chiếu: [KBS pilot semantics](data/kbs_pilot_semantics.md) và [data usage risk acceptance](data/DATA_USAGE_RISK_ACCEPTANCE.md).
+
+Dataset mới nhất là kết quả50:1.172 full10/13.529 reference rows; lượt52 review 95 gaps
+chưa tăng coverage. Cleanup53–54 chỉ thay cách lưu trữ/điểm truy cập, không thay
+data, công thức hoặcmodel. Sáu core ratios đã tính; bộ sáu families gốc/PIT/M3
+chưa hoàn tất. Phân cụm financial chưa chạy trong các lượt cleanup.
+
+## Plans, kiến trúc và protocol
+
+- [Current status](CURRENT_STATUS.md), [Project Map](PROJECT_MAP.md), [Roadmap](ROADMAP.md).
+- [Decisions](DECISIONS.md), [Contributing](../CONTRIBUTING.md), [AGENTS](../AGENTS.md).
+- [Data collection và legacy commands](crawl/README.md).
+- [Financial feature contract](research/FINANCIAL_FEATURE_CONTRACT.md).
+- [Dynamic clustering review](research/DYNAMIC_CLUSTERING_REVIEW.md).
+- [KBS semantics](data/kbs_pilot_semantics.md), [data usage policy](data/DATA_USAGE_RISK_ACCEPTANCE.md).
+
+## Evidence và archive
+
+Chỉ dùng mộtcohort bàn giao cho baseline; không chọn dataset bằng kết quả model.
+Raw/receipt/journal giữ trực tiếp để truy nguồn và bảo toàn budget/source boundary.
+Candidates của bốn batch cũ đã lưu lạnh, xem
+[restore cache](../artifacts/archives/financial-cache-20261023/README.md).
+Các cleanup cũ có guide riêng tại `artifacts/archives/`; root README trước lượt54
+được lưu exactbytes trong `artifacts/repository/financial-cache-archive-20261023/documentation-before.zip`.
+
+Report đã seal giữ nguyên hash. Khi cần replay historical acquisition/QA, restore
+đúng cache/path trước; không crawl lại hoặc sửa frozen hashes vì file đang lưu lạnh.
+Không cần restore để đọc handoff và tính baseline M2 thăm dò.

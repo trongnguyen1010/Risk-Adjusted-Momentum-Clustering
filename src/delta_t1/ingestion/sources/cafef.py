@@ -6,10 +6,11 @@ from .base import PublicJsonClient, SemanticValidationError, SourceAdapter
 
 
 TRADE_HISTORY_ENDPOINT = "https://cafef.vn/du-lieu/Ajax/PageNew/TradeHistoryNew.ashx"
+PRICE_HISTORY_ENDPOINT = "https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx"
 RIGHTS_STATUS = "RIGHTS_NOT_VERIFIED"
 EXECUTION_POLICY = "ACCEPTED_RESEARCH_RISK"
 PRICE_UNIT = "VND_PER_SHARE"
-ADAPTER_VERSION = "cafef-research-demo-3"
+ADAPTER_VERSION = "cafef-research-demo-4"
 INVALID_ROW_EVIDENCE_FIELDS = {
     "BasicPrice", "Ceiling", "Floor", "ClosePrice", "AdjustPrice",
     "Volume", "TotalValue", "AgreedVolume", "AgreedValue",
@@ -210,4 +211,26 @@ class CafeFSource(SourceAdapter):
         payload = response["payload"]
         if not isinstance(payload, dict) or payload.get("Success") is not True or not isinstance(payload.get("Data"), list):
             raise SemanticValidationError("CafeF TradeHistoryNew envelope is invalid")
+        return response
+
+    def acquire_price_history_page(self, request: dict) -> dict:
+        """Acquire one UI-sized PriceHistory page for contract validation only."""
+        symbol = request["symbol"].upper()
+        exchange = request["exchange"].upper()
+        page_index = int(request.get("page_index", 1))
+        page_size = int(request.get("page_size", 20))
+        if (not symbol.isalnum() or exchange not in ("HOSE", "HNX", "UPCOM")
+                or not 1 <= page_index <= 100 or page_size != 20):
+            raise ValueError("invalid bounded CafeF PriceHistory request")
+        response = self.client.get_json(PRICE_HISTORY_ENDPOINT, {
+            "ExchangeType": exchange, "Symbol": symbol,
+            "StartDate": request["start_date"], "EndDate": request["end_date"],
+            "PageIndex": page_index, "PageSize": page_size,
+        })
+        payload = response["payload"]
+        data = payload.get("Data") if isinstance(payload, dict) else None
+        if (not isinstance(payload, dict) or payload.get("Success") is not True
+                or not isinstance(data, dict) or not isinstance(data.get("Data"), list)
+                or not isinstance(data.get("TotalCount"), int)):
+            raise SemanticValidationError("CafeF PriceHistory envelope is invalid")
         return response

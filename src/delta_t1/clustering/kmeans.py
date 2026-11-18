@@ -52,12 +52,26 @@ def diagnostics(x: list[list[float]], fit: dict) -> dict:
 def fit_snapshot(rows: list[dict], config: dict) -> dict:
     """Fixed preregistered k; diagnostic alternatives never auto-select a winner."""
     validate_config(config)
-    return build_snapshot(rows, config, lambda vectors, k, _: fit_kmeans(
-        vectors, k, config["seed"], config["n_init"], config["max_iter"]
-    ))
+    def fit_vectors(vectors, k, _):
+        if config.get("implementation", "stdlib") == "sklearn":
+            from sklearn.cluster import KMeans
+
+            model = KMeans(
+                n_clusters=k, random_state=config["seed"],
+                n_init=config["n_init"], max_iter=config["max_iter"],
+            ).fit(vectors)
+            if model.n_iter_ >= config["max_iter"]:
+                raise ValueError("scikit-learn K-Means reached max_iter without verified convergence")
+            return dict(labels=model.labels_.tolist(), centroids=model.cluster_centers_.tolist(),
+                        inertia=float(model.inertia_), iterations=int(model.n_iter_), converged=True)
+        return fit_kmeans(vectors, k, config["seed"], config["n_init"], config["max_iter"])
+
+    return build_snapshot(rows, config, fit_vectors)
 
 
 def validate_config(config: dict) -> None:
     validate_k_config(config)
+    if config.get("implementation", "stdlib") not in ("stdlib", "sklearn"):
+        raise ValueError("unsupported K-Means implementation")
     if config["n_init"] < 1 or config["max_iter"] < 1:
         raise ValueError("invalid K-Means parameters")

@@ -12,7 +12,9 @@ Nhánh static baseline không được gọi là Dynamic Clustering dù có ARI,
 
 ## Universe và point-in-time
 
-Historical universe được tạo từ effective-dated `security_id`, không từ current ticker membership. Input tại snapshot phải có `available_at <= decision_at`. Real clustering yêu cầu ít nhất ba calendar years usable observed history; short history là `REFERENCE_ONLY`.
+Historical universe được tạo từ effective-dated `security_id`, không từ current ticker membership. Input tại snapshot phải có `available_at <= decision_at`. Real clustering yêu cầu ít nhất ba calendar years usable observed history; short history là `REFERENCE_ONLY`. Observed calendar span không tự chứng minh usable density; M1 báo span, session coverage, required-feature completeness, market readiness và identity readiness riêng. Monthly research gate chỉ dùng latest completed collection month.
+
+Ngoại lệ hẹp cho M2 market-only development không tạo historical-universe claim: tại mỗi snapshot `t`, candidate membership là `market_experiment_eligible(t) = market_feature_ready_v2(t)` sau khi M2-PREP freeze windows và preprocessing. Latest count 905 không được áp ngược làm terminal filter. Strict research/M3 vẫn yêu cầu effective-dated identity, PIT evidence và `research_ready` theo protocol tương lai được duyệt.
 
 Không forward-fill giá, không đổi missing thành zero và không splice raw với adjusted price. Quarterly financial data dùng publication/availability và giữ restatement vintage.
 
@@ -28,12 +30,37 @@ Không forward-fill giá, không đổi missing thành zero và không splice ra
 
 Market feature nền gồm momentum 21/63/126/252 sessions, volatility, downside volatility, maximum drawdown, beta và liquidity. Risk-adjusted momentum là research hypothesis và phải có version. Financial feature chỉ được bật sau paper-backed definition và taxonomy/PIT approval.
 
+Market-only M2 dùng đúng required set đã khóa trong C8 (`mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `mdd_126`, `beta_126`, `liquidity_21`); không tự thêm financial feature. Snapshot preprocessing không được fit future/holdout. Static clustering theo tháng cộng ARI/transition tracking không được gọi là Dynamic Clustering.
+
 Sharpe và ROI không phải clustering feature hay cluster-quality metric. Sharpe chỉ được tính ở portfolio evaluation.
 
 ## Boundary M2/M3
 
-M2 config mặc định `portfolio_evaluation.enabled=false`. M2 được phép chạy clustering, cluster diagnostics và temporal diagnostics nhưng không tạo backtest/performance artifact. Chỉ M3/frozen protocol bật portfolio evaluation; kết quả đó không quay lại chọn `k`, algorithm, PCA components hoặc feature set.
+M2 Task 1 chỉ freeze protocol; chưa chạy clustering. Protocol market-only v1 dùng 15 development snapshots `2023-11-30..2025-01-24`, niêm phong 7 holdout snapshots `2026-02-27..2026-08-28`, skip cross-section dưới 120 mã, không impute/clipping và Robust Scaling fit riêng từng snapshot. Global K chỉ được chọn trong `2..8` bằng cluster quality trên development. PCA chỉ là comparator riêng. Config phải có `portfolio_evaluation.enabled=false` và chỉ được sinh cluster/temporal diagnostics, không tạo backtest/performance artifact. Chỉ M3/frozen protocol bật portfolio evaluation; kết quả đó không quay lại chọn `k`, algorithm, PCA components hoặc feature set.
 
 ## Technical debt cho variable-cluster method
 
 Common interface hiện giả định fixed `k`: bắt buộc `config["k"]`, quét `k_range`, profile IDs `0..k-1`, và temporal alignment yêu cầu cùng số cluster. DBSCAN không được triển khai bằng cách ép vào contract này. Một design được review phải hỗ trợ noise label, số cluster thay đổi theo snapshot, diagnostics phù hợp density method và temporal comparison khi cluster birth/death/noise xảy ra. Đây là preparation note, không phải approval DBSCAN hoặc Dynamic Clustering.
+
+
+## Owner-approved combined reference C — 24/10/2026
+
+configs/experiments/combined_reference_v1.json khóa thí nghiệm mô tả14features,
+annualcommoncohort2019–2025, z-scoreperyear +sqrt(0.5/p)blockweight, KMeansk3,
+seed42/n_init20. Owner duyệt rõ protocol trước realfit. Không có newholdoutclaim,
+không thay M2marketfreeze hoặc historical/research/PIT gates. Same-fiscal-year
+December join dùng thông tin có thể công bố sau snapshot: chỉex-postreference.
+A/B vẫn nguyên artifacts; label0/1/2 củaC chỉ có nghĩa trong từng năm. Không so
+trực tiếp silhouettekhácfeaturespace/cohort để tuyên bố winner hoặc chọn model.
+
+
+### Execution58 verification và phạm vi còn lại
+
+27 targeted tests PASS (8tests mới + financial/integration/clustering regression),
+compileall PASS; synthetic smoke `run-20261024T021711Z-30619c75` PASS. Independent
+C review kiểm lại scalers, weights, nearest-centroid, inertia, raw profile means và
+centroids cho5593assignments/7models PASS. RerunC giữ nguyên bytes và timestamps
+của numericaloutputs, khôngrefit; comparison idempotent và coverage9213/5593 PASS.
+C kế thừa financialfull10fixedcohort, còn selection/survivorshipbias. Sourcefacts
+không tự accepted, khôngclaimPIT hoặcnewholdout. Fullsuitegate vẫn PARTIAL;
+lượtstage58 có log `.tmp/dual-combined-full-suite.log` và summaryJSON cùngprefix.

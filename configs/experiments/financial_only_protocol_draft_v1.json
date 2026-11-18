@@ -1,0 +1,62 @@
+{
+  "protocol_version": "financial-only-draft-v1",
+  "status": "MANUAL_REVIEW_REQUIRED",
+  "executable": false,
+  "owner_intent": "Financial-only clustering for M2, PIT snapshots and integration with external market results for M3",
+  "financial_period_range": [2013, 2025],
+  "target_decision_range": ["2016-01-01", "2025-12-31"],
+  "snapshot_frequency": "MONTHLY_LAST_OBSERVED_EXCHANGE_SESSION_PROPOSED",
+  "development_range_proposed": ["2016-01-01", "2022-12-31"],
+  "holdout_range_proposed": ["2023-01-01", "2025-12-31"],
+  "market_protocol_alignment": "PENDING_EXTERNAL_TEAM_VERSIONED_HANDOFF_NO_ASSUMED_APPROVAL",
+  "universe": {
+    "identity": "historical security_id intervals, with issuer linkage and delisted securities",
+    "initial_scope": "non-financial issuers with verified historical classification",
+    "statement_scope": "consolidated or verified issuer without subsidiaries",
+    "selection": "complete eligible feature vector at each snapshot; disclose exclusions and coverage",
+    "no_current_ticker_membership_backfill": true
+  },
+  "proposed_feature_contracts": [
+    {"family": "EPS", "basis": "recomputed TTM with compatible weighted-share and earnings-adjustment basis", "status": "INPUTS_AND_CLUSTER_ELIGIBILITY_NOT_APPROVED"},
+    {"family": "PE", "basis": "dated raw price and compatible EPS TTM; nonpositive EPS returns null", "status": "INPUTS_AND_CLUSTER_ELIGIBILITY_NOT_APPROVED"},
+    {"family": "PB", "basis": "dated raw price, parent common equity and historical common shares/events", "status": "INPUTS_AND_CLUSTER_ELIGIBILITY_NOT_APPROVED"},
+    {"family": "F_SCORE", "basis": "annual named VAS reported-net-profit variant; carry only after source availability", "status": "VARIANT_REVIEW_AND_PIT_REQUIRED"},
+    {"family": "M_SCORE", "basis": "annual named VAS sensitivity; explicit total-assets-t accrual denominator, not strict original reproduction", "status": "VARIANT_REVIEW_AND_PIT_REQUIRED"},
+    {"family": "Z_SCORE", "basis": "annual EM Z-double-prime with constant 3.25 and reviewed EBIT; no distress threshold", "status": "INPUTS_AND_CLUSTER_ELIGIBILITY_NOT_APPROVED"}
+  ],
+  "preprocessing_proposed": {
+    "missing": "no imputation, zero-fill, cross-vintage filling or future backfill",
+    "scaler": "standardization fitted on development observations only, frozen for holdout",
+    "pca": "none for baseline; separate comparator only after review",
+    "outliers": "report and review; no silent winsorization or deletion"
+  },
+  "static_baseline_proposed": {
+    "algorithm": "existing deterministic static K-Means",
+    "k": 3,
+    "k_rationale": "preregistered three-group financial baseline proposal; not selected using returns or holdout outcomes",
+    "seed": 42,
+    "n_init": 20,
+    "max_iter": 300,
+    "minimum_complete_observations_per_snapshot": 30,
+    "minimum_sample_rationale": "proposed operational floor of ten observations per cluster; requires methodological review, not a statistical sufficiency claim",
+    "execution": "HELD_UNTIL_PROTOCOL_FEATURES_PIT_IDENTITY_AND_DEVELOPMENT_SAMPLE_APPROVED"
+  },
+  "evaluation": {
+    "cluster_quality": ["silhouette", "davies_bouldin", "calinski_harabasz", "inertia", "cluster_balance"],
+    "temporal": ["ARI", "NMI", "persistence", "transitions", "centroid_drift"],
+    "portfolio_metrics_used_to_select_features_or_model": false,
+    "dynamic_algorithm": "NOT_APPROVED_NOT_IMPLEMENTED",
+    "portfolio_evaluation_enabled": false
+  },
+  "required_external_market_handoff": [
+    "versioned model/protocol config and artifact manifest hashes",
+    "security_id/exchange identity intervals and issuer mapping",
+    "observed calendar and decision timestamp/timezone policy",
+    "development/holdout split and monthly snapshot keys",
+    "raw-unadjusted close price with units and corporate-action/share history",
+    "market cluster assignments and eligibility per decision snapshot",
+    "M3 return basis, transaction-cost assumptions and methodology approval"
+  ],
+  "financial_cluster_allowed": false,
+  "m3_backtest_allowed": false
+}
