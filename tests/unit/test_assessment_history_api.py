@@ -29,6 +29,12 @@ class TestAssessmentHistoryApi(unittest.TestCase):
             response = client.get('/api/v2/stocks/A32/assessment?lookback_years=7')
         self.assertEqual(response.status_code, 422)
 
+    def test_history_never_exceeds_release_as_of_year(self):
+        with TestClient(self.app) as client:
+            response = client.get('/api/v2/stocks/A32/assessment?lookback_years=10')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(all(int(row['period']) <= 2026 for row in response.json()['history']))
+
 
 if __name__ == '__main__':
     unittest.main()
