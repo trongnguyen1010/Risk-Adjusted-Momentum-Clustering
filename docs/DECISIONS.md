@@ -1,5 +1,20 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-18 — R2-04: feasibility đọc cùng config và nguồn với runner
+
+`m3_feasibility_variants.py --config PATH` dùng resolver nguồn và loader B-PIT của
+runner, kiểm labels/models/SQLite/availability pins và provenance. Path tương đối
+tính từ gốc repo; bỏ `--config` giữ config baseline, `--b-v4` chỉ cho legacy baseline.
+Các ngày quyết định phải thuộc start/end của segment trong config, không chia
+bằng mốc ngày cố định hoặc tính ngoài segment. Segment rỗng có months=0, min/median=null.
+Bốn variants giữ số ứng viên trước lọc scoring; `official_config` dùng entrypoint
+Strategies giống runner, sau FINANCIAL_CRITERIA_MISSING, báo min/median/N<10,
+selected thực tế, số và tỷ lệ loại theo lý do. Mẫu số tỷ lệ là toàn bộ ticker-decision
+rows được audit trong segment và được ghi rõ trong output. Lưu config/input hashes,
+code SHA và git_dirty để truy nguồn. Fixture legacy khai báo thêm segment Development
+cho ngày đối chứng cũ; giữ toàn bộ assertion cutoff/targets đã có.
+Chỉ kiểm fixture, chưa chạy feasibility thật, không mở gate D hoặc khóa config.
+
 ## 2026-11-18 — R2-03: config M3 enriched và cache riêng
 
 Tạo `configs/experiments/m3_strategy_enriched_v1.json` từ baseline, giữ nguyên
