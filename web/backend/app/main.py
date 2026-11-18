@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 import os
 from pathlib import Path
 import sqlite3
-from fastapi import FastAPI, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 from .repository import TerminalRepository, MissingData, InvalidQuery, AmbiguousIdentity
 from .schemas import Kind, HealthResponse, CatalogResponse, SnapshotResponse, MembersResponse, StockResponse
@@ -13,6 +13,8 @@ from .fundamentals import FundamentalsRepository
 from .availability import FinancialAvailability, financial_tickers
 from .backtest import BacktestResults
 from delta_t1.product.assessment_repository import AssessmentArtifactUnavailable, AssessmentRepository
+from .assessment import map_assessment_response
+from .schemas import AssessmentResponse
 
 ROOT=Path(__file__).resolve().parents[3]
 
@@ -116,6 +118,16 @@ def create_app(repository=None,fundamentals=None,availability=None,backtest=None
         found=request.app.state.backtest
         if found is None:raise MissingData('Kết quả backtest M3 chưa được phát hành trên máy chủ này.')
         return found
+    def assessment_repository_for(request):
+        found=request.app.state.assessment_repository
+        if found is None:raise HTTPException(status_code=503,detail='Assessment artifact chưa được phát hành hoặc chưa qua kiểm tra.')
+        return found
+    @app.get('/api/v2/stocks/{ticker}/assessment',response_model=AssessmentResponse)
+    def stock_assessment(request:Request,ticker:str):
+        result=assessment_repository_for(request).lookup(ticker)
+        if result.status=='NOT_FOUND':raise HTTPException(status_code=404,detail='Assessment ticker không tồn tại trong release đã phát hành.')
+        if result.status=='NOT_READY':raise HTTPException(status_code=503,detail=result.reason or 'Assessment release chưa sẵn sàng.')
+        return map_assessment_response(result)
     @app.get('/api/v2/backtest')
     def backtest_summary(request:Request):return backtest_results(request).summary()
     @app.get('/api/v2/backtest/{segment}/series')
