@@ -23,8 +23,14 @@ def main(argv=None):
     serve.add_argument("--web-root", default="web")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
+    monitor = commands.add_parser('monitor', help='Read-only local financial workflow dashboard')
+    monitor.add_argument('--root',default='.')
+    monitor.add_argument('--port',type=int,default=8765)
     args = parser.parse_args(argv)
     try:
+        if args.command == 'monitor':
+            from .product.server import serve_monitor
+            root=Path(args.root).resolve();serve_monitor(root,root/'web',args.port);return 0
         if args.command == "run":
             directory, manifest = run(Path(args.config), Path(args.root), args.resume)
             print(f"run_id={manifest['run_id']} status={manifest['status']} synthetic={manifest['synthetic']}")

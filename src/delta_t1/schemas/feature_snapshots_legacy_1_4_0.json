@@ -1,0 +1,151 @@
+{
+  "contract_format": "delta-table-contract",
+  "schema_version": "1.4.0",
+  "table": "feature_snapshots",
+  "primary_key": [
+    "security_id",
+    "as_of_date"
+  ],
+  "fields": {
+    "security_id": {
+      "type": "string",
+      "nullable": false
+    },
+    "ticker": {
+      "type": "string",
+      "nullable": false
+    },
+    "as_of_date": {
+      "type": "date",
+      "nullable": false
+    },
+    "available_at": {
+      "type": "datetime",
+      "nullable": false
+    },
+    "feature_version": {
+      "type": "string",
+      "nullable": false
+    },
+    "data_version": {
+      "type": "string",
+      "nullable": false
+    },
+    "mom_21": {
+      "type": "number",
+      "nullable": true
+    },
+    "mom_63": {
+      "type": "number",
+      "nullable": true
+    },
+    "mom_126": {
+      "type": "number",
+      "nullable": true
+    },
+    "mom_252": {
+      "type": "number",
+      "nullable": true
+    },
+    "vol_63": {
+      "type": "number",
+      "nullable": true
+    },
+    "vol_126": {
+      "type": "number",
+      "nullable": true
+    },
+    "mdd_126": {
+      "type": "number",
+      "nullable": true
+    },
+    "beta_126": {
+      "type": "number",
+      "nullable": true
+    },
+    "liquidity_21": {
+      "type": "number",
+      "nullable": true
+    },
+    "na_reason": {
+      "type": "object",
+      "nullable": false
+    },
+    "eligibility": {
+      "type": "boolean",
+      "nullable": false
+    },
+    "downside_vol_63": {
+      "type": "number",
+      "nullable": true
+    },
+    "ram_63": {
+      "type": "number",
+      "nullable": true
+    },
+    "lookback_observations": {
+      "type": "integer",
+      "nullable": false,
+      "min": 0
+    },
+    "missing_count": {
+      "type": "integer",
+      "nullable": false,
+      "min": 0
+    },
+    "history_start_date": {
+      "type": "date",
+      "nullable": true
+    },
+    "history_calendar_days": {
+      "type": "integer",
+      "nullable": true,
+      "min": 0
+    },
+    "history_observations": {
+      "type": "integer",
+      "nullable": false,
+      "min": 0
+    },
+    "universe_segment": {
+      "type": "string",
+      "nullable": false,
+      "enum": [
+        "ELIGIBLE_FOR_CLUSTERING",
+        "REFERENCE_ONLY",
+        "EXCLUDED"
+      ]
+    },
+    "listing_age_days": {
+      "type": "integer",
+      "nullable": true,
+      "min": 0
+    },
+    "adjustment_basis": {
+      "type": "string",
+      "nullable": true
+    },
+    "data_mode": {
+      "type": "string",
+      "nullable": true,
+      "enum": [
+        "real",
+        "synthetic"
+      ]
+    },
+    "vendor_run_id": {
+      "type": "string",
+      "nullable": true
+    },
+    "canonical_run_id": {
+      "type": "string",
+      "nullable": true
+    }
+  },
+  "relations": [
+    {
+      "target": "prices_daily",
+      "on": "security_id and trade_date <= as_of_date within same data_version"
+    }
+  ]
+}

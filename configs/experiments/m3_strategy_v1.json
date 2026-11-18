@@ -1,0 +1,35 @@
+{
+  "version": "m3-strategy-v1",
+  "status": "LOCKED",
+  "status_note": "Locked on 04/11/2026 after B-PIT audit/pin, feasibility, targets-only Development/Holdout and strict segment price isolation checks passed (docs/REPORT_BACKTEST.md). Commit code/config before the official Development run; seal Development before running Holdout with the same frozen code/config/inputs.",
+  "decision": "D-M3-01",
+  "market_model": "bundle v4 model A (k=3, liquid stocks only)",
+  "financial_model": "B-PIT (scripts/build_financial_pit_clusters.py): B v4 recipe, cutoff = max(30/04/(t+1), earliest usable_from_date)",
+  "financial_pit": {
+    "artifact": "data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec",
+    "labels_sha256": "4a9d2e87f0de84ec9e80364b24043cb6091aa4f34f7dcfd187d8526e9f44579a"
+  },
+  "market_rule": "leading",
+  "financial_rule": "not_weakest",
+  "market_criteria": {"mom_126": true, "downside_vol_63": false, "liquidity_21": true},
+  "market_criteria_note": "value = higher_is_better; downside_vol_63 false means lower is better (Q7)",
+  "financial_criteria": {"roe": true, "f_score": true, "z_score": true},
+  "combined_weight_market": 0.5,
+  "top_share": 0.3,
+  "n_min": 10,
+  "stale_months": 18,
+  "availability_lag_rule": "06-30",
+  "strategies": ["combined", "market_only", "financial_only", "equal_weight", "momentum_only"],
+  "segments": {
+    "development": ["2019-01-31", "2023-12-29"],
+    "holdout": ["2024-01-31", "2025-12-31"]
+  },
+  "segment_end_dates": {
+    "development": "2023-12-29",
+    "holdout": "2025-12-31"
+  },
+  "costs_bps_one_way": [0],
+  "cost_note": "Main run: cost 0, slippage 0 (mentor). 15/30 bps sensitivity is an extension, not part of the main run.",
+  "m2_k2_control": "candidate counts only (m3_stage0.py), no backtest",
+  "sharpe_allowed_segments": ["final"]
+}

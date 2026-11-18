@@ -163,6 +163,6 @@ def run_canonical(canonical_path, config_path, root):
                     vendor_run_id=source["vendor_run_id"], canonical_run_id=source["run_id"], methodology=source.get("methodology", {}), canonical_manifest_hash=digest((canonical_path / "manifest.json").read_bytes()),
                     canonical_path=str(canonical_path),
                     config=config, config_hash=digest(encoded(config)), synthetic=config["synthetic"], code_hash=code_hash(),
-                    schema_version="1.4.0", started_at=now(), data_hash=digest(encoded(source["artifacts"])), status="downloaded")
+                    schema_version="1.5.0", started_at=now(), data_hash=digest(encoded(source["artifacts"])), status="downloaded")
     write_json(directory / "manifest.json", manifest)
     return process_raw(raw, config, directory, manifest)

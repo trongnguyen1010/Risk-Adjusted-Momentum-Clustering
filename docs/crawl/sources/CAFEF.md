@@ -1,6 +1,373 @@
 # Source Note — CafeF
 
-## 1. Trạng thái vòng đời (Lifecycle status)
+## Deep audit BRC: Tài liệu → nội dung → field evidence — 18/10/2026
+
+**Bản cập nhật mới nhất:** [report kiểm tra sâu](../../../artifacts/reports/financial-cafef-brc-deep-audit-v1/report.md),
+[192document links + 92 ngày gửi](../../../artifacts/reports/financial-cafef-brc-deep-audit-v1/document-inventory.json),
+[51visual candidates có PDF SHA/page](../../../artifacts/reports/financial-cafef-brc-deep-audit-v1/visual-candidates.json).
+Lượt rediscovery phía dưới đã tìm route; lượt này kiểm thêm nội dung tài liệu
+theo yêu cầu owner. Không dùng “đã thấy tab/link” thay “đã đọc notes/verified fact”.
+
+Sau xác nhận của owner rằng trang mở bình thường, đã computer-use mở đủ5nhóm
+Tài liệu:92BCTC,16BCTN,60nghị quyết,24quản trị; tab Tất cả192rows bằng exact URL
+union4nhóm. Đã lọc BCTC/BCTN2025, đi5pages Công bố thông tin riêng BRC và ghép
+**92/92BCTC theo exact URL/title với ngày gửi**. FY2025audited21/04/2026,
+FY2024audited14/03/2025.2020–2025 mỗi năm6entries (annual,4quarters,H1reviewed).
+Đây là listing/date coverage; chưa gọi fact history2020 complete.
+
+Đã tải6PDF/215pages/52.318.132bytes: FY2025audited36pages, FY2024audited33,
+BCTN2025 64, H12026reviewed37, governance2025 36, AGM2025 9. Đã xem các trang
+liên quan; không tuyên bố review từng ô trên215pages.5PDF scans không có text;
+BCTN mixed có text phần đầu nhưng financial statements scan nhúng ở cuối file.
+Không kết luận tài liệu thiếu thuyết minh chỉ vì text extraction trống.0OCR mới;
+render/visual review tạo discovery candidates, chưa phải automated extraction.
+
+| Input tìm sâu | Exact source BRC (physical PDF page) | Kết quả |
+|---|---|---|
+| Annual EPS |FY25PDF31/note30 | Numerator20.793.993.931VND,WA12.374.997,printed1680; comparative2024 có đủ. Fund provisions chưa estimated, giữ disclosed basis. |
+| Owned-PPE depreciation |FY25PDF21/note10 +FY24PDF21 |13.642.249.770/14.061.656.121VND; khác combined CF depreciation. Giải quyết việc chỉ thấy aggregate trên UI. |
+| Gross trade receivables |FY25PDF6/19 | Có gross/allowance và comparative, không lấy tổng phải thu thay trade receivables. |
+| Actual capital/no issuance candidates |BCTN PDF24 (printed46–47), FY25PDF27–28 | BCTN nói không thay đổi vốn/treasury/other securities; có share count và vốn đầu/cuối kỳ. Mạnh hơn suy từ current shares bằng nhau. |
+| Assets3dates/liabilities/equity/RE |FY25PDF6–7;FY24PDF6–7 | Exact annual2025/2024 và supporting2023; A=L+E khớp. |
+| Revenue/GP/NI/PBT/CFO/SGA/interest |FY25PDF8–9/30 | Đủ nhóm raw fields chính cho F/M/Z; original-maturity debt, strict earnings variant và acceptance còn review. |
+| Current/TTM |Overview + H12026reviewed full notes | Có nguồn; chưa full TTM bridge với priorYTD, không backfill current ratios về historical. |
+
+**Phát hiện quan trọng: không tin sub-row chỉ vì lấy trực tiếp trên website.**
+CDKT annual2025 UI đặt1,18tỷ ở “Vay và nợ thuê tài chính ngăn hạn”; PDF7/code320
+và note17/page25 là24.141.566.184VND. Giá trị1.175.123.567VND trong PDF thuộc
+“Phải trả ngắn hạn khác”/code319, còn web đặt24,14tỷ sang dòng dự phòng. Đây là
+displayed row mismatch đã xác nhận; underlying API/template cause chưa xác định.
+Không dịch index/hard-code BRC để chữa; kiểm raw codes/labels/templates và dùng
+document evidence cho flagged fields. Total balance vẫn khớp không bảo đảm subrows đúng.
+
+Đã thử mode `LUYKE` trực tiếp: KQKD/LCTT trả H1reviewed2023–2026, NI H12026
+11,94tỷ và printedEPS965VND. Nút lịch sử LCTT cho nhóm HDKD đổi sang2019–2022,
+trong khi HDDT/HDTC vẫn2023–2026: **paging độc lập từng group**, không dùng một
+bộ headers cho cả màn hình. Giữ group+period với từng cell trước khi ghép.
+
+Link FY2025 ở danh mục/disclosure trên `cafefnew.mediacdn.vn` trả404. Browser mở
+document cùng path ở `cafef1.mediacdn.vn`; đã lưu URL thực tế và tải đúng URL đó
+thành công. Giữ alias/source record, không rewrite hostname hàng loạt hoặc suy
+byte identity của original link chết. BCTN có embedded BCTC là nguồn supplement,
+vẫn phải kiểm version. Tên/kỳ/date/link/SHA luôn đi cùng nhau.
+
+Các tab main/financial/ownership/news tiếp tục được kiểm qua browser; loaded owner
+table có quantity/percent/as-of, insider history có actual trade dates/results.
+News/nghị quyết/governance phục vụ event/metadata candidates, không tự thay
+actual financial statement/issuance evidence. Provider current price16/10/2026
+và Q3report gửi17/10/2026 không thành historical valuation tại close16/10.
+
+Kết luận: CafeF có nhiều raw input và notes cần dùng cho BRC; thiếu sót chính
+gồm discovery/integration, cell mapping QA và acceptance semantics. Workflow tiếp:
+enumerate+datejoin → structured candidates → annual/supporting/BCTN cache →
+notes extraction → field QA → practical metrics/residual queue → multi-symbol pilot.
+Chưa auto-integrate routes/OCR/metrics hoặc mở financial cluster. Campaign EPS
+cũ giữ latch=true; không reset hoặc request lại EPS challenge route. Scripted CDN
+audit mới13attempts kể cả6sandboxDNS errors, không gặp boundary; browser download
+1attempt timeout được giữ riêng. Full report nêu các phần chưa kiểm, không gọi100%.
+
+## Rediscovery đầy đủ cấu trúc BRC — 18/10/2026 (đọc trước lịch sử phía dưới)
+
+**Kết quả: đã khảo sát 6 tab chính và 6 mục Tài chính của BRC; xác nhận nguồn
+rộng hơn phần crawler cũ đã khai thác. Kiểm chứng raw JSON toàn bộ routes còn
+PARTIAL vì gặp access challenge.** Không kết luận CafeF thiếu ngày công bố,
+thiếu LCTT hoặc mọi financial input đều phải lấy từ PDF. Cũng chưa kết luận mọi
+mã/kỳ đủ dữ liệu để tính đủ 6 families.
+
+Nguồn bắt đầu do owner cung cấp: [Công bố thông tin](https://cafef.vn/du-lieu/cong-bo-thong-tin.chn)
+và [BRC](https://cafef.vn/du-lieu/hose/brc-cong-ty-co-phan-cao-su-ben-thanh.chn).
+[Report/worklog](../../../artifacts/reports/financial-cafef-rediscovery-v2/report.md),
+[inventory + field matrix + pending tasks](../../../artifacts/reports/financial-cafef-rediscovery-v2/analysis.json),
+[bounded campaign config](../../../configs/data/cafef_financial_rediscovery_v2.json).
+Stage chỉ discovery; không sửa calculators, policy PIT hay mở cluster.
+
+### Phạm vi và độ mạnh của bằng chứng
+
+- BRC: đã mở UI cả 6 tab chính; lưu raw HTML 6 trang. Đã mở 6 mục tài chính,
+  lưu thêm 5 response `FinancialAjax.aspx`, DOM số liệu và trang tính EPS.
+- `RAW_HTML_RESPONSE`: đã tải body HTTP thành công; HTML/script chưa phải raw JSON
+  của API tài chính bên trong. `SCRIPT_ROUTE_AND_UI_VALUES`: thấy route trong
+  code và số liệu trên UI; không gọi là raw API payload đã kiểm chứng.
+- `SCRIPT_ROUTE_ONLY`: mới thấy route/nhánh xử lý trong code; chưa xác nhận response
+  của ngành/mã đó. UI capture đang loading không được dùng làm bằng chứng missing.
+- FPT disclosure 20 records và QNP LCTT JSON 3 groups là **cache đã verify ở lượt
+  correction cùng ngày**, không phải request mới BRC. Giữ report riêng và hash.
+- Scripted campaign: 13 attempts, 11 body HTML thành công, 1 HTTP 301 không follow,
+  1 `challenge boundary`; 1.528.364 bytes, 0 PDF/OCR. Browser UI traffic không nằm
+  trong bộ đếm HTTP script này; không gọi 13 là tổng mọi request của trình duyệt.
+- Challenge xảy ra tại URL EPS lowercase lúc `2026-10-18T11:27:13.741590Z`.
+  Dừng mọi acquisition, giữ latch/counters/deadline, không đổi client để thử vượt.
+  12 tasks phase02 chưa attempt; TCB/HCM/BVH, fresh FPT/QNP và deep pagination
+  chưa được live validate trong campaign này. Trang EPS đã quan sát qua UI
+  **trước khi** scripted fetch gặp challenge; hai observations được giữ riêng.
+
+### Bản đồ các tab chính
+
+Base `https://cafef.vn/du-lieu/hose/`; các suffix dưới đã có link UI và HTML BRC:
+
+| Tab | Route BRC | Dữ liệu và cách sử dụng |
+|---|---|---|
+| Tổng quan | `brc-cong-ty-co-phan-cao-su-ben-thanh.chn` | Giá/as-of, EPS/PE/BVPS/PB hiện tại, shares, vốn hóa, summary và tin/sự kiện. Snapshot hiện tại, không backfill historical. |
+| Thông tin cơ bản | `brc-thong-tin-co-ban.chn` | Profile/ngành/hoạt động; `CompanyIntro.ashx?Symbol=brc` trong script. |
+| Ban lãnh đạo & Sở hữu | `brc-ban-lanh-dao-so-huu.chn` | Executives, cổ đông, đang sở hữu, giao dịch nội bộ/cổ đông lớn. Current holdings không chứng minh không phát hành trong năm. |
+| Tài chính | `brc-tai-chinh.chn` | 6 mục chi tiết bên dưới, bộ lọc thời gian/đơn vị và export. |
+| Tin tức | `brc-tin-tuc.chn` | SXKD, cổ tức/quyền, nhân sự, tăng vốn/cổ phiếu quỹ, insider; event candidates cần đọc nội dung để có effective date/actual volume. |
+| Tài liệu | `brc-tai-lieu.chn` | BCTC, bản cáo bạch/BCTN, nghị quyết, quản trị và tất cả; lọc năm. |
+
+Sở hữu: script có `/du-lieu/Ajax/PageNew/ListCeo.ashx?Symbol=brc&PositionGroup=0`,
+`CoCauSoHuu.ashx?Symbol=brc`, `CoCauSoHuu.ashx?Symbol=brc&Type=SoHuu`.
+UI đang sở hữu ghi BRC không sở hữu cổ phiếu niêm yết; không suy thành không có
+công ty con/tài sản tài chính. Tab giao dịch dẫn tới
+`/du-lieu/lich-su-giao-dich-brc-6.chn`; mới kiểm landing, chưa audit lịch sử.
+
+Tin tức dùng `/du-lieu/Ajax/PageNew/News.ashx?symbol=brc&NewsType={0..5}&pageIndex={p}&pageSize=4`:
+0 tất cả, 1 SXKD/phân tích, 2 cổ tức/quyền, 3 nhân sự, 4 vốn/cổ phiếu quỹ,
+5 nội bộ/cổ đông lớn. First items đã thấy trên trang; API pagination chưa fetch.
+Ngày bài viết, ngày GDKHQ, ngày phát hành hoàn tất và ngày gửi BCTC là các trường
+khác nhau. Category vốn có thể chứa nghị quyết/phân phối lợi nhuận, không bảo đảm
+mọi item là một lần phát hành thực tế.
+
+### Các tab Tài chính và API phía sau
+
+Loader đã tải thành công:
+`/du-lieu/Ajax/FinancialAjax.aspx?isBank=false&isInsurance=false&tab={tab}&symbol=brc`.
+Các API `BCTC` có host `https://apiweb.cafef.vn`; phiên bản v1/v2 dưới đây là
+**đúng code trang quan sát**, không đổi đồng loạt về cùng version.
+
+| Mục / tab code | Route trong script | Evidence và input hữu ích |
+|---|---|---|
+| BCTC tóm tắt / `tongquat` | `/api/v1/BCTC/GetReportSummary` | Embedded summary UI; không dùng để suy deep LCTT không tồn tại. |
+| Cân đối / `candoi` | `/api/v2/BCTC/GetReportCDKT` | UI quarter và annual; TA, CA, CL, liabilities, equity, retained earnings, debt, receivables, net PPE. |
+| Kết quả KD / `ketqua` | `/api/v1/BCTC/GetReportDetail` | UI quarter; gross/net revenue, GP, finance cost và interest riêng, SGA, PBT, NI/parent NI, basic/diluted EPS. |
+| Lưu chuyển / `luuchuyen` | `/api/v1/BCTC/GetReportLCTT` | UI BRC; prior QNP raw JSON có HDKD/HDDT/HDTC, CFO và nhiều điều chỉnh/flows. |
+| Chỉ số TC / `chiso` | `/api/v2/BCTC/FinancialIndicators` | UI EPS/BVPS/PE/PB, margins, ROE/ROA, thanh khoản và leverage; có gap/dash. |
+| Chỉ tiêu kế hoạch / `chitieu` | `/api/v2/BCTC/KeHoachKinhDoanh` | UI doanh thu/PBT/NI/cổ tức mục tiêu theo năm; không đưa vào realized score inputs. |
+
+CDKT/LCTT: `symbol=BRC&pageIndex={p}&pageSize=4&reportType=ALL&TypeTime={mode}`.
+KQKD: cùng paging/mode nhưng `reportType=KQKD`. Mode trong dropdown:
+`QUY`, `NAM`, `LUYKE` (UI ghi lũy kế 6 tháng). Indicators/plans chỉ thấy
+`symbol=BRC&pageIndex={p}&pageSize=4`; không tự gắn TypeTime vì tab khác có.
+Chart riêng `/api/v1/BCTC/FinancialIndicatorsChart?symbol=BRC&pageIndex=1&pageSize=15&type={code}`
+với EPS/BV/PE/PB/GOS/ROS/ROE/ROA/...; mới code-observed, chưa fetch series độc lập.
+
+Sector exceptions mới thấy trong script, **chưa test TCB/HCM/BVH**:
+
+- Securities LCTT bổ sung `/du-lieu/Ajax/PageNew/GetSecurityLcttDetail.ashx?Symbol={s}&pageIndex={p}&pageSize=4&TypeTime={mode}`.
+- Insurance KQKD bổ sung `/du-lieu/Ajax/PageNew/GetInsuranceKqkdDetail.ashx?Symbol={s}&pageIndex={p}&pageSize=4&TypeTime={mode}`.
+- Nhánh enrichment có ghép hàng theo vị trí/template. Cần lưu nguồn từng cell,
+  kiểm code/label/header; không map Regular bằng vị trí rồi áp sang ngành khác.
+
+### Ngày gửi, PDF và các loại tài liệu
+
+Disclosure API đã verify bằng FPT cache:
+`/du-lieu/ajax/ajaxcongbothongtin.ashx?symbol={s}&pageindex={p}&pagesize=20&reporttype=&startdate=&enddate=&center=0`.
+Response có `Data.BctcList`, `Count`; record có `Id`, `Symbol`, `CompanyName`,
+`Year`, `Quarter`, `ReportType`, `Content`, `LinkFile`, `CreateDate`.
+`CreateDate=/Date(milliseconds)/` chính là field UI format thành **“Thời gian gửi”**.
+Filter gửi lên dùng `MM/DD/YYYY` dù input UI ngày/tháng/năm. Giữ timestamp raw,
+UTC và ngày Asia/Ho_Chi_Minh; không suy giờ nếu workflow chỉ dùng DATE_ONLY.
+Giữ mã report type raw N/H/K/S/HK/HS/M/MK/MS; center 0/1/2/9/8 theo UI.
+
+**Ngày nguồn đã có và có thể ghép đúng report**, không bắt buộc lấy ngày ký PDF:
+FPT FY2025 audited ID `69bd0630b51797afb2ee4752`, ngày 20/03/2026 khớp ID/link
+FileBCTC cache. Q2/2026 initial 28/07/2026 và reviewed 22/08/2026 là hai vintage.
+Đây là ngày record CafeF; chưa chứng minh lần công bố đầu tiên của issuer/sàn.
+Không lấy date của một record gán cho mọi kỳ hoặc số liệu trên tab hiện tại đã
+restated. BRC disclosure pagination/filter chưa fetch được ở campaign mới.
+
+Tab Tài liệu dùng `/du-lieu/Ajax/PageNew/FileBCTC.ashx?Symbol=brc&Type={t}&Year={y}`:
+Type 1 BCTC, 3 bản cáo bạch/BCTN, 4 nghị quyết, 5 quản trị, 0 tất cả; Year0=all
+theo code. URL getData này không có pageIndex/pageSize dù script có biến paging.
+Record/render có id/Type/Quarter/Year/Time/Name/IconFile/Link.
+UI BRC đã thấy danh mục BCTC 2009–2026, BCTN 2010–2025; đây là **listing spans**,
+không phải đã tải/kiểm đủ mọi báo cáo trong khoảng đó.
+Ở BCTC/BCTN, cột “Thời gian cập nhật” đang render `Time` như `Q3/2026`, `CN/2025`
+— **kỳ báo cáo, không phải ngày công bố**. Nghị quyết/quản trị có chuỗi ngày thật,
+nhưng cần giữ semantics loại tài liệu. Không trộn với disclosure `CreateDate`.
+
+### EPS, P/E, P/B: đã thấy dữ liệu gì?
+
+[Chi tiết EPS BRC](https://cafef.vn/du-lieu/hose/brc/chi-tiet-tinh-eps.chn)
+UI cho kỳ 01/10/2025–30/09/2026: LNST 24.110.474 nghìn đồng, KLĐLH bình quân
+12.374.997 cp, EPS 1,95 nghìn đồng/cp. Bảng có ngày/sự kiện, trọng số số ngày,
+KLĐLH thực tế, hệ số và số đã điều chỉnh. BRC chỉ hiện đầu/cuối kỳ ở mẫu này;
+chưa chứng minh coverage mọi sự kiện/mã/kỳ.
+
+Trang mô tả EPS CafeF là **EPS điều chỉnh** dựa 4 quý gần nhất (fallback năm tài
+chính gần nhất nếu thiếu 4 quý), weighted shares theo ngày, lợi nhuận trừ minority,
+điều chỉnh quyền/cổ tức cổ phiếu/bonus/split/hoán đổi; cổ phiếu quỹ dùng ngày kết
+thúc và khối lượng thực tế. Giữ `provider_adjusted_eps` riêng với VAS reported EPS,
+diluted EPS và EPS do project tính; chưa xác nhận mọi khoản giảm trừ từ notes.
+
+Overview BRC quan sát giá 11,50 nghìn đồng ngày 16/10/2026, PE5,90, BVPS16,96
+nghìn, PB0,68, shares12.374.997, vốn hóa142,31 tỷ. Offline arithmetic từ numerator/
+denominator cho EPS và PE/PB/vốn hóa khớp rounding UI; đây là provider diagnostics,
+không thêm accepted metric/cell cho cohort50.
+Tab ratios annual mẫu 2021/2023/2024/2025 (thiếu2022), EPS1,75/1,57/1,76/1,68,
+PE9,49/7,64/7,95/7,74, **PB đều dash** dù current overview có PB0,68. Không dùng
+current ratio điền annual gap, không giả định provider valuation dùng raw close
+của market dataset nếu chưa đối chiếu date và adjustment basis.
+
+### Unit, duration và QA bắt buộc trước integration
+
+- Đã đổi UI CDKT NAM 2022–2025 từ tỷ sang triệu. CA2025: 221,28 tỷ ↔
+  221.282,61 triệu (rounding display); code chia monetary raw cho1e9/1e6.
+  Không nhân EPS/ratios cùng multiplier: KQKD EPS ghi **Đồng/1 cổ phiếu** ngay
+  khi bảng chọn Tỷ đồng; overview/EPS detail lại ghi nghìn đồng.
+- LCTT BRC QUY có PBT26,08/5,84/14,95/24,65 trong Q4/25–Q3/26, còn KQKD
+  Q3/26 PBT9,68: dấu hiệu CF lũy kế. Chưa xác minh duration từng source period;
+  không cộng bốn CF lũy kế hoặc trừ các vintage khác scope để dựng TTM.
+- UI formatter có thể render zero và missing cùng `-`; lưu raw JSON trước mapping,
+  không suy dash=zero. Annual ratios thiếu năm không được đổi thành đủ4năm liên tục.
+- CDKT có nhiều dòng mới và quan sát label/sign cần đối chiếu (ví dụ khoản âm
+  trong các hàng phải thu); chưa audit đúng cell-to-label. Row presence không phải
+  accounting validation. Kiểm A=L+E, NI→CFO, debt/RE/interest và exact document.
+- CF “Khấu hao TSCĐ và BĐSĐT” là combined adjustment, chưa tự thay owned-PPE DEP
+  trong Beneish M. Tổng finance cost không thay interest khi có row interest riêng.
+- Chỉ tiêu kế hoạch và tin nghị quyết không phải actual earnings/issuance.
+- Export Excel đã thấy UI và client table-export code, chưa download/verify file;
+  không xem đây là một nguồn độc lập hoặc cam kết có bulk export toàn lịch sử.
+
+### Field coverage cho các công việc financial tiếp theo
+
+| Family | Candidate đã thấy | Cần xác minh thêm trước khi gọi đủ |
+|---|---|---|
+| EPS | KQKD EPS; EPS detail NI, weighted shares, event-days; current provider EPS | Reported/adjusted/diluted basis, deductions, historical events/vintages. |
+| PE | Price/as-of, provider PE và EPS; annual ratio PE | Same-date price/earnings/share adjustment; historical PIT. |
+| PB | Current BVPS/PB; balance equity; shares | Parent/common equity, shares theo ngày; historical PB đang có dash. |
+| Piotroski F | NI/CFO/TA/CA/CL/revenue/GP/debt rows; capital-news candidates | 2 năm tương thích, debt maturity, phát hành thực tế; full9signals. |
+| Beneish M | Receivables/revenue/GP/CA/TA/PPE/SGA/CF | Owned-PPE depreciation, 2 năm, sign/taxonomy; không gọi proxy là bản gốc. |
+| EM Z | CA/CL/TA/retained earnings/liabilities/PBT/interest | EBIT/variant đúng handbook, missing interest và scope, cell mapping QA. |
+
+Định nghĩa/công thức chuẩn: [handbook chỉ số](../../research/FINANCIAL_INDICATORS_AND_DATA_GUIDE.md).
+**Workflow nên triển khai tiếp:** registry route → save JSON + units/template →
+period/scope/duration mapping → disclosure ID/link/date/vintage join → field QA →
+thử tính practical metrics → PDF/notes cho đúng residual gaps → so kết quả và
+coverage trước scale. Bước tiếp theo là adapter/sample validation; chưa mở50/100
+hoặc tuyên bố full history2020. Acquisition campaign này đang hard-stop, không
+chạy lại `fetch.py` để reset/bỏ qua challenge. Scope mới phải tôn trọng access boundary.
+
+## Correction từ UI/API trực tiếp — 18/10/2026
+
+Đọc [disclosure dates và deep financial tabs](CAFEF_DISCLOSURE_AND_FINANCIAL_TABS.md)
+trước khi thực hiện R1 của plan12. Owner chỉ ra nguồn chưa khai thác đủ; livecheck
+xác nhận `ajaxcongbothongtin.ashx` có `CreateDate`/ID/LinkFile, UI format thành
+“Thời gian gửi”. FPT FY2025audited ID/link khớp FileBCTC cache. QNP LCTT deep tab
+gọi `FinancialAjax.aspx` rồi `GetReportLCTT`, trả3groups JSON có numeric values.
+Current Python crawler chưa có các routes này. Các nhận định cũ published_at chưa
+map/summary không trảLCTT là giới hạn flow cũ, không chứng minh CafeF thiếu ngày/LCTT.
+Provider record date đã có; issuer-first-public timing/version history vẫn cần
+phân biệt. [Evidence report](../../../artifacts/reports/financial-cafef-disclosure-ui-correction-v1/report.md).
+
+## Financial revalidation handoff — 18/10/2026
+
+[Tổng hợp quá trình](../../../artifacts/reports/financial-replan-20261018-v1/report.md)
+và [plan kiểm chứng lại nguồn](../FINANCIAL_CAFEF_REVALIDATION_PLAN.md) phân biệt
+data tồn tại, extraction/mapping gaps và strict acceptance. Thông tin CafeF có đủ
+mọi input là giả thuyết cần chạy thử lại; lượt lập plan chưa phát sinh live evidence
+mới. Mẫu12 mã sẽ kiểm structured, CafeF-linked PDF và reported ratios riêng; cho
+phép practical variants có nhãn, giữ historical PIT/research độc lập.
+
+## CURRENT ACTIVE MARKET DECISION (post-C8)
+
+- Active market source là CafeF `TradeHistoryNew` cho C8 market foundation.
+- `AdjustPrice × 1000` được dùng như `adj_close` với `adjustment_basis=vendor_adjusted`; đây là research-price proxy, không được gọi là split-only hoặc total-return series.
+- Source semantics hiện đủ về mặt vận hành cho market-only pipeline đã execute/verify, trong đúng phạm vi contract C8 và các assumptions được version hóa.
+- Corporate-action rights/terms vẫn chưa verified; provider rights vẫn `RIGHTS_NOT_VERIFIED`.
+- Financial PIT chưa ready và financial features không active.
+- Current profile/listing metadata không chứng minh historical identity hoặc final historical universe.
+
+## Financial CafeF-first trial50 — 2026-10-08
+
+Active financial structured runner dùng detail HTML, không summary JSON/KBS fallback:
+[report50](../../../artifacts/reports/cafef-financial-trial50-v1/report.md),
+[PowerShell runbook](../FINANCIAL_TRIAL_50_USER_GUIDE.md).50 frozen market-ready mã,
+600 base +120 gap requests,588/600 base parse;12 BVH302 không follow redirect.
+Annual2021–2025/quarter2024–2025:1.646/1.950 wire statement-periods chứa số liệu;
+chỉ5 mã đủ wire toàn13 kỳ/3 statements, không phải số mã score-ready.
+
+Strict parser kiểm ticker,4 distinct sorted headers với last period đúng requested
+anchor, row width và raw numeric grammar; nested chart excluded. Header display
+units, fiscal-year/scope/publication/revisions còn unverified; không nhân số theo
+magnitude, không relabel kỳ hoặc fill zero. Regular code+label crosswalk chỉ tạo
+candidate, sector templates chưa map Regular. Exact document/notes/PIT review queue
+giữ gaps;0 PDF/OCR mới/0 accepted facts/0 strict tasks-ready trong lượt50. Market
+TradeHistory source và financial/research/cluster/full-universe gates giữ nguyên.
+
+## Financial raw pilot — live 2026-10-02
+
+Kế thừa discovery, đã execute `cafef-financial-raw-pilot-v1` cho FPT/VNM/PVS/ACV,
+target 2021–2025, KQKD/CDKT/LCTT và QUY/NAM. Local immutable run:
+`data/financial/cafef_raw_pilot_v1/run-20261002T155840Z-652f827b/`.
+72 logical calls; execution PARTIAL, coverage PARTIAL; exact inventory/hash và
+offline coverage replay PASS. Raw không được redistribute/commit.
+
+| Mã | QUY KQKD / CDKT | NAM KQKD / CDKT | LCTT qua GetReportSummary |
+|---|---|---|---|
+| FPT | 19/20 kỳ mỗi loại; thiếu Q2-2024 | 5/5 năm mỗi loại | Không trả report group ở QUY/NAM |
+| VNM | 19/20 kỳ mỗi loại; thiếu Q2-2024 | 5/5 năm mỗi loại | Không trả report group ở QUY/NAM |
+| PVS | 20/20 kỳ mỗi loại | 5/5 năm mỗi loại | Không trả report group ở QUY/NAM |
+| ACV | 20/20 kỳ mỗi loại | 4/5 năm mỗi loại; page 2 lặp/overlap nên fail closed, chưa lấy 2021 | Không trả report group ở QUY/NAM |
+
+`isSuccess=true` không chứng minh đủ dữ liệu. LCTT không có ở path summary được
+kiểm tra không có nghĩa CafeF không có LCTT ở báo cáo chi tiết/tài liệu gốc.
+Annual period dùng provider `quater=0`; metadata `type`/`content` và template được
+giữ raw, không suy thành canonical scope/audit. FPT summary quan sát có basic EPS
+`KQKD_15`; không tự áp mã này cho mọi ngành/template, không tự tính diluted EPS.
+QUY/LUYKE duration, financial first-public timing, fact-to-document join và revision
+vẫn chưa verified. Financial PIT NOT_READY; mọi financial features tiếp tục khóa.
+
+Việc tiếp theo: targeted validation đường dẫn báo cáo chi tiết/LCTT, missing
+Q2-2024 và ACV annual pagination; sau đó xác minh đúng tài liệu/report vintage và
+publication evidence. Không lặp broad discovery hoặc scale crawl trước khi giải
+thích coverage failures. Runbook: [Financial raw pilot](../README.md).
+
+## Financial detail remediation — completed inspection 2026-10-03
+
+Handoff mới hơn: [report financial evidence v2](../../../artifacts/reports/financial-remediation-v2/report.md)
+và [contract](../../research/FINANCIAL_FEATURE_CONTRACT.md). Bounded annual/all-vintage
+acquisition + issuer supplement thêm 30 PDF, giữ 11 PDF trước đó; text index 41
+documents/3.101 trang, OCR first-18-pages cho 11 gap PDF (198 trang). Thêm 85
+visual-validated observations, tổng 130, không phải canonical facts. Annual VAS
+document candidates 24/28 mã-năm; VNM 2019/2020/2021/2025 còn thiếu full VAS.
+Một public-mirror annual report VNM 2025 chứa bảng IFRS và audit extract VAS,
+giữ riêng accounting framework. PIT NOT_READY, không infer publication hoặc promote.
+
+Đã kiểm tra UI `redirectBc` và paths public
+`/du-lieu/bao-cao-tai-chinh/{symbol}/{bsheet|incsta|cashflow|cashflowdirect}/{year}/{quarter}/0/1/bao-cao-tai-chinh-.chn`.
+Canonical path lowercase được server xác nhận qua 301. Header `tblGridData` và body
+`tableContent` cho 4 kỳ; nested chart không phải fact. Local detail run:
+`data/financial/cafef_detail_v1/run-2026-10-02T165041.053761-0000-eb9f3a1c/`.
+108 calls (88 detail + 20 FileBCTC lists), 19.644 in-target cell observations,
+exact hash/parse/coverage replay PASS. Period presence annual 60/60, quarterly
+225/240; không đồng nhất presence với full item/taxonomy/PIT readiness.
+
+ACV NAM 2021 đã có số liệu qua detail; summary overlap vẫn giữ quarantine.
+FPT/VNM Q2-2024 vẫn blank ở detail kể cả explicit Q2 anchor. Cashflow detail có
+thêm các quarterly gaps: FPT Q1/Q2-2025; VNM Q3-2023, Q1/Q2-2025; PVS Q3-2023,
+Q3/Q4-2024; ACV Q3-2023. Direct-method path được probe bốn anchors nhưng không
+giải quyết các missing periods. Các kỳ này không được fill hoặc suy zero.
+
+Tải được consolidated PDF cho cả 11 unique gap periods từ FileBCTC lists. FPT
+Q2-2024 initial và reviewed PDFs có EPS YTD 2.514 vs 2.515 và profit khác nhau.
+Reviewed PDF page 58 có weighted-average basic shares 1.460.448.066; page 59 có
+comparative 2023 share/EPS restatement. Đây là evidence có version differences,
+chưa phải verified provider supersession/first-public chain. VNM Q2 PDF có
+standalone IS và 6-month CF. Chỉ 45 PDF facts được visual-transcribe/QA; full OCR
+và balance-sheet extraction cho mọi gap document chưa hoàn tất.
+
+Detail HTML label `tỷ đồng` không được dùng để nhân raw cell; numeric candidates
+khớp 1.047 summary values ở restricted comparison crosswalk nhưng chưa approve
+mọi unit/field. Monetary và EPS cells không dùng chung multiplier. Candidate
+field checklist chỉ cho bốn non-bank issuers, không phải approved taxonomy.
+Publication timestamps/timezone/fact-document join vẫn unresolved; financial
+features tiếp tục khóa. Xem [report — archived](../../../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip).
+
+## OLDER DISCOVERY FINDINGS (2026-09-16)
+
+Các mục bên dưới bảo toàn discovery evidence tại thời điểm ghi nhận. Trạng thái và khuyến nghị cũ không được đọc như current post-C8 decision.
+
+### 1. Trạng thái vòng đời tại thời điểm discovery (Lifecycle status)
 
 ```text
 ACCESS_TESTED
@@ -137,6 +504,21 @@ Mỗi dòng dưới đây là phiên hoàn thành đầu tiên quan sát đượ
 Việc giá đóng cửa và giá điều chỉnh bằng nhau trong các mẫu này không chứng minh được cơ sở điều chỉnh (adjustment basis).
 
 ### Khoảng ngày, phân trang, thứ tự và kết quả rỗng
+
+#### OBSERVED / OPERATIONAL CONTRACT — giới hạn khoảng PriceHistory
+
+Quan sát live ngày `2026-09-24` cho ACB/HOSE cho thấy request
+`2012-01-01 → 2012-12-31` trả HTTP/envelope hợp lệ nhưng chỉ có 65 dòng từ
+`2012-10-01 → 2012-12-28`, tức xấp xỉ quý cuối. Bốn trang khớp nhất quán với
+`TotalCount=65`; vấn đề nằm ở khoảng request bị cắt ngầm, không phải phép tính phân
+trang. UI CafeF cũng chỉ cho chọn tối đa xấp xỉ ba tháng.
+
+Đây là ràng buộc vận hành **đã quan sát**, không phải bảo đảm API chính thức hay mô tả
+chính xác thuật toán server. Khoảng dài có thể bị truncate im lặng; HTTP 200 và
+`Success=true` không chứng minh completeness của khoảng được yêu cầu. Vì vậy DELTA
+phải acquisition bằng các giao cắt quý lịch
+`NON_OVERLAPPING_CALENDAR_QUARTER_INTERSECTIONS_OLDEST_TO_NEWEST`, sau khi giao target
+window với identity interval đã xác minh.
 
 - Khoảng ngày mặc định trên UI: 1 tháng tính đến hôm nay; script ép ngày kết thúc trong tương lai về hôm nay và ngày bắt đầu lớn hơn ngày kết thúc về bằng ngày kết thúc.
 - Khoảng ngày request: `StartDate` và `EndDate` rõ ràng; ngữ nghĩa ranh giới (bao gồm/không bao gồm) chưa được kết luận chắc chắn.
@@ -385,3 +767,30 @@ Ghi chú phê duyệt:
 - Bản triển khai tiếp theo có thể mã hóa cấu trúc request công khai và định danh/metadata tài liệu đã xác minh trong khi **cố tình để trống** (unmapped) đối với fact giá, lịch sử cổ phiếu, dòng canonical sự kiện doanh nghiệp và fact PIT tài chính.
 - Adapter phải duy trì cơ chế fail-closed đối với `SOURCE_SMOKE` thực tế cho đến khi các trường smoke dự định, price basis, hành vi múi giờ/thời điểm công bố và quyền hạn được xác minh đầy đủ.
 - Không cấp trạng thái `PILOT_APPROVED` hay `PRODUCTION_APPROVED`.
+
+Financial evidence update 03/10/2026: sáu annual scan FPT 2019–2024 đã có OCR
+108 trang và visual review; cùng issuer annual 2025 đóng 49/49 annual core cells.
+PDF values phải giữ period/framework/unit và vintage: FPT 2020 reclassification,
+2024 EPS restatement không được trộn để tính lịch sử. Checklist document acceptance
+tách raw presence khỏi annual value verification, vẫn PIT NOT_READY.
+[Report và exact local inputs/output](../../../artifacts/reports/financial-pilot-closure-v1/report.md).
+
+### Financial date-PIT/issuer QA — 03/10/2026
+
+Owner đã duyệt DATE_ONLY daily/monthly: dùng từ phiên exchange quan sát được đầu
+tiên sau ngày công bố, không dựng timestamp. Ngày phải explicit disclosure và nối
+exact PDF hash; không dùng report/audit/signature/filename/ObjectId làm publication.
+Provider metadata có thể sai issuer: một ACV2022 attachment là VEAM, được quarantine
+ hash trong pilot_publication_review_v1; raw giữ nguyên, ACV2022 candidate khác vẫn còn.
+Latest date_pit_v4 có 124 date-reference cells; chưa financial features/research ready.
+[Report và coverage](../../../artifacts/reports/financial-date-pit-v1/report.md),
+[approved policy](../../../configs/data/financial_date_pit_v1.json).
+
+Continuation EPS revision/F-score: readiness_v11 có150 value cells,
+date_pit_v5 có135 date references. Exact original2025 PDF note55 cung cấp
+restated2024 shares/EPS; chỉ dùng từ20/03/2026, giữ original EPS trước đó.
+Original annual notes xác minh F-score debt gồm current portion và actual parent
+ESOP issuance; không alias VAS net profit thành ordinary earnings. FPT2024/25
+có6/9 reference signals, total null. Cached original PDFs đến từ CafeF attachments
+và exact issuer disclosure attachment2025; không crawl nguồn mới trong đợt này.
+[Report — archived](../../../artifacts/archives/project-cleanup-20261019-v1/superseded-reports.zip).

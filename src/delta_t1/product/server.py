@@ -9,7 +9,7 @@ from urllib.parse import unquote, urlparse
 from .repository import ProductRepository
 
 
-def make_handler(repository, web_root):
+def make_handler(repository, web_root, monitor=None):
     web_root = Path(web_root).resolve()
 
     class Handler(BaseHTTPRequestHandler):
@@ -25,7 +25,18 @@ def make_handler(repository, web_root):
         def do_GET(self):
             path = unquote(urlparse(self.path).path)
             if path == "/api/v1/health":
-                return self._json(200, {"status": "ok", "bundle": repository.manifest})
+                return self._json(200, {"status": "ok", "bundle": repository.manifest if repository else None})
+            if path == "/api/v1/monitor":
+                return self._json(200, monitor.snapshot()) if monitor else self._json(404, {"error":"monitor_unavailable"})
+            if path.startswith('/api/v1/monitor/files/'):
+                artifact = monitor.artifact(path[len('/api/v1/monitor/files/'):]) if monitor else None
+                if artifact is None:return self._json(404, {"error":"artifact_unavailable"})
+                body=artifact.read_bytes();self.send_response(200)
+                self.send_header('Content-Type', (mimetypes.guess_type(artifact.name)[0] or 'application/octet-stream')+'; charset=utf-8')
+                self.send_header('Content-Disposition','attachment; filename="'+artifact.name+'"')
+                self.send_header('Content-Length',str(len(body)));self.send_header('Cache-Control','no-store');self.end_headers();self.wfile.write(body);return
+            if repository is None and path.startswith('/api/'):
+                return self._json(404, {"error":"product_bundle_not_loaded"})
             if path == "/api/v1/companies":
                 return self._json(200, repository.list_companies())
             prefix = "/api/v1/companies/"
@@ -35,7 +46,7 @@ def make_handler(repository, web_root):
                 except (KeyError, ValueError):
                     return self._json(404, {"error": "company_not_found"})
 
-            relative = "index.html" if path in ("", "/") else path.lstrip("/")
+            relative = ("monitor/index.html" if monitor and repository is None else "index.html") if path in ("", "/") else 'monitor/index.html' if path in ['/monitor','/monitor/'] else path.lstrip("/")
             candidate = (web_root / relative).resolve()
             if web_root not in candidate.parents and candidate != web_root:
                 return self._json(404, {"error": "not_found"})
@@ -53,6 +64,9 @@ def make_handler(repository, web_root):
         def log_message(self, format, *args):
             pass
 
+        def do_POST(self):
+            return self._json(405, {"error":"read_only"})
+
     return Handler
 
 
@@ -60,4 +74,11 @@ def serve(bundle_dir, web_root, host="127.0.0.1", port=8000):
     repository = ProductRepository(bundle_dir)
     server = ThreadingHTTPServer((host, port), make_handler(repository, web_root))
     print(f"Delta Intelligence: http://{host}:{server.server_address[1]}")
+    server.serve_forever()
+
+
+def serve_monitor(root,web_root,port=8765):
+    from .monitor import WorkflowMonitor
+    server=ThreadingHTTPServer(('127.0.0.1',port),make_handler(None,web_root,WorkflowMonitor(root)))
+    print(f'Delta workflow monitor: http://127.0.0.1:{server.server_address[1]}/monitor/',flush=True)
     server.serve_forever()

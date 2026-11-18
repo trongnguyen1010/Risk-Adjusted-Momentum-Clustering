@@ -1,6 +1,54 @@
 # Hướng dẫn cho automated coding/research agents
 
-Đọc `README.md`, `docs/README.md`, `docs/PROJECT_OVERVIEW.md`, `docs/PROJECT_MAP.md`, `docs/ROADMAP.md` và `CONTRIBUTING.md` trước khi thay đổi kiến trúc. Tất cả thay đổi project nằm trong `SourceCode`; không sửa các PDF dưới `../TaiLieu`.
+## Owner override tạm thời — dừng DATE_ONLY trong corporate_actions (07/11/2026)
+
+Chỉ đạo mới nhất của owner: “tạm ngừng DATE_ONLY trong `corporate_actions` thôi
+nhé”. Chỉ áp dụng cho xử lý mới của corporate_actions, gồm dữ liệu corporate
+action đưa sang Product/M3/research, cho đến khi owner yêu cầu dùng lại.
+Phạm vi toàn DELTA ghi trước đó đã được thay thế bởi chỉ đạo hẹp này.
+Financial và các phạm vi ngoài corporate_actions tiếp tục dùng DATE_ONLY theo
+đúng policy đã được duyệt trước đây; không tạo acceptance hoặc mở gate mới.
+
+- Tập trung tìm timestamp công bố đúng tài liệu, có ngày/giờ, múi giờ/quy ước
+  clock được xác minh và provenance. Không tự suy giờ, offset hoặc lấy
+  updated/modified/created/fetched time thay publication.
+- Chỉ có ngày hoặc timestamp chưa xác minh thì giữ evidence và ghi gap/DEFERRED;
+  trong corporate_actions không dùng DATE_ONLY để gán availability/usable_from_date
+  hoặc mở PIT gate.
+- Giữ immutable raw, policy version và artifact cũ; không chạy lại batch đã
+  hoàn thành để áp chỉ đạo này. Ngày kỳ báo cáo, record date, ex-date và ngày
+  vận hành vẫn giữ đúng nghĩa riêng; chỉ đạo này về publication/availability.
+- Chỉ đạo thực thi được lưu tại
+  `configs/data/publication_timestamp_only_execution_20261107_v2.json`.
+  Chưa triển khai hard guard trên mọi CLI legacy; không khẳng định các CLI cũ
+  đã tự từ chối DATE_ONLY. Agent không chạy mới route DATE_ONLY corporate_actions
+  khi override còn hiệu lực. Version V1 giữ làm lịch sử, không còn là chỉ đạo hiện hành.
+
+Đọc `README.md`, `docs/README.md`, `docs/CURRENT_STATUS.md`, `docs/PROJECT_MAP.md`, `docs/ROADMAP.md` và `CONTRIBUTING.md` trước khi thay đổi kiến trúc. Tất cả thay đổi project nằm trong `SourceCode`; không sửa các PDF dưới `../TaiLieu`.
+
+## Lớp chỉ số sản phẩm (D-IND-01)
+
+`src/delta_t1/indicators` và `data/financial/indicators_v1` dùng công thức chuẩn thị trường
+owner đã duyệt (số CP = vốn góp/10.000, EBIT = LNTT + lãi vay, P/E/P/B theo raw_close cuối năm).
+Quy tắc cấm inferred shares/proxy EBIT bên dưới chỉ áp dụng cho research gates, không cho lớp này.
+
+## Crawl thực dụng (D-CRAWL-02, 25/10/2026)
+
+Owner nới quy trình thu thập: ưu tiên lấy được dữ liệu, vẫn giữ raw/receipt/hash.
+
+- Không còn latch toàn campaign khi một route/mã gặp lỗi. HTTP 403/429/5xx/timeout: retry tối đa 3 lần với
+  backoff (30 giây, 2 phút, 10 phút); vẫn lỗi thì đánh dấu mã/trang đó `DEFERRED` và chạy tiếp mã khác.
+  Phiên sau được resume các mục `DEFERRED`.
+- Không bắt buộc pilot gate trước khi scale: smoke 20 mã rồi chạy toàn bộ. Budget/tốc độ đặt trong config
+  của từng run, không có hard cap chung.
+- Ngày gửi trên trang Công bố thông tin CafeF (`CreateDate`) được dùng làm ngày công bố cho lớp sản phẩm và
+  M3 (`publication_source=CAFEF_DISCLOSURE`, DATE_ONLY, dùng được từ phiên giao dịch đầu tiên sau ngày đó);
+  không cần câu công bố trong PDF hay khớp hash PDF.
+- Vẫn cấm: giải CAPTCHA/JS challenge, giả đăng nhập, xoay IP/proxy hoặc giả vân tay trình duyệt để né chặn,
+  vượt paywall. Gặp những cơ chế này thì dừng route đó và báo owner.
+
+Quy định cũ nghiêm hơn ở `docs/crawl/` và các gate research/PIT cũ vẫn là lịch sử; khi mâu thuẫn, mục này
+được ưu tiên cho thu thập dữ liệu mới.
 
 ## Architecture boundaries
 
@@ -13,8 +61,12 @@
 
 ## Ranh giới M1/M2/M3
 
-- **M1:** `SOURCE_SMOKE` thật 3–5 mã chỉ mở `REPRESENTATIVE_PILOT`; chỉ PASS pilot 50–60 mã, >=5 năm mới mở planning `M1_SCALE` >=300. Synthetic không pass gate thật; `EXTENDED_SCALE` 5–15 năm không có cap 350.
-- **M2:** giữ deterministic static K-Means baseline; PCA/comparator đánh giá riêng. Không triển khai concrete dynamic algorithm trước khi `docs/research/DYNAMIC_CLUSTERING_REVIEW.md` phê duyệt.
+**Hướng chính thức từ 26/10/2026 (D-DIR-01):** mô hình thị trường = A của bundle v4 (k=3), tài chính = B v4, M3 theo
+`M3/M3_PLAN.md`. `M2/` (K=2), `m3_dashboard.py`, web HTML/JS cũ là LEGACY: chỉ đọc để đối chứng/tái lập, không làm
+input cho việc mới. Các đoạn M1/M2 bên dưới mô tả gate lịch sử.
+
+- **M1:** C8 đã execute/verify với 905 mã market-ready; historical identity và strict research readiness vẫn fail-closed. Proposed market-only universe không tự động trở thành final research universe.
+- **M2:** M2-PREP chỉ được freeze market-only protocol với membership theo từng snapshot: `market_experiment_eligible(t) = market_feature_ready_v2(t)`. Giữ deterministic static K-Means baseline; PCA/comparator đánh giá riêng. Không promote sang `research_ready`, không backtest và không triển khai concrete dynamic algorithm trước khi `docs/research/DYNAMIC_CLUSTERING_REVIEW.md` phê duyệt.
 - **M3:** chỉ final backtest sau methodology freeze; dashboard tiêu thụ artifact, không điều khiển research.
 
 ## Research invariants
@@ -27,9 +79,9 @@
 ## Data invariants
 
 - Raw/canonical/experiment artifact là immutable; sửa policy tạo version/run mới.
-- Không dùng current ticker membership làm historical universe; join bằng historical `security_id` interval.
+- Không dùng current ticker membership làm final historical research universe; join strict research bằng historical `security_id` interval. Market-only M2 development chỉ dùng eligibility theo từng snapshot đã freeze và không tạo historical-identity claim.
 - Không forward-fill missing price, không đổi missing thành zero, không trộn raw/adjusted basis.
-- Chỉ dùng row có `available_at <= decision_at`; financial statement phải point-in-time và revision-aware.
+- Chỉ dùng row có `available_at <= decision_at`; financial DATE_ONLY daily/monthly dùng policy đã owner duyệt: `decision_date >= usable_from_date` (phiên exchange quan sát được đầu tiên sau ngày công bố, không suy giờ). Financial statement phải point-in-time và revision-aware; date overlay chưa tự mở feature/research gate.
 - Real clustering cần ít nhất ba calendar years usable observed history; mã ngắn lịch sử là `REFERENCE_ONLY`.
 - Market canonical dùng VND/share, volume dùng shares, traded value dùng VND; multiplier phải có evidence và không được suy từ magnitude.
 - Reconciliation so theo canonical entity/key ở field level; `source`/`fetched_at` khác nhau không tự tạo value conflict. Không average và không dùng source priority nếu policy chưa approved/versioned.
@@ -37,8 +89,8 @@
 
 ## Testing requirements
 
-- Trước và sau mỗi phase: `python -m unittest discover -s tests -v` và `python -m compileall -q src tests scripts run.py`.
-- Thay pipeline phải chạy `configs/data/synthetic_smoke.example.json`; source smoke template phải tiếp tục fail-closed. Thay web phải chạy `node --check web/app.js`.
+- Chạy targeted tests cho subsystem bị ảnh hưởng và `python -m compileall -q src tests scripts run.py`. Chạy full repository gate khi stage hoặc thay đổi code/data/research warrant; tránh lặp full suite khi chỉ sửa documentation/configuration.
+- Thay pipeline phải chạy `configs/data/synthetic_smoke.example.json`; acquisition và access-control phải tiếp tục fail-closed. Thay web phải chạy `node --check web/app.js`.
 - Giữ và migrate assertion cũ. Không xóa/giảm test để làm migration pass.
 - Kiểm tra import cũ, JSON config/schema và Markdown link trước khi xóa file superseded.
 
@@ -51,4 +103,45 @@
 
 ## Forbidden shortcuts
 
-Không hard-code feature validity bằng prefix; không sinh Sharpe trong active feature snapshot; không duplicate metrics trong model; không đặt placeholder thành kết quả; không crawl lớn trước source/pilot gates; không bypass login/anti-bot/paywall/access control; không thêm microservice, broker, Kubernetes, auth/news/sentiment/database migration ngoài active milestone.
+Không hard-code feature validity bằng prefix; không sinh Sharpe trong active feature snapshot; không duplicate metrics trong model; không đặt placeholder thành kết quả; không crawl lớn khi chưa smoke 20 mã (D-CRAWL-02); không bypass login/anti-bot/paywall/access control; không thêm microservice, broker, Kubernetes, auth/news/sentiment/database migration ngoài active milestone.
+
+## Single-agent execution policy
+
+DELTA currently uses a single-agent execution workflow. Người dùng tự chọn model cho
+mỗi Codex session theo độ khó; repository không prescribe hoặc pin model.
+
+```text
+UNDERSTAND TASK
+        ↓
+READ ONLY NECESSARY CONTEXT
+        ↓
+IDENTIFY EXACT CURRENT STAGE
+        ↓
+IMPLEMENT ONLY THAT STAGE
+        ↓
+RUN RELEVANT TESTS
+        ↓
+SELF-REVIEW AGAINST THE STAGE CONTRACT
+        ↓
+UPDATE EXECUTION PROGRESS / HANDOFF
+        ↓
+STOP
+```
+
+Rules:
+
+1. Chỉ thực hiện một DELTA stage mỗi session, trừ khi người dùng yêu cầu rõ khác đi.
+2. Không tự động tiếp tục sang stage kế tiếp.
+3. Không spawn hoặc delegate cho subagent.
+4. Không đọc lại toàn repository khi đã biết exact path.
+5. Tránh phân tích trùng lặp hoặc implementation thay thế khi không cần thiết.
+6. Preserve evidence thay vì recompute expensive work.
+7. Long crawl chạy local; không continuously poll.
+8. Self-review là bắt buộc trước khi đánh dấu stage complete.
+9. Evidence, tests và artifacts quyết định `PASS`/`PARTIAL`/`BLOCKED`/`FAIL`, không phải code existence.
+
+Nếu stage đề xuất thay đổi methodology-sensitive — gồm nới 100% observation rule,
+price-basis acceptance, inferred provider transformation, expected-session semantics,
+historical identity, financial PIT, research eligibility, M2 methodology, hoặc final
+canonical/research-sample freeze — phải ghi rõ `MANUAL_REVIEW_REQUIRED` và STOP khi
+cần approval. Người dùng quyết định model hoặc cách review; repository không pin model.

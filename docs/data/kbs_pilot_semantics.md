@@ -1,10 +1,12 @@
 # Quyết định ngữ nghĩa dữ liệu KBS cho pilot — 12/09/2026
 
+> **HISTORICAL / LEGACY EVIDENCE — NOT ACTIVE MARKET SOURCE.** Tài liệu này chỉ bảo toàn evidence cho immutable KBS pilot và các tham chiếu lịch sử. Active market source hậu C8 là CafeF `TradeHistoryNew`; các kết luận dưới đây không định nghĩa M2 market eligibility hiện tại.
+
 ```text
 data_mode = real
 ```
 
-Tài liệu này là quyết định còn hiệu lực cho pilot đã rà soát. Bản smoke audit chưa giải quyết trước đó đã được gỡ khi dọn project; vendor snapshots hoàn chỉnh vẫn bất biến.
+Các quyết định dưới đây còn hiệu lực khi diễn giải đúng pilot lịch sử đã rà soát; chúng không phải current active-source decision. Bản smoke audit chưa giải quyết trước đó đã được gỡ khi dọn project; vendor snapshots hoàn chỉnh vẫn bất biến.
 
 ## Bảng quyết định
 

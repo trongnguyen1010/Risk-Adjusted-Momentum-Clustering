@@ -31,7 +31,7 @@ def promote(vendor: Path, policy_path: Path, root: Path) -> tuple[Path, dict]:
                     status="running", started_at=now(), synthetic=policy.get("synthetic"),
                     data_mode="synthetic" if policy.get("synthetic") else "real",
                     methodology=policy.get("methodology", {}), policy=policy,
-                    policy_hash=digest(encoded(policy)), code_hash=code_hash(), schema_version="1.4.0")
+                    policy_hash=digest(encoded(policy)), code_hash=code_hash(), schema_version="1.5.0")
     errors, quarantine, tables = [], [], {}
     records_input = 0
     try:
