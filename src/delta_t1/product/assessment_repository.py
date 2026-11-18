@@ -109,6 +109,56 @@ class AssessmentLookupResolution:
         return self.assessment is not None
 
 
+class AssessmentArtifactUnavailable(RuntimeError):
+    """The pinned Assessment release cannot safely be served."""
+
+
+class AssessmentRepository:
+    """In-memory, read-only projection of one already verified Assessment release."""
+
+    def __init__(self, release: AssessmentRelease, payload: AssessmentPayload):
+        self.release = release
+        self.payload = payload
+
+    @classmethod
+    def from_config(
+        cls,
+        config_path: Path | str | None = None,
+        *,
+        repository_root: Path | str | None = None,
+    ) -> "AssessmentRepository":
+        loaded = load_assessment_payload(config_path, repository_root=repository_root)
+        if not loaded.ready:
+            raise AssessmentArtifactUnavailable(loaded.reason or "ASSESSMENT_ARTIFACT_UNAVAILABLE")
+        return cls(loaded.release, loaded.payload)
+
+    def lookup(
+        self,
+        ticker: str,
+        *,
+        assessment_context: str | None = None,
+        as_of: str | None = None,
+        required_price_session: str | None = None,
+        release_revision: str | None = None,
+    ) -> AssessmentLookupResolution:
+        expected = {
+            "assessment_context": assessment_context,
+            "as_of": as_of,
+            "required_price_session": required_price_session,
+            "release_revision": release_revision,
+        }
+        if any(value is not None and value != getattr(self.release, field) for field, value in expected.items()):
+            return AssessmentLookupResolution("NOT_READY", "RELEASE_CONTEXT_MISMATCH", self.release, None)
+        normalized = str(ticker).strip().upper()
+        if not normalized or not normalized.replace("-", "").isalnum():
+            return AssessmentLookupResolution("NOT_FOUND", "TICKER_INVALID", self.release, None)
+        assessment = self.payload.assessments.get(normalized)
+        if assessment is None:
+            return AssessmentLookupResolution("NOT_FOUND", "TICKER_NOT_FOUND", self.release, None)
+        status = "INSUFFICIENT_EVIDENCE" if assessment["verdict"] == "INSUFFICIENT_EVIDENCE" else "READY"
+        return AssessmentLookupResolution(status, None, self.release, assessment)
+
+
 def _repository_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
@@ -390,20 +440,10 @@ def lookup_assessment(
     loaded = load_assessment_payload(config_path, repository_root=repository_root)
     if not loaded.ready:
         return AssessmentLookupResolution("NOT_READY", loaded.reason, None, None)
-    release = loaded.release
-    expected = {
-        "assessment_context": assessment_context,
-        "as_of": as_of,
-        "required_price_session": required_price_session,
-        "release_revision": release_revision,
-    }
-    if any(value is not None and value != getattr(release, field) for field, value in expected.items()):
-        return AssessmentLookupResolution("NOT_READY", "RELEASE_CONTEXT_MISMATCH", release, None)
-    normalized = str(ticker).strip().upper()
-    if not normalized or not normalized.replace("-", "").isalnum():
-        return AssessmentLookupResolution("NOT_FOUND", "TICKER_INVALID", release, None)
-    assessment = loaded.payload.assessments.get(normalized)
-    if assessment is None:
-        return AssessmentLookupResolution("NOT_FOUND", "TICKER_NOT_FOUND", release, None)
-    status = "INSUFFICIENT_EVIDENCE" if assessment["verdict"] == "INSUFFICIENT_EVIDENCE" else "READY"
-    return AssessmentLookupResolution(status, None, release, assessment)
+    return AssessmentRepository(loaded.release, loaded.payload).lookup(
+        ticker,
+        assessment_context=assessment_context,
+        as_of=as_of,
+        required_price_session=required_price_session,
+        release_revision=release_revision,
+    )

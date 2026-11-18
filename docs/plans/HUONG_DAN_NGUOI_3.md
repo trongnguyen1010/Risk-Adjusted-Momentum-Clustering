@@ -19,7 +19,7 @@
 | R3-07 | S4 | PASS | `feat(assessment): Khai báo response schema Assessment` | Schema 18 features, context/status, evidence/peer/history và query guard PASS. |
 | R3-03 | S4 | PASS | `feat(assessment): Nạp payload Assessment theo schema` | Nạp bốn payload read-only, giữ null và chặn schema/verdict sai. |
 | R3-04 | S4 | PASS | `feat(assessment): Tra cứu đúng mã và ngữ cảnh phát hành` | Phân biệt READY/INSUFFICIENT_EVIDENCE/NOT_FOUND và chặn override release. |
-| R3-08 | S4 | CHƯA MỞ | — | Chờ R3-04 và R3-07. |
+| R3-08 | S4 | PASS | `feat(assessment): Reader artifact read-only` | Repository chỉ mở release pin; unavailable khác ticker không tồn tại. |
 | R3-05 | S4 | CHƯA MỞ | — | Chờ R3-08. |
 | R3-06 | S4 | CHƯA MỞ | — | Chờ R3-08 và R3-07. |
 | R3-09 | S4 | CHƯA MỞ | — | Chờ R3-05 và R3-06. |
