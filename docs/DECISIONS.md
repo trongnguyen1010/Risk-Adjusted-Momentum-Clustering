@@ -1,5 +1,16 @@
 # Các quyết định còn hiệu lực
 
+## 2026-11-18 — Assessment release pointer V1 chỉ định artifact phục vụ Product
+
+Product Assessment chỉ được mở artifact được pin rõ trong
+`configs/product/assessment_release_v1.json`. Pointer V1 dùng
+`assessment_v1_run01`, `SIMULATED_AS_OF`, `as_of=2026-01-02` và
+`required_price_session=2025-12-31`; revision/context là metadata release, không
+phải tham số người dùng. Khi config, pointer hoặc thư mục artifact không hợp lệ,
+reader trả `NOT_READY`; không được tự chọn baseline, sibling run hoặc run mới nhất.
+Kiểm manifest/hash và nạp payload vẫn thuộc các stage kế tiếp, nên quyết định này
+không tự mở serving, research hoặc current assessment.
+
 ## 2026-11-11 — chấp nhận TNCK7/Mekong6, overlay Product/M3 pilot V2
 
 Owner yêu cầu “hãy thực hiện” ngay sau đề xuất cụ thể ở bước43: chấp nhận
