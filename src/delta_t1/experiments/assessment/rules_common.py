@@ -24,18 +24,19 @@ def load_policy(policy=None):
     return policy
 
 
-def read_evidence(name, cell, *, rule_id, policy, categorical_values=None):
+def read_evidence(name, cell, *, rule_id, policy, categorical_values=None, as_metadata=False):
     cell = cell if isinstance(cell, Mapping) else {}
     source_status = cell.get('status', 'MISSING_INPUT')
     value = cell.get('value')
     result = dict(rule_id=rule_id, value=value, status=source_status, unit=cell.get('unit'),
                   period=cell.get('period'), evidence_ref=cell.get('evidence_ref'))
-    result['metric' if categorical_values is None else 'metadata'] = name
+    metadata_cell = as_metadata or categorical_values is not None
+    result['metadata' if metadata_cell else 'metric'] = name
     reason = None
     if value is None:
         reason = 'MISSING_INPUT'
     elif categorical_values is not None:
-        if not isinstance(value, str) or value not in categorical_values:
+        if not any(type(value) is type(allowed) and value == allowed for allowed in categorical_values):
             reason = 'INVALID_METADATA'
             result['value'] = None
     elif isinstance(value, bool) or not isinstance(value, Real):
@@ -50,19 +51,24 @@ def read_evidence(name, cell, *, rule_id, policy, categorical_values=None):
         reason = 'UNUSABLE_STATUS'
     if reason is None and source_status == 'IMPUTED_MEDIAN':
         approved = policy['imputed_policy']
-        if name not in policy['features']['financial']:
+        if metadata_cell:
+            reason = 'IMPUTED_METADATA_NOT_ALLOWED'
+        elif name not in policy['features']['financial']:
             reason = 'IMPUTATION_NOT_ALLOWED_FOR_MARKET'
         elif not (approved.get('allowed_for_rulebook') is True
                   and approved.get('approval', {}).get('status') == 'APPROVED_BY_USER'
                   and 'RULEBOOK' in approved['approval'].get('scope', [])):
             reason = 'UNAPPROVED_IMPUTATION'
+        elif cell.get('cell_lineage_verified') is not True:
+            reason = 'UNVERIFIED_IMPUTATION_LINEAGE'
     if reason is None and any(not isinstance(result[k], str) or not result[k].strip()
                               for k in ('unit','period','evidence_ref')):
         reason = 'MISSING_EVIDENCE'
     if reason is None and (cell.get('source_hash_verified') is not True or cell.get('provenance_verified') is not True):
         reason = 'UNVERIFIED_EVIDENCE'
     result.update(validation_status=reason or 'VALID', usable=reason is None,
-                  is_observed=source_status == 'OK', source_hash_verified=cell.get('source_hash_verified') is True,
+                  is_observed=source_status == 'OK', cell_lineage_verified=cell.get('cell_lineage_verified') is True,
+                  source_hash_verified=cell.get('source_hash_verified') is True,
                   provenance_verified=cell.get('provenance_verified') is True)
     return result
 

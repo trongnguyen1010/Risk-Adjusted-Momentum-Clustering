@@ -1050,6 +1050,16 @@ Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Fi
 
 ## 4. Công việc còn lại và gate chuyển bước
 
+### R2-13 — component tài chính/CFO đã kiểm fixture
+
+Đã hiện thực ROA/net margin/CFO với NI quan sát và ratio-validity qualifiers;
+strict0/1 thresholds, optional skip, watch/major flags, imputed đã duyệt có lineage.
+16financialtests (27tổ hợp dấu),15market và11policy đạt. Bằng chứng giữ trạng thái
+observed/imputed; không biến NI thành feature mới hoặc CFO median thành quan sát.
+S1 vẫn cần Người1 nối A-v4 thật và hoàn thiện provenance/metadata; các cờ verified
+trong fixture không thay QA nguồn. Chưa bật builder/S3 hoặc phát nhãn đầu tư thật.
+
+
 ### R2-12 — component thị trường đã kiểm fixture, chưa bật Assessment thật
 
 `evaluate_market` đã mã hóa logic momentum và ILLIQUID theo policy R2-11, trả
