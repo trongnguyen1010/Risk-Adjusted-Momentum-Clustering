@@ -25,6 +25,11 @@ class TestAssessmentLookup(unittest.TestCase):
         self.assertEqual(result.status, 'NOT_READY')
         self.assertEqual(result.reason, 'RELEASE_CONTEXT_MISMATCH')
 
+    def test_invalid_ticker_does_not_be_treated_as_artifact_failure(self):
+        result = lookup_assessment('../A32')
+        self.assertEqual(result.status, 'NOT_FOUND')
+        self.assertEqual(result.reason, 'TICKER_INVALID')
+
 
 if __name__ == '__main__':
     unittest.main()
