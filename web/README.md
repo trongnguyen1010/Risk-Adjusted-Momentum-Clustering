@@ -35,6 +35,13 @@ Test API cần FastAPI: `python -m venv --system-site-packages .venv-web` rồi 
 
 `GET /api/v2/stocks/{ticker}/assessment` chỉ đọc release đã verify, không là deploy production. Spec local: `docs/api/OPENAPI_ASSESSMENT_SPEC.json`; context demo là `SIMULATED_AS_OF`.
 
+### Lỗi thiếu bundle terminal khi chạy Uvicorn
+
+Backend web đầy đủ còn cần `data/web/delta-intelligence-v4/manifest.json`. Nếu file này
+không có, Uvicorn dừng lúc startup dù Assessment artifact vẫn đọc được. Đây là data
+bàn giao local, không có trong Git; dùng lệnh mapper/read-only trong hướng dẫn Assessment
+để kiểm kết quả, hoặc lấy đủ bundle trước khi mở `/docs`.
+
 
 ## Bổ sung EPS theo năm/quý và trải nghiệm chỉ số
 
