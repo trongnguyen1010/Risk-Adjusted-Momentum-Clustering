@@ -28,10 +28,14 @@ The UI ran from the local Task 14 frontend. Catalog, overview, and fundamentals 
 | FPT current release and valid alternative A32 | PASS - both render from pinned release | [FPT screenshot](screenshots/fpt-current.png), [A32 screenshot](screenshots/a32-desktop.png) |
 | 18-feature selector; one chart; 5/10-year history and URL Back/Forward | PASS | Browser assertions in [verify_assessment_ui.cjs](../../verify_assessment_ui.cjs) |
 | Insufficient evidence and missing VCB | PASS - AAM shows `INSUFFICIENT_EVIDENCE`; VCB reports missing/404 | [AAM screenshot](screenshots/aam-insufficient.png), [VCB screenshot](screenshots/vcb-missing.png) |
-| Revision mismatch and invalid lookback | PASS - HTTP 409 and 422 respectively | API assertions in [verify_assessment_ui.cjs](../../verify_assessment_ui.cjs) and endpoint integration tests |
+| Assessment revision lock and invalid lookback | PASS locally - matching release revision returns 200, mismatched revision 409, invalid lookback 422 | API assertions in [verify_assessment_ui.cjs](../../verify_assessment_ui.cjs) and endpoint integration tests |
 | Stale presentation state | PASS as a synthetic fixture, explicitly labeled | [stale fixture screenshot](screenshots/a32-stale-fixture.png) |
 | Mobile, keyboard, and theme | PASS - 390 px viewport has no horizontal overflow; focus order and light theme assertions pass | [mobile screenshot](screenshots/a32-mobile.png), [light theme screenshot](screenshots/a32-mobile-light.png), [ui-result.json](ui-result.json) |
 | Response pins | PASS - revision, manifest hash, deterministic hash, context, and `as_of` match release pointer and artifact | [response-pins.json](response-pins.json) |
+
+## Manual UAT status
+
+Manual human UAT is **NOT RUN**. The actionable checklist is [manual-uat-checklist.md](manual-uat-checklist.md). Run it only when the Assessment endpoint serves the pinned release; record failures as FAIL and unavailable cases as BLOCKED.
 
 ## Fixes made while completing UAT
 
