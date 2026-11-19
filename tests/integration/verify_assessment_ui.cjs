@@ -9,6 +9,7 @@ const playwrightModule = process.env.PLAYWRIGHT_MODULE || require.resolve('playw
 const { chromium } = require(playwrightModule);
 const base = process.env.DELTA_UI_URL || 'http://127.0.0.1:3000';
 const api = process.env.DELTA_API_URL || 'http://127.0.0.1:8010';
+const supportApiUrl = process.env.DELTA_SUPPORT_API_URL || api;
 const output = process.env.DELTA_QA_OUTPUT || 'tests/integration/evidence/assessment-uat';
 const featureIds = [
   'roe', 'roa', 'gross_margin', 'net_margin', 'debt_to_equity', 'current_ratio',
@@ -40,6 +41,7 @@ async function getCatalog() {
   const fpt = await apiJson('FPT');
   const wrongRevision = await apiJson('A32', '?revision=assessment-ui-wrong-revision');
   const releasePointer = JSON.parse(fs.readFileSync(path.join(repoRoot, 'configs/product/assessment_release_v1.json'), 'utf8'));
+  const matchingRevision = await apiJson('A32', `?revision=${encodeURIComponent(releasePointer.release_revision)}`);
   assert.equal(a32.status, 200, 'A32 must exist in the pinned Assessment release');
   assert.equal(fpt.status, 200, 'FPT must exist in the pinned Assessment release');
   assert.equal(a32Short.status, 200);
@@ -47,6 +49,8 @@ async function getCatalog() {
   assert.equal(aam.body.assessment_status, 'INSUFFICIENT_EVIDENCE');
   assert.equal(vcb.status, 404, 'VCB absence in this release must be rendered as missing');
   assert.equal(wrongRevision.status, 409, 'wrong release revision must be rejected');
+  assert.equal(matchingRevision.status, 200, 'the pinned Assessment release revision must be accepted');
+  assert.equal(matchingRevision.body.references.release_revision, releasePointer.release_revision);
   assert.deepEqual(a32.body.features.map(feature => feature.feature_id).sort(), [...featureIds].sort());
   assert.equal(a32.body.references.release_revision, releasePointer.release_revision);
   assert.equal(a32.body.references.manifest_sha256, releasePointer.manifest_sha256);
@@ -171,7 +175,7 @@ async function getCatalog() {
       as_of: a32.body.as_of,
       assessment_context: a32.body.assessment_context,
       support_api_version: supportApiVersion,
-      support_api_url: api,
+      support_api_url: supportApiUrl,
       verified_tickers: ['FPT', 'A32', 'AAM'],
       missing_tickers: ['VCB'],
       synthetic_stale_fixture: true,
@@ -179,7 +183,7 @@ async function getCatalog() {
     fs.writeFileSync(path.join(output, 'ui-result.json'), JSON.stringify({
       status: 'PASS', screenshots, widths, support_api_version: supportApiVersion, checks: [
         '18 features', '5/10 lookback URL and history navigation', 'one chart',
-        'INSUFFICIENT_EVIDENCE', 'missing ticker', '409 revision mismatch',
+        'INSUFFICIENT_EVIDENCE', 'missing ticker', 'matching revision 200 / mismatch 409',
         'stale presentation fixture', 'mobile width', 'keyboard focus', 'light theme',
       ],
     }, null, 2) + '\n');

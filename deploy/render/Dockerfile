@@ -6,7 +6,7 @@ FROM python:3.12-slim
 ARG DATA_BASE_URL=https://huggingface.co/datasets/ngyen/delta-intelligence-data/resolve/main
 ENV PYTHONUNBUFFERED=1 \
     PYTHONIOENCODING=utf-8 \
-    PYTHONPATH=/app/web/backend \
+    PYTHONPATH=/app/web/backend:/app/src \
     DELTA_BUNDLE=/app/data/web/delta-intelligence-v4
 
 WORKDIR /app
@@ -17,6 +17,7 @@ COPY deploy/render/data-files.txt deploy/render/fetch_data.py /tmp/
 RUN python /tmp/fetch_data.py /tmp/data-files.txt /app
 
 COPY web/backend/app /app/web/backend/app
+COPY src/delta_t1 /app/src/delta_t1
 COPY configs/product /app/configs/product
 COPY M3/presentation /app/M3/presentation
 

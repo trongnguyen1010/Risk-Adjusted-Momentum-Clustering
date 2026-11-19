@@ -57,7 +57,10 @@ def create_app(repository=None,fundamentals=None,availability=None,backtest=None
     async def require_matching_revision(request:Request,call_next):
         if request.url.path.startswith('/api/v2/') and request.url.path not in ('/api/v2/catalog','/api/v2/health'):
             revision=request.query_params.get('revision')
-            if revision and revision!=getattr(repo(request),'revision',repo(request).manifest['database_sha256']):
+            is_assessment_release_path=(request.url.path.startswith('/api/v2/stocks/') and request.url.path.endswith('/assessment'))
+            # Assessment has its own immutable release revision, checked by the route below.
+            # Do not compare that pin with the terminal bundle's unrelated revision here.
+            if revision and not is_assessment_release_path and revision!=getattr(repo(request),'revision',repo(request).manifest['database_sha256']):
                 return JSONResponse(status_code=409,content={'detail':'Gói dữ liệu đã đổi phiên bản. Tải lại workspace để tránh trộn model, nhãn và hồ sơ.'})
             version=request.query_params.get('version')
             parts=request.url.path.split('/')

@@ -27,12 +27,21 @@ class TestAssessmentEndpoints(unittest.TestCase):
     def test_verified_artifact_endpoint_and_error_matrix(self):
         with TestClient(self.app) as client:
             ready = client.get('/api/v2/stocks/A32/assessment')
+            matching_revision = client.get(
+                '/api/v2/stocks/A32/assessment?revision='
+                + self.repository.release.release_revision
+            )
             insufficient = client.get('/api/v2/stocks/AAM/assessment')
             revision = client.get('/api/v2/stocks/A32/assessment?revision=wrong')
             missing = client.get('/api/v2/stocks/VCB/assessment')
             invalid_lookback = client.get('/api/v2/stocks/A32/assessment?lookback_years=7')
         self.assertEqual(ready.status_code, 200)
         self.assertEqual(ready.json()['ticker'], 'A32')
+        self.assertEqual(matching_revision.status_code, 200)
+        self.assertEqual(
+            matching_revision.json()['references']['release_revision'],
+            self.repository.release.release_revision,
+        )
         self.assertEqual(insufficient.status_code, 200)
         self.assertEqual(insufficient.json()['assessment_status'], 'INSUFFICIENT_EVIDENCE')
         self.assertEqual(revision.status_code, 409)
