@@ -51,8 +51,12 @@ function acquire(path: string, force: boolean) {
         ),
       75000,
     );
+    const isAssessmentReleasePath =
+      /^\/api\/v2\/stocks\/[^/?]+\/assessment(?:\?|$)/.test(path);
     const requestPath =
-      expectedBundle && !/^\/api\/v2\/(catalog|health)(\?|$)/.test(path)
+      expectedBundle &&
+      !isAssessmentReleasePath &&
+      !/^\/api\/v2\/(catalog|health)(\?|$)/.test(path)
         ? `${path}${path.includes("?") ? "&" : "?"}revision=${encodeURIComponent(expectedBundle)}`
         : path;
     const promise = fetch(requestPath, { signal: controller.signal })
@@ -70,7 +74,7 @@ function acquire(path: string, force: boolean) {
           );
         // Indicator and backtest endpoints already speak Vietnamese and carry codes (e.g.
         // sector_group=SECURITIES, strategy ids) that the legacy dictionary would rewrite.
-        const value = /^\/api\/v2\/(stocks\/[^/?]+\/(overview|fundamentals|scores|peers)|backtest)/.test(path)
+        const value = /^\/api\/v2\/(stocks\/[^/?]+\/(overview|fundamentals|scores|peers|assessment)|backtest)/.test(path)
           ? body
           : localizePayload(body);
         if (cache.size >= 80) cache.delete(cache.keys().next().value!);

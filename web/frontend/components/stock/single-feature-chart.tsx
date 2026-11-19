@@ -85,16 +85,21 @@ export interface SingleFeatureChartProps {
   response: AssessmentResponse;
   lookbackYears?: 5 | 10;
   onLookbackChange?: (query: AssessmentQuery) => void;
+  selectedFeatureId?: AssessmentFeatureId;
+  onFeatureChange?: (featureId: AssessmentFeatureId) => void;
 }
 
 export function SingleFeatureChart({
   response,
   lookbackYears: controlledLookbackYears,
   onLookbackChange,
+  selectedFeatureId: controlledSelectedId,
+  onFeatureChange,
 }: SingleFeatureChartProps) {
   const [localLookbackYears, setLocalLookbackYears] = useState<5 | 10>(10);
   const lookbackYears = controlledLookbackYears ?? localLookbackYears;
-  const [selectedId, setSelectedId] = useState<AssessmentFeatureId>("roe");
+  const [localSelectedId, setLocalSelectedId] = useState<AssessmentFeatureId>("roe");
+  const selectedId = controlledSelectedId ?? localSelectedId;
   const selectedFeature =
     response.features.find((feature) => feature.feature_id === selectedId) ??
     response.features[0];
@@ -105,6 +110,11 @@ export function SingleFeatureChart({
     const query: AssessmentQuery = { lookback_years: next };
     if (controlledLookbackYears === undefined) setLocalLookbackYears(next);
     onLookbackChange?.(query);
+  };
+
+  const changeFeature = (featureId: AssessmentFeatureId) => {
+    if (controlledSelectedId === undefined) setLocalSelectedId(featureId);
+    onFeatureChange?.(featureId);
   };
 
   const chartModel = useMemo(() => {
@@ -261,7 +271,7 @@ export function SingleFeatureChart({
         <label htmlFor="assessment-feature-selector">Chỉ số cần xem</label>
         <select
           id="assessment-feature-selector"
-          onChange={(event) => setSelectedId(event.target.value as AssessmentFeatureId)}
+          onChange={(event) => changeFeature(event.target.value as AssessmentFeatureId)}
           value={selectedFeature.feature_id}
         >
           {response.features.map((feature) => (

@@ -1,11 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { useSelection } from "@/lib/selection";
-import { useApi, url } from "@/lib/api";
+import { useApi, useStale, url } from "@/lib/api";
 import { number } from "@/lib/format";
 import { formatMetric, signedPercent } from "@/lib/indicator-format";
-import type { PriceData, StockFundamentals, StockOverview } from "@/lib/types";
+import type {
+  AssessmentFeatureId,
+  AssessmentResponse,
+  PriceData,
+  StockFundamentals,
+  StockOverview,
+} from "@/lib/types";
 import { Panel, Skeleton, ErrorState, EmptyState } from "@/components/ui";
 import { Chart, baseChart, axis } from "@/components/chart";
 import { WorkspaceTabs } from "@/components/workspace-tabs";
@@ -15,13 +21,36 @@ import { ScoresPanel } from "@/components/stock/scores-panel";
 import { PeersTable } from "@/components/stock/peers-table";
 import { MethodDialog } from "@/components/stock/method-dialog";
 import { InfoTip } from "@/components/stock/info-tip";
+import { AssessmentPanel } from "@/components/stock/assessment-panel";
 
 const tabs = [
   ["overview", "Tổng quan"],
   ["indicators", "Chỉ số tài chính"],
   ["scores", "Điểm sức khỏe"],
   ["peers", "So sánh cùng nhóm"],
+  ["assessment", "Đánh giá đầu tư"],
 ] as const;
+
+const ASSESSMENT_FEATURE_IDS: AssessmentFeatureId[] = [
+  "roe",
+  "roa",
+  "gross_margin",
+  "net_margin",
+  "debt_to_equity",
+  "current_ratio",
+  "asset_turnover",
+  "revenue_growth",
+  "cfo_to_ni",
+  "mom_21",
+  "mom_63",
+  "mom_126",
+  "mom_252",
+  "vol_63",
+  "mdd_126",
+  "beta_126",
+  "liquidity_21",
+  "downside_vol_63",
+];
 
 function Change({ label, value }: { label: string; value: number | null | undefined }) {
   const tone = value == null ? "" : value > 0 ? "up" : value < 0 ? "down" : "";
@@ -40,6 +69,25 @@ export default function Stocks() {
   const basis = s.params.get("basis") === "raw_close" ? "raw_close" : "adj_close";
   const [input, setInput] = useState("");
   const path = `stocks/${encodeURIComponent(ticker)}`;
+  const lookbackParam = s.params.get("lookback_years");
+  const lookbackYears: 5 | 10 = lookbackParam === "5" ? 5 : 10;
+  const metricParam = s.params.get("metric");
+  const selectedFeatureId: AssessmentFeatureId = ASSESSMENT_FEATURE_IDS.includes(
+    metricParam as AssessmentFeatureId,
+  )
+    ? (metricParam as AssessmentFeatureId)
+    : "roe";
+  const [assessmentRevisions, setAssessmentRevisions] = useState<Record<string, string>>({});
+  const assessmentRevision = assessmentRevisions[ticker] ?? null;
+  const assessmentPath =
+    tab === "assessment"
+      ? url(`${path}/assessment`, {
+          lookback_years: lookbackYears,
+          revision: assessmentRevision,
+        })
+      : null;
+  const assessmentRequest = useApi<AssessmentResponse>(assessmentPath);
+  const assessment = useStale(assessmentRequest.data);
   const overview = useApi<StockOverview>(url(`${path}/overview`));
   const fundamentals = useApi<StockFundamentals>(url(`${path}/fundamentals`, { from: 2016, to: 2025 }));
   const prices = useApi<PriceData>(tab === "overview" ? url(`prices/${encodeURIComponent(ticker)}`, { basis }) : null);
@@ -47,6 +95,41 @@ export default function Stocks() {
   const latest = o?.latest_fiscal_year || 2025;
   const scoreYear = Number(s.params.get("fy")) || latest;
   const go = (next: string) => s.set({ ticker: next, tab: null, fy: null });
+
+  useEffect(() => {
+    if (tab !== "assessment") return;
+    const updates: Record<string, string | null> = {};
+    if (lookbackParam && lookbackParam !== "5" && lookbackParam !== "10") {
+      updates.lookback_years = null;
+    }
+    if (metricParam && !ASSESSMENT_FEATURE_IDS.includes(metricParam as AssessmentFeatureId)) {
+      updates.metric = null;
+    }
+    if (Object.keys(updates).length > 0) s.set(updates);
+  }, [tab, lookbackParam, metricParam]);
+
+  useEffect(() => {
+    const revision = assessmentRequest.data?.references.release_revision;
+    if (!revision || assessmentRequest.data?.ticker.trim().toUpperCase() !== ticker) return;
+    setAssessmentRevisions((current) =>
+      current[ticker] === revision ? current : { ...current, [ticker]: revision },
+    );
+  }, [assessmentRequest.data, ticker]);
+
+  useEffect(() => {
+    if (assessmentRequest.errorStatus !== 409 || !assessmentRevision) return;
+    setAssessmentRevisions((current) => {
+      if (current[ticker] !== assessmentRevision) return current;
+      const next = { ...current };
+      delete next[ticker];
+      return next;
+    });
+  }, [assessmentRequest.errorStatus, assessmentRevision, ticker]);
+
+  const setAssessmentLookback = (query: { lookback_years?: 5 | 10 }) =>
+    s.set({ lookback_years: query.lookback_years ? String(query.lookback_years) : null });
+  const setAssessmentFeature = (featureId: AssessmentFeatureId) =>
+    s.set({ metric: featureId });
   // A link from another data revision must not silently show this bundle's numbers.
   if (s.error) return <ErrorState message={s.error} retry={s.retry} />;
 
@@ -229,6 +312,21 @@ export default function Stocks() {
           />
         )}
         {tab === "peers" && <PeersTable key={ticker} ticker={ticker} onSelect={go} />}
+        {tab === "assessment" && (
+          <AssessmentPanel
+            ticker={ticker}
+            response={assessment.data}
+            loading={assessmentRequest.loading}
+            error={assessmentRequest.error}
+            errorStatus={assessmentRequest.errorStatus}
+            stale={assessment.stale}
+            onRetry={assessmentRequest.retry}
+            lookbackYears={lookbackYears}
+            onLookbackChange={setAssessmentLookback}
+            selectedFeatureId={selectedFeatureId}
+            onFeatureChange={setAssessmentFeature}
+          />
+        )}
       </div>
       <footer className="stock-footer">
         Nguồn: báo cáo tài chính năm (CafeF/DStock), giá đóng cửa HOSE/HNX/UPCOM. <MethodDialog data={fundamentals.data} />
