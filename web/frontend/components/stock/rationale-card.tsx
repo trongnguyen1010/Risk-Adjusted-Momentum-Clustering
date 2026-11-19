@@ -245,7 +245,7 @@ export function RationaleCard({
         response={response}
       />
 
-      <p className="panel-note">
+      <p className="panel-note" style={{ overflowWrap: "anywhere" }}>
         Nguồn chung: release <code>{response.references.release_revision}</code>; manifest{" "}
         <code>{response.references.manifest_sha256}</code>. Ngày đánh giá <time dateTime={response.as_of}>{response.as_of}</time>;
         phiên giá yêu cầu <time dateTime={response.required_price_session}>{response.required_price_session}</time>.
