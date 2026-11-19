@@ -7,6 +7,10 @@ chi tiết hóa hai kế hoạch nguồn B-PIT/M3 và Investment Assessment thà
 cho Người 1–4, có dependency, file, đầu ra và kiểm tra. Giữ nguyên quy tắc và
 điều kiện chuyển bước của tài liệu nguồn; bản phân công chưa phải bằng chứng thực thi.
 
+## DELTA Investment Assessment — hướng dẫn và hồ sơ nghiệm thu
+
+[Hướng dẫn sử dụng Assessment](HUONG_DAN_SU_DUNG_TOOL_DANH_GIA_DAU_TU.md) mô tả setup local, cách tra mã, verdict, history/Peers/provenance, API, release pins, giới hạn và rollback. Trạng thái Task 14 cùng bằng chứng tự động và checklist UAT nằm tại [hồ sơ Assessment UI](../tests/integration/evidence/assessment-uat/report.md). Production API/UAT thủ công chưa được xác nhận; xem trạng thái trong hồ sơ trước khi tuyên bố release hoàn tất.
+
 ## M3-C — tái lập Dev/Holdout và báo cáo kỹ thuật, 04/11/2026
 
 Hướng dẫn chạy notebook (đã gộp vào notebook, file riêng xóa 04/11),
