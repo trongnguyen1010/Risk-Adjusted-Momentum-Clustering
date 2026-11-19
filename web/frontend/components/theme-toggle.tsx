@@ -31,7 +31,13 @@ export function ThemeToggle({ variant = "icon" }: { variant?: "icon" | "segmente
     return (
       <div className="theme-switch" role="group" aria-label="Giao diện">
         {(["light", "dark"] as Theme[]).map((t) => (
-          <button key={t} type="button" aria-pressed={theme === t} onClick={() => apply(t)}>
+          <button
+            key={t}
+            type="button"
+            aria-label={t === "light" ? "Sáng" : "Tối"}
+            aria-pressed={theme === t}
+            onClick={() => apply(t)}
+          >
             {t === "light" ? <Sun size={14} /> : <Moon size={14} />}
             <span>{t === "light" ? "Sáng" : "Tối"}</span>
           </button>
