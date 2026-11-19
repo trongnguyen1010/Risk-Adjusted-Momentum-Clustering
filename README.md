@@ -18,6 +18,10 @@ Lịch sử từng lượt làm việc nằm ở [CHANGELOG](CHANGELOG.md); tr�
 
 ## Cài đặt và lệnh chính
 
+### DELTA Investment Assessment
+
+Giao diện Assessment đọc release artifact đã pin; trạng thái kiểm thử local, giới hạn production và hướng dẫn tra cứu nằm trong [Hướng dẫn sử dụng Assessment](docs/HUONG_DAN_SU_DUNG_TOOL_DANH_GIA_DAU_TU.md). Task 14 có automated checks local PASS; production Assessment API và UAT thủ công vẫn chờ deployment/artifact được duyệt.
+
 ```powershell
 python -m pip install -e ".[research]"
 python scripts/run_m3.py --segment development --targets-only   # chọn danh mục, chưa tính lợi suất
