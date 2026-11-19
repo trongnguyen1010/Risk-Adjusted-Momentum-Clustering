@@ -2,6 +2,7 @@
 
 import type {
   AssessmentClusterProfile,
+  AssessmentFeatureId,
   AssessmentQuery,
   AssessmentResponse,
 } from "@/lib/types";
@@ -66,6 +67,8 @@ export interface AssessmentPanelProps {
   onRetry?: () => void;
   lookbackYears?: 5 | 10;
   onLookbackChange?: (query: AssessmentQuery) => void;
+  selectedFeatureId?: AssessmentFeatureId;
+  onFeatureChange?: (featureId: AssessmentFeatureId) => void;
 }
 
 export function AssessmentPanel({
@@ -78,6 +81,8 @@ export function AssessmentPanel({
   onRetry,
   lookbackYears,
   onLookbackChange,
+  selectedFeatureId,
+  onFeatureChange,
 }: AssessmentPanelProps) {
   const requestedTicker = ticker.trim().toUpperCase();
   const matchingResponse =
@@ -122,6 +127,8 @@ export function AssessmentPanel({
             response={matchingResponse}
             lookbackYears={lookbackYears}
             onLookbackChange={onLookbackChange}
+            selectedFeatureId={selectedFeatureId}
+            onFeatureChange={onFeatureChange}
           />
 
           <AssessmentFeatureTable response={matchingResponse} />
