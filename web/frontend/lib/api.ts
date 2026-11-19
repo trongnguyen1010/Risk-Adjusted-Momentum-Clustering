@@ -27,6 +27,14 @@ const pending = new Map<
   string,
   { promise: Promise<unknown>; controller: AbortController; users: number }
 >();
+
+class ApiHttpError extends Error {
+  constructor(message: string, readonly status: number) {
+    super(message);
+    this.name = "ApiHttpError";
+  }
+}
+
 function acquire(path: string, force: boolean) {
   const key = `${revisionKey}:${path}`;
   if (force) cache.delete(key);
@@ -54,10 +62,11 @@ function acquire(path: string, force: boolean) {
             "Dịch vụ dữ liệu đang khởi động hoặc trả phản hồi không hợp lệ.",
         }));
         if (!response.ok)
-          throw new Error(
+          throw new ApiHttpError(
             typeof body.detail === "string"
               ? vi(body.detail)
               : "Không thể hoàn tất yêu cầu.",
+            response.status,
           );
         // Indicator and backtest endpoints already speak Vietnamese and carry codes (e.g.
         // sector_group=SECURITIES, strategy ids) that the legacy dictionary would rewrite.
@@ -91,6 +100,7 @@ function acquire(path: string, force: boolean) {
 export function useApi<T>(path: string | null) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [revision, setRevision] = useState(0);
   const retried = useRef(0);
@@ -99,11 +109,14 @@ export function useApi<T>(path: string | null) {
     if (!path) {
       setLoading(false);
       setData(null);
+      setError(null);
+      setErrorStatus(null);
       return;
     }
     let active = true;
     setLoading(true);
     setError(null);
+    setErrorStatus(null);
     setData(null);
     const force = revision > retried.current;
     retried.current = revision;
@@ -119,6 +132,7 @@ export function useApi<T>(path: string | null) {
       .catch((reason) => {
         if (active) {
           setError(reason.message || "Dịch vụ dữ liệu chưa sẵn sàng.");
+          setErrorStatus(reason instanceof ApiHttpError ? reason.status : null);
           setSettledPath(path);
           setLoading(false);
         }
@@ -132,6 +146,7 @@ export function useApi<T>(path: string | null) {
   return {
     data: current ? data : null,
     error: current ? error : null,
+    errorStatus: current ? errorStatus : null,
     loading: loading || (!!path && !current),
     retry: () => setRevision((x) => x + 1),
   };
