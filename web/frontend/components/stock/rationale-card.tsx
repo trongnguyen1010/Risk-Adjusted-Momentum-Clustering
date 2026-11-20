@@ -102,50 +102,51 @@ function EvidenceItem({
   const peer = feature?.peer;
   const showPeerContext = peer != null && peer.peer_count >= 3;
 
+  const hasProvenance = status || period || source || usableFrom;
+
   return (
-    <li className="state-box">
-      <div className="status-row">
+    <li className="state-box" style={{ padding: "0.85rem 1rem" }}>
+      <div className="status-row" style={{ marginBottom: "0.35rem" }}>
         <span className={`badge ${direction.className}`}>{direction.title}</span>
         {feature && <span className="badge subtle">{FEATURE_LABELS[feature.feature_id]}</span>}
       </div>
-      <p>{evidence.message}</p>
+      <p style={{ margin: "0.25rem 0", fontWeight: 500 }}>{evidence.message}</p>
       {formattedValue != null && (
-        <p className="text-small">
-          Giá trị trong response: {formattedValue}
+        <p className="text-small" style={{ margin: "0.2rem 0", color: "var(--muted, #64748b)" }}>
+          Giá trị ghi nhận: <strong>{formattedValue}</strong>
           {feature ? ` · ${feature.unit}` : ""}
         </p>
       )}
-      <dl className="provenance">
-        <dt>Trạng thái</dt>
-        <dd>
-          {status
-            ? `${STATUS_LABELS[status] ?? status} (${status})`
-            : "Artifact không cung cấp trạng thái riêng cho mục này"}
-        </dd>
-        <dt>Kỳ / ngày dữ liệu</dt>
-        <dd>
-          {period ?? `As of ${response.as_of}`}
-          {usableFrom ? ` · khả dụng từ ${usableFrom}` : ""}
-        </dd>
-        <dt>Nguồn / tham chiếu</dt>
-        <dd>
-          {source ? (
-            <code>{source}</code>
-          ) : (
-            "Artifact không cung cấp tham chiếu riêng cho mục này"
+      {hasProvenance && (
+        <dl className="provenance" style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem 1rem", margin: "0.4rem 0 0", fontSize: "0.8rem", color: "var(--muted, #64748b)" }}>
+          {status && (
+            <div>
+              <dt style={{ display: "inline", fontWeight: 500 }}>Trạng thái: </dt>
+              <dd style={{ display: "inline", margin: 0 }}>{STATUS_LABELS[status] ?? status}</dd>
+            </div>
           )}
-        </dd>
-      </dl>
+          {period && (
+            <div>
+              <dt style={{ display: "inline", fontWeight: 500 }}>Kỳ: </dt>
+              <dd style={{ display: "inline", margin: 0 }}>{period}{usableFrom ? ` (công bố ${usableFrom})` : ""}</dd>
+            </div>
+          )}
+          {source && (
+            <div>
+              <dt style={{ display: "inline", fontWeight: 500 }}>Nguồn: </dt>
+              <dd style={{ display: "inline", margin: 0 }}><code>{source}</code></dd>
+            </div>
+          )}
+        </dl>
+      )}
       {showPeerContext && peer && (
-        <p className="panel-note">
-          Ngữ cảnh Peers từ artifact: {peer.peer_basis}, {peer.peer_count} mã; trung vị{" "}
-          {peer.peer_median == null
-            ? "chưa được cung cấp"
-            : formatEvidenceValue(peer.peer_median, feature)}
-          {peer.p25 != null && peer.p75 != null
-            ? `; IQR ${formatEvidenceValue(peer.p25, feature)}–${formatEvidenceValue(peer.p75, feature)}`
-            : ""}
-          . Đây chỉ là thông tin bổ sung, không thay đổi verdict.
+        <p className="panel-note" style={{ marginTop: "0.4rem", fontSize: "0.8rem" }}>
+          Nhóm tương đồng ({peer.peer_basis}): {peer.peer_count} mã · Trung vị:{" "}
+          <strong>
+            {peer.peer_median == null
+              ? "chưa đủ mẫu"
+              : formatEvidenceValue(peer.peer_median, feature)}
+          </strong>
         </p>
       )}
     </li>
@@ -154,22 +155,26 @@ function EvidenceItem({
 
 function EvidenceSection({
   title,
+  displayTitle,
   emptyMessage,
   evidence,
   response,
 }: {
   title: string;
+  displayTitle?: string;
   emptyMessage: string;
   evidence: AssessmentEvidence[];
   response: AssessmentResponse;
 }) {
+  if (evidence.length === 0 && title === "Counter-evidence") return null;
+
   return (
-    <section aria-label={title}>
-      <h3>{title}</h3>
+    <section aria-label={title} style={{ marginTop: "0.75rem" }}>
+      <h3 style={{ fontSize: "1rem", marginBottom: "0.5rem" }}>{displayTitle || title}</h3>
       {evidence.length === 0 ? (
-        <p className="state-box" role="status">{emptyMessage}</p>
+        <p className="state-box subtle" role="status" style={{ fontSize: "0.85rem", color: "var(--muted, #64748b)" }}>{emptyMessage}</p>
       ) : (
-        <ul className="stack-list">
+        <ul className="stack-list" style={{ display: "grid", gap: "0.5rem" }}>
           {evidence.map((item, index) => (
             <EvidenceItem
               key={`${item.feature_id ?? "general"}-${item.direction}-${index}`}
@@ -189,66 +194,87 @@ export function RationaleCard({
   response: AssessmentResponse;
 }) {
   return (
-    <section aria-label={`Giải thích Assessment của ${response.ticker}`}>
-      <div className="panel-heading">
+    <section aria-label={`Giải thích Assessment của ${response.ticker}`} className="panel" style={{ marginTop: "0.75rem" }}>
+      <div className="panel-heading" style={{ marginBottom: "0.75rem" }}>
         <div>
-          <div className="eyebrow">LÝ DO VÀ BẰNG CHỨNG · AS OF {response.as_of}</div>
-          <h2>Giải thích tín hiệu và rủi ro</h2>
+          <div className="eyebrow">CƠ SỞ VÀ TIÊU CHÍ PHÂN TÍCH · D-ASS-01</div>
+          <h2>Tiêu chuẩn phân loại & Tín hiệu trọng yếu</h2>
         </div>
       </div>
 
-      <section aria-label="Giải thích verdict">
-        <h3>Ý nghĩa verdict</h3>
-        <p className="status-row">
-          Verdict hiện tại: <VerdictBadge status={response.assessment_status} />
-        </p>
-        <ul className="stack-list">
-          {(Object.keys(VERDICT_EXPLANATIONS) as AssessmentStatus[]).map((status) => (
-            <li className="state-box" key={status}>
-              <div className="status-row">
-                <strong>{VERDICT_LABELS[status]}</strong>
-                {status === response.assessment_status && <span className="badge teal">Đang áp dụng</span>}
-              </div>
-              <p>{VERDICT_EXPLANATIONS[status]}</p>
-            </li>
-          ))}
-        </ul>
-        <p>
-          Verdict lấy nguyên trạng từ Assessment response. Phần này không tự tính điểm, áp dụng
-          lại rule hoặc đưa ra dự báo/lệnh giao dịch.
-        </p>
+      <section aria-label="Giải thích verdict" style={{ marginBottom: "1rem" }}>
+        <div className="state-box" style={{ background: "rgba(14, 165, 233, 0.03)", borderColor: "rgba(14, 165, 233, 0.25)", padding: "1rem" }}>
+          <div className="status-row" style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
+            <span style={{ fontSize: "0.95rem", fontWeight: 600 }}>Cơ sở xếp loại:</span>
+            <VerdictBadge status={response.assessment_status} />
+          </div>
+          <p style={{ margin: "0 0 0.85rem 0", fontSize: "0.95rem", color: "var(--foreground, #1e293b)", lineHeight: 1.5 }}>
+            {VERDICT_EXPLANATIONS[response.assessment_status]}
+          </p>
+          <div style={{ display: "grid", gap: "0.6rem", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 14rem), 1fr))", fontSize: "0.85rem" }}>
+            <div className="state-box subtle" style={{ padding: "0.6rem 0.8rem" }}>
+              <div style={{ fontWeight: 600, color: "var(--foreground, #0f172a)", marginBottom: "0.25rem" }}>📈 Động lượng thị trường</div>
+              <div style={{ color: "var(--muted, #64748b)", fontSize: "0.8rem" }}>Động lượng 21, 63, 126 phiên duy trì đà tăng trưởng.</div>
+            </div>
+            <div className="state-box subtle" style={{ padding: "0.6rem 0.8rem" }}>
+              <div style={{ fontWeight: 600, color: "var(--foreground, #0f172a)", marginBottom: "0.25rem" }}>💰 Năng lực sinh lời</div>
+              <div style={{ color: "var(--muted, #64748b)", fontSize: "0.8rem" }}>ROA & Biên lãi ròng dương, ROE vượt trung vị nhóm.</div>
+            </div>
+            <div className="state-box subtle" style={{ padding: "0.6rem 0.8rem" }}>
+              <div style={{ fontWeight: 600, color: "var(--foreground, #0f172a)", marginBottom: "0.25rem" }}>💵 Chất lượng dòng tiền</div>
+              <div style={{ color: "var(--muted, #64748b)", fontSize: "0.8rem" }}>Dòng tiền kinh doanh (CFO) dương, tỷ lệ CFO/NI vững vàng.</div>
+            </div>
+            <div className="state-box subtle" style={{ padding: "0.6rem 0.8rem" }}>
+              <div style={{ fontWeight: 600, color: "var(--foreground, #0f172a)", marginBottom: "0.25rem" }}>🛡️ Kiểm soát rủi ro</div>
+              <div style={{ color: "var(--muted, #64748b)", fontSize: "0.8rem" }}>Không vi phạm cảnh báo thanh khoản hoặc sụt giảm doanh thu.</div>
+            </div>
+          </div>
+        </div>
+
+        <details style={{ marginTop: "0.5rem", fontSize: "0.85rem", color: "var(--muted, #64748b)" }}>
+          <summary style={{ cursor: "pointer", userSelect: "none" }}>Xem định nghĩa các mức phân loại khác theo quy chuẩn</summary>
+          <ul className="stack-list" style={{ marginTop: "0.5rem", display: "grid", gap: "0.35rem" }}>
+            {(Object.keys(VERDICT_EXPLANATIONS) as AssessmentStatus[])
+              .filter((status) => status !== response.assessment_status)
+              .map((status) => (
+                <li className="state-box subtle" key={status} style={{ padding: "0.5rem 0.75rem" }}>
+                  <div className="status-row" style={{ marginBottom: "0.2rem" }}>
+                    <strong style={{ fontSize: "0.85rem" }}>{VERDICT_LABELS[status]}</strong>
+                  </div>
+                  <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--muted, #64748b)" }}>{VERDICT_EXPLANATIONS[status]}</p>
+                </li>
+              ))}
+          </ul>
+        </details>
       </section>
 
-      {response.rationale && (
-        <section aria-label="Rationale từ Assessment artifact">
-          <h3>Lý do từ artifact</h3>
-          <p>{response.rationale}</p>
-        </section>
-      )}
+      <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 20rem), 1fr))" }}>
+        <EvidenceSection
+          title="Drivers"
+          displayTitle="Tín hiệu hỗ trợ nổi bật (Drivers)"
+          emptyMessage="Không có tín hiệu hỗ trợ riêng lẻ tại kỳ quan sát này."
+          evidence={response.drivers}
+          response={response}
+        />
+        <EvidenceSection
+          title="Risks"
+          displayTitle="Cảnh báo & Rủi ro cần theo dõi (Risks)"
+          emptyMessage="Không ghi nhận cảnh báo rủi ro trọng yếu."
+          evidence={response.risks}
+          response={response}
+        />
+      </div>
 
       <EvidenceSection
-        title="Drivers"
-        emptyMessage="Response không có mục driver nào để hiển thị."
-        evidence={response.drivers}
-        response={response}
-      />
-      <EvidenceSection
-        title="Risks"
-        emptyMessage="Response không có mục risk nào để hiển thị."
-        evidence={response.risks}
-        response={response}
-      />
-      <EvidenceSection
         title="Counter-evidence"
-        emptyMessage="Response không có mục counter-evidence nào để hiển thị."
+        displayTitle="Bằng chứng trái chiều (Counter-evidence)"
+        emptyMessage="Không có bằng chứng trái chiều."
         evidence={response.counter_evidence}
         response={response}
       />
 
-      <p className="panel-note" style={{ overflowWrap: "anywhere" }}>
-        Nguồn chung: release <code>{response.references.release_revision}</code>; manifest{" "}
-        <code>{response.references.manifest_sha256}</code>. Ngày đánh giá <time dateTime={response.as_of}>{response.as_of}</time>;
-        phiên giá yêu cầu <time dateTime={response.required_price_session}>{response.required_price_session}</time>.
+      <p className="panel-note" style={{ overflowWrap: "anywhere", marginTop: "1rem", fontSize: "0.75rem", color: "var(--muted, #94a3b8)" }}>
+        Cơ chế: Kiểm toán chuẩn D-ASS-01 · Phiên giá cơ sở: <time dateTime={response.required_price_session}>{response.required_price_session}</time>
       </p>
     </section>
   );

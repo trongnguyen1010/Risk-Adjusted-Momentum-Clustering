@@ -4,11 +4,11 @@ const VERDICT_PRESENTATION: Record<
   AssessmentVerdict,
   { label: string; tone: string }
 > = {
-  RESEARCH_FAVORABLE: { label: "Tích cực để nghiên cứu", tone: "teal" },
-  WATCH: { label: "Theo dõi", tone: "purple" },
-  CAUTION: { label: "Cần thận trọng", tone: "amber" },
+  RESEARCH_FAVORABLE: { label: "Đáng cân nhắc đầu tư", tone: "teal" },
+  WATCH: { label: "Cần theo dõi", tone: "purple" },
+  CAUTION: { label: "Chưa nên ưu tiên đầu tư", tone: "amber" },
   INSUFFICIENT_EVIDENCE: {
-    label: "Chưa đủ bằng chứng",
+    label: "Chưa đủ bằng chứng đánh giá",
     tone: "subtle",
   },
 };

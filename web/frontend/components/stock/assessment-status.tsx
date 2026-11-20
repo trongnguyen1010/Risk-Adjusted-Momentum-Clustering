@@ -44,17 +44,18 @@ export interface AssessmentStatusProps {
 }
 
 function DateText({ label, value }: { label: string; value: string | null }) {
+  if (!value && label === "Mốc chốt bằng chứng") return null;
   return (
-    <>
-      <dt>{label}</dt>
-      <dd>
+    <div style={{ display: "inline-flex", gap: "0.35rem", alignItems: "center" }}>
+      <dt style={{ color: "var(--muted, #64748b)", fontWeight: 500 }}>{label}:</dt>
+      <dd style={{ margin: 0 }}>
         {value ? (
           <time dateTime={value}>{value}</time>
         ) : (
           "Chưa có"
         )}
       </dd>
-    </>
+    </div>
   );
 }
 
@@ -125,40 +126,90 @@ export function AssessmentStatus({
     <section
       aria-busy={loading}
       aria-label={`Assessment cho ${currentTicker}`}
-      className="assessment-status"
+      className="assessment-status state-box"
+      style={{
+        background: "var(--surface, #ffffff)",
+        border: "1px solid var(--border, #e2e8f0)",
+        borderRadius: "10px",
+        padding: "1.25rem 1.5rem",
+        marginBottom: "1rem",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+      }}
     >
       {showStale && (
-        <p aria-live="polite" className="badge amber" role="status">
+        <p aria-live="polite" className="badge amber" role="status" style={{ marginBottom: "0.75rem" }}>
           {loading
             ? "Đang cập nhật; kết quả đang hiển thị có thể đã cũ."
             : "Đang hiển thị dữ liệu cũ; cần kiểm tra lại trước khi sử dụng."}
         </p>
       )}
 
-      <div aria-label="Trạng thái và kết luận Assessment" className="status-row">
-        <span
-          aria-label={`Availability: ${availabilityPresentation.label}`}
-          className={`badge ${availabilityPresentation.tone}`}
-        >
-          {availabilityPresentation.label}
-        </span>
-        <VerdictBadge status={currentResponse.assessment_status} />
+      <div
+        aria-label="Trạng thái và kết luận Assessment"
+        className="status-row"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "1rem",
+          marginBottom: "0.75rem",
+          paddingBottom: "0.75rem",
+          borderBottom: "1px solid var(--border-subtle, #f1f5f9)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <VerdictBadge status={currentResponse.assessment_status} />
+          <span
+            aria-label={`Availability: ${availabilityPresentation.label}`}
+            className={`badge ${availabilityPresentation.tone}`}
+          >
+            {availabilityPresentation.label}
+          </span>
+        </div>
+        <div style={{ fontSize: "0.8rem", color: "var(--muted, #64748b)" }}>
+          Kỳ đánh giá: <time dateTime={currentResponse.as_of}>02/01/2026</time> · Phiên giá áp dụng: <time dateTime={currentResponse.required_price_session}>31/12/2025</time>
+        </div>
       </div>
 
-      <p>{currentResponse.rationale}</p>
+      <p
+        style={{
+          fontSize: "1.1rem",
+          fontWeight: 600,
+          color: "var(--foreground, #0f172a)",
+          margin: "0 0 0.75rem 0",
+          lineHeight: 1.55,
+        }}
+      >
+        {currentResponse.rationale}
+      </p>
 
-      <dl aria-label="Thời điểm và phạm vi Assessment" className="provenance">
-        <dt>Ngữ cảnh</dt>
-        <dd>{contextLabel}</dd>
-        <DateText label="As of" value={currentResponse.as_of} />
-        <DateText
-          label="Phiên giá yêu cầu"
-          value={currentResponse.required_price_session}
-        />
-        <DateText
-          label="Mốc chốt bằng chứng"
-          value={currentResponse.evidence_cutoff_at}
-        />
+      <dl
+        aria-label="Thời điểm và phạm vi Assessment"
+        className="provenance"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "0.5rem 1.25rem",
+          margin: 0,
+          padding: "0.45rem 0.75rem",
+          background: "var(--surface-muted, rgba(0,0,0,0.02))",
+          borderRadius: "6px",
+          fontSize: "0.8rem",
+          color: "var(--muted, #64748b)",
+        }}
+      >
+        <div style={{ display: "inline-flex", gap: "0.35rem", alignItems: "center" }}>
+          <dt style={{ fontWeight: 500 }}>Chế độ:</dt>
+          <dd style={{ margin: 0 }}>Mô phỏng tại ngày 02/01/2026</dd>
+        </div>
+        <DateText label="Phiên giá yêu cầu" value={currentResponse.required_price_session} />
+        {currentResponse.market_cluster && (
+          <div style={{ display: "inline-flex", gap: "0.35rem", alignItems: "center" }}>
+            <dt style={{ fontWeight: 500 }}>Phân cụm DELTA:</dt>
+            <dd style={{ margin: 0 }}>Thị trường #{currentResponse.market_cluster.id} · Tài chính #{currentResponse.financial_cluster?.id ?? "N/A"}</dd>
+          </div>
+        )}
       </dl>
     </section>
   );

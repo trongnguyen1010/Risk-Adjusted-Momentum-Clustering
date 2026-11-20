@@ -266,30 +266,42 @@ export function SingleFeatureChart({
   const windowStartYear = asOfYear - lookbackYears + 1;
 
   return (
-    <section aria-label="Biểu đồ một chỉ số Assessment">
-      <div className="filter-row">
-        <label htmlFor="assessment-feature-selector">Chỉ số cần xem</label>
-        <select
-          id="assessment-feature-selector"
-          onChange={(event) => changeFeature(event.target.value as AssessmentFeatureId)}
-          value={selectedFeature.feature_id}
-        >
-          {response.features.map((feature) => (
-            <option key={feature.feature_id} value={feature.feature_id}>
-              {FEATURE_LABELS[feature.feature_id]}
-            </option>
-          ))}
-        </select>
+    <section aria-label="Biểu đồ một chỉ số Assessment" className="panel" style={{ marginTop: "1rem" }}>
+      <div className="panel-heading" style={{ marginBottom: "0.75rem" }}>
+        <div>
+          <div className="eyebrow">DIỄN BIẾN LỊCH SỬ</div>
+          <h2>Biểu đồ phân tích 18 chỉ số</h2>
+        </div>
+      </div>
+      <div className="filter-row" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem 1.25rem", marginBottom: "1rem" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+          <label htmlFor="assessment-feature-selector" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Chỉ số cần xem:</label>
+          <select
+            id="assessment-feature-selector"
+            onChange={(event) => changeFeature(event.target.value as AssessmentFeatureId)}
+            value={selectedFeature.feature_id}
+            style={{ padding: "0.35rem 0.65rem", borderRadius: "6px" }}
+          >
+            {response.features.map((feature) => (
+              <option key={feature.feature_id} value={feature.feature_id}>
+                {FEATURE_LABELS[feature.feature_id]}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <label htmlFor="assessment-lookback-selector">Khoảng lịch sử</label>
-        <select
-          id="assessment-lookback-selector"
-          onChange={(event) => changeLookback(event.target.value)}
-          value={lookbackYears}
-        >
-          <option value={10}>10 năm</option>
-          <option value={5}>5 năm</option>
-        </select>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
+          <label htmlFor="assessment-lookback-selector" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Khoảng lịch sử:</label>
+          <select
+            id="assessment-lookback-selector"
+            onChange={(event) => changeLookback(event.target.value)}
+            value={lookbackYears}
+            style={{ padding: "0.35rem 0.65rem", borderRadius: "6px" }}
+          >
+            <option value={10}>10 năm</option>
+            <option value={5}>5 năm</option>
+          </select>
+        </div>
       </div>
 
       {option && chartModel?.data.some((point) => point !== null) ? (
