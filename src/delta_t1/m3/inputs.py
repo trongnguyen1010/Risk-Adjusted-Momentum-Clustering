@@ -4,6 +4,7 @@ import hashlib
 import json
 import sqlite3
 from collections import defaultdict
+from contextlib import closing
 from datetime import date
 from pathlib import Path
 
@@ -28,24 +29,47 @@ def sha256(path, chunk=1 << 22):
 
 
 def _ro(path):
-    return sqlite3.connect(f'file:{path}?mode=ro', uri=True)
+    return sqlite3.connect(Path(path).resolve().as_uri() + '?mode=ro', uri=True)
+
+
+def financial_sources(cfg, *, root=ROOT):
+    """Resolve and validate the optional financial_data pins; legacy configs keep baseline paths."""
+    if 'financial_data' not in cfg:
+        return dict(indicators_path=INDICATORS, availability_path=AVAILABILITY)
+    pin = cfg['financial_data']
+    if not isinstance(pin, dict):
+        raise ValueError('financial_data must contain explicit paths and SHA-256 pins')
+    paths = {}
+    for name in ('indicators', 'availability'):
+        value, expected = pin.get(f'{name}_path'), pin.get(f'{name}_sha256')
+        if not value or not expected:
+            raise ValueError(f'financial_data requires {name}_path and {name}_sha256')
+        path = Path(value)
+        path = (Path(root) / path).resolve() if not path.is_absolute() else path.resolve()
+        actual = sha256(path)
+        if actual != expected:
+            raise ValueError(f'{name} sha256 {actual} does not match pinned {expected}')
+        paths[f'{name}_path'] = path
+    return paths
 
 
 def market_snapshots(bundle=BUNDLE):
     """{date: [{ticker, cluster, liquidity, features}]} for model A."""
     out = defaultdict(list)
-    for date, ticker, cluster, features, liquidity in _ro(bundle).execute(
-            "select date, ticker, cluster, features, liquidity from observations where kind='market' order by date, ticker"):
-        out[date].append(dict(ticker=ticker, cluster=cluster, liquidity=liquidity, features=json.loads(features)))
+    with closing(_ro(bundle)) as connection:
+        for date, ticker, cluster, features, liquidity in connection.execute(
+                "select date, ticker, cluster, features, liquidity from observations where kind='market' order by date, ticker"):
+            out[date].append(dict(ticker=ticker, cluster=cluster, liquidity=liquidity, features=json.loads(features)))
     return dict(out)
 
 
 def financial_labels(bundle=BUNDLE):
     """{fiscal_year: {ticker: (cluster, features)}} for model B."""
     out = defaultdict(dict)
-    for date, ticker, cluster, features in _ro(bundle).execute(
-            "select date, ticker, cluster, features from observations where kind='financial'"):
-        out[int(date)][ticker] = (cluster, json.loads(features))
+    with closing(_ro(bundle)) as connection:
+        for date, ticker, cluster, features in connection.execute(
+                "select date, ticker, cluster, features from observations where kind='financial'"):
+            out[int(date)][ticker] = (cluster, json.loads(features))
     return dict(out)
 
 
@@ -53,14 +77,16 @@ def indicators(path=INDICATORS, metrics=('roe', 'f_score', 'z_score')):
     """{(ticker, fiscal_year): {metric: value or None}}."""
     out = defaultdict(dict)
     marks = ','.join('?' * len(metrics))
-    for ticker, year, metric, value in _ro(path).execute(
-            f'select ticker, fiscal_year, metric, value from indicator_values where metric in ({marks})', metrics):
-        out[(ticker, int(year))][metric] = value
+    with closing(_ro(path)) as connection:
+        for ticker, year, metric, value in connection.execute(
+                f'select ticker, fiscal_year, metric, value from indicator_values where metric in ({marks})', metrics):
+            out[(ticker, int(year))][metric] = value
     return dict(out)
 
 
 def sectors(path=INDICATORS):
-    return dict(_ro(path).execute('select ticker, sector_group from company'))
+    with closing(_ro(path)) as connection:
+        return dict(connection.execute('select ticker, sector_group from company'))
 
 
 def availability(path=AVAILABILITY, *, historical_reference=False):
@@ -109,10 +135,31 @@ def bpit(artifact_dir, *, include_cutoffs=False):
     labels = defaultdict(dict)
     with open(artifact_dir / 'labels.csv', encoding='utf-8') as f:
         for r in csv.DictReader(f):
-            labels[int(r['fiscal_year'])][r['ticker']] = (int(r['cluster']), {})
+            year, ticker = int(r['fiscal_year']), r['ticker']
+            if ticker in labels[year]:
+                raise ValueError(f'Duplicate B-PIT label: {ticker}, FY{year}')
+            labels[year][ticker] = (int(r['cluster']), {})
     order = {int(y): m.get('cluster_order', []) for y, m in models.items()}
     if include_cutoffs:
-        cutoffs = {int(y): date.fromisoformat(m['cutoff']).isoformat() for y, m in models.items()
-                   if m.get('cutoff') and sorted(order[int(y)]) == [0, 1, 2]}
+        cutoffs = {}
+        for y, model in models.items():
+            year = int(y)
+            # Old artifacts without k retain their three-cluster contract.
+            k = model.get('k', 3)
+            ranked = order[year]
+            if type(k) is not int or k < 3 or not isinstance(ranked, list):
+                continue
+            if (any(type(c) is not int for c in ranked)
+                    or sorted(ranked) != list(range(k))):
+                continue
+            observed = {c for c, _ in labels.get(year, {}).values()}
+            expected = set(range(k))
+            if not observed or not observed <= expected:
+                continue
+            # Explicit k identifies the complete model export; every cluster must occur.
+            if 'k' in model and observed != expected:
+                continue
+            if model.get('cutoff'):
+                cutoffs[year] = date.fromisoformat(model['cutoff']).isoformat()
         return dict(labels), order, manifest, cutoffs
     return dict(labels), order, manifest

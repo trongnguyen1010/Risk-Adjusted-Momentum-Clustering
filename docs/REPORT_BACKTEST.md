@@ -1153,6 +1153,125 @@ VNINDEX là benchmark riêng, không có N/cash/lệnh danh mục: Development c
 
 **Cập nhật Stage F (R4-03):** hồ sơ C/D/E đã tổng hợp tại Mục 3.30–3.32; Task 1 commit `e2ad3bba`, Task 2 commit `579ff173`; trạng thái tài liệu `PASS`. C/D còn chờ owner review theo nguồn; M3 Dev/Holdout official dùng B-PIT gốc. Chưa promote hay chạy lại M3 bằng labels enriched. Final Evaluation giữ `NOT_READY` đến khi dữ liệu 2026 và readiness gate sẵn sàng. C/D/Assessment trong `data/` cần được bàn giao/cấp quyền riêng theo Mục 3.32.
 
+### R2-15 — rationale/counter-evidence đã kiểm fixture, còn gate tích hợp
+
+Đã thêm templates truy nguồn cho drivers/risks/counter_evidence và context trong
+18 features; giữ trạng thái imputed, qualifiers và bằng chứng trái chiều. G4 Peers
+chỉ giải thích, đủ 3 member cells hợp lệ mới tính median/IQR; thiếu Peers hoặc thay
+median không đổi verdict. Nguồn/thời điểm sai không tạo feature claim.
+21 tests mới gồm replay, mutation Peers, whitelist, provenance, CFO/NI imputed,
+self/duplicate/unit/kỳ và đủ/thiếu mẫu; tổng 82 tests Task 11–15 và compile đạt.
+
+Đây là phần code/fixture cuối của 15 tasks Người2; không đồng nghĩa Assessment thật
+đã nghiệm thu. Chưa nối builder/CLI legacy, runtime policy vẫn tắt. S1 phải hoàn
+thiện A-v4 thật, pin/provenance và Peers receipts; sau đó mới S3 offline build,
+independent QA/replay/coverage theo gate. Giữ nguyên artifact bàn giao cũ và M3;
+không dùng fixture để tuyên bố verdict thật hoặc chất lượng toàn thị trường.
+
+
+### R2-14 — eligibility và bốn verdict đã kiểm fixture
+
+Đã thêm evaluator theo đúng priority D-ASS-01, kiểm gate/evidence refs/source pins,
+ngày usable/cutoff, phiên giá/snapshot, latest FY/model và tuổi báo cáo 18 tháng.
+Optional missing được bỏ phép kiểm; Peers không đổi verdict; không fallback FY cũ
+khi latest FY thiếu model. 19 tests mới gồm bảng 108 tổ hợp và ca biên; tổng 61 tests
+Task 11–14 và compile đạt. Fixture được đánh dấu không publishable, runtime policy
+vẫn tắt. Source receipts/cờ verified cần S1 xác minh thật; không thay QA upstream.
+Chưa nối builder legacy, chưa chạy/publish Assessment thật. Còn Task 15 rationale,
+S1 dữ liệu/provenance/Peers thật và S3 independent QA trước khi kích hoạt.
+
+
+### R2-13 — component tài chính/CFO đã kiểm fixture
+
+Đã hiện thực ROA/net margin/CFO với NI quan sát và ratio-validity qualifiers;
+strict0/1 thresholds, optional skip, watch/major flags, imputed đã duyệt có lineage.
+16financialtests (27tổ hợp dấu),15market và11policy đạt. Bằng chứng giữ trạng thái
+observed/imputed; không biến NI thành feature mới hoặc CFO median thành quan sát.
+S1 vẫn cần Người1 nối A-v4 thật và hoàn thiện provenance/metadata; các cờ verified
+trong fixture không thay QA nguồn. Chưa bật builder/S3 hoặc phát nhãn đầu tư thật.
+
+
+### R2-12 — component thị trường đã kiểm fixture, chưa bật Assessment thật
+
+`evaluate_market` đã mã hóa logic momentum và ILLIQUID theo policy R2-11, trả
+condition/status/evidence và major warning; không phát nhãn đầu tư cuối.15tests
+mới gồm81tổ hợp dấu, zero/missing/provenance/liquidity và11policytests đạt.
+Cờ xác minh evidence do S1 cung cấp; component không tự chứng nhận nguồn là thật.
+Blocker S1 đã ghi ở R2-11 vẫn còn. Chưa nối builder hoặc sửa artifact bàn giao.
+
+
+### R2-11 — chuẩn bị policy Assessment; S1 thực tế chưa được nghiệm thu
+
+Đã mã hóa D-ASS-01 version1.0.0 và11tests hợp đồng theo kế hoạch, bao gồm xác
+nhận của người dùng cho phép ô IMPUTED_MEDIAN dùng cho rulebook/Peers ngày
+19/11/2026. Phần này không thay M3 hoặc nội dung các run đã seal.
+
+Điểm bàn giao cần Người1 xử lý: `assessment/inputs.py` vẫn gán toàn bộ market
+features=0.1 và cluster_a=0; chưa nối A-v4 thật. Manifest Assessment cũ không pin
+A/model/policy và dùng verdict WORTH_CONSIDERING/MONITOR/LOW_PRIORITY thay cho
+bốn code D-ASS-01 hiện hành. Không dùng artifact đó làm bằng chứng PASS verdict
+thật. Không sửa/ghi đè artifact cũ hoặc coi ghi chú hoàn thành20/20 là QA thay thế.
+
+Policy được chuẩn bị để các task12–15 triển khai/test bằng fixture; chưa bật
+runtime, chưa tích hợp CLI builder, chưa tự mở gate F/S1/S3/release. Người1 cần
+bàn giao S1 với input thật và provenance; Người3 kiểm tra Assessment sau tích hợp.
+
+
+### R2-10 — đối sánh enriched và baseline đã seal, 19/11/2026
+
+Bộ báo cáo: `data/experiments/m3/comparison/20261118T173627755165Z/` gồm summary,
+periods, nav_series, comparison và manifest. Hash nguồn khớp cả4sealedruns;
+Dev/Holdout enriched cùng execution8e515f7, không gộp NAV. Các đường dẫn nguồn,
+run IDs, execution/config/input pins và hash từng file được lưu trong manifest.
+
+| Segment | Strategy | Return baseline | Return enriched | Max DD baseline | Max DD enriched |
+|---|---|---:|---:|---:|---:|
+| Development | Combined | 116,15% | 151,67% | -44,60% | -44,45% |
+| Development | Financial-only | 40,74% | 53,57% | -27,20% | -24,28% |
+| Holdout | Combined | 38,95% | 53,07% | -26,27% | -22,55% |
+| Holdout | Financial-only | 28,37% | 30,97% | -3,95% | -3,83% |
+
+Median ứng viên Combined Dev27→20 (bất lợi), Holdout30→31; N<10 Dev13→12,
+Holdout1→1. Financial-only Dev có cash bình quân tăng1,02%→1,52%; Combined
+Holdout cash tăng8,92%→9,22%. Giữ các kết quả này, không chọn lại k hoặc strategy
+bằng return. Toàn bộ N/cash/failed trades/selected/held/limits/stale nằm trong CSV;
+raw metrics giữ đủ độ chính xác, bảng trên chỉ làm tròn để đọc.
+
+Ba market controls và VNINDEX khớp baseline. Giá strategy là vendor-adjusted
+adj_close gồm cash dividends; VNINDEX là price index không gồm cổ tức. Chi phí
+và slippage0 theo phương pháp đã chốt; drawdown theo các mốc định giá của run,
+không diễn giải thành daily drawdown. Không có Sharpe Dev/Holdout.
+
+Phần đối sánh Người2 đã chuẩn bị; hồ sơ F/S1 của nhóm phải được tiếp nhận trước
+khi đưa nguồn vào Assessment. Không tự đổi trạng thái gate ngoài phạm vi Task10.
+
+
+### R2-07 enriched — review dữ liệu thật ngày 18/11/2026
+
+Người dùng xác nhận D đã duyệt. Bundle v4 lấy từ Hugging Face revision
+`8b0d78e4edb3dd4bd7dcea9cddcbe36d7a0815c5`; bundle/C8 v2 khớp hash baseline.
+Pre-lock review tại code `d492948`, git_dirty=false; config được chuẩn bị LOCKED.
+
+| Chỉ tiêu | Development | Holdout |
+|---|---:|---:|
+| Quyết định / kỳ thực thi / kỳ cuối không thực thi | 60 / 59 / 1 | 24 / 23 / 1 |
+| Kỳ N<10 baseline → enriched | 13 → 12 | 1 → 1 |
+| Median ứng viên baseline → enriched | 27 → 20 | 30 → 31 |
+| Min ứng viên baseline → enriched | 3 → 3 | 4 → 4 |
+
+Pins/source B_PIT, audit/candidates, rank/weights và targets/audit ba market controls
+đạt. Giữ giảm median Dev như evidence bất lợi; không thay k hoặc tiêu chí đầu tư.
+Enriched feasibility: `data/experiments/m3/feasibility-variants/20261118T163652276119Z`.
+Baseline feasibility: `data/experiments/m3/feasibility-variants/20261118T163651806641Z`.
+Targets Dev: `data/experiments/m3/development/20261118T163646Z-dd7b9a9e`.
+Targets Holdout: `data/experiments/m3/holdout/20261118T163644Z-dd7b9a9e`.
+
+**Việc còn lại:** commit config/code, ghi execution HEAD và chạy lại targets-only
+cả hai đoạn từ HEAD sạch để reference cuối khớp SHA/config với full run. Chưa chạy
+full enriched Dev/Holdout, chưa có seal hoặc lợi suất enriched. Không dùng hai
+pre-lock targets trên làm reference cuối cho verifier của full run.
+
+
 | Thứ tự | Công việc | Điều kiện hoàn tất |
 |---:|---|---|
 | 1 | Chấp nhận snapshot đầu vào đã `PASS` theo owner | Xem quyết định ở Mục 3.5. Dùng Indicators v1 đã pin và disclosure các giới hạn ghi tại Mục 3.2. |

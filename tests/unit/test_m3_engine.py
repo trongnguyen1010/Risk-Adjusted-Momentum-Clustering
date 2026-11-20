@@ -133,6 +133,45 @@ class EngineTests(unittest.TestCase):
         out = run([('d0', 'd1', dict(A=0.5, B=0.5)), ('d1x', 'd2', keep)], px, ALWAYS)
         self.assertEqual(out['turnover'][-1][1], 0.0)
 
+    def test_missing_limits_preserve_cash_failed_sells_and_scaled_buys(self):
+        book = PriceBook.__new__(PriceBook)
+        book.adj = {(t, d): value for d, values in {
+            'd1': dict(A=10, B=10), 'd2': dict(A=10, B=10), 'd3': dict(A=12, B=11)
+        }.items() for t, value in values.items()}
+        book.volume = {key: 100 for key in book.adj}
+        book.limits = {('A', 'd1'): (10, 11, 9), ('B', 'd2'): (10, 11, 9)}
+        book.limit_missing = set()
+        out = run([('d0', 'd1', dict(A=0.5, B=0.5)), ('d1x', 'd2', dict(B=1))],
+                  book.price, book.tradable, end_date='d3')
+        statuses = {(r['date'], r['ticker']): r for r in out['ledger']}
+        self.assertEqual(statuses['d1', 'B']['status'], 'BUY_FAILED')
+        self.assertEqual(statuses['d1', 'B']['executed'], 0)
+        self.assertEqual(statuses['d2', 'A']['status'], 'SELL_FAILED')
+        self.assertEqual(statuses['d2', 'A']['executed'], 0)
+        self.assertEqual(statuses['d2', 'B']['status'], 'SCALED')
+        self.assertAlmostEqual(statuses['d2', 'B']['scale'], 0.5)
+        weights = {(r['date'], r['ticker']): r['weight'] for r in out['holdings']}
+        self.assertAlmostEqual(weights['d1', 'CASH'], 0.5)
+        self.assertAlmostEqual(weights['d2', 'A'], 0.5)
+        self.assertAlmostEqual(weights['d2', 'B'], 0.5)
+        self.assertAlmostEqual(weights['d2', 'CASH'], 0)
+        self.assertEqual(book.limit_missing, {('B', 'd1'), ('A', 'd2')})
+        self.assertEqual(out['nav'][-1][0], 'd3')
+        self.assertAlmostEqual(out['nav'][-1][1], 1.15)
+
+    def test_small_universe_sells_excluded_name_without_reinvesting_cash(self):
+        px = prices({'d1': dict(A=10, B=10), 'd2': dict(A=20, B=10)})
+        keep_a = lambda pre: {t: w for t, w in pre.items() if t == 'A'}
+        out = run([('d0', 'd1', dict(A=0.5, B=0.5)), ('d1x', 'd2', keep_a)], px, ALWAYS)
+        second = [r for r in out['ledger'] if r['date'] == 'd2']
+        self.assertEqual({r['ticker']: r['side'] for r in second}, dict(A='HOLD', B='SELL'))
+        self.assertTrue(all(r['side'] != 'BUY' for r in second))
+        weights = {r['ticker']: r['weight'] for r in out['holdings'] if r['date'] == 'd2'}
+        self.assertAlmostEqual(weights['A'], 2 / 3)
+        self.assertAlmostEqual(weights['CASH'], 1 / 3)
+        self.assertNotIn('B', weights)
+        self.assertAlmostEqual(out['nav'][-1][1], 1.5)
+
     def test_execution_must_follow_decision(self):
         with self.assertRaises(AssertionError):
             run([('d1', 'd1', dict(A=1.0))], prices({'d1': dict(A=1)}), ALWAYS)

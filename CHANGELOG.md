@@ -53,6 +53,138 @@ pointer hoặc artifact thiếu trả `NOT_READY`, không quét fallback/run m�
 Chưa kiểm manifest/hash hoặc nạp payload (các stage R3-02/R3-03), không sửa data
 hay model nguồn.
 
+## R2-15: rationale và counter-evidence — 19/11/2026
+
+- Thêm build_rationale với templates tiếng Việt version D-ASS-01-RATIONALE-1;
+  drivers/risks/counter_evidence/context giữ metric, value, status, unit, kỳ,
+  rule ID, chiều tác động và evidence_ref trong whitelist 18 features.
+- Giữ bằng chứng trái chiều và qualifiers NI/liquidity riêng; IMPUTED_MEDIAN
+  có lineage, không mô tả là CFO quan sát. Nguồn/thời điểm sai không tạo claim.
+- G4 Peers nhận member evidence đã được S1 xác minh membership/comparability;
+  tự loại self/duplicate/ô thiếu hoặc lệch unit/kỳ, đủ 3 mới tính median/IQR.
+  Thay Peers không đổi verdict; không dùng summary legacy thiếu member evidence.
+- 21 tests mới, tổng 82 tests Task 11–15 và compile đạt. Chưa tích hợp builder,
+  chưa chạy/publish Assessment thật; S1/S3 và kích hoạt vẫn cần nghiệm thu riêng.
+
+
+## R2-14: kết hợp eligibility và bốn verdict — 19/11/2026
+
+- Thêm evaluate_verdict kết hợp component thị trường/tài chính theo thứ tự
+  INSUFFICIENT_EVIDENCE → CAUTION → RESEARCH_FAVORABLE → WATCH từ policy.
+- Kiểm gate có evidence refs, source-pin receipts, thời điểm usable/cutoff,
+  phiên giá/snapshot, FY mới nhất và model cùng FY, nguồn A-v4/B-PIT enriched;
+  tuổi báo cáo dùng stale_after 18 tháng hiện có, không fallback baseline/năm cũ.
+- Optional missing bỏ phép kiểm; Peers không tham gia verdict. Fixture phải bật
+  tường minh và luôn không publishable. Route mặc định chặn khi chưa đủ activation.
+- 19 tests mới gồm bảng 108 tổ hợp và ca biên; tổng 61 tests Task 11–14, compile đạt.
+  Không nối builder cũ, không chạy lại/publish Assessment thật; S1/S3 vẫn còn gate.
+
+
+## R2-13: hiện thực tài chính và dòng tiền — 19/11/2026
+
+- Thêm evaluate_financial: ROA/net margin/CFO, watch/major warnings và evidence;
+  NI là qualifier quan sát, CFO sign chỉ khi NIdương và ratio usable/cùng FY.
+- CFO0 không favorable; NI0/âm không suy CFO; unknown/imputed NI bị chặn. Một watch
+  đủ chặn favorable, bằng ngưỡng không warning, optional unusable được SKIPPED.
+- Helper metadata boolean strict và cell lineage cho imputed; không đổi whitelist,
+  policy/quyền đã duyệt, không score/penalty hoặc mở Assessment runtime.
+- 16tests mới (27tổ hợp dấu),15market và11policy đạt; compile đạt. Chưa nối builder
+  hoặc phát verdict thật, giữ blocker S1 đã ghi nhận ở R2-11.
+
+## R2-12: hiện thực điều kiện thị trường — 19/11/2026
+
+- Thêm evaluate_market và helper policy/evidence dùng chung: FAVORABLE/ADVERSE/
+  MIXED/UNKNOWN, ILLIQUID major warning, rule status và evidence/qualifiers đầy đủ.
+- Bốn momentum mandatory, strict zero; missing/NaN/Inf/bool/string sai kiểu, thiếu
+  provenance hoặc lệch kỳ/đơn vị không bị coi là0. Không lấy cluster/future return
+  làm tín hiệu, không điền market features bằng median.
+- 15tests mới và11policytests đạt, compile đạt; chưa phát verdict hoặc tích hợp
+  builder S1/S3, chưa thay policy activation hoặc artifact hiện có.
+
+## R2-11: mã hóa policy D-ASS-01 — 19/11/2026
+
+- Thêm policy version1.0.0: whitelist18, mandatory/conditional/optional, ngưỡng,
+  bốn verdict/priority, monthly freshness,18tháng, Peers theo6.3 và evidence.
+- Ghi xác nhận người dùng cho phép IMPUTED_MEDIAN trong rulebook và Peers, giữ
+  lineage/status; không giả CFO quan sát hoặc thêm điểm/penalty/imputation.
+- 11 tests hợp đồng policy/fixture đạt; compile đạt. Các module rules/verdict/
+  rationale thực thi thuộc R2-12..15, chưa tích hợp builder hoặc nghiệm thu thật.
+- Ghi rõ S1 còn market features/cluster A giả lập; artifact cũ dùng legacy labels.
+  Policy NOT_INTEGRATED/runtime_enabled=false, không coi đây là hard guard CLI.
+
+## R2-10: xuất đối sánh M3 theo segment — 19/11/2026
+
+- Thêm exporter read-only cho baseline/enriched sealed Dev/Holdout, Combined,
+  Financial-only, ba market controls và VNINDEX; không fit/rerun/chọn model.
+- Xuất5file: summary24dòng, periods, NAV/drawdown riêng, deltas12dòng và provenance
+  manifest. Giữ kỳ cuối không thực thi với outcomes trống; không gộp NAV hai đoạn.
+- Kiểm hashes/pins, NAV bounds/return/MDD, cash/failed trades và controls; giữ cả
+  kết quả bất lợi, phân biệt adj_close có cash dividends và VNINDEX price index.
+- 9 tests mới kiểm mutation/seal/controls, traceability, negative outcomes và
+  source immutability; toàn bộ102tests M3, compile, pip check và synthetic smoke đạt.
+  Báo cáo thật xuất tại comparison/20261118T173627755165Z.
+
+## R2-07: feasibility thật, targets-only và khóa config — 18/11/2026
+
+- Nhận bundle v4 và C8 v2 đúng hash baseline; dữ liệu để ở ổ D và vẫn bị Git ignore.
+- Pre-lock feasibility/targets thật PASS: Dev60/59/1, Holdout24/23/1; git_dirty=false,
+  pins/audit/candidates/weights/ranks và ba market controls khớp.
+- N<10 Dev13→12, Holdout1→1; median ứng viên Dev27→20, Holdout30→31; giữ đủ evidence.
+- Config chuyển LOCKED, lưu run IDs/pins/review; tests chuyển vòng đời, giữ READY guard.
+- Cần user commit, ghi execution SHA và tái sinh targets-only tại HEAD sạch trước full
+  Development. Chưa chạy hoặc seal backtest enriched, không có số lợi suất mới.
+
+## R2-06: verifier và seal Development/Holdout — 18/11/2026
+
+- Thêm verifier cho manifest/pins, targets/audit, giá/limits, ledger, dòng tiền,
+  holdings, NAV, turnover, metrics và baseline controls; đối chiếu targets-only.
+- Seal riêng, không ghi đè; Holdout yêu cầu Dev seal PASS cùng code/config/inputs,
+  kiểm bytes sealed và references, NAV từng segment khởi tạo riêng ở 1.
+- 12 tests mới gồm mutation output, cash, dates, hash, metrics/Sharpe, controls,
+  source/run đổi lúc verify, Dev seal giả/sửa và kiểm bất biến bytes.
+- Toàn bộ 93 tests M3 đạt, không skip; compile, pip check, CLI help và synthetic
+  smoke đạt bằng `.venv-m3`. Chưa chạy hoặc seal backtest enriched thật.
+
+## R2-05: regression giá/cutoff/targets — 18/11/2026
+
+- Thêm 5 tests, giữ toàn bộ assertions cũ: k=3/4/8 theo frozen order/cutoff, append FY
+  tương lai không đổi targets/audit; full Development synthetic enriched k=4/8 có
+  targets/audit/ledger/holdings/turnover/NAV/metrics giữ nguyên bytes khi append giá,
+  lịch, benchmark và market snapshot ngoài segment.
+- Kiểm kỳ cuối NOT_EXECUTED_SEGMENT_END, NAV chốt 2023-12-29, Q17 sửa trong segment,
+  hash nguồn bất biến, không Sharpe; thiếu limits giữ tiền mặt/failed trades/scaling,
+  N nhỏ bán mã bị loại nhưng không tái đầu tư phần tiền mặt.
+- Toàn bộ 81 tests M3 đạt, không skip; compile, pip check và synthetic smoke đạt.
+  Môi trường riêng `.venv-m3` trên ổ D: Python 3.12, numpy 2.2.6, scipy 1.15.3,
+  scikit-learn 1.6.1. Đã chạy được readiness suite từng thiếu scipy; không sửa Python
+  global, không đổi production code/config hoặc chạy backtest trên dữ liệu thật.
+
+## R2-04: thêm --config cho feasibility — 18/11/2026
+
+- Dùng cùng resolver, B-PIT loader/pins, SQLite ngành/scoring và availability với runner.
+- Lấy ranh giới segment từ config; thống kê min/median/N<10 và lý do/tỷ lệ loại sau
+  FINANCIAL_CRITERIA_MISSING, lưu hashes và trạng thái code trong output.
+- Giữ default baseline, chặn ép enriched về B v4, xử lý segment rỗng.
+- 6 tests mới đối chiếu counts/audit với runner và 34 regression tests đạt; compile,
+  CLI help và synthetic smoke đạt. Chưa chạy feasibility thật hoặc full backtest.
+
+## R2-03: config thử nghiệm M3 enriched và cache riêng — 18/11/2026
+
+- Thêm config enriched ở trạng thái READY, pin hash thực tế C/D/models/availability.
+- Giữ toàn bộ quy tắc chiến lược baseline; cache riêng, chặn dùng lại cache baseline.
+- 13 tests nguồn/config/cache, 12 cutoff và 9 price-boundary đạt; compile và synthetic
+  smoke đạt. Hash/provenance bàn giao thật khớp, loader nhận FY2017–2024.
+- Chưa LOCKED hoặc chạy full backtest; readiness suite vẫn cần môi trường có scipy.
+
+## R2-02: nguồn enriched xuyên runner M3 — 18/11/2026
+
+- Resolve nguồn từ `financial_data`; dùng chung SQLite cho scoring, ngành và hash.
+- Kiểm labels/models/availability pins và provenance B-PIT; chặn fallback sai nguồn.
+- Mở SQLite read-only bằng URI an toàn với khoảng trắng/ký tự đặc biệt, đóng kết nối.
+- Bổ sung 9 tests nguồn; tổng 56 tests nguồn/cutoff/giá/engine đạt, compile và synthetic
+  smoke đạt. Chưa chạy được readiness suite vì môi trường thiếu `scipy`.
+- Chưa thay config/cache (R2-03), chưa chạy backtest enriched trên dữ liệu thật.
+
 ## Cập nhật cấu trúc M3 và hoàn thiện kế hoạch làm giàu dữ liệu B-PIT — 16/11/2026
 
 Chuyển toàn bộ tài liệu kế hoạch M3 từ `docs/m3/` sang trực tiếp thư mục `M3/`
