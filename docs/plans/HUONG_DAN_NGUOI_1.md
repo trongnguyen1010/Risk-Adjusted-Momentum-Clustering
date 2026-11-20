@@ -16,7 +16,7 @@
    * Kết quả: Cấu hình K-Means (k=3) đạt độ ổn định 0.922, Silhouette 0.230; 0 lỗi rò rỉ dữ liệu (`fit_leaks = 0`).
 3. **Bộ dữ liệu đánh giá đầu tư ngoại tuyến D-ASS-01 (Stage S3):**
    * Vị trí: `data/experiments/assessment/assessment_v1_run01/` (`assessments.jsonl`, `peer_benchmarks.csv`, `coverage.csv`, `feature_history.jsonl`, `manifest.json`)
-   * Kết quả: Chấm điểm đầy đủ 1.428 mã (335 Đáng cân nhắc, 837 Cần theo dõi, 256 Không đủ cơ sở); verifier độc lập `PASS` 100%.
+   * Kết quả: Chấm điểm đầy đủ 1.428 mã với dữ liệu thị trường A v4 thật và bộ quy tắc D-ASS-01 (67 Đáng cân nhắc đầu tư, 448 Cần theo dõi, 587 Chưa nên ưu tiên đầu tư, 326 Không đủ cơ sở đánh giá); verifier độc lập `PASS` 100%.
 4. **Gói đóng gói bàn giao (Dành cho Người 2, 3, 4):**
    * Đã nén thành tệp: `Downloads/data.zip` (40.83 MB) chứa toàn bộ thư mục `data/` hoàn chỉnh.
 

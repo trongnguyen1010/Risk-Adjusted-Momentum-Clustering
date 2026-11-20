@@ -10,8 +10,8 @@
 - Revision: `assessment-v1-run01-20261116`
 - Context / as of: `SIMULATED_AS_OF` / `2026-01-02`
 - Required price session: `2025-12-31`
-- Manifest SHA-256: `63a0b747d200638151052e0168b542316e013d8561916860416d1e4118bd09a8`
-- Deterministic content SHA-256: `418def26a0db719205f01b73d71467adcd6d1930bd549bc509c9183309f3f8bb`
+- Manifest SHA-256: `6bdb5b01cce44c7a87f9fb4545cf4854859983bfa760fadbf52357102018b484`
+- Deterministic content SHA-256: `16b259111f69fd0be7bc84fa3aec844677755b1cb488560184252b6aedbae787`
 - Catalog / supporting stock API version: `delta-intelligence-v1`
 - Exact response pins and source boundary: [response-pins.json](response-pins.json)
 

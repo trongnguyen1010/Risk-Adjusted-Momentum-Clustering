@@ -120,25 +120,26 @@ export function SingleFeatureChart({
   const chartModel = useMemo(() => {
     if (!selectedFeature) return null;
 
-    if (featureIsFinancial(selectedFeature)) {
-      const endYear = Number(response.as_of.slice(0, 4));
-      const startYear = endYear - lookbackYears + 1;
+    const endYear = Number(response.as_of.slice(0, 4));
+    const startYear = endYear - lookbackYears + 1;
+    const rowsInWindow = response.history.filter((point) => {
+      const year = Number(point.period);
+      return (
+        point.feature_id === selectedFeature.feature_id &&
+        /^\d{4}$/.test(point.period) &&
+        year >= startYear &&
+        year <= endYear
+      );
+    });
+    const rowsAvailableAtAsOf = rowsInWindow.filter(
+      (point) =>
+        typeof point.usable_from_date === "string" &&
+        point.usable_from_date <= response.as_of,
+    );
+
+    if (featureIsFinancial(selectedFeature) || rowsAvailableAtAsOf.length > 0) {
       const periods = Array.from({ length: lookbackYears }, (_, index) =>
         String(startYear + index),
-      );
-      const rowsInWindow = response.history.filter((point) => {
-        const year = Number(point.period);
-        return (
-          point.feature_id === selectedFeature.feature_id &&
-          /^\d{4}$/.test(point.period) &&
-          year >= startYear &&
-          year <= endYear
-        );
-      });
-      const rowsAvailableAtAsOf = rowsInWindow.filter(
-        (point) =>
-          typeof point.usable_from_date === "string" &&
-          point.usable_from_date <= response.as_of,
       );
       const selectedHistory = new Map(
         rowsAvailableAtAsOf.map((point) => [point.period, point]),
@@ -161,7 +162,9 @@ export function SingleFeatureChart({
       return {
         periods,
         data,
-        axisLabel: "Năm tài chính (FY)",
+        axisLabel: featureIsFinancial(selectedFeature)
+          ? "Năm tài chính (FY)"
+          : "Snapshot thị trường cuối năm",
         coverage: {
           records: rowsAvailableAtAsOf.length,
           plotted: plottedCount,
@@ -171,7 +174,9 @@ export function SingleFeatureChart({
         details: rowsAvailableAtAsOf.sort(
           (left, right) => Number(left.period) - Number(right.period),
         ),
-        note: "Khoảng trống trên trục FY biểu thị kỳ không có điểm hợp lệ; không nội suy hoặc tạo giá trị.",
+        note: featureIsFinancial(selectedFeature)
+          ? "Khoảng trống trên trục FY biểu thị kỳ không có điểm hợp lệ; không nội suy hoặc tạo giá trị."
+          : "Chuỗi lịch sử snapshot thị trường cuối năm từ mô hình A v4; không nội suy qua các kỳ thiếu dữ liệu.",
       };
     }
 
@@ -266,14 +271,14 @@ export function SingleFeatureChart({
   const windowStartYear = asOfYear - lookbackYears + 1;
 
   return (
-    <section aria-label="Biểu đồ một chỉ số Assessment" className="panel" style={{ marginTop: "1rem" }}>
-      <div className="panel-heading" style={{ marginBottom: "0.75rem" }}>
+    <section aria-label="Biểu đồ một chỉ số Assessment" className="panel section-gap">
+      <div className="panel-heading">
         <div>
           <div className="eyebrow">DIỄN BIẾN LỊCH SỬ</div>
           <h2>Biểu đồ phân tích 18 chỉ số</h2>
         </div>
       </div>
-      <div className="filter-row" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem 1.25rem", marginBottom: "1rem" }}>
+      <div className="filter-row" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "12px 20px", padding: "0 22px 14px" }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem" }}>
           <label htmlFor="assessment-feature-selector" style={{ fontWeight: 500, fontSize: "0.9rem" }}>Chỉ số cần xem:</label>
           <select
@@ -318,7 +323,7 @@ export function SingleFeatureChart({
 
       {chartModel && (
         <>
-          <p aria-live="polite" className="panel-note" role="status">
+          <p aria-live="polite" className="panel-note" role="status" style={{ padding: "8px 22px 12px", margin: 0, fontSize: "13px" }}>
             {featureIsFinancial(selectedFeature)
               ? `Cửa sổ FY ${windowStartYear}–${asOfYear}: ${chartModel.coverage.records}/${lookbackYears} kỳ có bản ghi khả dụng, ${chartModel.coverage.plotted} điểm được vẽ, ${chartModel.coverage.imputed} điểm impute.`
               : `Snapshot tại ${response.required_price_session}: ${chartModel.coverage.plotted}/${chartModel.coverage.expected} điểm được vẽ.`}
@@ -327,8 +332,8 @@ export function SingleFeatureChart({
           </p>
 
           {chartModel.details.length > 0 && (
-            <div className="table-wrap">
-              <table>
+            <div className="data-table-wrap">
+              <table className="data-table">
                 <caption>
                   Dữ liệu thực và provenance cho {FEATURE_LABELS[selectedFeature.feature_id]}
                 </caption>

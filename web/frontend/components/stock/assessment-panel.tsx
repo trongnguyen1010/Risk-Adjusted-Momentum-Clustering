@@ -21,36 +21,46 @@ function ClusterProfileCard({
   profile: AssessmentClusterProfile | null;
 }) {
   return (
-    <section className="state-box" aria-label={title} style={{ padding: "0.85rem 1rem" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
-        <h3 style={{ margin: 0, fontSize: "0.95rem" }}>{title}</h3>
-        {profile && (
-          <span className="badge teal" style={{ fontWeight: "bold" }}>
-            Cụm {profile.id}
-          </span>
+    <div
+      aria-label={title}
+      style={{
+        background: "var(--surface-2)",
+        border: "1px solid var(--line)",
+        borderRadius: "var(--radius-sm)",
+        padding: "12px 14px",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+        <strong style={{ fontSize: "13px", color: "var(--text)" }}>{title}</strong>
+        {profile ? (
+          <span className="badge teal">Cụm #{profile.id}</span>
+        ) : (
+          <span className="badge">Chưa có</span>
         )}
       </div>
       {profile ? (
-        <dl className="provenance" style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "0.25rem 0.75rem", margin: 0, fontSize: "0.85rem" }}>
-          <dt style={{ color: "var(--muted, #64748b)" }}>Mô hình:</dt>
-          <dd style={{ margin: 0 }}>{profile.model_version} · Kỳ {profile.date_or_fy}</dd>
+        <dl style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px", margin: 0, fontSize: "13px" }}>
+          <dt style={{ color: "var(--muted)" }}>Mô hình</dt>
+          <dd style={{ margin: 0, color: "var(--text-2)" }}>{profile.model_version} · Kỳ {profile.date_or_fy}</dd>
           {profile.profile && (
             <>
-              <dt style={{ color: "var(--muted, #64748b)" }}>Mô tả:</dt>
-              <dd style={{ margin: 0 }}>{profile.profile}</dd>
+              <dt style={{ color: "var(--muted)" }}>Đặc trưng</dt>
+              <dd style={{ margin: 0, color: "var(--text-2)" }}>{profile.profile}</dd>
             </>
           )}
           {profile.quality_flags.length > 0 && (
             <>
-              <dt style={{ color: "var(--muted, #64748b)" }}>Chất lượng:</dt>
-              <dd style={{ margin: 0 }}>{profile.quality_flags.join(", ")}</dd>
+              <dt style={{ color: "var(--muted)" }}>Chất lượng</dt>
+              <dd style={{ margin: 0, color: "var(--text-2)" }}>{profile.quality_flags.join(", ")}</dd>
             </>
           )}
         </dl>
       ) : (
-        <p role="status" style={{ margin: 0, color: "var(--muted, #64748b)", fontSize: "0.85rem" }}>Không có thông tin cụm</p>
+        <p role="status" style={{ margin: 0, color: "var(--muted)", fontSize: "13px" }}>
+          Chưa có phân cụm cho kỳ đánh giá này.
+        </p>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -87,51 +97,58 @@ export function AssessmentPanel({
   const canShowAssessment = matchingResponse != null && error == null;
 
   return (
-    <section aria-label={`Panel Assessment ${requestedTicker}`} className="panel">
-      <div className="panel-heading">
-        <div>
-          <div className="eyebrow">ĐÁNH GIÁ ĐẦU TƯ</div>
-          <h2>Assessment · {requestedTicker || "Chưa chọn mã"}</h2>
+    <div aria-label={`Panel Assessment ${requestedTicker}`}>
+      <section className="panel">
+        <div className="panel-heading">
+          <div>
+            <div className="eyebrow">ĐÁNH GIÁ ĐẦU TƯ</div>
+            <h2>Assessment · {requestedTicker || "Chưa chọn mã"}</h2>
+          </div>
         </div>
-      </div>
 
-      <AssessmentStatus
-        ticker={ticker}
-        response={matchingResponse}
-        loading={loading}
-        error={error}
-        errorStatus={errorStatus}
-        stale={stale}
-        onRetry={onRetry}
-      />
+        <AssessmentStatus
+          ticker={ticker}
+          response={matchingResponse}
+          loading={loading}
+          error={error}
+          errorStatus={errorStatus}
+          stale={stale}
+          onRetry={onRetry}
+        />
 
-      {canShowAssessment && matchingResponse && (
-        <div className="assessment-panel-content">
-          <RationaleCard response={matchingResponse} />
-
+        {canShowAssessment && matchingResponse && (
           <details
             aria-label="Hồ sơ hai cụm đã phát hành"
             style={{
-              marginBlock: "0.75rem",
-              fontSize: "0.85rem",
-              color: "var(--muted, #64748b)",
+              borderTop: "1px solid var(--line)",
+              padding: "10px 22px 12px",
+              fontSize: "13px",
+              color: "var(--muted)",
             }}
           >
-            <summary style={{ cursor: "pointer", userSelect: "none", fontWeight: 500, padding: "0.35rem 0" }}>
-              Mô hình phân cụm DELTA (Thị trường A v4: Cụm #{matchingResponse.market_cluster?.id ?? 0} · Tài chính B-PIT: Cụm #{matchingResponse.financial_cluster?.id ?? 0})
+            <summary style={{ cursor: "pointer", userSelect: "none", fontWeight: 500, color: "var(--text-2)" }}>
+              Chi tiết mô hình phân cụm (Thị trường A v4:{" "}
+              {matchingResponse.market_cluster != null ? `Cụm #${matchingResponse.market_cluster.id}` : "Chưa có"} · Tài chính B-PIT:{" "}
+              {matchingResponse.financial_cluster != null ? `Cụm #${matchingResponse.financial_cluster.id}` : "Chưa có"})
             </summary>
             <div
               style={{
                 display: "grid",
-                gap: "0.75rem",
+                gap: "12px",
                 gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 18rem), 1fr))",
-                marginTop: "0.5rem",
+                marginTop: "12px",
               }}
             >
               <ClusterProfileCard title="Cụm thị trường A v4" profile={matchingResponse.market_cluster} />
               <ClusterProfileCard title="Cụm tài chính B-PIT" profile={matchingResponse.financial_cluster} />
             </div>
           </details>
+        )}
+      </section>
+
+      {canShowAssessment && matchingResponse && (
+        <>
+          <RationaleCard response={matchingResponse} />
 
           <SingleFeatureChart
             response={matchingResponse}
@@ -143,9 +160,12 @@ export function AssessmentPanel({
 
           <PeerComparisonTable response={matchingResponse} />
           <AssessmentFeatureTable response={matchingResponse} />
-          <EvidenceProvenanceModal response={matchingResponse} />
-        </div>
+
+          <section className="panel section-gap" style={{ padding: "14px 22px" }}>
+            <EvidenceProvenanceModal response={matchingResponse} />
+          </section>
+        </>
       )}
-    </section>
+    </div>
   );
 }
