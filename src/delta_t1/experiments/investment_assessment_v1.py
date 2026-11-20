@@ -32,16 +32,24 @@ from .assessment.inputs import (
 from .assessment.peers import PeerBenchmarkBuilder, MetricPeerStats
 from .assessment.history import AssessmentHistoryBuilder
 
+VERDICT_RESEARCH_FAVORABLE = "RESEARCH_FAVORABLE"
+VERDICT_WATCH = "WATCH"
+VERDICT_CAUTION = "CAUTION"
+VERDICT_INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
+
+# Legacy aliases
 VERDICT_WORTH_CONSIDERING = "WORTH_CONSIDERING"
 VERDICT_MONITOR = "MONITOR"
 VERDICT_LOW_PRIORITY = "LOW_PRIORITY"
-VERDICT_INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
 
 VERDICT_LABELS_VI = {
+    VERDICT_RESEARCH_FAVORABLE: "Đáng cân nhắc đầu tư",
+    VERDICT_WATCH: "Cần theo dõi",
+    VERDICT_CAUTION: "Chưa nên ưu tiên đầu tư",
+    VERDICT_INSUFFICIENT_EVIDENCE: "Không đủ cơ sở đánh giá",
     VERDICT_WORTH_CONSIDERING: "Đáng cân nhắc đầu tư",
     VERDICT_MONITOR: "Cần theo dõi",
     VERDICT_LOW_PRIORITY: "Chưa nên ưu tiên đầu tư",
-    VERDICT_INSUFFICIENT_EVIDENCE: "Không đủ cơ sở đánh giá",
 }
 
 @dataclass

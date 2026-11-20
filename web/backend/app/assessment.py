@@ -6,10 +6,13 @@ from .schemas import AssessmentResponse
 
 
 VERDICT_STATUS = {
+    'RESEARCH_FAVORABLE': 'RESEARCH_FAVORABLE',
+    'WATCH': 'WATCH',
+    'CAUTION': 'CAUTION',
+    'INSUFFICIENT_EVIDENCE': 'INSUFFICIENT_EVIDENCE',
     'WORTH_CONSIDERING': 'RESEARCH_FAVORABLE',
     'MONITOR': 'WATCH',
     'LOW_PRIORITY': 'CAUTION',
-    'INSUFFICIENT_EVIDENCE': 'INSUFFICIENT_EVIDENCE',
 }
 FINANCIAL = {'roe', 'roa', 'gross_margin', 'net_margin', 'debt_to_equity', 'current_ratio', 'asset_turnover', 'revenue_growth', 'cfo_to_ni'}
 
