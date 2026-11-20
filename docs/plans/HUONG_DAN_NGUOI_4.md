@@ -6,6 +6,31 @@
 
 ---
 
+## Bảng tiến độ Người 4
+
+> Cập nhật một dòng ngay khi bắt đầu hoặc hoàn tất task. `PASS` chỉ được ghi sau khi
+> targeted test và self-review đạt; mỗi task hoàn tất có đúng một commit riêng.
+
+| Task | Giai đoạn | Trạng thái | Commit | Ghi chú ngắn |
+|---|---|---|---|---|
+| R4-01 | F | PASS | `docs(bpit-m3): Tổng hợp đối sánh B-PIT` | Commit `e2ad3bb`. Đối sánh B-PIT FY2017-2024 hoàn tất, báo cáo ô điền, sizes, ARI đối chứng. |
+| R4-02 | F | PASS | `docs(bpit-m3): Tổng hợp đối sánh M3` | Commit `579ff17`. Báo cáo backtest đối sánh M3 Dev/Holdout, NAV, drawdown, turnovers. |
+| R4-03 | F | PASS | `docs(bpit-m3): Hoàn tất hồ sơ bàn giao và tài liệu liên quan` | Commit `6c507ce`. Tổng kết bàn giao, DECISIONS.md, CHANGELOG.md và REPORT_BACKTEST.md. |
+| R4-04 | S5 | PASS | `feat(assessment): Types và trạng thái dữ liệu frontend` | Commit `41b1045`. Types TypeScript cho assessment, enum availability, verdict. |
+| R4-05 | S5 | PASS | `feat(assessment): Verdict và availability states` | Commit `45bba4d`. Render 4 trạng thái verdict, badge màu, nhãn tiếng Việt chuẩn D-ASS-01. |
+| R4-06 | S5 | PASS | `feat(assessment): Một biểu đồ chuyển đổi chỉ số` | Commit `f109436`. Biểu đồ động chuyển đổi giữa 18 chỉ số theo selector, không đổi verdict. |
+| R4-07 | S5 | PASS | `feat(assessment): Lookback và thông tin coverage` | Commit `01cc754`. Bộ chọn lookback 5/10 năm, hiển thị coverage lịch sử và cảnh báo trống. |
+| R4-08 | S5 | PASS | `feat(assessment): Bảng Peers theo đặc trưng` | Commit `16413ba`. Bảng Peers hiển thị peer_basis, peer_count, median và cảnh báo thiếu mẫu. |
+| R4-09 | S5 | PASS | `feat(assessment): Bảng chi tiết 18 đặc trưng` | Commit `8617f2f`. Grid hiển thị 9 market + 9 financial features với status và provenance. |
+| R4-10 | S5 | PASS | `feat(assessment): Giải thích tín hiệu và rủi ro` | Commit `577a921`. Card giải thích rationale, tín hiệu thuận lợi và cảnh báo rủi ro. |
+| R4-11 | S5 | PASS | `feat(assessment): Nguồn và chất lượng dữ liệu` | Commit `3c0d8bf`. Khối thông tin provenance, as_of, phiên giá, snapshot, hash và manifest. |
+| R4-12 | S5 | PASS | `feat(assessment): Ghép panel đánh giá` | Commit `bf8bda5`. Hoàn thiện component AssessmentPanel tổng hợp tất cả các subcomponents. |
+| R4-13 | S5 | PASS | `feat(assessment): Tab, API và URL state` | Commit `6d94f27`. Thêm tab 'Đánh giá đầu tư' vào /stocks, đồng bộ query param và API call. |
+| R4-14 | S6 | PASS | `feat(assessment): UAT và regression giao diện` | Commit `24a1632`. UAT các ca FPT, A32, VCB, mã lạ và regression test bộ giao diện. |
+| R4-15 | S6 | PASS | `docs(assessment): Hướng dẫn và hồ sơ nghiệm thu` | Commit `16bd994`. Tài liệu nghiệm thu, hướng dẫn vận hành và checklist bàn giao hoàn tất. |
+
+---
+
 ## Quy chuẩn làm việc và Commit (Bắt buộc)
 
 1. **Nguyên tắc Atomic Commit (1 Task = ĐÚNG 1 Commit riêng biệt):**

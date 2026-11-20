@@ -2,7 +2,30 @@
 
 **Phạm vi phụ trách:** Tích hợp M3, Chạy Backtest và Bộ quy tắc đánh giá đầu tư.  
 **Tổng số nhiệm vụ:** 15 tasks.  
+**Trạng thái:** **ĐÃ HOÀN THÀNH 100% (15/15 tasks)** — Đã hoàn tất 15 commits chuẩn và nghiệm thu.  
 **Tài liệu tham chiếu:** [Kế hoạch tổng thể](KE_HOACH_TRIEN_KHAI_B_PIT_VA_DANH_GIA_DAU_TU.md) · [PHAN_CONG_CONG_VIEC_B_PIT_VA_DANH_GIA_DAU_TU.json](PHAN_CONG_CONG_VIEC_B_PIT_VA_DANH_GIA_DAU_TU.json).
+
+---
+
+## Bảng tiến độ Người 2
+
+| Task | Giai đoạn | Trạng thái | Commit | Ghi chú ngắn |
+|---|---|---|---|---|
+| R2-01 | D | PASS | `7ea87ff` | Sửa loader M3 nhận đủ k cụm |
+| R2-02 | E | PASS | `65fdcb1` | Truyền nguồn enriched xuyên runner |
+| R2-03 | E | PASS | `83c40f4` | Tạo config thử nghiệm và cache riêng |
+| R2-04 | E | PASS | `fc32ad1` | Thêm --config cho feasibility |
+| R2-05 | E | PASS | `456629e` | Mở rộng regression giá/cutoff/targets |
+| R2-06 | E | PASS | `d492948` | Chuẩn bị verifier và seal hai đoạn |
+| R2-07 | E | PASS | `8e515f7` | Feasibility thật, targets-only và khóa config |
+| R2-08 | E | PASS | `62162dd` | Chạy và seal Development |
+| R2-09 | E | PASS | `c2add39` | Chạy và seal Holdout |
+| R2-10 | F | PASS | `1fa07ac` | Xuất đối sánh M3 theo segment |
+| R2-11 | S2 | PASS | `5f1fcd0` | Mã hóa policy D-ASS-01 |
+| R2-12 | S2 | PASS | `53ee8dc` | Hiện thực điều kiện thị trường |
+| R2-13 | S2 | PASS | `837b219` | Hiện thực tài chính và dòng tiền |
+| R2-14 | S2 | PASS | `7ec1be9` | Kết hợp eligibility và bốn verdict |
+| R2-15 | S2 | PASS | `5a96072` | Dựng rationale và counter-evidence |
 
 ---
 
