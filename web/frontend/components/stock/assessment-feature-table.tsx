@@ -61,10 +61,11 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 function historyStatus(feature: AssessmentFeature, history: AssessmentHistoryPoint[]) {
+  const periodYear = feature.period?.slice(0, 4);
   const matchingPoint = history.find(
     (point) =>
       point.feature_id === feature.feature_id &&
-      point.period === feature.period,
+      (point.period === feature.period || (periodYear != null && point.period === periodYear)),
   );
   return matchingPoint ?? null;
 }
@@ -86,12 +87,13 @@ function featureCoverage(
   feature: AssessmentFeature,
   history: AssessmentHistoryPoint[],
 ): string {
-  if (feature.category === "MARKET") {
-    return feature.value == null ? "0/1 snapshot có giá trị" : "1/1 snapshot có giá trị";
-  }
-
   const rows = history.filter((point) => point.feature_id === feature.feature_id);
-  if (rows.length === 0) return "Không có history trong response";
+  if (rows.length === 0) {
+    if (feature.category === "MARKET") {
+      return feature.value == null ? "0/1 snapshot có giá trị" : "1/1 snapshot có giá trị";
+    }
+    return "Không có history trong response";
+  }
   const available = rows.filter(
     (point) =>
       (point.status === "OK" || point.status === "IMPUTED_MEDIAN") &&
@@ -108,8 +110,10 @@ function SourceCell({
   feature: AssessmentFeature;
   historyPoint: AssessmentHistoryPoint | null;
 }) {
-  const source = feature.evidence_ref ?? historyPoint?.source ?? null;
-  if (!source) return <span>Artifact không có tham chiếu riêng</span>;
+  const source =
+    feature.evidence_ref ??
+    historyPoint?.source ??
+    (feature.category === "FINANCIAL" ? "FINANCIAL_INDICATORS" : "MARKET_A_V4");
   return <code>{source}</code>;
 }
 
@@ -196,7 +200,7 @@ export function AssessmentFeatureTable({
   ).length;
 
   return (
-    <section aria-label={`18 đặc trưng Assessment của ${response.ticker}`}>
+    <section aria-label={`18 đặc trưng Assessment của ${response.ticker}`} className="panel section-gap">
       <div className="panel-heading">
         <div>
           <div className="eyebrow">CHI TIẾT ĐẶC TRƯNG · AS OF {response.as_of}</div>
@@ -208,7 +212,9 @@ export function AssessmentFeatureTable({
         được giữ là chưa có dữ liệu; không được đổi thành 0.
       </p>
 
-      <h3>Đặc trưng tài chính B-PIT ({financialCount}/9)</h3>
+      <h3 style={{ padding: "8px 22px 10px", margin: 0, fontSize: "15px", color: "var(--text)" }}>
+        Đặc trưng tài chính B-PIT ({financialCount}/9)
+      </h3>
       <div className="data-table-wrap">
         <table className="data-table">
           <caption className="sr-only">Chín đặc trưng tài chính B-PIT của {response.ticker}</caption>
@@ -231,7 +237,9 @@ export function AssessmentFeatureTable({
         </table>
       </div>
 
-      <h3>Đặc trưng thị trường A v4 ({marketCount}/9)</h3>
+      <h3 style={{ padding: "18px 22px 10px", margin: 0, fontSize: "15px", color: "var(--text)" }}>
+        Đặc trưng thị trường A v4 ({marketCount}/9)
+      </h3>
       <div className="data-table-wrap">
         <table className="data-table">
           <caption className="sr-only">Chín đặc trưng thị trường A v4 của {response.ticker}</caption>

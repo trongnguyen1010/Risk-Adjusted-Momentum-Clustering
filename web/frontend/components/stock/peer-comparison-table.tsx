@@ -74,7 +74,7 @@ export function PeerComparisonTable({
   const sourceHashes = Object.entries(response.references.source_hashes);
 
   return (
-    <section aria-label={`So sánh Peers theo đặc trưng của ${response.ticker}`}>
+    <section aria-label={`So sánh Peers theo đặc trưng của ${response.ticker}`} className="panel section-gap">
       <div className="panel-heading">
         <div>
           <div className="eyebrow">AS OF {response.as_of}</div>
@@ -112,8 +112,10 @@ export function PeerComparisonTable({
               return (
                 <tr key={feature.feature_id}>
                   <th scope="row">
-                    {FEATURE_LABELS[feature.feature_id]}
-                    <small className="unit-hint">{feature.unit}</small>
+                    <span className="metric-name">
+                      {FEATURE_LABELS[feature.feature_id]}
+                      <small className="unit-hint">{feature.unit}</small>
+                    </span>
                   </th>
                   <td>{metricValue(feature.value, feature.unit)}</td>
                   <td>{peer ? peerBasisLabel(peer.peer_basis) : "Chưa có dữ liệu Peers"}</td>
@@ -138,7 +140,7 @@ export function PeerComparisonTable({
           </tbody>
         </table>
       </div>
-      <details className="panel-note">
+      <details className="panel-note" style={{ padding: "12px 22px 16px" }}>
         <summary>Nguồn và phiên bản artifact</summary>
         <p>
           Release {response.references.release_revision}; manifest SHA-256{" "}

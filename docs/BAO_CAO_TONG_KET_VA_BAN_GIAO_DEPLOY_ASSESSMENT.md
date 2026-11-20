@@ -1,127 +1,109 @@
-# Báo cáo tổng kết thực hiện và hướng dẫn phát hành tính năng Investment Assessment
+# Báo cáo tổng kết kỹ thuật và hướng dẫn phát hành tính năng Investment Assessment
 
 ## 1. Thông tin chung
 
 * **Dự án:** DELTA / Risk-Adjusted Momentum Clustering.
-* **Tài liệu căn cứ:**
-  - `docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md`
-  - `docs/Ke_hoach_Output_DELTA_Investment_Assessment.md`
-  - `docs/plans/PHAN_CONG_CONG_VIEC_B_PIT_VA_DANH_GIA_DAU_TU.json`
-* **Nhánh làm việc chính thức:** `feature/indicators-v1` (nguồn chân lý duy nhất, sẵn sàng merge vào `main`).
-* **Trạng thái thực hiện:** Hoàn thành 100% các hạng mục công việc từ chuẩn bị dữ liệu B-PIT, mô hình M2/M3, trích xuất 1.428 bản ghi đánh giá đầu tư D-ASS-01, tích hợp API backend và hoàn thiện giao diện người dùng Next.js.
+* **Tài liệu tham chiếu:**
+  - `docs/KE_HOACH_LAM_GIAU_DU_LIEU_B_PIT_M3.md` (Giai đoạn A–F)
+  - `docs/Ke_hoach_Output_DELTA_Investment_Assessment.md` (Giai đoạn S0–S6, Quy chuẩn D-ASS-01)
+  - `configs/product/assessment_policy_v1.json` & `configs/product/assessment_release_v1.json`
+* **Nhánh tích hợp:** `feature/indicators-v1`.
+* **Phạm vi báo cáo:** Tổng hợp kết quả kiểm tra, khắc phục sai lệch dữ liệu Assessment, đồng bộ hóa bộ quy tắc D-ASS-01, tối ưu giao diện và xác minh toàn bộ hệ thống trước khi phát hành.
 
 ---
 
-## 2. Tình trạng nhánh và xử lý phân nhánh Git
+## 2. Đánh giá nguyên nhân gốc rễ và tình trạng dữ liệu nguồn
 
-* **Hiện trạng ban đầu:**
-  - Nhánh `nguoi2/bpit-m3-assessment` chứa 15 commits độc lập (từ `7ea87ff` đến `5a96072`) phụ trách Stage D, E, F (M3 Backtest) và Stage S2 (Mã hóa bộ quy tắc D-ASS-01). Nhánh này trước đó chưa được tích hợp vào nhánh chính `feature/indicators-v1`.
-* **Xử lý tích hợp:**
-  - Đã thực hiện `git merge origin/nguoi2/bpit-m3-assessment` vào `feature/indicators-v1` (Merge commit `ce8c7fe`).
-  - Toàn bộ xung đột (conflicts) tại `CHANGELOG.md`, `docs/DECISIONS.md`, và `docs/REPORT_BACKTEST.md` đã được xử lý triệt để, bảo toàn đầy đủ ghi chú lịch sử của cả hai luồng.
-  - Sau khi kiểm thử toàn diện, các commit đồng bộ đã được đẩy lên `origin/feature/indicators-v1`.
-* **Kết luận nhánh:** Nhánh `feature/indicators-v1` hiện tại là nguồn chân lý duy nhất (Single Source of Truth), chứa trọn vẹn mã nguồn của tất cả các thành viên. Nhánh `nguoi2/bpit-m3-assessment` đã hoàn thành vai trò lịch sử và không cần can thiệp thêm.
+### 2.1. Dữ liệu nguồn và kết quả làm giàu (Giai đoạn A–F)
+Kiểm tra toàn vẹn trên các artifact nguồn cho thấy dữ liệu đầu vào và kết quả thử nghiệm M3 trước đó vẫn đảm bảo tính chính xác:
+* **Dữ liệu chỉ số tài chính làm giàu (Giai đoạn C):** `data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/indicators.sqlite` bảo toàn đủ 319.620 dòng, hoàn tất làm giàu 1.045 mã–năm (1.111 ô trạng thái `IMPUTED_MEDIAN`) theo đúng bảng ngày khả dụng `availability.csv`.
+* **Mô hình & nhãn phân cụm tài chính B-PIT Enriched (Giai đoạn D):** `data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/` (K-Means `k=3`, 0 lỗi rò rỉ `fit_leaks = 0`, SHA-256 `labels.csv`: `384e36e4521700acb92c8bd69f38204f782e9ab269ba80fe18a6e283a6cf2e35`).
+* **Thử nghiệm & đối sánh M3 (Giai đoạn E–F):** Các lượt chạy Development (`20261118T165114Z-46fc18c0`), Holdout (`20261118T170517Z-46fc18c0`) và Comparison (`20261118T173627755165Z`) giữ nguyên trạng thái đã khóa (`LOCKED` / `seal.json`).
 
----
-
-## 3. Đồng bộ chuẩn D-ASS-01, tinh chỉnh dữ liệu và tối ưu giao diện Frontend
-
-### 3.1. Đồng bộ nhãn đánh giá (Verdicts)
-* **Quy chuẩn tài liệu:** D-ASS-01 định nghĩa 4 trạng thái đánh giá:
-  1. `RESEARCH_FAVORABLE`: Đáng cân nhắc đầu tư.
-  2. `WATCH`: Cần theo dõi.
-  3. `CAUTION`: Chưa nên ưu tiên đầu tư.
-  4. `INSUFFICIENT_EVIDENCE`: Không đủ cơ sở đánh giá.
-* **Xử lý tương thích tại Backend (Adapter Layer):**
-  - Dữ liệu artifact ban đầu sử dụng các định danh mã cũ (`WORTH_CONSIDERING`, `MONITOR`, `LOW_PRIORITY`).
-  - Tại tầng backend `web/backend/app/assessment.py` và orchestrator `src/delta_t1/experiments/investment_assessment_v1.py`, hệ thống đã thiết lập cơ chế ánh xạ tự động (auto-mapping):
-    - `WORTH_CONSIDERING` ➜ `RESEARCH_FAVORABLE`
-    - `MONITOR` ➜ `WATCH`
-    - `LOW_PRIORITY` ➜ `CAUTION`
-    - `INSUFFICIENT_EVIDENCE` ➜ `INSUFFICIENT_EVIDENCE`
-* **Chuẩn hóa ngôn ngữ và thẩm mỹ giao diện Frontend (Next.js):**
-  - **Sửa dứt điểm thuật ngữ hiển thị:** Đổi nhãn `RESEARCH_FAVORABLE` tại `verdict-badge.tsx` sang tiếng Việt chuẩn nghiệp vụ đầu tư: **`Đáng cân nhắc đầu tư`** (thay vì cách dịch kỹ thuật *"Tích cực để nghiên cứu"*), đảm bảo đúng nguyên tắc và kỳ vọng của nhà đầu tư khi tra cứu.
-  - **Tái cấu trúc khối tóm tắt kết luận (Hero Card):** Gom toàn bộ thông tin trạng thái thành một thẻ thống nhất, hiển thị nổi bật Huy hiệu kết luận, luận điểm phân tích cốt lõi và thanh ngày tháng áp dụng (`Kỳ đánh giá: 02/01/2026 · Phiên giá: 31/12/2025`).
-  - **Bổ sung 4 Trụ cột tiêu chí đánh giá D-ASS-01:** Hiển thị trực quan 4 tiêu chí cốt lõi làm cơ sở xếp loại cổ phiếu:
-    1. *Động lượng thị trường:* Xu hướng giá 21, 63, 126 phiên đồng thuận tích cực.
-    2. *Năng lực sinh lời:* ROA & Biên lãi ròng dương, ROE vượt trội trung vị nhóm ngành.
-    3. *Chất lượng dòng tiền:* Dòng tiền kinh doanh (CFO) dương, CFO/NI vững vàng.
-    4. *Kiểm soát rủi ro:* Không vi phạm cảnh báo thanh khoản hay suy giảm doanh thu.
-  - **Loại bỏ văn bản debug và thông tin lặp vô ích:**
-    - Loại bỏ hoàn toàn các dòng thông báo hệ thống như *"Artifact không cung cấp profile mô tả"*, *"Artifact không ghi cờ chất lượng"*, *"Artifact không cung cấp tham chiếu..."*.
-    - Xóa bỏ việc lặp lại câu luận điểm đánh giá giữa phần đầu và phần thân trang.
-    - Đổi tiêu đề kỹ thuật `LÝ DO VÀ BẰNG CHỨNG · AS OF 2026-01-02` thành tiêu đề nghiệp vụ: **`CƠ SỞ VÀ TIÊU CHÍ PHÂN TÍCH · D-ASS-01`** và **`Tiêu chuẩn phân loại & Tín hiệu trọng yếu`**.
-  - **Gọn gàng hóa mô hình phân cụm:** Thu gọn hai khối hiển thị số cụm kỹ thuật thành khối thông tin chi tiết có thể thu gọn, tránh chiếm dụng không gian hiển thị chính.
-  - **Cân đối bộ chọn chỉ số biểu đồ:** Tinh chỉnh hàng điều khiển `Chỉ số cần xem` và `Khoảng lịch sử` (5 năm / 10 năm) trên biểu đồ 18 chỉ số, đảm bảo khoảng cách hiển thị thoáng đãng và trực quan.
-
-### 3.2. Tính toàn vẹn và bất biến dữ liệu (Data Integrity)
-* Cơ chế ánh xạ tại backend bảo toàn nguyên vẹn tính bất biến của dữ liệu gốc, không làm thay đổi các file kết quả và không làm lệch mã băm SHA-256.
-* Công cụ thẩm định độc lập `scripts/verify_investment_assessment_v1.py` xác nhận: **PASS 100%, 1.428 mã cổ phiếu, 0 lỗi, toàn bộ SHA-256 khớp manifest**. Do đó, **không cần phải chạy lại bất kỳ bước tính toán nào**.
+### 2.2. Nguyên nhân sai lệch trên artifact Assessment trước đây
+Sai lệch trên bộ artifact `assessment_v1_run01` trước đây không xuất phát từ dữ liệu nguồn B-PIT, mà do hai nguyên nhân trong tầng tạo artifact S1/S3:
+1. Tệp `src/delta_t1/experiments/assessment/inputs.py` trước đây giữ nguyên khối giả lập demo (`0.1` cho toàn bộ 9 chỉ số thị trường và cụm `#0` cho mọi mã) thay vì nạp dữ liệu quan sát thị trường A v4 thực tế.
+2. Tệp điều phối `src/delta_t1/experiments/investment_assessment_v1.py` trước đây sử dụng logic xếp loại giản lược theo số hiệu cụm thay vì nối trực tiếp vào mô-đun quy tắc D-ASS-01 (`rules_market.py`, `rules_financial.py`, `verdict.py`, `rationale.py`).
 
 ---
 
-## 4. Kết quả kiểm thử toàn diện (Verification Matrix)
+## 3. Các hạng mục kỹ thuật đã xử lý
 
-Hệ thống đã vượt qua toàn bộ các cổng kiểm định kỹ thuật:
+### 3.1. Kết nối dữ liệu thị trường A v4 thực tế và kiểm soát đầu vào (`inputs.py`)
+* **Gỡ bỏ khối giả lập:** Loại bỏ hoàn toàn giá trị hằng số `0.1` và cụm mặc định `#0`.
+* **Nạp dữ liệu A v4 thực tế:** Kết nối trực tiếp nguồn quan sát thị trường A v4 tại phiên `2025-12-31` từ bundle v4 (`terminal.sqlite` hoặc tệp trích xuất đồng bộ `data/web/delta-intelligence-v4/market_observations_v4.jsonl`), lấy đúng 9 đặc trưng thị trường (`mom_21`, `mom_63`, `mom_126`, `mom_252`, `vol_63`, `downside_vol_63`, `mdd_126`, `beta_126`, `liquidity_21`), nhãn cụm A v4 thực tế (`0, 1, 2` hoặc `None` nếu không có quan sát tại phiên chốt) và cờ thanh khoản (`LIQUID` / `ILLIQUID`).
+* **Thực thi kiểm tra độ tươi 18 tháng:** Kích hoạt hàm `stale_after(latest_fy, 18)` để chặn 54 mã chỉ có báo cáo tài chính quá hạn 18 tháng tại `as_of = 2026-01-02`.
+* **Xác minh mẫu số lợi nhuận và tỷ lệ dòng tiền:** Trích xuất trực tiếp `net_profit@t` từ `inputs_json` trong `indicators.sqlite` để kiểm tra điều kiện dòng tiền `cfo_to_ni` theo đúng mục 8.3. Các mã có FY mới nhất (2025) khả dụng trước `2026-01-02` nhưng chưa có mô hình B-PIT FY2025 (3 mã) được trả về `INSUFFICIENT_EVIDENCE`, không tự ý lùi về mô hình năm cũ.
 
-| Hạng mục kiểm thử | Công cụ / Lệnh kiểm tra | Kết quả | Chi tiết |
+### 3.2. Tích hợp bộ quy tắc D-ASS-01 (`investment_assessment_v1.py`)
+* Nối trực tiếp `InvestmentAssessmentEngine` với các hàm chuẩn hóa của D-ASS-01 (`evaluate_market`, `evaluate_financial`, `evaluate_verdict`, `build_rationale`).
+* Tuân thủ thứ tự ưu tiên phân loại cố định: `INSUFFICIENT_EVIDENCE` ➜ `CAUTION` (`LOW_PRIORITY`) ➜ `RESEARCH_FAVORABLE` (`WORTH_CONSIDERING`) ➜ `WATCH` (`MONITOR`).
+* Nhóm so sánh tương đồng (`Peers` theo mục 6.3) được tính từ dữ liệu A v4 và B-PIT thực tế theo từng đặc trưng, chỉ dùng cho mục đích giải thích G4 và không làm thay đổi kết luận đánh giá.
+
+### 3.3. Bổ sung chuỗi lịch sử thị trường (`history.py`)
+* Mở rộng `feature_history.jsonl` để lưu đầy đủ chuỗi lịch sử của cả 9 chỉ số tài chính (FY2016–FY2024) và 9 chỉ số thị trường A v4 tại các kỳ cuối năm (2019–2025), bảo toàn nguyên trạng dữ liệu thiếu và không nội suy.
+
+### 3.4. Phân bổ kết quả thực tế trên 1.428 mã cổ phiếu (`as_of = 2026-01-02`)
+| Mã trạng thái (Artifact / API) | Nhãn hiển thị | Số lượng | Phân tích phân bổ |
+|---|---|---:|---|
+| `WORTH_CONSIDERING` / `RESEARCH_FAVORABLE` | **Đáng cân nhắc đầu tư** | **67** | Thỏa mãn đồng thời xu hướng thị trường thuận lợi, ROA/biên ròng/CFO dương, thanh khoản `LIQUID` và không có cảnh báo rủi ro (ví dụ: `MWG`, `VNM`, `ABT`). |
+| `MONITOR` / `WATCH` | **Cần theo dõi** | **448** | Đủ dữ liệu bắt buộc nhưng xu hướng thị trường và tài chính chưa đồng thuận hoặc phát sinh cảnh báo theo dõi (ví dụ: `FPT`, `HPG`, `AAA`). |
+| `LOW_PRIORITY` / `CAUTION` | **Chưa nên ưu tiên đầu tư** | **587** | Phát sinh cảnh báo trọng yếu `ILLIQUID` (370 mã), lợi nhuận dương nhưng `CFO/NI < 0` (130 mã), hoặc đồng thời cả hai (87 mã) (ví dụ: `A32`). |
+| `INSUFFICIENT_EVIDENCE` | **Không đủ cơ sở đánh giá** | **326** | Thiếu báo cáo trong hạn 18 tháng (54 mã), chưa có BCTC khả dụng (66 mã), thiếu nhãn B-PIT hợp lệ cho kỳ mới nhất (162 mã), hoặc thiếu dữ liệu/nhãn A v4 tại `2025-12-31` (44 mã) (ví dụ: `AAM`, `AAH`). |
+
+### 3.5. Khắc phục lỗi và chuẩn hóa giao diện Frontend (Next.js)
+* **Sửa lỗi tương phản ở chế độ tối (Dark Mode):** Thay thế các biến CSS không tồn tại trong `web/frontend/app/globals.css` (`--foreground`, `--border-subtle`, `--surface-muted`) bằng đúng các biến design tokens hiện hành (`--text`, `--text-2`, `--muted`, `--line`, `--surface-2`) tại `assessment-status.tsx` và `rationale-card.tsx`.
+* **Loại bỏ khoảng trắng thừa và khối lặp:** Thay thế class `.state-box` (vốn áp `min-height: 220px` căn giữa) trên các thẻ Drivers, Risks và cụm bằng cấu trúc `.panel` + `.section-gap` căn lề trái gọn gàng; loại bỏ khối tóm tắt kết luận bị lặp giữa `assessment-status.tsx` và `rationale-card.tsx`.
+* **Chuẩn hóa ngôn ngữ sản phẩm và hiển thị bảng:**
+  - Loại bỏ hoàn toàn chữ `demo` trên toàn bộ component `web/frontend/components/stock/*.tsx`, chuẩn hóa nhãn ngữ cảnh thành `"Mô phỏng tại ngày 02/01/2026"`.
+  - Sửa lỗi dính nhãn đơn vị (`ROERATIO`) trong `peer-comparison-table.tsx` bằng cấu trúc `.metric-name` + `.unit-hint`.
+  - Hiển thị `"Chưa có"` khi giá trị cụm là `null` trong `assessment-panel.tsx` thay vì mặc định `Cụm #0`.
+  - Sử dụng nhãn `Đáng cân nhắc đầu tư` cho `RESEARCH_FAVORABLE`, đồng bộ 4 trụ cột tiêu chí D-ASS-01, biểu đồ lịch sử (`single-feature-chart.tsx`) và bảng chi tiết (`assessment-feature-table.tsx`) cho đủ 18 đặc trưng.
+
+---
+
+## 4. Định danh phiên bản và mã băm phát hành (Release Pins)
+
+* **Release ID:** `assessment_v1_run01`
+* **Release Revision:** `assessment-v1-run01-20261116`
+* **Assessment Context / As-of:** `SIMULATED_AS_OF` / `2026-01-02` (Phiên giá `2025-12-31`)
+* **Manifest SHA-256:** `6bdb5b01cce44c7a87f9fb4545cf4854859983bfa760fadbf52357102018b484`
+* **Deterministic Content SHA-256:** `16b259111f69fd0be7bc84fa3aec844677755b1cb488560184252b6aedbae787`
+* **Tệp đồng bộ:** `configs/product/assessment_release_v1.json`, `data/experiments/assessment/assessment_v1_run01/manifest.json` và `data/experiments/assessment/verification.json`.
+
+---
+
+## 5. Kết quả kiểm thử và đối chiếu tự động
+
+| Hạng mục kiểm thử | Lệnh / Công cụ kiểm tra | Kết quả | Chi tiết |
 |---|---|---|---|
-| M3 Strategy & Backtest | `python -m unittest tests.unit.test_m3_*.py` | **PASS (102/102)** | Kiểm tra feasibility, universe, ledger, NAV, drawdown. |
-| D-ASS-01 Rulebook Rules | `python -m unittest tests.unit.test_assessment_*.py` | **PASS (82/82)** | Kiểm tra 81 tổ hợp logic thị trường, tài chính, dòng tiền, Peers G4. |
-| Assessment Unit Tests | `python -m unittest tests.unit.test_assessment_*.py` | **PASS (118/118)** | Kiểm tra API, Repository, Schemas, Cache, History, Lookback. |
-| Assessment Integration Tests | `python -m unittest tests.integration.test_assessment_endpoints -v` | **PASS (2/2)** | Kiểm thử API end-to-end với FPT, A32, AAM, VCB. |
-| Artifact Release Verification | `python scripts/verify_investment_assessment_v1.py` | **PASS (1.428/1.428)** | Thẩm định SHA-256, manifest, coverage, 0 lỗi. |
-| Python Compilation Check | `python -m compileall -q src tests scripts run.py` | **PASS (0 lỗi)** | Biên dịch sạch toàn bộ mã nguồn Python. |
-| TypeScript Typecheck | `tsc --noEmit --project web/frontend/tsconfig.json` | **PASS (0 lỗi)** | Toàn bộ mã nguồn TypeScript/React hợp lệ 100%. |
+| Xác thực Artifact độc lập | `python scripts/verify_investment_assessment_v1.py --dir data/experiments/assessment/assessment_v1_run01` | **PASS (1.428/1.428)** | Toàn bộ 4 tệp đầu ra khớp SHA-256, 0 lỗi rò rỉ dữ liệu tương lai, đầy đủ trung vị Peers thực. |
+| Quy tắc D-ASS-01 | `python -m unittest tests/unit/test_d_ass_01_rules.py` | **PASS (19/19)** | Xác minh ma trận quyết định, thứ tự ưu tiên 4 verdict và cổng G1. |
+| Bộ Unit Tests Assessment | `python -m unittest discover -s tests/unit -p "test_*assessment*.py"` | **PASS (118/118)** | Xác minh Inputs, Market/Financial Rules, Peers, History, API, Cache, Schemas. |
+| Bộ Integration Tests Assessment | `python -m unittest discover -s tests/integration -p "test_assessment*.py"` | **PASS (9/9)** | Kiểm thử end-to-end Builder, Real Handoff (`FPT`, `A32`, `AAM`, `VCB`) và Endpoints. |
+| Biên dịch Python | `python -m compileall -q src tests scripts run.py` | **PASS (0 lỗi)** | Không phát sinh lỗi cú pháp trên mã nguồn Python. |
+| Kiểm tra kiểu Frontend | `node node_modules/typescript/bin/tsc --noEmit` (tại `web/frontend`) | **PASS (0 lỗi)** | Không phát sinh lỗi kiểu TypeScript/React; 0 chuỗi `"demo"` còn sót trong `components/stock/*.tsx`. |
+| Kiểm thử giao diện UAT (Playwright) | `node tests/integration/verify_assessment_ui.cjs` | **PASS (10/10)** | Đạt đủ 10 kịch bản: 18 đặc trưng, chuyển lookback 5/10 năm, 1 biểu đồ, `INSUFFICIENT_EVIDENCE`, missing ticker, revision 200/409, stale fixture, mobile 390px, keyboard focus, light theme. |
+
+**Giới hạn phạm vi ghi nhận minh bạch:**
+* Do chế độ đánh giá hiện đang ở ngữ cảnh mô phỏng hồi cứu `SIMULATED_AS_OF` (`2026-01-02`), cờ `runtime_enabled` trong `configs/product/assessment_policy_v1.json` vẫn giữ `false` theo đúng hợp đồng kiểm thử `test_assessment_policy.py` cho đến khi có phê duyệt chuyển sang vận hành `CURRENT_AS_OF`.
+* Việc kiểm thử end-to-end trên môi trường production (Render + Vercel) cần được thực hiện lại sau khi 5 tệp mới trong `data/experiments/assessment/assessment_v1_run01/` được tải lên Hugging Face và nhánh `feature/indicators-v1` được merge vào `main`.
 
 ---
 
-## 5. Đóng gói dữ liệu bàn giao (`data_complete.zip`)
+## 6. Thành phần bàn giao và quy trình phát hành
 
-Do thư mục `data/` vượt giới hạn dung lượng lưu trữ của GitHub (chứa các file SQLite > 100 MB), dữ liệu phục vụ vận hành được đóng gói thành file zip hoàn chỉnh:
+### 6.1. Thành phần bàn giao
+1. **Mã nguồn và cấu hình trên nhánh Git `feature/indicators-v1`:** Bao gồm các bản sửa tại `src/delta_t1/experiments/`, `web/frontend/components/stock/`, bộ kiểm thử, tài liệu và cấu hình khóa mã băm `configs/product/assessment_release_v1.json`.
+2. **Gói dữ liệu ngoại tuyến `data_complete.zip` (chỉ chứa các đầu ra mới, không trùng lặp tệp gốc đã có trên Hugging Face):**
+   - `data/experiments/assessment/assessment_v1_run01/` (5 tệp đầu ra chính cho Web/API) và `data/experiments/assessment/verification.json`
+   - `data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/` (dữ liệu 9 chỉ số tài chính sau làm giàu — Giai đoạn C)
+   - `data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/` (nhãn và mô hình B-PIT sau làm giàu — Giai đoạn D)
+   - `data/experiments/m3/` (`development/20261118T165114Z-46fc18c0`, `holdout/20261118T170517Z-46fc18c0`, `comparison/20261118T173627755165Z` — Giai đoạn E–F)
+   - *(Các tệp gốc đã có sẵn trên Hugging Face như `data/web/delta-intelligence-v4/terminal.sqlite`, `indicators_v1`, `availability.csv` và `b_pit_v1` không đóng gói lại để tránh trùng lặp hoặc ghi đè.)*
 
-* **Tên file:** `data_complete.zip` (dung lượng 45.07 MB).
-* **Vị trí lưu trữ:** Nằm tại thư mục gốc của repository (`d:\New folder (4)\data_complete.zip`).
-* **Nội dung gói dữ liệu bao gồm:**
-  1. `data/financial/indicators_enriched_v1/`: Dữ liệu 9 chỉ số B-PIT làm giàu (Stage C).
-  2. `data/financial/b_pit_enriched_v1/`: Mô hình và nhãn phân cụm M2 Enriched (Stage D).
-  3. `data/financial/disclosure_dates_v1/`: Bảng ngày khả dụng báo cáo tài chính.
-  4. `data/financial/b_pit_v1/` và `indicators_v1/`: Dữ liệu baseline đối chứng.
-  5. `data/experiments/m3/`: Kết quả backtest M3 Development, Holdout và Comparison đã seal PASS (Stage E).
-  6. `data/experiments/assessment/assessment_v1_run01/`: Toàn bộ artifact phục vụ Web Assessment cho 1.428 mã (Stage S3).
-  7. `data/experiments/assessment/verification.json`: Biên bản xác thực chữ ký SHA-256 độc lập.
-
----
-
-## 6. Hướng dẫn các bước để Leader thực hiện phát hành (Deployment)
-
-### Bước 1: Kiểm tra mã nguồn và giao diện cục bộ (Local Review)
-1. Kéo mã nguồn mới nhất từ nhánh `feature/indicators-v1`:
-   ```bash
-   git checkout feature/indicators-v1
-   git pull origin feature/indicators-v1
-   ```
-2. Giải nén tệp `data_complete.zip` vào thư mục gốc repository (dữ liệu sẽ tự động đặt đúng vào cấu trúc `data/`).
-3. Khởi động ứng dụng cục bộ:
-   ```bash
-   python scripts/start_delta_terminal.py
-   ```
-4. Truy cập `http://localhost:3000/stocks?ticker=A32&tab=assessment` để kiểm tra trực quan giao diện tab "Đánh giá đầu tư" đã được chuẩn hóa với bảng tiêu chí 4 trụ cột, biểu đồ 18 chỉ số và bảng đối chiếu Peers.
-
-### Bước 2: Đồng bộ dữ liệu lên Hugging Face Dataset
-1. Truy cập repository dataset của dự án: `ngyen/delta-intelligence-data` tại thư mục `data/`.
-2. Tải các thư mục mới vào đúng vị trí tương ứng:
-   * Thư mục `financial/`: Bổ sung 2 thư mục `indicators_enriched_v1/` và `b_pit_enriched_v1/`.
-   * Thư mục `experiments/`: Tạo mới thư mục `experiments/assessment/assessment_v1_run01/` (chứa 5 file artifact: `manifest.json`, `assessments.jsonl`, `peer_benchmarks.csv`, `coverage.csv`, `feature_history.jsonl`).
-
-### Bước 3: Cập nhật cấu hình nạp dữ liệu của Render và kích hoạt Deploy Vercel
-1. Bổ sung 5 đường dẫn file của `assessment_v1_run01` vào tệp `deploy/render/data-files.txt`:
-   ```text
-   data/experiments/assessment/assessment_v1_run01/manifest.json
-   data/experiments/assessment/assessment_v1_run01/assessments.jsonl
-   data/experiments/assessment/assessment_v1_run01/peer_benchmarks.csv
-   data/experiments/assessment/assessment_v1_run01/coverage.csv
-   data/experiments/assessment/assessment_v1_run01/feature_history.jsonl
-   ```
-2. Thực hiện tạo Pull Request và merge nhánh `feature/indicators-v1` vào nhánh chính `main`.
-3. Kích hoạt build/deploy trên Render Dashboard và Vercel Dashboard. Nền tảng sẽ tự động biên dịch mã nguồn mới và công bố tính năng Đánh giá đầu tư trực tiếp trên trang web chính thức `https://delta-intelligence-omega.vercel.app`.
+### 6.2. Các bước triển khai phát hành (Deployment)
+1. **Kéo mã nguồn mới:** `git pull origin feature/indicators-v1`.
+2. **Giải nén và xác thực dữ liệu:** Giải nén `data_complete.zip` vào thư mục gốc repository và chạy `python scripts/verify_investment_assessment_v1.py --dir data/experiments/assessment/assessment_v1_run01` để xác nhận `verification_status: "PASS"` và khớp `manifest_sha256`.
+3. **Đồng bộ lên Hugging Face Dataset (`ngyen/delta-intelligence-data`):** Cập nhật 5 tệp mới trong `data/experiments/assessment/assessment_v1_run01/` (`manifest.json`, `assessments.jsonl`, `peer_benchmarks.csv`, `coverage.csv`, `feature_history.jsonl`) và bảo đảm `deploy/render/data-files.txt` có đủ 5 đường dẫn này.
+4. **Hợp nhất và Deploy:** Tạo Pull Request merge nhánh `feature/indicators-v1` vào `main` để kích hoạt deploy trên Render (Backend) và Vercel (Frontend), sau đó thực hiện UAT nghiệm thu trên đường dẫn `/stocks?ticker=MWG&tab=assessment` và `/stocks?ticker=FPT&tab=assessment`.

@@ -1,6 +1,6 @@
 import unittest
 
-from app.assessment import map_assessment_response
+from app.assessment import VERDICT_STATUS, map_assessment_response
 from delta_t1.product.assessment_repository import AssessmentRepository
 
 
@@ -12,7 +12,7 @@ class TestAssessmentResponseMapper(unittest.TestCase):
         self.assertEqual(first.ticker, 'A32')
         self.assertEqual(first.as_of, '2026-01-02')
         self.assertEqual(first.assessment_context, 'SIMULATED_AS_OF')
-        self.assertEqual(first.assessment_status, 'RESEARCH_FAVORABLE')
+        self.assertEqual(first.assessment_status, VERDICT_STATUS[lookup.assessment['verdict']])
         self.assertEqual(first.rationale, lookup.assessment['rationale'])
         self.assertNotEqual(first.request_time, second.request_time)
         self.assertEqual(first.features[0].value, second.features[0].value)

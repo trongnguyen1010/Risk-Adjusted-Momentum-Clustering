@@ -46,10 +46,10 @@ Script cần presentation bundle `data/web/delta-intelligence-v4`. Nếu thiếu
 1. Mở `/stocks?ticker=FPT&tab=assessment` hoặc nhập mã trong tìm kiếm rồi chọn tab **Đánh giá đầu tư**.
 2. Đọc ticker, trạng thái khả dụng, verdict, ngữ cảnh và ngày `as_of` trước khi xem các đặc trưng.
 3. Bốn verdict được hiển thị:
-   - `RESEARCH_FAVORABLE` — Tích cực để nghiên cứu.
-   - `WATCH` — Theo dõi.
-   - `CAUTION` — Cần thận trọng.
-   - `INSUFFICIENT_EVIDENCE` — Chưa đủ bằng chứng.
+   - `RESEARCH_FAVORABLE` — Đáng cân nhắc đầu tư.
+   - `WATCH` — Cần theo dõi.
+   - `CAUTION` — Chưa nên ưu tiên đầu tư.
+   - `INSUFFICIENT_EVIDENCE` — Không đủ cơ sở đánh giá.
 4. Hai profile cụm A/B, bảng 18 đặc trưng, Peers, lý do/rủi ro và nguồn được trình bày từ response/artifact. Giá trị thiếu giữ là thiếu; không tự đổi thành 0.
 5. Selector feature đổi đặc trưng đang xem trong một chart. Lookback 5/10 năm chỉ đổi history; không chọn `as_of`, không đổi verdict.
 6. Khi đổi mã, kiểm tra tiêu đề và nội dung cùng mã. Nếu response cũ không khớp ticker đang chọn, giao diện không được hiển thị response đó.
@@ -86,8 +86,8 @@ Các giá trị cần đối chiếu khi kiểm tra release hiện tại:
 | Revision | `assessment-v1-run01-20261116` |
 | Context / `as_of` | `SIMULATED_AS_OF` / `2026-01-02` |
 | Required price session | `2025-12-31` |
-| Manifest SHA-256 | `63a0b747d200638151052e0168b542316e013d8561916860416d1e4118bd09a8` |
-| Deterministic content SHA-256 | `418def26a0db719205f01b73d71467adcd6d1930bd549bc509c9183309f3f8bb` |
+| Manifest SHA-256 | `6bdb5b01cce44c7a87f9fb4545cf4854859983bfa760fadbf52357102018b484` |
+| Deterministic content SHA-256 | `16b259111f69fd0be7bc84fa3aec844677755b1cb488560184252b6aedbae787` |
 
 Nguồn chuẩn của pins là [release pointer](../configs/product/assessment_release_v1.json) và [response pins của UAT](../tests/integration/evidence/assessment-uat/response-pins.json). Không sửa pin trong tài liệu để làm cho kết quả khác khớp.
 
