@@ -54,6 +54,18 @@ def collect():
         local=ROOT/pointer['file']
         if not local.is_file() or sha256(local)!=pointer['file_sha256']:raise SystemExit('Financial availability table missing or checksum mismatch: '+pointer['file'])
         files[pointer['file']]=local
+    assessment=ROOT/'configs/product/assessment_release_v1.json'
+    if assessment.is_file():
+        # Investment Assessment (D-ASS-01): manifest pinned by the release config, serving files pinned by the manifest.
+        pointer=json.loads(assessment.read_bytes())
+        folder=ROOT/pointer['artifact_dir']
+        local=folder/'manifest.json'
+        if not local.is_file() or sha256(local)!=pointer['manifest_sha256']:raise SystemExit('Assessment manifest missing or checksum mismatch: '+pointer['artifact_dir'])
+        files[local.relative_to(ROOT).as_posix()]=local
+        for name,digest in json.loads(local.read_bytes())['output_files'].items():
+            item=folder/name
+            if not item.is_file() or sha256(item)!=digest:raise SystemExit('Assessment output missing or checksum mismatch: '+name)
+            files[item.relative_to(ROOT).as_posix()]=item
     preview=ROOT/'configs/product/model_previews_v1.json'
     if preview.is_file():
         pointer=json.loads(preview.read_bytes())
