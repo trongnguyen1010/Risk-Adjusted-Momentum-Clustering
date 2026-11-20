@@ -102,8 +102,56 @@ Sai lệch trên bộ artifact `assessment_v1_run01` trước đây không xuấ
    - `data/experiments/m3/` (`development/20261118T165114Z-46fc18c0`, `holdout/20261118T170517Z-46fc18c0`, `comparison/20261118T173627755165Z` — Giai đoạn E–F)
    - *(Các tệp gốc đã có sẵn trên Hugging Face như `data/web/delta-intelligence-v4/terminal.sqlite`, `indicators_v1`, `availability.csv` và `b_pit_v1` không đóng gói lại để tránh trùng lặp hoặc ghi đè.)*
 
-### 6.2. Các bước triển khai phát hành (Deployment)
-1. **Kéo mã nguồn mới:** `git pull origin feature/indicators-v1`.
-2. **Giải nén và xác thực dữ liệu:** Giải nén `data_complete.zip` vào thư mục gốc repository và chạy `python scripts/verify_investment_assessment_v1.py --dir data/experiments/assessment/assessment_v1_run01` để xác nhận `verification_status: "PASS"` và khớp `manifest_sha256`.
-3. **Đồng bộ lên Hugging Face Dataset (`ngyen/delta-intelligence-data`):** Cập nhật 5 tệp mới trong `data/experiments/assessment/assessment_v1_run01/` (`manifest.json`, `assessments.jsonl`, `peer_benchmarks.csv`, `coverage.csv`, `feature_history.jsonl`) và bảo đảm `deploy/render/data-files.txt` có đủ 5 đường dẫn này.
-4. **Hợp nhất và Deploy:** Tạo Pull Request merge nhánh `feature/indicators-v1` vào `main` để kích hoạt deploy trên Render (Backend) và Vercel (Frontend), sau đó thực hiện UAT nghiệm thu trên đường dẫn `/stocks?ticker=MWG&tab=assessment` và `/stocks?ticker=FPT&tab=assessment`.
+### 6.2. Luồng dữ liệu đầu–cuối (Offline ➜ Hugging Face ➜ Render/Vercel)
+
+```text
+[Offline Build]
+  terminal.sqlite (A v4 có sẵn trên HF)
++ indicators_enriched_v1_run01 (Giai đoạn C)
++ bpit_enriched_v1_run01 (Giai đoạn D)
++ availability.csv (có sẵn trên HF)
+    └──► scripts/build_investment_assessment_v1.py (áp dụng rule D-ASS-01)
+            └──► data/experiments/assessment/assessment_v1_run01/ (5 tệp đầu ra)
+                 ├── manifest.json (SHA-256 khóa tại configs/product/assessment_release_v1.json)
+                 ├── assessments.jsonl
+                 ├── peer_benchmarks.csv
+                 ├── coverage.csv
+                 └── feature_history.jsonl
+
+[Runtime Production]
+  Hugging Face Dataset (ngyen/delta-intelligence-data)
+    └──► Render build chạy deploy/render/fetch_data.py
+         tải từng đường dẫn trong deploy/render/data-files.txt từ {DATA_BASE_URL}/{rel} vào /app/{rel}
+            └──► FastAPI (src/delta_t1/product/assessment_repository.py)
+                 đọc configs/product/assessment_release_v1.json, xác thực SHA-256
+                 và phục vụ GET /api/v2/stocks/{ticker}/assessment (read-only)
+                    └──► Vercel / Next.js (web/frontend/app/stocks/page.tsx -> AssessmentPanel)
+                         hiển thị Tab Đánh giá đầu tư
+```
+
+*Lưu ý phân tách tệp trên Hugging Face và container Render:*
+* **Render runtime chỉ cần tải 5 tệp trong `data/experiments/assessment/assessment_v1_run01/`** (bên cạnh 15 tệp hiện có trong `deploy/render/data-files.txt`, trong đó `terminal.sqlite` và `availability.csv` đã có sẵn trên HF).
+* Các thư mục `indicators_enriched_v1_run01`, `bpit_enriched_v1_run01` và `data/experiments/m3/` trong `data_complete.zip` là artifact nguồn và bằng chứng đối chứng offline (không cần tải vào container Render lúc runtime).
+
+### 6.3. Các bước hợp nhất (Merge) và phát hành (Deployment)
+1. **Kéo mã nguồn mới từ nhánh tích hợp:**
+   ```bash
+   git fetch origin
+   git checkout feature/indicators-v1
+   git pull origin feature/indicators-v1
+   ```
+2. **Giải nén và xác thực dữ liệu ngoại tuyến:** Giải nén `data_complete.zip` vào thư mục gốc repository (không ghi đè `terminal.sqlite` hay dữ liệu gốc đã có), sau đó chạy:
+   ```bash
+   python scripts/verify_investment_assessment_v1.py --dir data/experiments/assessment/assessment_v1_run01
+   ```
+   Xác nhận đầu ra có `"verification_status": "PASS"`, `"total_assessments": 1428` và `"artifact_manifest_sha256": "6bdb5b01cce44c7a87f9fb4545cf4854859983bfa760fadbf52357102018b484"`.
+3. **Đồng bộ 5 tệp Assessment lên Hugging Face Dataset (`ngyen/delta-intelligence-data`):**
+   Tải 5 tệp trong `data/experiments/assessment/assessment_v1_run01/` lên đúng đường dẫn tương đối trên Hugging Face, sau đó bổ sung đúng 5 dòng sau vào `deploy/render/data-files.txt` (khi sẵn sàng mở tải trên Render):
+   ```text
+   data/experiments/assessment/assessment_v1_run01/manifest.json
+   data/experiments/assessment/assessment_v1_run01/assessments.jsonl
+   data/experiments/assessment/assessment_v1_run01/peer_benchmarks.csv
+   data/experiments/assessment/assessment_v1_run01/coverage.csv
+   data/experiments/assessment/assessment_v1_run01/feature_history.jsonl
+   ```
+4. **Hợp nhất và Deploy:** Tạo Pull Request merge `feature/indicators-v1` vào `main` (kèm cập nhật `deploy/render/data-files.txt` sau khi 5 tệp đã lên Hugging Face) để kích hoạt deploy trên Render (Backend) và Vercel (Frontend), rồi kiểm tra nghiệm thu thực tế trên `/stocks?ticker=MWG&tab=assessment`, `/stocks?ticker=FPT&tab=assessment` và `/stocks?ticker=AAM&tab=assessment`.
