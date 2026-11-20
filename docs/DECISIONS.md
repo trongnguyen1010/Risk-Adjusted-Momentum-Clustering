@@ -18,6 +18,256 @@ Response schema chỉ chấp nhận đúng 18 feature ID, status/context
 và chỉ trả dữ liệu thuộc release đã pin. Repository không có fallback, network,
 write hoặc recompute. Cơ chế này không tự mở serving, research hoặc current assessment.
 
+## 2026-11-19 — R2-15: giải thích bằng evidence, Peers chỉ thuộc G4
+
+`assessment/rationale.py::build_rationale` gọi evaluator R2-14 từ input cells,
+không nhận verdict hoặc text tự do từ caller. Templates tiếng Việt có version
+D-ASS-01-RATIONALE-1; mỗi claim giữ rule_id/template_id, metric, value, status,
+unit, period, evidence_ref, direction và trạng thái observed/imputed. Chỉ whitelist
+18 features. Dấu từng momentum/ROA/net_margin là tín hiệu riêng, không đồng nghĩa
+rule tổng thể đã đạt; features bối cảnh không chấm điểm hoặc đổi verdict.
+
+CFO sign chỉ giải thích khi component R2-13 đã kiểm NI quan sát dương và tỷ số hợp
+lệ; qualifiers đi kèm không thành feature thứ19. NI0/âm/unknown không suy dấu CFO.
+CFO/NI IMPUTED_MEDIAN giữ lineage và câu nêu rõ là giá trị điền trung vị, không
+phải số liệu quan sát của doanh nghiệp. Liquidity warning giữ riêng dưới metadata
+và truy nguồn qua qualifiers. Optional unusable/missing được ghi skipped; không
+biến thành zero hoặc lời khẳng định không có nguồn. Context sai nguồn/date/FY/model
+không sinh feature claim hoặc thống kê Peers. Thiếu eligibility giữ danh sách gap;
+không có driver đề xuất đầu tư khi verdict INSUFFICIENT_EVIDENCE.
+
+Counter-evidence giữ tín hiệu thuận khi CAUTION/thiếu cơ sở; giữ tín hiệu bất lợi
+khi favorable; WATCH giữ cả hai chiều. Không lọc bỏ tín hiệu ngược verdict. Peers
+chỉ giải thích vị trí tương đối; cao/thấp hơn median không tự nghĩa tốt/xấu.
+
+Hợp đồng Peers mới cho renderer: mapping metric -> peer_basis, membership_verified,
+comparability_verified, evidence_ref, members=[{ticker,cell}]. S1 phải xác minh
+membership, toàn bộ pool, PIT/availability, definition, report type và source trước
+khi cấp receipts; renderer không thay S1 resolver hoặc tự chọn/mở rộng pool.
+Cần cả label A-v4+B-PIT của mã đích và target_ticker để self-exclude. Chỉ nhận basis
+SAME_A_AND_B_PIT hoặc fallback đúng loại SAME_B_PIT/SAME_A_V4; summary legacy thiếu
+member cells không được coi là verified. Cell Peers phải hợp lệ, cùng unit/kỳ với
+mã đích; loại self, loại toàn bộ identity duplicate để không tùy ý chọn một giá trị.
+Giữ các ô hợp lệ hiện có khi dưới 3; median/p25/p75 đều null. Đủ 3 mới tính median
+và quartiles nội suy tuyến tính; giữ member evidence/status và target evidence.
+Imputed Peers cần quyền PEERS đã duyệt và cell lineage; không tạo thêm imputation.
+
+Replay không đổi input; đảo thứ tự member không đổi output, thay Peers chỉ đổi
+G4/peer_median đính kèm claim, không đổi assessment/verdict. 21 tests mới và tổng
+82 tests Task 11–15 đạt, compile đạt. Runtime vẫn tắt; chưa nối builder/CLI legacy
+hoặc chạy lại artifact thật. Code/fixture phần S2 Người2 đã có; S1 dữ liệu/Peers
+thật, S3 independent QA và các gate kích hoạt chưa được thay bằng kết quả fixture.
+
+
+## 2026-11-19 — R2-14: eligibility trước bốn verdict D-ASS-01
+
+Thêm `assessment/verdict.py::evaluate_verdict`, tự gọi lại hai component từ cells
+đầu vào, không nhận kết luận component do caller tự gán. Áp đúng first-match của
+policy: INSUFFICIENT_EVIDENCE trước CAUTION, rồi RESEARCH_FAVORABLE, cuối WATCH.
+Major warning ưu tiên CAUTION sau eligibility; market adverse kết hợp profitability
+adverse cũng CAUTION. Optional missing không thành zero; Peers là G4 nên không
+tham gia eligibility/verdict, kể cả thiếu hoặc thay đổi median.
+
+Hợp đồng context gồm assessment_context/as_of, required_price_session/last_price_date,
+required_market_snapshot_date/market_snapshot_date, usable_from_date/model_cutoff,
+fiscal_year/latest_usable_fiscal_year/model_fiscal_year, market_model/financial_model;
+metadata chứa các boolean required_metadata và metadata_evidence_refs tương ứng.
+source_pins chứa expected_sha256, actual_sha256, verified và evidence_ref cho đủ
+bảy nguồn policy. Đây là receipts S1 phải xác minh từ nguồn thật, không phải module
+này tự đọc/hash/chứng nhận raw files. Cờ gate sai/thiếu và receipt không hợp lệ đều
+thiếu cơ sở. Không fallback khi FY mới nhất chưa có model hoặc dùng model baseline.
+
+SIMULATED_AS_OF giữ đúng scope đã khóa 02/01/2026, phiên/snapshot 31/12/2025.
+CURRENT_AS_OF cần monthly_release_schedule_accepted và monthly_release_schedule_ref
+đã được upstream xác minh, cùng required snapshot theo lịch phát hành; không dùng
+ngưỡng cứng 22/23 phiên. Ngày evidence/cutoff không được sau as_of; đúng ngày được
+phép. Financial dùng cùng stale_after 18 tháng với M3, ngày hết hạn còn dùng được;
+sau ngày đó bị chặn. Evidence cells phải thuộc snapshot/FY được chọn.
+
+fixture_only=True chỉ để phân loại kiểm thử, luôn publishable=False/verdict_issued=False.
+Route mặc định còn kiểm runtime_enabled, cờ cấm publish, integration và đủ activation
+receipts PASS có evidence_ref. Policy hiện chưa bật nên route này không phát verdict
+thật. Guard chỉ bảo vệ evaluator mới; không tuyên bố CLI/builder legacy đã tích hợp.
+Không sửa policy đã duyệt, artifact nguồn hoặc chạy lại M3/Assessment. 19 tests mới
+và tổng 61 tests Task 11–14 đạt; compile đạt. Task 15 rationale và S1/S3 còn riêng.
+
+
+## 2026-11-19 — R2-13: component tài chính và dấu CFO có điều kiện
+
+Thêm `assessment/rules_financial.py::evaluate_financial`. Đầu vào gồm evidence cells
+9financial whitelist, evidence NI mẫu số quan sát và cờ ratio_validity dạng boolean
+đã được S1 xác minh. NI chỉ là qualifier, không thành feature thứ19 hoặc tín hiệu
+sinh lời mới. Component không tự chứng nhận nguồn/cờ upstream hoặc bật builder.
+
+ROA/net_margin bắt buộc; CFO/NI chỉ bắt buộc khi NI quan sát dương. Chỉ suy dấu CFO
+khi NI dương quan sát, ratio hợp lệ, cùng FY và ô CFO/NI usable. NI0/âm→không suy
+dấu CFO (SKIPPED); NI thiếu/imputed/chưa xác minh→thiếu cơ sở. CFO0 chưa thuận lợi;
+CFOâm với NIdương→major_warning. Profitability_adverse riêng là ROA<0 và margin<0,
+không tự coi mọi adverse tài chính là CAUTION cuối cùng khi thị trường chưa kết hợp.
+
+Chỉ một watch hợp lệ (gross_margin<0/current_ratio<1/revenue_growth<0) chặn favorable.
+Bằng ngưỡng không warning. Optional missing/NOT_APPLICABLE/sai kỳ→SKIPPED, không0;
+không làm G1 fail. Giữ base favorable, financial_favorable sau watch, major/watch và
+profitability flags riêng cho R2-14. Mọi rule có evidence/qualifier và trạng thái.
+
+Helper dùng chung hỗ trợ boolean metadata có type chính xác, numeric NI qualifier;
+imputed financial chỉ usable khi có quyền RULEBOOK và cell_lineage_verified=true,
+ngoài hash/provenance/kỳ/đơn vị đã kiểm. Giữ IMPUTED_MEDIAN/is_observed=false, không
+mô tả CFO median như dòng tiền quan sát. NI/metadata imputed không được dùng như
+mẫu số quan sát. Không đổi policy đã duyệt, không mới imputation/score/penalty.
+16tests mới +15market +11policy đạt; compile đạt. S1/builder thật còn chưa nghiệm
+thu; chỉ component/fixture PASS, chưa phát verdict hoặc sửa artifact đã bàn giao.
+
+## 2026-11-19 — R2-12: component điều kiện thị trường D-ASS-01
+
+Thêm `assessment/rules_market.py::evaluate_market` và `rules_common.py` cho
+policy/evidence/biểu thức ba giá trị dùng chung. Đầu vào là mapping evidence cells
+(value/status/unit/period/evidence_ref, cờ S1 source_hash_verified và provenance_verified),
+cùng evidence cờ thanh khoản. Component không tự mở file nguồn để xác minh các cờ
+S1, không nối builder hiện tại hoặc phát verdict cuối; status PASS chỉ là kết quả
+kiểm component với các khai báo/bằng chứng đầu vào, không thay nghiệm thu S1.
+
+Dùng ngưỡng/logic từ policy: mom63>0 và mom126>0, cùng mom21>0 hoặc mom252>0;
+bất lợi đối xứng âm. Zero/tổ hợp còn lại→MIXED. Thiếu một trong bốn momentum,
+status/value/evidence không hợp lệ hoặc lệch kỳ/đơn vị→UNKNOWN và thiếu cơ sở.
+Cờ thanh khoản thiếu/không hợp lệ/khác kỳ→major_warning=null, không tự coi LIQUID.
+ILLIQUID→major_warning=true nhưng không tự trả CAUTION khi G1 chưa được kết hợp.
+
+Evidence metric chỉ thuộc whitelist; liquidity_flag lưu trong qualifiers metadata,
+không trở thành feature thứ19. Chỉ bốn momentum được dùng cho xu hướng; context
+optional không đổi hướng; không dùng cluster ID/future return. Imputed tài chính
+được duyệt ở R2-11 không cho phép điền market features bị thiếu (mục6.1).
+Giữ nguyên status/provenance, không đổi missing→0 hoặc tạo citation giả. Helpers
+không mutate input/policy; không phụ thuộc thứ tự các nhánh cảnh báo trong JSON.
+15tests mới (gồm81tổ hợp dấu) và11policytests đạt; compile đạt. Vẫn fixture-only,
+chưa kiểm toàn bộ eligibility/freshness, chưa nghiệm thu hoặc publish Assessment thật.
+
+## 2026-11-19 — R2-11: policy D-ASS-01 và xác nhận quyền dùng ô imputed
+
+Mã hóa bảng8.3, mục6.1/6.3/6.4.3 và freshness/PIT vào
+`configs/product/assessment_policy_v1.json`, version1.0.0. Whitelist đúng9A+9B;
+mandatory gồm4momentum, ROA/net_margin và metadata cốt lõi; CFO/NI bắt buộc khi
+mẫu số lợi nhuận quan sát được dương. Optional missing/NOT_APPLICABLE bỏ phép
+kiểm tương ứng, không thay0. Giữ ngưỡng strict>,< và thứ tự
+INSUFFICIENT_EVIDENCE→CAUTION→RESEARCH_FAVORABLE→WATCH, không tổng điểm/penalty.
+Peers ≥3 theo từng feature, ưu tiên giao A+B rồi mở rộng B-PIT/tài chính hoặc
+A-v4/thị trường; thiếu Peers và giá trị Peers không đổi verdict.
+
+Người dùng xác nhận ngày19/11/2026: nhóm đã duyệt IMPUTED_MEDIAN cho cả rulebook
+và Peers. Ghi xác nhận này trong policy; không suy quyền từ M3. Giữ trạng thái,
+lineage/pins/kỳ/đơn vị; không coi median là quan sát CFO doanh nghiệp; dấu CFO chỉ
+đọc khi NI quan sát dương và ratio hợp lệ. Không thêm imputation hoặc penalty.
+Nếu thiếu xác nhận, ô mandatory chưa được phép→INSUFFICIENT_EVIDENCE, optional
+bỏ phép kiểm và ô Peer bị loại, đúng mục6.4.3/8.3.
+
+Đây là chuẩn bị policy/tests S2, chưa nghiệm thu S1 hoặc release Assessment. S1
+hiện còn gán market_features=0.1 và cluster_a=0; artifact Assessment bàn giao dùng
+legacy verdict codes. runtime_enabled=false là khai báo policy, chưa phải hard
+guard của CLI builder hiện tại vì builder chưa đọc policy. Ghi NOT_INTEGRATED,
+không rebuild/publish verdict thật và không sửa dữ liệu cũ. Người1 cần hoàn thiện
+S1 với A-v4 thật và pin/provenance đầy đủ trước nghiệm thu tích hợp.
+
+## 2026-11-19 — R2-10: đối sánh M3 baseline/enriched theo từng segment
+
+`scripts/export_backtest_comparison_metrics.py` chỉ đọc sealed artifacts; hỗ trợ seal
+baseline schema1 và enriched verifier-v1. Kiểm đủ33file nguồn, hash/seal/execution
+pins, Dev→Holdout seal dependency và cùng nguồn thị trường giữa baseline/enriched.
+Baseline seal được đối chiếu với source_seals trong M3/outputs/manifest.json.
+Không fit model, không chạy lại engine hoặc gộp/compound NAV của hai segment.
+
+Xuất summary.csv (24 dòng: 2nguồn×2segment×(5strategy+VNINDEX)), periods.csv,
+nav_series.csv, comparison.csv và manifest nguồn/output hashes. N/selected tính
+trên tất cả quyết định; held/cash chỉ tính các ngày đã thực thi. Kỳ cuối không
+thực thi giữ held/cash/trade outcome=null. Drawdown dùng helper báo cáo hiện có;
+return/MDD đối chiếu lại NAV, cash và failed trades đối chiếu series liên quan.
+Ba market controls cùng VNINDEX phải khớp baseline trước export. Giữ mọi delta,
+kể cả bất lợi; return/Sharpe không được dùng chọn lại model. Strategy dùng vendor
+adj_close gồm cash dividends; VNINDEX là price index không gồm cổ tức, chi phí0.
+
+Export riêng bất biến; không ghi đè thư mục cũ hoặc sửa run/seal nguồn. Chênh lệch
+return/drawdown/cash ghi đơn vị percentage points. JSON manifest truy tới4run,
+seal hashes, execution/config/input pins và toàn bộ nguồn CSV/JSON. Source run
+vẫn giữ execution8e515f7; commit báo cáo mới không thay danh tính backtest.
+
+## 2026-11-18 — R2-07: khóa config enriched sau feasibility và targets thật
+
+Người dùng xác nhận D đã được duyệt và cho phép Task07. Nhận bundle v4 từ Hugging
+Face revision `8b0d78e4edb3dd4bd7dcea9cddcbe36d7a0815c5` và C8 v2 ZIP; hash SQLite,
+lịch, benchmark và giá khớp nguồn thị trường baseline. Không đổi A/Va/Q-date/18tháng,
+ranking, lịch, basis, chi phí hoặc execution. Pre-lock code `d492948`, config/input
+pins và git_dirty=false được kiểm tra trên feasibility và targets-only thật.
+
+Dev60/59/1, Holdout24/23/1; candidates khớp audit, ranks/weights đúng, ba market
+controls targets/audit khớp baseline đã công bố. Kỳ N<10 Dev13→12, Holdout1→1;
+median ứng viên Dev27→20, Holdout30→31; min3/4 không đổi. Giữ kết quả bất lợi Dev,
+không chọn lại mô hình bằng backtest. Chuyển config sang LOCKED, lưu receipt
+pre-lock trong readiness_review; chưa có full run hoặc seal enriched.
+
+Sau commit code/config, ghi execution HEAD ngoài config để tránh hash tự tham chiếu,
+rồi chạy lại targets-only cả hai đoạn ở HEAD sạch. Verifier full run yêu cầu cùng
+SHA/config với reference targets-only; không dùng pre-lock receipts làm reference
+cuối. Tests config chuyển sang kiểm LOCKED+receipt, READY gate vẫn có fixture riêng.
+
+## 2026-11-18 — R2-06: verifier và seal riêng cho hai segment M3
+
+Thêm `scripts/verify_m3_enriched_run.py` nhận `--run`, `--targets-run`,
+`--baseline-run`, tùy chọn `--development-seal` và `--seal`. Chỉ nhận full run
+LOCKED, B-PIT, git_dirty=false, cùng execution HEAD/config/input pins hiện hành;
+không chấp nhận bỏ hash giá C8. Đối chiếu targets/audit từ nguồn pinned và
+reference targets-only cùng code/config/inputs, đúng start/end/calendar; reference
+không được chứa NAV hoặc metrics. Replay execution từ nguồn giá/limits chỉ đọc,
+không ghi cache; kiểm ledger/holdings/NAV/turnover/metrics và bảo toàn tiền mặt
+độc lập từ executed ledger, CASH weight và NAV. So VNINDEX và ba market controls
+với baseline cùng segment và nguồn thị trường. Dev/Holdout không có Sharpe.
+
+Chỉ sau PASS mới tạo `seal.json` bằng exclusive create; không sửa output gốc hoặc
+ghi đè seal cũ. Receipt lưu execution pins, manifest/output hashes và hashes
+references. Holdout bắt buộc Dev seal đúng version, PASS, đủ checks, cùng execution
+pins; kiểm lại bytes Dev và references. Hai run có thư mục/NAV khởi tạo riêng.
+Rehash inputs/config và kiểm code/run/reference bytes trước khi chấp nhận PASS.
+Verifier dùng chung engine để replay, bổ sung cash-conservation check riêng;
+không coi replay là một implementation engine độc lập. Hiện chỉ nghiệm thu trên
+fixture, chưa seal dữ liệu thật, chưa mở gate D hoặc đổi trạng thái config READY.
+
+## 2026-11-18 — R2-04: feasibility đọc cùng config và nguồn với runner
+
+`m3_feasibility_variants.py --config PATH` dùng resolver nguồn và loader B-PIT của
+runner, kiểm labels/models/SQLite/availability pins và provenance. Path tương đối
+tính từ gốc repo; bỏ `--config` giữ config baseline, `--b-v4` chỉ cho legacy baseline.
+Các ngày quyết định phải thuộc start/end của segment trong config, không chia
+bằng mốc ngày cố định hoặc tính ngoài segment. Segment rỗng có months=0, min/median=null.
+Bốn variants giữ số ứng viên trước lọc scoring; `official_config` dùng entrypoint
+Strategies giống runner, sau FINANCIAL_CRITERIA_MISSING, báo min/median/N<10,
+selected thực tế, số và tỷ lệ loại theo lý do. Mẫu số tỷ lệ là toàn bộ ticker-decision
+rows được audit trong segment và được ghi rõ trong output. Lưu config/input hashes,
+code SHA và git_dirty để truy nguồn. Fixture legacy khai báo thêm segment Development
+cho ngày đối chứng cũ; giữ toàn bộ assertion cutoff/targets đã có.
+Chỉ kiểm fixture, chưa chạy feasibility thật, không mở gate D hoặc khóa config.
+
+## 2026-11-18 — R2-03: config M3 enriched và cache riêng
+
+Tạo `configs/experiments/m3_strategy_enriched_v1.json` từ baseline, giữ nguyên
+A/Va/Q-date/18 tháng, ranking, lịch, giá, chi phí và execution. Pin SQLite C,
+availability và labels/models D bằng hash đối chiếu manifest bàn giao; các path
+đều tương đối từ gốc repo. Trạng thái `READY_TO_LOCK_AFTER_BPIT` chưa cho full run.
+`limits_cache` của enriched nằm ở `data/experiments/m3/inputs/enriched_v1/limits.json`;
+runner từ chối thiếu cache hoặc cache trùng baseline khi có `financial_data`.
+Config legacy giữ đường dẫn cache cũ. Manifest run ghi đường dẫn cache sử dụng.
+Đối chiếu hash/provenance artifact thật đạt, FY2017–2024 có cutoff hợp lệ; đây chỉ
+là kiểm tra tích hợp, không thay owner review D hoặc nghiệm thu full backtest.
+
+## 2026-11-18 — R2-02: truyền nguồn tài chính đã pin xuyên runner M3
+
+Triển khai yêu cầu Giai đoạn E trong kế hoạch B-PIT; không đổi phương pháp đầu tư.
+Config có `financial_data` phải khai báo `indicators_path`, `indicators_sha256`,
+`availability_path`, `availability_sha256`; path tương đối tính từ gốc repo.
+Runner dùng cùng SQLite cho scoring/ngành/hash, kiểm pin labels/models và đối chiếu
+nguồn SQLite/availability trong manifest B-PIT. Thiếu hoặc sai pin thì dừng;
+artifact enriched không được rơi về SQLite baseline hoặc B v4. Config baseline cũ
+không có block này giữ nguồn mặc định. SQLite mở read-only và đóng sau khi đọc.
+Manifest run bổ sung `b_pit_models_sha256`. Config enriched/cache riêng thuộc R2-03.
+Tests dùng fixture; chưa xác nhận dữ liệu thật, chưa mở gate hoặc chạy full backtest.
+
 ## 2026-11-11 — chấp nhận TNCK7/Mekong6, overlay Product/M3 pilot V2
 
 Owner yêu cầu “hãy thực hiện” ngay sau đề xuất cụ thể ở bước43: chấp nhận

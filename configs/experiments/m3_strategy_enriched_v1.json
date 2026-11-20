@@ -1,0 +1,112 @@
+{
+  "version": "m3-strategy-enriched-v1",
+  "status": "LOCKED",
+  "status_note": "R2-07: D approved by user; real feasibility/targets review PASS (Dev 60/59/1, Holdout 24/23/1); N<10 Dev 13->12, Holdout 1->1; controls match baseline. Commit code/config and regenerate clean-HEAD targets-only before full Development; seal Dev before Holdout using identical execution HEAD/config/inputs.",
+  "decision": "D-M3-01",
+  "market_model": "bundle v4 model A (k=3, liquid stocks only)",
+  "financial_model": "B-PIT enriched v1: artifact D duoc pin; thu tu cum va cutoff doc tu models.json, khong chon lai bang performance.",
+  "financial_pit": {
+    "artifact": "data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01",
+    "labels_sha256": "384e36e4521700acb92c8bd69f38204f782e9ab269ba80fe18a6e283a6cf2e35",
+    "models_sha256": "7e8242c4df6958dfb4df32f1725e96c01c5c5aae4d91c40f3f8b1dd831987b08"
+  },
+  "market_rule": "leading",
+  "financial_rule": "not_weakest",
+  "market_criteria": {
+    "mom_126": true,
+    "downside_vol_63": false,
+    "liquidity_21": true
+  },
+  "market_criteria_note": "value = higher_is_better; downside_vol_63 false means lower is better (Q7)",
+  "financial_criteria": {
+    "roe": true,
+    "f_score": true,
+    "z_score": true
+  },
+  "combined_weight_market": 0.5,
+  "top_share": 0.3,
+  "n_min": 10,
+  "stale_months": 18,
+  "availability_lag_rule": "06-30",
+  "strategies": [
+    "combined",
+    "market_only",
+    "financial_only",
+    "equal_weight",
+    "momentum_only"
+  ],
+  "segments": {
+    "development": [
+      "2019-01-31",
+      "2023-12-29"
+    ],
+    "holdout": [
+      "2024-01-31",
+      "2025-12-31"
+    ]
+  },
+  "segment_end_dates": {
+    "development": "2023-12-29",
+    "holdout": "2025-12-31"
+  },
+  "costs_bps_one_way": [
+    0
+  ],
+  "cost_note": "Main run: cost 0, slippage 0 (mentor). 15/30 bps sensitivity is an extension, not part of the main run.",
+  "m2_k2_control": "candidate counts only (m3_stage0.py), no backtest",
+  "sharpe_allowed_segments": [
+    "final"
+  ],
+  "financial_data": {
+    "indicators_path": "data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/indicators.sqlite",
+    "indicators_sha256": "d0f7b4d80b7d1bc1da6a98738670ab480c1319794946e22bdfb626a1af1340e0",
+    "availability_path": "data/financial/disclosure_dates_v1/availability-4f0f83108e761dae/availability.csv",
+    "availability_sha256": "4f0f83108e761daeb86289e290de3aff0379abbf1ed630ac31c842146186648f"
+  },
+  "limits_cache": "data/experiments/m3/inputs/enriched_v1/limits.json",
+  "readiness_review": {
+    "status": "PASS",
+    "feasibility_run": "data/experiments/m3/feasibility-variants/20261118T163652276119Z",
+    "baseline_feasibility_run": "data/experiments/m3/feasibility-variants/20261118T163651806641Z",
+    "segments": {
+      "development": {
+        "targets_run": "data/experiments/m3/development/20261118T163646Z-dd7b9a9e",
+        "counts": {
+          "decisions": 60,
+          "executed": 59,
+          "too_small": 12,
+          "not_executed_segment_end": 1
+        },
+        "baseline_below_10": 13,
+        "enriched_below_10": 12,
+        "baseline_min": 3,
+        "enriched_min": 3,
+        "baseline_median": 27.0,
+        "enriched_median": 20.0
+      },
+      "holdout": {
+        "targets_run": "data/experiments/m3/holdout/20261118T163644Z-dd7b9a9e",
+        "counts": {
+          "decisions": 24,
+          "executed": 23,
+          "too_small": 1,
+          "not_executed_segment_end": 1
+        },
+        "baseline_below_10": 1,
+        "enriched_below_10": 1,
+        "baseline_min": 4,
+        "enriched_min": 4,
+        "baseline_median": 30.0,
+        "enriched_median": 31.0
+      }
+    },
+    "controls": "all three market controls targets/audit match published baseline",
+    "financial_source": "B_PIT",
+    "git_dirty": false,
+    "pre_lock_config_sha256": "0517790b68bad1cfc452645ae5a45b7ad1aa74b0c8f09654406f6a0b62868e73",
+    "pre_lock_code_commit": "d492948cfee701a286857813787af0e9fdd9c8f2",
+    "owner_approval": "User confirmed Stage D approved and Task 07 authorized on 2026-11-18.",
+    "market_bundle_source": "https://huggingface.co/datasets/ngyen/delta-intelligence-data/tree/8b0d78e4edb3dd4bd7dcea9cddcbe36d7a0815c5/data/web/delta-intelligence-v4",
+    "execution_note": "Commit this config and supporting files, record HEAD, then regenerate targets-only at that clean HEAD before any full run. Full Dev and Holdout must share that execution HEAD and config."
+  }
+}

@@ -103,6 +103,107 @@ class FinancialCutoffTests(unittest.TestCase):
             }), encoding='utf-8')
             self.assertEqual(inputs.bpit(artifact, include_cutoffs=True)[3], {})
 
+    def write_k_artifact(self, folder, k):
+        artifact = self.write_artifact(folder)
+        models = {'2023': dict(k=k, cutoff=self.cutoffs[2023], cluster_order=list(reversed(range(k))))}
+        (artifact / 'models.json').write_text(json.dumps(models), encoding='utf-8')
+        rows = 'ticker,fiscal_year,cluster\n' + ''.join(f'T{c},2023,{c}\n' for c in range(k))
+        (artifact / 'labels.csv').write_text(rows, encoding='utf-8')
+        return artifact, models, rows
+
+    def test_artifact_loader_preserves_k_order_labels_and_cutoff(self):
+        for k in (3, 4, 8):
+            with self.subTest(k=k), TemporaryDirectory() as folder:
+                artifact, _, _ = self.write_k_artifact(Path(folder), k)
+                labels, order, manifest, cutoffs = inputs.bpit(artifact, include_cutoffs=True)
+                self.assertEqual(order, {2023: list(reversed(range(k)))})
+                self.assertEqual(labels, {2023: {f'T{c}': (c, {}) for c in range(k)}})
+                self.assertEqual(manifest, {})
+                self.assertEqual(cutoffs, {2023: self.cutoffs[2023]})
+                self.assertEqual(inputs.bpit(artifact), (labels, order, manifest))
+
+    def test_artifact_loader_blocks_invalid_k_and_order(self):
+        mutations = [dict(k=k) for k in (None, True, '4', 4.0, 0, -1, 2)]
+        mutations += [dict(cluster_order=order) for order in (
+            [], [0, 1, 2], [0, 1, 2, 2], [0, 1, 2, 4],
+            [False, 1, 2, 3], ['0', 1, 2, 3], None, {'0': 0})]
+        mutations += [dict(cutoff=None)]
+        for mutation in mutations:
+            with self.subTest(mutation=mutation), TemporaryDirectory() as folder:
+                artifact, models, _ = self.write_k_artifact(Path(folder), 4)
+                models['2023'].update(mutation)
+                (artifact / 'models.json').write_text(json.dumps(models), encoding='utf-8')
+                self.assertEqual(inputs.bpit(artifact, include_cutoffs=True)[3], {})
+
+    def test_artifact_loader_blocks_missing_or_out_of_range_labels(self):
+        for k in (3, 4, 8):
+            for clusters in ([], list(range(k - 1)), list(range(k - 1)) + [k],
+                             list(range(k - 1)) + [-1]):
+                with self.subTest(k=k, clusters=clusters), TemporaryDirectory() as folder:
+                    artifact, _, _ = self.write_k_artifact(Path(folder), k)
+                    rows = 'ticker,fiscal_year,cluster\n' + ''.join(
+                        f'T{i},2023,{c}\n' for i, c in enumerate(clusters))
+                    (artifact / 'labels.csv').write_text(rows, encoding='utf-8')
+                    self.assertEqual(inputs.bpit(artifact, include_cutoffs=True)[3], {})
+
+    def test_artifact_loader_rejects_duplicate_ticker_year_labels(self):
+        for duplicate in ('T0,2023,0\n', 'T0,2023,1\n'):
+            for include_cutoffs in (False, True):
+                with self.subTest(duplicate=duplicate, include_cutoffs=include_cutoffs), TemporaryDirectory() as folder:
+                    artifact, _, rows = self.write_k_artifact(Path(folder), 4)
+                    (artifact / 'labels.csv').write_text(rows + duplicate, encoding='utf-8')
+                    with self.assertRaisesRegex(ValueError, 'Duplicate B-PIT label'):
+                        inputs.bpit(artifact, include_cutoffs=include_cutoffs)
+
+    def test_artifact_loader_does_not_infer_enriched_k_from_order(self):
+        with TemporaryDirectory() as folder:
+            artifact, models, _ = self.write_k_artifact(Path(folder), 4)
+            del models['2023']['k']
+            (artifact / 'models.json').write_text(json.dumps(models), encoding='utf-8')
+            self.assertEqual(inputs.bpit(artifact, include_cutoffs=True)[3], {})
+
+    def test_k3_k4_k8_targets_and_audit_use_frozen_order_after_cutoff(self):
+        for k in (3, 4, 8):
+            with self.subTest(k=k), TemporaryDirectory() as folder:
+                artifact, _, _ = self.write_k_artifact(Path(folder), k)
+                labels, order, _, cutoffs = inputs.bpit(artifact, include_cutoffs=True)
+                names = [f'T{c}' for c in range(k)]
+                market = {d: [dict(ticker=t, cluster=0, liquidity='LIQUID',
+                                   features=dict(mom_126=c + 1, mdd_126=-0.1, liquidity_21=1))
+                              for c, t in enumerate(names)] for d in DATES}
+                avail = {(t, 2023): dict(usable_from_date='2024-03-15') for t in names}
+                missing = f'T{k - 2}'
+                indicators = {(t, 2023): dict(roe=c + 1) for c, t in enumerate(names) if t != missing}
+                strategies = Strategies(self.cfg, market, labels, avail, {}, indicators,
+                                        fin_order=order, financial_cutoffs=cutoffs)
+                for name in ('combined', 'financial_only'):
+                    before = strategies.target_for(name, DATES[0])
+                    self.assertEqual(before['candidates'], 0)
+                    self.assertEqual({a['reason'] for a in before['audit']}, {'FINANCIAL_MODEL_BEFORE_CUTOFF'})
+                    for date in DATES[1:]:
+                        result = strategies.target_for(name, date)
+                        audit = {a['ticker']: a for a in result['audit']}
+                        self.assertEqual(result['candidates'], k - 2)
+                        self.assertEqual(sum(a['in_candidate_universe'] for a in result['audit']), k - 2)
+                        self.assertEqual(audit['T0']['reason'], 'FINANCIAL_NOT_IN_ALLOWED_CLUSTER')
+                        self.assertEqual(audit[missing]['reason'], 'FINANCIAL_CRITERIA_MISSING')
+                        self.assertEqual(result['picks'][0], f'T{k - 1}')
+                        self.assertAlmostEqual(sum(result['target'].values()), 1)
+                        self.assertEqual(result['engine_target'], result['target'])
+                        self.assertTrue(all(a['financial_year'] == 2023 for a in result['audit']))
+
+    def test_future_financial_year_append_does_not_change_current_targets_or_audit(self):
+        reference = self.strategies()
+        before = {name: reference.target_for(name, DATES[-1]) for name in ('combined', 'financial_only')}
+        self.fin[2024] = {'AAA': (2, {'roe': 1000})}
+        self.avail['AAA', 2024] = dict(usable_from_date='2025-03-17')
+        self.ind['AAA', 2024] = dict(roe=1000)
+        self.order[2024] = [2, 1, 0]
+        self.cutoffs[2024] = '2025-04-30'
+        after = self.strategies()
+        for name in before:
+            self.assertEqual(before[name], after.target_for(name, DATES[-1]))
+
     def test_runner_and_feasibility_read_cutoffs_from_pinned_artifact(self):
         runner = load_script('run_m3')
         feasibility = load_script('m3_feasibility_variants')
@@ -112,7 +213,8 @@ class FinancialCutoffTests(unittest.TestCase):
             cfg = dict(self.cfg, financial_pit=dict(artifact=str(artifact),
                        labels_sha256=inputs.sha256(artifact / 'labels.csv')),
                        status='READY_TO_LOCK_AFTER_BPIT', strategies=['combined', 'financial_only'],
-                       segments=dict(holdout=[DATES[0], DATES[-1]]), segment_end_dates=dict(holdout=DATES[-1]))
+                       segments=dict(development=['2023-07-31', '2023-07-31'], holdout=[DATES[0], DATES[-1]]),
+                       segment_end_dates=dict(development='2023-07-31', holdout=DATES[-1]))
             config = root / 'config.json'
             config.write_text(json.dumps(cfg), encoding='utf-8')
             market = dict(self.market, **{'2023-07-31': self.market[DATES[0]]})
@@ -138,6 +240,7 @@ class FinancialCutoffTests(unittest.TestCase):
                     self.assertEqual([r['candidates'] for r in targets], ['0', '1', '1'])
                 self.assertFalse((run / 'metrics.json').exists())
                 with patch.object(feasibility, 'ROOT', root), patch.object(feasibility, 'CONFIG', config), \
+                        patch.object(feasibility, 'financial_input_hashes', return_value={}), \
                         patch.object(sys, 'argv', ['m3_feasibility_variants']):
                     feasibility.main()
                 result = next((root / 'data/experiments/m3/feasibility-variants').glob('*/variants.json'))
