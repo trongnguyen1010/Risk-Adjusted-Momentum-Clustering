@@ -618,7 +618,7 @@ Manifest SHA-256: `a17bd9ca9995f10f0c66acf7ce88e22b56f3f429f4798914f47eb21f050c6
 
 ### 11.3. R1, recovery và quyết định promotion
 
-Protocol executable: [`delta_upgrade_r1_v1.json`](../configs/experiments/delta_upgrade_r1_v1.json).
+Protocol executable: [`delta_upgrade_r1_v1.json`](../../configs/experiments/delta_upgrade_r1_v1.json).
 Run cuối: `data/experiments/delta_upgrade_r1_v1/results/09fa9b1ea51d861edbd5`.
 Manifest SHA-256: `90308cad3ac41efac61a4ee9b3c514827c7cfc1602008e2f1bcf754424bfaa8c`.
 
@@ -711,7 +711,7 @@ sealed R1/preview artifacts giữ exact bytes. Không đổi bytes baseline/data
 để làm sạch Git warnings. Local source snapshot/checks được ghi ở
 `.tmp/upgrade-release-manifest.json` (chưa phải release commit/Dataset revision).
 
-Runbook và lệnh tái kiểm ở [`web/README.md`](../web/README.md). Base commit là
+Runbook và lệnh tái kiểm ở [`web/README.md`](../../web/README.md). Base commit là
 `a03a7fe`; implementation hiện là working-tree changes, chưa có release commit.
 Không coi sự tồn tại code/config hoặc preview local là public release PASS.
 

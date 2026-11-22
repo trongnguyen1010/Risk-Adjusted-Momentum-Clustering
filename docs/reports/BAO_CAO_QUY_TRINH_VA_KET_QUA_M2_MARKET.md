@@ -86,7 +86,7 @@ Mỗi cấu hình trong 24 cấu hình chỉ được coi là hợp lệ (Admiss
 ## 3. KẾT QUẢ THỰC NGHIỆM VÀ QUYẾT ĐỊNH CHỌN MÔ HÌNH
 
 ### 3.1. Bảng kết quả Quét lưới 24 cấu hình và Sàng lọc qua Cổng kiểm định (Admissibility Screening)
-Kết quả thực nghiệm quét lưới trên 60 snapshot giai đoạn Development (2019–2023) từ mã nguồn [scripts/run_clustering_rework_v2.py](scripts/run_clustering_rework_v2.py) và cấu hình [configs/experiments/clustering_rework_v2_dev.json](configs/experiments/clustering_rework_v2_dev.json):
+Kết quả thực nghiệm quét lưới trên 60 snapshot giai đoạn Development (2019–2023) từ mã nguồn [scripts/run_clustering_rework_v2.py](../../scripts/run_clustering_rework_v2.py) và cấu hình [configs/experiments/clustering_rework_v2_dev.json](../../configs/experiments/clustering_rework_v2_dev.json):
 
 | Cấu hình (Thuật toán × k) | Trạng thái Cổng lọc (Admissible) | Tỷ lệ cụm nhỏ nhất (% mã) | Độ ổn định mẫu con 90% (ARI) | Median Silhouette | Median Davies–Bouldin | Đánh giá & Kết luận từ Cổng kiểm định |
 |---|:---:|:---:|:---:|:---:|:---:|---|

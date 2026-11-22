@@ -6,11 +6,11 @@ Assessment là giao diện chỉ đọc một release artifact đã được xá
 
 Trạng thái hồ sơ Task 14 hiện tại:
 
-- Typecheck, production build, integration API local và Playwright regression: **PASS**. Evidence nằm trong [report Task 14](../tests/integration/evidence/assessment-uat/report.md).
+- Typecheck, production build, integration API local và Playwright regression: **PASS**. Evidence nằm trong [report Task 14](../../tests/integration/evidence/assessment-uat/report.md).
 - API Assessment trên deployment và UAT thủ công: **BLOCKED / NOT RUN**. Lần kiểm tra production được ghi nhận ngày 2026-11-19 trả `404` cho route FPT Assessment. Cần deploy route cùng artifact đã được owner duyệt trước khi chạy UAT production.
 - Bản release được kiểm thử là demo `SIMULATED_AS_OF`, `as_of=2026-01-02`; không phải đánh giá tại ngày hiện tại.
 
-Giữ nguyên dữ liệu và mô hình M2/M3. Không dùng hướng dẫn này để chạy lại pipeline, promote artifact hoặc phát hành dữ liệu. Việc phát hành production cần approval theo [kế hoạch triển khai](plans/KE_HOACH_TRIEN_KHAI_B_PIT_VA_DANH_GIA_DAU_TU.md).
+Giữ nguyên dữ liệu và mô hình M2/M3. Không dùng hướng dẫn này để chạy lại pipeline, promote artifact hoặc phát hành dữ liệu. Việc phát hành production cần approval theo [kế hoạch triển khai](../plans/KE_HOACH_TRIEN_KHAI_B_PIT_VA_DANH_GIA_DAU_TU.md).
 
 ## Chuẩn bị môi trường local
 
@@ -74,7 +74,7 @@ GET /api/v2/stocks/{ticker}/assessment?lookback_years=10
 | `422` | Ticker hoặc query không hợp lệ; lookback ngoài 5/10 bị từ chối. |
 | `503` | Route có nhưng Assessment artifact chưa được phát hành/nạp hoặc không qua xác minh. |
 
-`/api/v2/health` trả `200` chỉ xác nhận service đang chạy; cần gọi endpoint Assessment riêng. Hợp đồng đầy đủ ở [Assessment OpenAPI spec](api/OPENAPI_ASSESSMENT_SPEC.json).
+`/api/v2/health` trả `200` chỉ xác nhận service đang chạy; cần gọi endpoint Assessment riêng. Hợp đồng đầy đủ ở [Assessment OpenAPI spec](../api/OPENAPI_ASSESSMENT_SPEC.json).
 
 ## Release pins và evidence
 
@@ -89,7 +89,7 @@ Các giá trị cần đối chiếu khi kiểm tra release hiện tại:
 | Manifest SHA-256 | `6bdb5b01cce44c7a87f9fb4545cf4854859983bfa760fadbf52357102018b484` |
 | Deterministic content SHA-256 | `16b259111f69fd0be7bc84fa3aec844677755b1cb488560184252b6aedbae787` |
 
-Nguồn chuẩn của pins là [release pointer](../configs/product/assessment_release_v1.json) và [response pins của UAT](../tests/integration/evidence/assessment-uat/response-pins.json). Không sửa pin trong tài liệu để làm cho kết quả khác khớp.
+Nguồn chuẩn của pins là [release pointer](../../configs/product/assessment_release_v1.json) và [response pins của UAT](../../tests/integration/evidence/assessment-uat/response-pins.json). Không sửa pin trong tài liệu để làm cho kết quả khác khớp.
 
 ## Kiểm tra và UAT
 
@@ -102,9 +102,9 @@ $env:PYTHONPATH="web/backend;src"
 python -m unittest tests.integration.test_assessment_endpoints -v
 ```
 
-Playwright regression được chạy bằng script [verify_assessment_ui.cjs](../tests/integration/verify_assessment_ui.cjs); kết quả và screenshots lưu trong [assessment-uat](../tests/integration/evidence/assessment-uat/). Các test tự động local không thay thế production API check hoặc UAT thủ công.
+Playwright regression được chạy bằng script [verify_assessment_ui.cjs](../../tests/integration/verify_assessment_ui.cjs); kết quả và screenshots lưu trong [assessment-uat](../../tests/integration/evidence/assessment-uat). Các test tự động local không thay thế production API check hoặc UAT thủ công.
 
-Khi production endpoint phục vụ đúng pins, người kiểm tra làm từng ca trong [manual UAT checklist](../tests/integration/evidence/assessment-uat/manual-uat-checklist.md), ghi reviewer/ngày giờ/URL/commit, PASS/FAIL/BLOCKED và lưu screenshot/response. Stale hiện tại là fixture tổng hợp; không báo cáo nó là stale production. Không đánh dấu UAT PASS nếu FPT trả 404/503 hoặc pins không khớp.
+Khi production endpoint phục vụ đúng pins, người kiểm tra làm từng ca trong [manual UAT checklist](../../tests/integration/evidence/assessment-uat/manual-uat-checklist.md), ghi reviewer/ngày giờ/URL/commit, PASS/FAIL/BLOCKED và lưu screenshot/response. Stale hiện tại là fixture tổng hợp; không báo cáo nó là stale production. Không đánh dấu UAT PASS nếu FPT trả 404/503 hoặc pins không khớp.
 
 ## Giới hạn, phát hành và rollback
 
@@ -115,8 +115,8 @@ Khi production endpoint phục vụ đúng pins, người kiểm tra làm từng
 
 ## Hồ sơ nghiệm thu
 
-- [Task 14 report](../tests/integration/evidence/assessment-uat/report.md)
-- [Manual UAT checklist](../tests/integration/evidence/assessment-uat/manual-uat-checklist.md)
-- [Response pins](../tests/integration/evidence/assessment-uat/response-pins.json)
-- [UI regression result](../tests/integration/evidence/assessment-uat/ui-result.json)
-- [Assessment API spec](api/OPENAPI_ASSESSMENT_SPEC.json)
+- [Task 14 report](../../tests/integration/evidence/assessment-uat/report.md)
+- [Manual UAT checklist](../../tests/integration/evidence/assessment-uat/manual-uat-checklist.md)
+- [Response pins](../../tests/integration/evidence/assessment-uat/response-pins.json)
+- [UI regression result](../../tests/integration/evidence/assessment-uat/ui-result.json)
+- [Assessment API spec](../api/OPENAPI_ASSESSMENT_SPEC.json)

@@ -205,13 +205,13 @@ Chuyển session: đọc [bản bàn giao Execution56](plans/FINANCIAL_SESSION_H
 
 | Nội dung | Tài liệu |
 |---|---|
-| Dữ liệu financial dùng cho baseline | [Handoff1.172 mã/2016–2025](../data/handoffs/financial-reference-2016-2025/README.md) |
+| Dữ liệu financial dùng cho baseline | [Handoff1.172 mã/2016–2025](README.md) |
 | Lịch sử, kết quả và backlog | [Report tổng financial](../artifacts/reports/FINANCIAL_DATA_MASTER_REPORT.md) |
 | Financial acquisition/QA/PIT | [Plan financial](crawl/FINANCIAL_HISTORY_PIT_PLAN.md) |
 | Market history10năm | [Plan market](crawl/MARKET_HISTORY10Y_1500_PLAN.md) |
 | Universe và phân công team | [Registry](../configs/data/securities_collection_registry_v1.csv) |
 | Lệnh hiện hành | [scripts/README](../scripts/README.md) |
-| Cách bố trí dữ liệu/kết quả | [data/README](../data/README.md) · [artifacts/README](../artifacts/README.md) |
+| Cách bố trí dữ liệu/kết quả | [data/README](README.md) · [artifacts/README](README.md) |
 
 - **PCA + K-Means nhiệm vụ 6–9:** dùng bộ kết quả đã khôi phục từ Git, nay đổi
   về tên chuẩn không có hậu tố phiên bản. Tất cả đều complete trên 60 tháng
@@ -243,7 +243,7 @@ Chuyển session: đọc [bản bàn giao Execution56](plans/FINANCIAL_SESSION_H
   Lần chạy lại chỉ verify/nạp bộ complete; run dở/failed hoặc input đổi phải dừng.
   Task 12/13 lịch sử chưa áp dụng cho workflow hiện tại, thực hiện riêng.
 - Thu thập CafeF có kiểm soát: [Data collection](crawl/README.md) và [CafeF semantics](crawl/sources/CAFEF.md).
-- Quyết định methodology: [Decisions](DECISIONS.md), [Research questions](research/RESEARCH_QUESTIONS.md), [Literature matrix](research/LITERATURE_MATRIX.md), [Dynamic clustering review](research/DYNAMIC_CLUSTERING_REVIEW.md).
+- Quyết định methodology: [Decisions](DECISIONS.md), [Research questions](research/RESEARCH_QUESTIONS.md), [Literature matrix](research/LITERATURE_MATRIX_COMPLETE.md), [Dynamic clustering review](research/DYNAMIC_CLUSTERING_REVIEW.md).
 - Evaluation/product: [Evaluation and backtest](architecture/EVALUATION_AND_BACKTEST.md), [Product](architecture/PRODUCT.md).
 - Governance: [Roadmap](ROADMAP.md), [Reproducibility](architecture/REPRODUCIBILITY.md), [Contributing](../CONTRIBUTING.md).
 - Historical source caveat còn được artifact tham chiếu: [KBS pilot semantics](data/kbs_pilot_semantics.md) và [data usage risk acceptance](data/DATA_USAGE_RISK_ACCEPTANCE.md).
@@ -267,7 +267,7 @@ chưa hoàn tất. Phân cụm financial chưa chạy trong các lượt cleanup
 Chỉ dùng mộtcohort bàn giao cho baseline; không chọn dataset bằng kết quả model.
 Raw/receipt/journal giữ trực tiếp để truy nguồn và bảo toàn budget/source boundary.
 Candidates của bốn batch cũ đã lưu lạnh, xem
-[restore cache](../artifacts/archives/financial-cache-20261023/README.md).
+[restore cache](README.md).
 Các cleanup cũ có guide riêng tại `artifacts/archives/`; root README trước lượt54
 được lưu exactbytes trong `artifacts/repository/financial-cache-archive-20261023/documentation-before.zip`.
 

@@ -6,7 +6,7 @@
 **Commit backtest chính thức hiện hành** `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`<br>
 **Revision dataset** `08c24867b11177072bfe457a4623a38abf9bbc48`
 
-Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và thứ tự các gate lấy từ [kế hoạch chuẩn M3](KE_HOACH_M3_SCHEMA_GITHUB.md), [ADR D-M3-01](DECISIONS.md) và [hướng dẫn readiness](M3_READINESS.md). Bằng chứng dưới `data/`, `artifacts/` và `.tmp/` được lưu local theo quy tắc Git ignore của dự án.
+Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và thứ tự các gate lấy từ [kế hoạch chuẩn M3](../plans/KE_HOACH_M3_SCHEMA_GITHUB.md), [ADR D-M3-01](../DECISIONS.md) và [hướng dẫn readiness](../../M3/M3_READINESS.md). Bằng chứng dưới `data/`, `artifacts/` và `.tmp/` được lưu local theo quy tắc Git ignore của dự án.
 
 ## 1. Trạng thái tổng thể
 
@@ -37,7 +37,7 @@ Báo cáo ghi kết quả thực tế đến ngày chốt. Kế hoạch và th�
 - Development có các decision snapshot từ `2019-01-31` đến `2023-12-29`. Holdout từ `2024-01-31` đến `2025-12-31`. Hai đoạn có danh mục và NAV riêng.
 - Run chính dùng chi phí và trượt giá bằng 0. Strategy định giá theo `adj_close`. VNINDEX là price index, nên phần đối chứng cần ghi rõ khác biệt về return basis. Sharpe thuộc Final Evaluation.
 
-Chi tiết và tham số nằm trong [config M3](../configs/experiments/m3_strategy_v1.json) và [kế hoạch chuẩn](KE_HOACH_M3_SCHEMA_GITHUB.md).
+Chi tiết và tham số nằm trong [config M3](../../configs/experiments/m3_strategy_v1.json) và [kế hoạch chuẩn](../plans/KE_HOACH_M3_SCHEMA_GITHUB.md).
 
 ## 3. KẾT QUẢ THỰC HIỆN
 
@@ -60,17 +60,17 @@ Lịch dự kiến đạt **60 quyết định, 59 lịch execution, 1 kỳ ngo�
 
 ### 3.2. Q-date và các điểm cần xác minh về dữ liệu tài chính
 
-Theo kế hoạch, mốc 30/06 năm sau là giả định của nhóm cho FY trước 2022. Loader M3 chính thức áp dụng `LAG_RULE` cho giai đoạn này và `CAFEF_DISCLOSURE` từ FY2022. Kiểm tra trên file thật xác nhận 267 dòng fallback từ FY2022 trở đi không còn cấp ngày usable cho M3 chính thức. Trong đó có 162 dòng FY2022–FY2024 và 105 dòng FY2025 đang chờ lịch. SHA256 của bảng availability nguồn vẫn khớp. Chế độ đối chứng lịch sử B v4 đọc dữ liệu theo đường cũ. Sau thay đổi, **36 test M3**, `compileall` và [synthetic smoke](../data/runs/run-20261104T025913Z-f4fd39a0/manifest.json) đều đạt. [Loader Q-date](../src/delta_t1/m3/inputs.py)
+Theo kế hoạch, mốc 30/06 năm sau là giả định của nhóm cho FY trước 2022. Loader M3 chính thức áp dụng `LAG_RULE` cho giai đoạn này và `CAFEF_DISCLOSURE` từ FY2022. Kiểm tra trên file thật xác nhận 267 dòng fallback từ FY2022 trở đi không còn cấp ngày usable cho M3 chính thức. Trong đó có 162 dòng FY2022–FY2024 và 105 dòng FY2025 đang chờ lịch. SHA256 của bảng availability nguồn vẫn khớp. Chế độ đối chứng lịch sử B v4 đọc dữ liệu theo đường cũ. Sau thay đổi, **36 test M3**, `compileall` và [synthetic smoke](../../data/runs/run-20261104T025913Z-f4fd39a0/manifest.json) đều đạt. [Loader Q-date](../../src/delta_t1/m3/inputs.py)
 
-Lượt đối chiếu CafeF bao phủ **162 cặp mã–FY thuộc 119 mã**. Smoke 20 mã đạt trước khi mở rộng. Kiểm tra raw, receipt và SHA256 đã đạt trên ba lượt thu thập. Có **32 cặp** có bản ghi báo cáo năm loại `H` bị bộ lọc hiện hành bỏ qua, trong đó **9** tiêu đề ghi đã kiểm toán. Có **7** cặp có loại báo cáo năm khác cần xem riêng, **4** cặp chỉ có mốc nhập lại lịch sử `26/11/2022`, **37** cặp có bản ghi cùng FY nhưng thiếu bản ghi năm và **82** cặp thiếu bản ghi cùng FY trên endpoint được kiểm tra. Các bản ghi mới là evidence đối chiếu. [Kết quả audit Q-date](../data/financial/disclosure_dates_v1/m3-qdate-exceptions-20261104-remaining88-v1/qdate_audit.json)
+Lượt đối chiếu CafeF bao phủ **162 cặp mã–FY thuộc 119 mã**. Smoke 20 mã đạt trước khi mở rộng. Kiểm tra raw, receipt và SHA256 đã đạt trên ba lượt thu thập. Có **32 cặp** có bản ghi báo cáo năm loại `H` bị bộ lọc hiện hành bỏ qua, trong đó **9** tiêu đề ghi đã kiểm toán. Có **7** cặp có loại báo cáo năm khác cần xem riêng, **4** cặp chỉ có mốc nhập lại lịch sử `26/11/2022`, **37** cặp có bản ghi cùng FY nhưng thiếu bản ghi năm và **82** cặp thiếu bản ghi cùng FY trên endpoint được kiểm tra. Các bản ghi mới là evidence đối chiếu. [Kết quả audit Q-date](../../data/financial/disclosure_dates_v1/m3-qdate-exceptions-20261104-remaining88-v1/qdate_audit.json)
 
-Audit nguồn tài chính xác nhận hai vấn đề cụ thể. **VCG FY2023** có chín số đầu vào khớp báo cáo hợp nhất kiểm toán, nhưng Indicators thiếu lợi ích cổ đông không kiểm soát cuối năm và áp dụng cờ `NCI_ASSUMED_ZERO`. ROE lưu là **4,72%**. Phép đối chiếu với cùng công thức và số trong báo cáo cho **5,72%**. **SBT FY2024** ghép ngày CafeF của báo cáo riêng với dữ liệu khác số báo cáo hợp nhất kiểm toán. Doanh thu thuần trong Indicators là **29.995,18 tỷ đồng**. Báo cáo hợp nhất kiểm toán cho niên độ kết thúc `2025-06-30` ghi **28.482,17 tỷ đồng**. Nguồn chính xác của số Indicators ở SBT vẫn chưa được xác minh. Hai phát hiện này có phạm vi theo mã–FY đã đối chiếu. [Audit VCG và SBT](../data/financial/review/m3-revision-check-20261104-v1/audit.json)
+Audit nguồn tài chính xác nhận hai vấn đề cụ thể. **VCG FY2023** có chín số đầu vào khớp báo cáo hợp nhất kiểm toán, nhưng Indicators thiếu lợi ích cổ đông không kiểm soát cuối năm và áp dụng cờ `NCI_ASSUMED_ZERO`. ROE lưu là **4,72%**. Phép đối chiếu với cùng công thức và số trong báo cáo cho **5,72%**. **SBT FY2024** ghép ngày CafeF của báo cáo riêng với dữ liệu khác số báo cáo hợp nhất kiểm toán. Doanh thu thuần trong Indicators là **29.995,18 tỷ đồng**. Báo cáo hợp nhất kiểm toán cho niên độ kết thúc `2025-06-30` ghi **28.482,17 tỷ đồng**. Nguồn chính xác của số Indicators ở SBT vẫn chưa được xác minh. Hai phát hiện này có phạm vi theo mã–FY đã đối chiếu. [Audit VCG và SBT](../../data/financial/review/m3-revision-check-20261104-v1/audit.json)
 
-Đã truy được code tính Indicators theo pin trong SQLite. Run nguồn `inputs-5b4836454b70d737` chưa tìm thấy ở checkout, các bản sao DELTA đã kiểm tra hoặc Hugging Face. Audit trên **9.661 cặp mã–FY đủ biến**, trong đó **8.087 cặp đạt điều kiện ngày fit**, ghi nhận 279 cặp chỉ có nhãn DStock, 310 cặp có ngày CafeF gắn báo cáo riêng `MK` và 2.513 cặp có cờ thiếu lợi ích cổ đông không kiểm soát cuối kỳ trong phép tính ROE. Các nhóm có thể giao nhau và là danh sách ưu tiên kiểm tra. [Audit truy vết upstream](../data/financial/review/m3-indicator-lineage-20261104-v1/audit.json)
+Đã truy được code tính Indicators theo pin trong SQLite. Run nguồn `inputs-5b4836454b70d737` chưa tìm thấy ở checkout, các bản sao DELTA đã kiểm tra hoặc Hugging Face. Audit trên **9.661 cặp mã–FY đủ biến**, trong đó **8.087 cặp đạt điều kiện ngày fit**, ghi nhận 279 cặp chỉ có nhãn DStock, 310 cặp có ngày CafeF gắn báo cáo riêng `MK` và 2.513 cặp có cờ thiếu lợi ích cổ đông không kiểm soát cuối kỳ trong phép tính ROE. Các nhóm có thể giao nhau và là danh sách ưu tiên kiểm tra. [Audit truy vết upstream](../../data/financial/review/m3-indicator-lineage-20261104-v1/audit.json)
 
 ### 3.3. Kết quả build B-PIT đã kiểm tra
 
-Artifact [bpit-4a9d2e87f0de84ec](../data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec/manifest.json) được tạo ngày **04/11/2026 lúc 10:23:32 giờ Việt Nam** bằng builder `scripts/build_financial_pit_clusters.py`. Có đủ `labels.csv`, `models.json`, `audit.json` và `manifest.json`. Artifact ghi Git HEAD ở đầu báo cáo và `code_dirty=true` vì builder đã đọc phần thay đổi Q-date trong worktree. Năm hash file code và ba hash input trong manifest khớp file hiện có khi kiểm tra.
+Artifact [bpit-4a9d2e87f0de84ec](../../data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec/manifest.json) được tạo ngày **04/11/2026 lúc 10:23:32 giờ Việt Nam** bằng builder `scripts/build_financial_pit_clusters.py`. Có đủ `labels.csv`, `models.json`, `audit.json` và `manifest.json`. Artifact ghi Git HEAD ở đầu báo cáo và `code_dirty=true` vì builder đã đọc phần thay đổi Q-date trong worktree. Năm hash file code và ba hash input trong manifest khớp file hiện có khi kiểm tra.
 
 | FY | Cutoff | Fit | Gán cụm | ARI so với B v4 |
 |---|---|---:|---:|---:|
@@ -85,7 +85,7 @@ Artifact [bpit-4a9d2e87f0de84ec](../data/financial/b_pit_v1/bpit-4a9d2e87f0de84e
 | 2024 | `2025-04-30` | 1.042 | 123 | 0,8077 |
 | 2025 | `2026-04-30` | Bỏ qua | Bỏ qua | Chưa có model, chỉ 3 báo cáo usable tại cutoff |
 
-Kiểm tra độc lập xác nhận **8.461** khóa mã–FY duy nhất, gồm **8.087** `FIT`, **280** `ASSIGNED_AFTER_CUTOFF` và **94** `ASSIGNED_NO_DATE`. Chín model có đủ ba cụm và thứ tự cụm khớp giữa model và audit. Từng ngày usable trong labels khớp loader Q-date. Audit có `status=PASS`, `fit_leaks={}`. Ý nghĩa của PASS này là **tập fit tuân thủ cutoff theo ngày đã gắn trong input**. Việc xác minh ngày đó gắn đúng giá trị của đúng báo cáo là gate nguồn riêng. [Audit theo FY](../data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec/audit.json)
+Kiểm tra độc lập xác nhận **8.461** khóa mã–FY duy nhất, gồm **8.087** `FIT`, **280** `ASSIGNED_AFTER_CUTOFF` và **94** `ASSIGNED_NO_DATE`. Chín model có đủ ba cụm và thứ tự cụm khớp giữa model và audit. Từng ngày usable trong labels khớp loader Q-date. Audit có `status=PASS`, `fit_leaks={}`. Ý nghĩa của PASS này là **tập fit tuân thủ cutoff theo ngày đã gắn trong input**. Việc xác minh ngày đó gắn đúng giá trị của đúng báo cáo là gate nguồn riêng. [Audit theo FY](../../data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec/audit.json)
 
 - `labels_sha256` `4a9d2e87f0de84ec9e80364b24043cb6091aa4f34f7dcfd187d8526e9f44579a`
 - SHA256 của `manifest.json` `e61652e252ebf4008fd524b007092ddae348d259ae1581030ead18ae63c00322`
@@ -96,14 +96,14 @@ Ngày 04/11/2026, triển khai phương án 2 theo owner duyệt tạm thời. R
 `models.json`. Combined và Financial-only chọn FY mới nhất theo ngày báo cáo usable, sau đó tạm loại mã nếu
 chưa đến cutoff hoặc thiếu metadata model hợp lệ. Chọn FY mới nhất có xét cả các năm chưa có model, vì vậy
 FY mới đã usable sẽ thay thế FY cũ theo Q10. Universe audit lưu `FINANCIAL_MODEL_BEFORE_CUTOFF` hoặc
-`FINANCIAL_MODEL_NOT_READY`. [Implementation gate](../src/delta_t1/m3/universe.py)
+`FINANCIAL_MODEL_NOT_READY`. [Implementation gate](../../src/delta_t1/m3/universe.py)
 
 Bộ **43 test M3 PASS**, gồm bảy regression tests mới cho gate và giữ đủ các assertion cũ. Test bao phủ trước,
 đúng và sau cutoff, FY mới thiếu model, metadata rỗng, thứ tự cụm thiếu, cùng kiểm tra runner targets-only và
 script feasibility trên fixture. Ba strategy Market-only, Equal-weight, Momentum-only và đường đối chứng B v4
 được kiểm tra để bảo toàn behavior. `compileall`, Markdown links, kiểm tra diff và
-[synthetic smoke](../data/runs/run-20261104T033429Z-d378831c/manifest.json) đạt. Môi trường Windows có cảnh báo
-joblib khi dò số lõi vật lý, các test vẫn hoàn tất với exit code 0. [Regression tests](../tests/unit/test_m3_cutoff.py)
+[synthetic smoke](../../data/runs/run-20261104T033429Z-d378831c/manifest.json) đạt. Môi trường Windows có cảnh báo
+joblib khi dò số lõi vật lý, các test vẫn hoàn tất với exit code 0. [Regression tests](../../tests/unit/test_m3_cutoff.py)
 
 Kiểm tra đọc artifact `bpit-4a9d2e87f0de84ec` tại ba snapshot xác nhận mọi dòng `financial_eligible` có cutoff
 không sau ngày quyết định. Tại `2024-03-29`, audit ghi 24 mã Combined và 178 mã Financial-only bị chặn trước
@@ -120,7 +120,7 @@ Ngày 04/11/2026, owner quyết định B-PIT dùng bộ Indicators v1 theo cùn
 Các giá trị và công thức trong snapshot đã pin là đầu vào được chấp nhận. Audit nguồn ở Mục 3.2 tiếp tục được lưu
 làm bằng chứng về chất lượng và giới hạn vintage/revision để disclosure khi báo cáo kết quả. Trạng thái audit
 `MANUAL_REVIEW_REQUIRED` trong các evidence trước đó phản ánh kết luận tại thời điểm tạo evidence. Quyết định mới
-được ghi ở [nhật ký owner decisions](DECISIONS.md) và Mục 5.2.B của [kế hoạch chuẩn](KE_HOACH_M3_SCHEMA_GITHUB.md).
+được ghi ở [nhật ký owner decisions](../DECISIONS.md) và Mục 5.2.B của [kế hoạch chuẩn](../plans/KE_HOACH_M3_SCHEMA_GITHUB.md).
 
 Artifact `bpit-4a9d2e87f0de84ec` đã build từ đúng Indicators v1 được chấp nhận và audit kỹ thuật đã PASS.
 Cutoff runtime đã kiểm thử PASS. Quy trình chuyển đến bước pin artifact và hash, sau đó feasibility.
@@ -129,7 +129,7 @@ Cutoff runtime đã kiểm thử PASS. Quy trình chuyển đến bước pin ar
 ### 3.6. Pin artifact B-PIT vào config
 
 Ngày 04/11/2026, pin hai trường `financial_pit.artifact` và `financial_pit.labels_sha256` trong
-[config M3](../configs/experiments/m3_strategy_v1.json). Artifact là `data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec`,
+[config M3](../../configs/experiments/m3_strategy_v1.json). Artifact là `data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec`,
 hash labels là `4a9d2e87f0de84ec9e80364b24043cb6091aa4f34f7dcfd187d8526e9f44579a`.
 
 Kiểm tra JSON và SHA256 xác nhận config khớp file labels và manifest của artifact, audit `PASS` và `fit_leaks`
@@ -146,7 +146,7 @@ Các thay đổi code M3 trong worktree đang chờ commit. Tiếp theo thực h
 
 Owner đã chạy `scripts/m3_feasibility_variants.py` bằng venv M3 và gửi output với `FEASIBILITY_EXIT=0`.
 Run là `20261104T034748Z`, nguồn `B_PIT:data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec`.
-Kiểm tra độc lập đọc [variants.json](../data/experiments/m3/feasibility-variants/20261104T034748Z/variants.json)
+Kiểm tra độc lập đọc [variants.json](../../data/experiments/m3/feasibility-variants/20261104T034748Z/variants.json)
 xác nhận 84 ngày quyết định duy nhất, phân đoạn đúng config, và các số min/median/max cùng số tháng
 `UNIVERSE_TOO_SMALL` khớp từng dòng monthly. Hash labels vẫn khớp config.
 
@@ -180,7 +180,7 @@ Kết quả checkpoint `PASS`, đủ điều kiện bắt đầu targets-only De
 ### 3.9. Targets-only Development
 
 Owner đã chạy `scripts/run_m3.py --segment development --targets-only`, kết thúc với `TARGETS_DEV_EXIT=0`.
-Run [20261104T041728Z-9c4abba3](../data/experiments/m3/development/20261104T041728Z-9c4abba3/manifest.json) ghi
+Run [20261104T041728Z-9c4abba3](../../data/experiments/m3/development/20261104T041728Z-9c4abba3/manifest.json) ghi
 Git commit `38948f8e4f15c2c9727ac4da59e2f422ebeda58e`, `git_dirty=false`, `targets_only=true` và
 `financial_source=B_PIT`. Kiểm tra code và config hiện có so với commit trong manifest trả về diff trống.
 Config hash và sáu hash input được ghi trong manifest khớp file trên máy. `c8_prices_sha256=null` đúng behavior
@@ -211,7 +211,7 @@ Next action là targets-only Holdout, sau đó đối chiếu hai run trước k
 ### 3.10. Targets-only Holdout và đối chiếu hai đoạn
 
 Owner đã chạy `scripts/run_m3.py --segment holdout --targets-only`, kết thúc với `TARGETS_HOLDOUT_EXIT=0`.
-Run [20261104T042556Z-9c4abba3](../data/experiments/m3/holdout/20261104T042556Z-9c4abba3/manifest.json) ghi
+Run [20261104T042556Z-9c4abba3](../../data/experiments/m3/holdout/20261104T042556Z-9c4abba3/manifest.json) ghi
 `targets_only=true`, `financial_source=B_PIT`, `git_dirty=false`, start `2024-01-31` và end `2025-12-31`.
 Git commit, config SHA256, toàn bộ hash đầu vào và nguồn tài chính khớp run Development tại Mục 3.9.
 Kiểm tra lại file trên máy xác nhận sáu hash input và hash config đều khớp manifest. Code/config hiện có
@@ -264,7 +264,7 @@ Kiểm tra đọc giá thật, không chạy portfolio engine hoặc tính lợi
 Không có ngày ngoài đoạn trong giá/volume đã nạp hoặc Q17 flags. Bộ 43 test M3 ban đầu PASS trước sửa;
 sau sửa, 49 test M3 PASS, gồm sáu regression test mới về biên cuối, biên đầu, future append ngoài đoạn,
 repair trong đoạn, source immutability, date ngoài đoạn và wiring qua runner fixture. `compileall` PASS.
-[Synthetic smoke](../data/runs/run-20261104T043141Z-55c26888/manifest.json) có `status=complete`, `synthetic=true`,
+[Synthetic smoke](../../data/runs/run-20261104T043141Z-55c26888/manifest.json) có `status=complete`, `synthetic=true`,
 exit 0. Test runner dùng dữ liệu giả trong thư mục tạm; không phải official Development/Holdout.
 
 Config chuyển `READY_TO_LOCK_AFTER_BPIT` sang `LOCKED`. So với config đã chạy targets-only, chỉ thay `status`
@@ -296,7 +296,7 @@ lần xác minh này. Sau run phải verify/seal trước khi chuyển sang Hold
 ### 3.13. Official Development — verify và seal
 
 Owner đã chạy `scripts/run_m3.py --segment development`, kết thúc với `BACKTEST_DEV_EXIT=0`.
-Run [20261104T060408Z-5557288c](../data/experiments/m3/development/20261104T060408Z-5557288c/manifest.json)
+Run [20261104T060408Z-5557288c](../../data/experiments/m3/development/20261104T060408Z-5557288c/manifest.json)
 ghi `targets_only=false`, `status=LOCKED`, `financial_source=B_PIT`, `git_dirty=false` và commit
 `a5d9872b598bd9878238849835f41beedeb5826f`. Config SHA256 là
 `b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d`.
@@ -328,7 +328,7 @@ với tolerance `rel_tol=1e-9`, `abs_tol=1e-10`. Không có Sharpe trong kết q
 | Momentum-only | 169,73% | 22,36% | 25,51% | -33,71% | 31,54% | 1,47% |
 | VNINDEX | 24,35% | 4,53% | 23,56% | -33,02% | — | — |
 
-Các số trên lấy từ [metrics.json](../data/experiments/m3/development/20261104T060408Z-5557288c/metrics.json)
+Các số trên lấy từ [metrics.json](../../data/experiments/m3/development/20261104T060408Z-5557288c/metrics.json)
 đã xác minh, làm tròn hai chữ số. CAGR và volatility dùng 59 kỳ return với quy đổi 12 kỳ/năm;
 drawdown đo trên các điểm NAV được lưu theo lịch execution/valuation, không phải daily drawdown.
 Chi phí và slippage bằng 0. Strategy dùng vendor-adjusted close, VNINDEX là price index;
@@ -351,7 +351,7 @@ không thay rule hoặc config dựa trên kết quả đó trước Holdout.
 #### Bằng chứng seal
 
 Đủ 33 file: manifest, metrics, benchmark và sáu nhóm CSV cho mỗi strategy. Đã so hash trước/sau verify,
-xác nhận không file nào trong run bị sửa. [Seal Development](../data/experiments/m3/seals/development/20261104T060408Z-5557288c/seal.json)
+xác nhận không file nào trong run bị sửa. [Seal Development](../../data/experiments/m3/seals/development/20261104T060408Z-5557288c/seal.json)
 ghi `status=PASS`, hash của đủ 33 file, code/config/input identities, kết quả kiểm tra và danh sách sự kiện stale.
 Seal được ghi riêng ngoài run; giữ nguyên manifest/output gốc.
 
@@ -369,7 +369,7 @@ sau đó verify/seal riêng. Chưa chạy official Holdout trong phiên này.
 **Bản xem hiện hành** là bản `plan-columns` với 22 cột tại Mục 3.19.
 [CSV v2 theo bố cục đã chốt](../M3/BACKTEST_DEV_COMBINED_V2.csv)
 
-Theo yêu cầu owner, đã xuất [BACKTEST_DEV_COMBINED_V2.csv](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/BACKTEST_DEV_COMBINED_V2.csv)
+Theo yêu cầu owner, đã xuất [BACKTEST_DEV_COMBINED_V2.csv](../../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/BACKTEST_DEV_COMBINED_V2.csv)
 để xem kết quả từng bước theo 60 decision snapshots của run Development đã seal tại Mục 3.13.
 Đây là phiên bản báo cáo v2; strategy, config, code của official run và 33 file canonical giữ nguyên.
 Không chạy lại mô hình hoặc portfolio engine. `M3_READINESS.md` không thay đổi.
@@ -408,13 +408,13 @@ tổng tỷ trọng 100%, đóng góp từng mã cộng lại khớp biến đ�
 Preview và inspect xác nhận nhãn tiếng Việt và ngày/số đọc được. Kiểm tra hash nguồn trước/sau đều khớp seal.
 Self-review kết luận báo cáo v2 `PASS`; không mở Holdout hoặc thay đổi methodology.
 
-[Manifest báo cáo v2](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/manifest_v2.json)
+[Manifest báo cáo v2](../../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/manifest_v2.json)
 ghi nguồn run/seal, hash CSV và hash hai helper local tại `.tmp/m3-backtest-v2/`.
 SHA256 CSV: `3978b6500f962b0b2f42d986707bbda03657984382fdafe21c3cc9d61f1a9698`.
 
 ### 3.15. Chuẩn hóa tên cột CSV v2 theo kế hoạch
 
-Owner yêu cầu dùng tên cột giống kế hoạch. Đã tạo [CSV v2 bản 35 cột](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/plan-columns/original-35-columns/BACKTEST_DEV_COMBINED_V2.csv),
+Owner yêu cầu dùng tên cột giống kế hoạch. Đã tạo [CSV v2 bản 35 cột](../../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/plan-columns/original-35-columns/BACKTEST_DEV_COMBINED_V2.csv),
 giữ nguyên 5.656 dòng/60 kỳ, còn 35 cột. File trước được giữ để đối chiếu, không ghi đè artifact sealed.
 
 Tên dữ liệu nghiệp vụ dùng các biến/thuật ngữ tại Mục 3.6.2, 7, 8.3, 16 và 17.4 của kế hoạch:
@@ -435,7 +435,7 @@ tỷ lệ 0–1 (`0.05 = 5%`). `nav`, `pre_trade_NAV`, `intended`, `executed` v�
 của nguồn, vốn đầu bằng 1. Ví dụ NAV cuối là `2.1615233667541727`, tương đương 216,15233667541727
 trong bản gốc 100. Chỉ chuyển đơn vị, không đổi kết quả kinh tế.
 
-[Manifest bản 35 cột](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/plan-columns/original-35-columns/manifest_v2.json)
+[Manifest bản 35 cột](../../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/plan-columns/original-35-columns/manifest_v2.json)
 ghi mapping tên cũ/mới, hệ số đổi đơn vị, mục tương ứng trong kế hoạch và hash nguồn.
 SHA256 CSV bản 35 cột là `1f5df8499ba7aa9c6e074d2566f719891e6402c5ea8cfad282b8474ab674b3ac`.
 Đã kiểm tra mapping toàn bộ ô được giữ, read-back CSV, tổng tỷ trọng, số dòng và NAV; inspect/render đạt.
@@ -443,7 +443,7 @@ Self-review `PASS`: 33 file run gốc, seal, code/config và `M3_READINESS.md` g
 
 ### 3.16. CSV v2 tổng hợp cuối bước và phân biệt mã cũ/ứng viên mới
 
-Theo yêu cầu owner, đã xuất [CSV v2 bố cục hiện hành](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/readable-layout/BACKTEST_DEV_COMBINED_V2.csv).
+Theo yêu cầu owner, đã xuất [CSV v2 bố cục hiện hành](../../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/readable-layout/BACKTEST_DEV_COMBINED_V2.csv).
 Cả 240 dòng `TỔNG HỢP` nằm cuối từng nhóm `Kỳ/Bước`, sau các dòng chi tiết. Bước không có chi tiết
 chỉ giữ một dòng tổng hợp, gồm các bước bị chặn execution ở kỳ 60.
 
@@ -474,19 +474,19 @@ cả hai cột theo từng kỳ, đủ union mã cũ/ứng viên Bước 1, sour
 Inspect/render đạt. Self-review xác nhận đây là chỉnh bố cục báo cáo, không đổi backtest hoặc mở Holdout;
 `M3_READINESS.md` và code/config official giữ nguyên.
 
-[Manifest bản bố cục hiện hành](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/readable-layout/manifest_v2.json)
+[Manifest bản bố cục hiện hành](../../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/readable-layout/manifest_v2.json)
 ghi nguồn, đơn vị, quy tắc hai cột ticker, counts và hash CSV.
 SHA256 CSV hiện hành là `5836fc22a389eb55120dec6362eb656f3d6c4250e1525da0f653fb2a8db73d41`.
 
 ### 3.17. CSV v2 đầy đủ biến bốn bước và dữ liệu giải thích failed orders
 
 Owner yêu cầu mọi biến trong bảng bốn bước có cột, gồm dữ liệu như volume để tự nhận biết nguyên nhân
-mua/bán thất bại. Đã xuất [CSV v2 đầy đủ biến](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/full-variables/BACKTEST_DEV_COMBINED_V2.csv)
+mua/bán thất bại. Đã xuất [CSV v2 đầy đủ biến](../../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/full-variables/BACKTEST_DEV_COMBINED_V2.csv)
 cho Combined Development: 6.069 dòng, 97 cột, đủ 60 kỳ và 240 dòng tổng hợp ở cuối bước.
 Giữ hai cột ticker kỳ trước/ứng viên kỳ này và các đơn vị tỷ lệ 0–1, vốn đầu 1 của bản trước.
 
 Đã đối chiếu tự động đủ **42 dòng** trong `BẢNG CÁC BIẾN TÍNH TOÁN TRONG 4 BƯỚC M3-A` với
-`plan_variable_coverage` trong [manifest báo cáo](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/full-variables/manifest_v2.json).
+`plan_variable_coverage` trong [manifest báo cáo](../../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/full-variables/manifest_v2.json).
 Các tên alias của cùng biến dùng cột tương ứng, không coi là biến độc lập. Các nhóm bổ sung:
 
 - Bước 1: `usable_financial_years`, `selected_fiscal_year`, `usable_from_date`, cutoff, eligibility,
@@ -564,7 +564,7 @@ chi tiết sau khi chuyển dòng tổng hợp. Dòng HVT kỳ 2 ghi `volume=0`,
 Theo yêu cầu owner, bổ sung `pre-rebalance-weight` ngay sau `weight`, đưa tổng số lên 22 cột.
 Đã đối chiếu 802 tỷ trọng cuối khoảng giữ ở các dòng `ĐỊNH GIÁ` của Bước 3 với bản gốc 35 cột.
 [CSV hiện hành](../M3/BACKTEST_DEV_COMBINED_V2.csv)
-· [Manifest](../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/plan-columns/manifest_v2.json)
+· [Manifest](../../data/experiments/m3/reports_v2/development/20261104T060408Z-5557288c/plan-columns/manifest_v2.json)
 
 SHA256 CSV là `511f3cccf0c27309a8486948e39151abad4fe646844110d0d9915b7cc96ff7f4`.
 
@@ -607,13 +607,13 @@ kết quả nguồn**. Metadata `adj_glitches_repaired` của run nguồn bị �
 Detector chỉ repair khi ngày trước/sau trong dữ liệu trùng phiên exchange trước/sau của ngày đang xét.
 Ba regression test mới kiểm tra bảng nạp thưa, thiếu giá phiên trước tại execution date và bộ ba phiên
 qua kỳ nghỉ lễ. Hai test đầu đã tái hiện lỗi trước sửa. Sau sửa, đủ 52 test M3 PASS, `compileall` PASS,
-[synthetic smoke](../data/runs/run-20261104T095526Z-2a2c62ba/manifest.json) có `status=complete`, exit 0.
+[synthetic smoke](../../data/runs/run-20261104T095526Z-2a2c62ba/manifest.json) có `status=complete`, exit 0.
 
 #### Evidence và gate trước Holdout
 
-- [Review trước sửa](../data/experiments/m3/reviews/development/20261104T060408Z-5557288c/pre-holdout-20261104/verification-before-fix.json)
+- [Review trước sửa](../../data/experiments/m3/reviews/development/20261104T060408Z-5557288c/pre-holdout-20261104/verification-before-fix.json)
   ghi hai cờ sai và đối chiếu selection/accounting của năm strategy.
-- [Review sau sửa](../data/experiments/m3/reviews/development/20261104T060408Z-5557288c/pre-holdout-20261104/verification-after-fix.json)
+- [Review sau sửa](../../data/experiments/m3/reviews/development/20261104T060408Z-5557288c/pre-holdout-20261104/verification-after-fix.json)
   xác nhận runtime còn 34 cờ hợp lệ và toàn bộ giá được sử dụng, selection, accounting, metrics danh mục
   khớp. Trạng thái review là `PARTIAL` vì file metrics của run nguồn vẫn ghi count 36.
 - Helper độc lập là `.tmp/review_m3_dev_before_holdout.py`. Hash source `prices.py` ở từng lần kiểm tra
@@ -632,7 +632,7 @@ Kết quả nguồn, seal nguồn và CSV diễn giải hiện có được lưu
 
 Owner đã commit bản sửa Q17 tại `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf` và chạy lại
 Development, `BACKTEST_DEV_EXIT=0`. Run chính thức hiện hành là
-[20261104T121107Z-5557288c](../data/experiments/m3/development/20261104T121107Z-5557288c/manifest.json).
+[20261104T121107Z-5557288c](../../data/experiments/m3/development/20261104T121107Z-5557288c/manifest.json).
 Manifest xác nhận `git_dirty=false`, `targets_only=false`, `financial_source=B_PIT`, config `LOCKED`.
 SHA256 config giữ nguyên `b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d`.
 Revision dataset vẫn là `08c24867b11177072bfe457a4623a38abf9bbc48`; đã hash lại đủ bảy input,
@@ -652,7 +652,7 @@ universe audit, ledger, holdings, NAV, turnover và benchmark của run mới gi
 Đồng thời kiểm tra lại code identity, config, input, Q17 runtime và ranh giới segment cho run mới.
 Helper kiểm tra là `.tmp/seal_m3_development_q17_rerun.py`; SHA256 helper được ghi trong seal.
 
-Đã tạo [seal Development mới](../data/experiments/m3/seals/development/20261104T121107Z-5557288c/seal.json)
+Đã tạo [seal Development mới](../../data/experiments/m3/seals/development/20261104T121107Z-5557288c/seal.json)
 với `status=PASS`, lưu SHA256 của đủ 33 file cùng đường dẫn và hash bằng chứng tham chiếu.
 
 | Artifact | SHA256 |
@@ -670,7 +670,7 @@ Bước tiếp theo là chạy Holdout bằng cùng commit `c9c1f5f`, config và
 ### 3.22. Holdout chính thức: verify và seal `PASS`
 
 Owner đã chạy Holdout và nhận `BACKTEST_HOLDOUT_EXIT=0`. Run
-[20261104T133507Z-5557288c](../data/experiments/m3/holdout/20261104T133507Z-5557288c/manifest.json)
+[20261104T133507Z-5557288c](../../data/experiments/m3/holdout/20261104T133507Z-5557288c/manifest.json)
 ghi `targets_only=false`, `financial_source=B_PIT`, config `LOCKED`, `git_dirty=false`.
 Commit là `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`, SHA256 config là
 `b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d`, trùng Dev tại Mục 3.21.
@@ -718,7 +718,7 @@ Combined có ba sự kiện dùng last valid mark: PTX ngày `2024-10-01` và `2
 
 #### Evidence và self-review
 
-[Seal Holdout](../data/experiments/m3/seals/holdout/20261104T133507Z-5557288c/seal.json)
+[Seal Holdout](../../data/experiments/m3/seals/holdout/20261104T133507Z-5557288c/seal.json)
 ghi `status=PASS`, hash đủ 33 file, hash bảy input, seal Dev tham chiếu, kết quả accounting/metrics và stale.
 Helper là `.tmp/verify_m3_holdout_20261104.py`, có SHA256 được ghi trong seal.
 
@@ -735,7 +735,7 @@ Chưa tự chuyển sang Final Evaluation, dashboard hoặc notebook.
 
 ### 3.23. CSV Holdout Combined v2 theo bản Dev đã chốt
 
-Theo yêu cầu owner, đã xuất [BACKTEST_HOLDOUT_COMBINED_V2.csv](../M3/BACKTEST_HOLDOUT_COMBINED_V2.csv)
+Theo yêu cầu owner, đã xuất [BACKTEST_HOLDOUT_COMBINED_V2.csv](../../M3/BACKTEST_HOLDOUT_COMBINED_V2.csv)
 trong thư mục `M3`, dùng đúng 22 tên cột và thứ tự cột của bản Dev tại Mục 3.19.
 File là báo cáo diễn giải từ Holdout đã seal ở Mục 3.22, không chạy lại strategy hoặc portfolio engine.
 
@@ -754,7 +754,7 @@ ledger, holdings, 278 tỷ trọng cuối khoảng giữ, cash ratio và NAV/l�
 Lợi suất ghép của 23 khoảng khớp NAV cuối `1.3894883661092423`.
 Artifact Tool round-trip, inspect và render đạt; SHA256 đủ 33 file Holdout vẫn khớp seal.
 
-[Manifest CSV](../data/experiments/m3/reports_v2/holdout/20261104T133507Z-5557288c/plan-columns/manifest_v2.json)
+[Manifest CSV](../../data/experiments/m3/reports_v2/holdout/20261104T133507Z-5557288c/plan-columns/manifest_v2.json)
 ghi source run/commit/config, seal hash, input/output hashes, template Dev hash, counts, đơn vị và builders.
 SHA256 CSV là `82e6b1cb5cb7db061ad3b2a0b838967555604071903d479044699c41c980dcb7`.
 Self-review `PASS`: không sửa CSV Dev, run/seal nguồn, code/config hoặc `M3_READINESS.md`;
@@ -763,9 +763,9 @@ chỉ xuất báo cáo Holdout được yêu cầu và cập nhật báo cáo ti
 ### 3.24. So sánh kết quả đối sánh giữa Development và Holdout
 
 **Cập nhật phân tích:** 05/11/2026. Số liệu đã đối chiếu trực tiếp từ CSV của hai run đã seal:
-[Development](../M3/outputs/development/20261104T121107Z-5557288c/) và
-[Holdout](../M3/outputs/holdout/20261104T133507Z-5557288c/). Danh mục và SHA256 nằm trong
-[manifest kết quả](../M3/outputs/manifest.json). Dev có 59 khoảng lợi suất, Holdout có 23 khoảng;
+[Development](../../M3/outputs/development/20261104T121107Z-5557288c) và
+[Holdout](../../M3/outputs/holdout/20261104T133507Z-5557288c). Danh mục và SHA256 nằm trong
+[manifest kết quả](../../M3/outputs/manifest.json). Dev có 59 khoảng lợi suất, Holdout có 23 khoảng;
 hai đoạn khởi tạo độc lập và không nối NAV. Vì độ dài khác nhau, dùng CAGR bên cạnh tổng lợi suất
 khi đọc kết quả giữa hai giai đoạn. Giữ nguyên công thức metrics trong `scripts/run_m3.py`.
 
@@ -925,16 +925,16 @@ gồm ba notebook có output thực thi, báo cáo kỹ thuật sinh từ nguồ
 
 | Đầu ra | Kết quả |
 |---|---|
-| [Notebook 01 — Dữ liệu và PIT](../M3/notebooks/01_Du_Lieu_Va_PIT.ipynb) | `PASS`: identity/hash hai run và bảy input; PIT/target tại 11 ngày mẫu, toàn bộ ứng viên đủ điều kiện trong các ngày đó được kiểm tra bằng module chính thức. |
-| [Notebook 02 — Lựa chọn danh mục](../M3/notebooks/02_Tai_Lap_Lua_Chon_Danh_Muc.ipynb) | `PASS`: 420 lượt quyết định, gồm năm strategy × 60 Dev và 24 Holdout; đối chiếu toàn bộ target/audit rows. Có bảng ứng viên, sáu tiêu chí, percentile, điểm và trọng số mục tiêu. |
-| [Notebook 03 — Backtest và benchmark](../M3/notebooks/03_Tai_Lap_Backtest_Va_Benchmark.ipynb) | `PASS`: 10 lượt strategy/segment; ledger, holdings, NAV, turnover, metrics và hai benchmark khớp canonical. Q17 đúng 34/110; kiểm tra CASH, failed/scaled, stale và segment boundaries. |
-| [Notebook 04 — Đánh giá cuối](../M3/notebooks/04_Bao_Cao_Danh_Gia_Cuoi.ipynb) | `NOT_READY`: chỉ ghi phụ thuộc bằng Markdown, không có code tính performance hoặc kết quả giả. CLI từ chối chạy notebook này. |
-| [Báo cáo kỹ thuật](../M3/reports/BAO_CAO_KY_THUAT_M3.md) | Sinh từ metrics/canonical đã đối chiếu, có phương pháp, kết quả, phân tích từng đối chứng và giới hạn. Biểu đồ NAV/drawdown tách nhóm theo segment đã kiểm tra trực quan. Final ghi rõ NOT_READY. |
+| [Notebook 01 — Dữ liệu và PIT](../../M3/notebooks/01_Du_Lieu_Va_PIT.ipynb) | `PASS`: identity/hash hai run và bảy input; PIT/target tại 11 ngày mẫu, toàn bộ ứng viên đủ điều kiện trong các ngày đó được kiểm tra bằng module chính thức. |
+| [Notebook 02 — Lựa chọn danh mục](../../M3/notebooks/02_Tai_Lap_Lua_Chon_Danh_Muc.ipynb) | `PASS`: 420 lượt quyết định, gồm năm strategy × 60 Dev và 24 Holdout; đối chiếu toàn bộ target/audit rows. Có bảng ứng viên, sáu tiêu chí, percentile, điểm và trọng số mục tiêu. |
+| [Notebook 03 — Backtest và benchmark](../../M3/notebooks/03_Tai_Lap_Backtest_Va_Benchmark.ipynb) | `PASS`: 10 lượt strategy/segment; ledger, holdings, NAV, turnover, metrics và hai benchmark khớp canonical. Q17 đúng 34/110; kiểm tra CASH, failed/scaled, stale và segment boundaries. |
+| [Notebook 04 — Đánh giá cuối](../../M3/notebooks/04_Bao_Cao_Danh_Gia_Cuoi.ipynb) | `NOT_READY`: chỉ ghi phụ thuộc bằng Markdown, không có code tính performance hoặc kết quả giả. CLI từ chối chạy notebook này. |
+| [Báo cáo kỹ thuật](../../M3/reports/BAO_CAO_KY_THUAT_M3.md) | Sinh từ metrics/canonical đã đối chiếu, có phương pháp, kết quả, phân tích từng đối chứng và giới hạn. Biểu đồ NAV/drawdown tách nhóm theo segment đã kiểm tra trực quan. Final ghi rõ NOT_READY. |
 | [Hướng dẫn thực thi](../M3/HUONG_DAN_THUC_HIEN_M3.md) | Ghi môi trường, path/hash/config/commit, lệnh đã kiểm chứng, output, điều kiện PASS/FAIL/DỪNG và thứ tự chạy; có giải thích đơn vị vốn chuẩn hóa/tỷ trọng. |
 
 Phụ thuộc Jupyter/biểu đồ được cài riêng trong `.tmp/m3c-notebook-runtime`, có
-[lock đủ phiên bản](../M3/requirements-notebooks.lock.txt); không đổi package của venv backtest M3.
-[Pin nguồn](../M3/sources.json) giữ hai seal/config/source commit. `M3/m3c.py` chỉ điều phối và đối chiếu;
+[lock đủ phiên bản](../../M3/requirements-notebooks.lock.txt); không đổi package của venv backtest M3.
+[Pin nguồn](../../M3/sources.json) giữ hai seal/config/source commit. `M3/m3c.py` chỉ điều phối và đối chiếu;
 PIT, ranking, engine và metrics gọi module chính thức. Không build lại B-PIT, fit model hoặc sửa chiến lược.
 
 Phiên bàn giao cuối là `M3/reproduction/20261104T143919569614Z/`:
@@ -1030,15 +1030,15 @@ chưa có quyền ghi. Đã push commit `79d659057cc150789b89b86ede3cdab69fa030c
 `feature/indicators-v1` của repository `trongnguyen1010/Risk-Adjusted-Momentum-Clustering`.
 
 - Chép 62 CSV canonical, giữ nguyên segment/run ID: 31 tệp Development và 31 tệp Holdout dưới
-  [M3/outputs](../M3/outputs/README.md). Hai CSV Combined dễ đọc đã có trong Git được giữ nguyên
-  tại [Dev](../M3/BACKTEST_DEV_COMBINED.csv) và [Holdout](../M3/BACKTEST_HOLDOUT_COMBINED_V2.csv).
+  [M3/outputs](../../M3/outputs/README.md). Hai CSV Combined dễ đọc đã có trong Git được giữ nguyên
+  tại [Dev](../../M3/BACKTEST_DEV_COMBINED.csv) và [Holdout](../../M3/BACKTEST_HOLDOUT_COMBINED_V2.csv).
   Tổng cộng 64 CSV, 35.058.169 byte, khoảng 33,43 MiB; tệp lớn nhất khoảng 3,23 MiB.
-- [Danh mục checksum](../M3/outputs/manifest.json) ghi đủ đường dẫn nguồn/bản sao, kích thước,
+- [Danh mục checksum](../../M3/outputs/manifest.json) ghi đủ đường dẫn nguồn/bản sao, kích thước,
   SHA256, source commit/config và pins của hai seal. `.gitattributes` giữ nguyên byte, không tự
   chuyển đổi xuống dòng đối với các CSV trong gói. Không đổi `.gitignore` của dữ liệu đầu vào.
 - Đã xác minh hai seal và 66 tệp canonical tại nguồn; đủ 64 Git blobs khớp SHA256, CSV parse đạt,
   liên kết hướng dẫn mới hợp lệ và compileall PASS. Sau push, tải lại **64/64 CSV từ GitHub tại
-  exact commit**: tất cả khớp cả SHA256 lẫn kích thước. [Receipt và self-review](../M3/outputs/publication_verification.json)
+  exact commit**: tất cả khớp cả SHA256 lẫn kích thước. [Receipt và self-review](../../M3/outputs/publication_verification.json)
   ghi nhận `PASS`. Không chạy lại backtest hoặc full repository tests cho thay đổi sao chép artifact.
 - GitHub đã có chín commit mới so với checkout local, gồm các tệp owner đã xóa. Commit CSV được
   tạo trong checkout riêng trên nền remote mới nhất, push bình thường không force. Không phục hồi
@@ -1052,7 +1052,7 @@ Hugging Face không chặn sử dụng các CSV đã công bố trên GitHub. Fi
 
 Đối chiếu này đọc artifact Indicators làm giàu ngày 16/11/2026 và B-PIT `bpit_enriched_v1_run01`, so với B-PIT gốc đã pin `bpit-4a9d2e87f0de84ec`. B-PIT làm giàu chọn K-Means `k=3`, cùng số cụm với baseline. Các kết quả dưới đây là phân tích ứng viên; **không thay pin B-PIT chính thức, config M3 hoặc baseline**.
 
-Manifest C pin Indicators làm giàu SHA256 `d0f7b4d80b7d1bc1da6a98738670ab480c1319794946e22bdfb626a1af1340e0`, availability `4f0f83108e761daeb86289e290de3aff0379abbf1ed630ac31c842146186648f` và config `6a08324029f7d1d3bda57276fa4dab5295b8276e3b35fbac07d7a91eb57fceaa`. Manifest D nhận đúng hash Indicators và availability này; audit có `status=OK`, `winning_k=3`, `fit_leaks={}`. B-PIT gốc có `audit_status=PASS`; SHA256 labels khớp pin ở Mục 3.3. [Manifest Indicators làm giàu](../data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/manifest.json), [danh sách ô điền](../data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/imputed_cells.csv), [audit B-PIT làm giàu](../data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/audit.json), [manifest B-PIT làm giàu](../data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/manifest.json), [audit B-PIT gốc](../data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec/audit.json).
+Manifest C pin Indicators làm giàu SHA256 `d0f7b4d80b7d1bc1da6a98738670ab480c1319794946e22bdfb626a1af1340e0`, availability `4f0f83108e761daeb86289e290de3aff0379abbf1ed630ac31c842146186648f` và config `6a08324029f7d1d3bda57276fa4dab5295b8276e3b35fbac07d7a91eb57fceaa`. Manifest D nhận đúng hash Indicators và availability này; audit có `status=OK`, `winning_k=3`, `fit_leaks={}`. B-PIT gốc có `audit_status=PASS`; SHA256 labels khớp pin ở Mục 3.3. [Manifest Indicators làm giàu](../../data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/manifest.json), [danh sách ô điền](../../data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/imputed_cells.csv), [audit B-PIT làm giàu](../../data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/audit.json), [manifest B-PIT làm giàu](../../data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/manifest.json), [audit B-PIT gốc](../../data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec/audit.json).
 
 #### Ô được điền và mức sử dụng
 
@@ -1104,7 +1104,7 @@ Các phép tính trong mục này chỉ đọc các artifact theo manifest và h
 
 ### 3.31. Đối sánh M3 theo segment (R4-02)
 
-Các bảng dưới đây tổng hợp đầu ra đã seal của Người 2 cho Combined, Financial-only và bốn strategy đối chứng/benchmark. Nguồn là [báo cáo kỹ thuật M3](../M3/reports/BAO_CAO_KY_THUAT_M3.md), CSV canonical trong [danh mục đầu ra và pins](../M3/outputs/manifest.json), cùng hai run [Development](../M3/outputs/development/20261104T121107Z-5557288c/) và [Holdout](../M3/outputs/holdout/20261104T133507Z-5557288c/). Hai run dùng source commit `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`, config SHA256 `b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d` và dataset revision `08c24867b11177072bfe457a4623a38abf9bbc48`; seal hashes lần lượt là `39784248f3777700ebc0261ef53f20053bc4429920785472bba416150e902661` và `f54ea2fb1d0da107d684178c541c9f9c634a11f4de463ad4352e4967ec152cbc`. Đã đối chiếu SHA256 toàn bộ 64 CSV trong manifest với các file được công bố.
+Các bảng dưới đây tổng hợp đầu ra đã seal của Người 2 cho Combined, Financial-only và bốn strategy đối chứng/benchmark. Nguồn là [báo cáo kỹ thuật M3](../../M3/reports/BAO_CAO_KY_THUAT_M3.md), CSV canonical trong [danh mục đầu ra và pins](../../M3/outputs/manifest.json), cùng hai run [Development](../../M3/outputs/development/20261104T121107Z-5557288c) và [Holdout](../../M3/outputs/holdout/20261104T133507Z-5557288c). Hai run dùng source commit `c9c1f5f0c88f2dbb3ebbb50effa47003b24b66cf`, config SHA256 `b5c47ac458cca35e29e99f1cd8cde2827778fbffd8bb2fccf942a6cc9a42e72d` và dataset revision `08c24867b11177072bfe457a4623a38abf9bbc48`; seal hashes lần lượt là `39784248f3777700ebc0261ef53f20053bc4429920785472bba416150e902661` và `f54ea2fb1d0da107d684178c541c9f9c634a11f4de463ad4352e4967ec152cbc`. Đã đối chiếu SHA256 toàn bộ 64 CSV trong manifest với các file được công bố.
 
 **Quy ước bảng:** N ứng viên là trung vị (min–max) số dòng `in_candidate_universe=True` mỗi decision date. `Chọn/giữ` là số mã mục tiêu trung bình (min–max) mỗi quyết định / số mã thực giữ trung bình (min–max) mỗi execution; số mã giữ loại `CASH`. Vì Dev có 60 quyết định/59 execution và Holdout có 24/23, mẫu số của hai phần có thể khác. Cash là `avg_cash_after_trading`. Lệnh đã khớp BUY/SELL đếm các dòng `EXECUTED` hoặc `SCALED`; lệnh lỗi đếm riêng `BUY_FAILED`/`SELL_FAILED`; `SCALED` được tách riêng để giữ rõ các lệnh khớp một phần. Đây là số sự kiện/lệnh, không phải số mã duy nhất. NAV lấy từ điểm đầu và cuối của từng chuỗi; return là tổng lợi suất; drawdown là `max_drawdown` theo các điểm NAV được lưu.
 
@@ -1128,7 +1128,7 @@ Các bảng dưới đây tổng hợp đầu ra đã seal của Người 2 cho 
 | Equal-weight | 767,5 (636–817) | 753,62 (636–817) / 771,09 (589–837) | 0,47% | 10.140 / 6.321 | 1.073 / 1.169 | 9.019 | 1,0000 → 1,2953 | 29,53% | -7,40% |
 | Momentum-only | 767,5 (636–817) | 226,62 (191–246) / 230,00 (174–258) | 0,82% | 3.176 / 2.730 | 409 / 464 | 2.430 | 1,0000 → 1,4137 | 41,37% | -8,92% |
 
-VNINDEX là benchmark riêng, không có N/cash/lệnh danh mục: Development có NAV `1,0000 → 1,2435`, tổng return **24,35%**, max drawdown **-33,02%**; Holdout có NAV `1,0000 → 1,5213`, tổng return **52,13%**, max drawdown **-5,87%**. Các số được tính trên cùng các ngày valuation của từng segment; nguồn benchmark nằm trong [CSV Development](../M3/outputs/development/20261104T121107Z-5557288c/benchmark_vnindex.csv) và [CSV Holdout](../M3/outputs/holdout/20261104T133507Z-5557288c/benchmark_vnindex.csv).
+VNINDEX là benchmark riêng, không có N/cash/lệnh danh mục: Development có NAV `1,0000 → 1,2435`, tổng return **24,35%**, max drawdown **-33,02%**; Holdout có NAV `1,0000 → 1,5213`, tổng return **52,13%**, max drawdown **-5,87%**. Các số được tính trên cùng các ngày valuation của từng segment; nguồn benchmark nằm trong [CSV Development](../../M3/outputs/development/20261104T121107Z-5557288c/benchmark_vnindex.csv) và [CSV Holdout](../../M3/outputs/holdout/20261104T133507Z-5557288c/benchmark_vnindex.csv).
 
 **Cơ sở giá và giới hạn:** NAV mỗi segment được khởi tạo độc lập bằng 1; không ghép chuỗi Dev và Holdout. Strategy dùng vendor-adjusted close làm adjusted-return proxy, trong khi VNINDEX là price index nên cơ sở return và drawdown không tương đương; chưa xác nhận proxy là total-return chuẩn. Drawdown chỉ đo tại ngày valuation theo kỳ, không phải daily drawdown. Cash không sinh lãi, phí và slippage bằng 0; các lệnh `SCALED`, lệnh lỗi và mark `PRICE_STALE` vẫn được giữ trong số liệu. Giới hạn vintage/revision financial tại Mục 3.2 tiếp tục áp dụng. Không báo Sharpe cho Development hoặc Holdout.
 

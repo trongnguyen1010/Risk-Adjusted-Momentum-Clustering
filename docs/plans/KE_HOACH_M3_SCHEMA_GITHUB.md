@@ -1632,7 +1632,7 @@ SBT FY2024. Công ty phi tài chính có đủ chín biến `status=OK` và giá
 sau đó áp Q-date và cutoff để chọn tập fit. Audit PDF/revision là bằng chứng về giới hạn của snapshot dữ liệu
 đã được chấp nhận. Các chênh lệch VCG/SBT và giới hạn truy vết vintage được disclosure trong báo cáo M3.
 Các gate kiểm tra hash, ngày usable, cutoff, fit-leak, cluster order và ARI tiếp tục áp dụng.
-[Quyết định và giới hạn đã ghi nhận](DECISIONS.md).
+[Quyết định và giới hạn đã ghi nhận](../DECISIONS.md).
 
 M3 hiện sử dụng Financial criteria:
 
