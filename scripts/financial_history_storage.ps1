@@ -37,7 +37,7 @@ foreach ($row in $rows) {
  if (-not (Test-Path -LiteralPath $from) -and (Test-Path -LiteralPath $to)) {continue}
  if (-not (Test-Path -LiteralPath $from -PathType Container) -or (Test-Path -LiteralPath $to)) {throw 'Missing source or occupied destination; nothing overwritten'}
  if ($Mode -eq 'Restore') {
-  & 'C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe' (Join-Path $PSScriptRoot 'financial_history_storage.py') check --source $row.source
+  & python (Join-Path $PSScriptRoot 'financial_history_storage.py') check --source $row.source
   if ($LASTEXITCODE -ne 0) {throw 'Archive inventory check failed; restore refused'}
  }
  [void](New-Item -ItemType Directory -Path (Split-Path -Parent $to) -Force)

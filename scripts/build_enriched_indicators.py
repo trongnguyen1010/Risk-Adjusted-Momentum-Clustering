@@ -60,7 +60,7 @@ def main():
     parser.add_argument(
         "--backup-downloads-dir",
         type=Path,
-        default=Path("C:/Users/Admin/Downloads/delta_enriched_backup"),
+        default=Path.home() / "Downloads" / "delta_enriched_backup",
         help="Thư mục sao lưu ra Downloads để người dùng đối chiếu",
     )
     args = parser.parse_args()

@@ -2,7 +2,7 @@ param(
     [ValidateSet('Status', 'Offline', 'Continue')]
     [string]$Mode = 'Status',
     [int]$Limit = 0,
-    [string]$Python = 'C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
+    [string]$Python = 'python'
 )
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot

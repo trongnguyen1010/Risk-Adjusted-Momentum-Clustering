@@ -346,6 +346,9 @@ def convert_md_to_docx(md_path, docx_path):
     print(f"File saved successfully to: {docx_path}")
 
 if __name__ == "__main__":
-    src_md = r"c:\Users\HP\Downloads\Phân cụm động lượng TTCK\docs\M1_M2_PRESENTATION_GUIDE.md"
-    dst_docx = r"C:\Users\HP\Downloads\M1_M2_PRESENTATION_GUIDE.docx"
-    convert_md_to_docx(src_md, dst_docx)
+    import sys
+    repo_root = Path(__file__).resolve().parents[1]
+    default_src = repo_root / "docs/HUONG_DAN_THUC_THI_DELTA_M1_M3.md"
+    src_md = Path(sys.argv[1]) if len(sys.argv) > 1 else default_src
+    dst_docx = Path(sys.argv[2]) if len(sys.argv) > 2 else Path.home() / "Downloads" / f"{src_md.stem}.docx"
+    convert_md_to_docx(str(src_md), str(dst_docx))

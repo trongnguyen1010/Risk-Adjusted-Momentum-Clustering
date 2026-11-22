@@ -18,7 +18,7 @@ from delta_t1.ingestion.financial_pit_semantic_closure import dry_run, execute, 
 
 DEFAULT_R2 = ROOT / "artifacts/financial_pit/fin-pit-2-r2-period-scope-remediation-v2"
 DEFAULT_OPEN11 = ROOT / "artifacts/financial_pit/open-11-scope-mapping-review-v1"
-DEFAULT_R1 = Path(r"C:\Users\HP\.codex\worktrees\fin-pit-1\Phân cụm động lượng TTCK\artifacts\financial_pit\fin-pit-1-source-document-pilot-v1")
+DEFAULT_R1 = ROOT / "artifacts/financial_pit/fin-pit-1-source-document-pilot-v1"
 DEFAULT_OUTPUT = ROOT / "artifacts/financial_pit/fin-pit-2-r3-semantic-closure-v1"
 DEFAULT_TESSDATA = ROOT / "tools/tessdata"
 

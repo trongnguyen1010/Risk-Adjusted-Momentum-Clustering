@@ -1,4 +1,4 @@
-param([ValidateSet('Run','Status')][string]$Mode='Status', [string]$Python='C:/Users/ASUS/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe')
+param([ValidateSet('Run','Status')][string]$Mode='Status', [string]$Python='python')
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
 $audit=Join-Path $root 'artifacts/repository/financial-cache-archive-20261023'
