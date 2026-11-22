@@ -3,6 +3,8 @@
 Phân cụm cổ phiếu Việt Nam theo đặc trưng thị trường (A) và tài chính (B), rồi backtest danh mục chọn từ hai hệ cụm (M3).
 Lịch sử từng lượt làm việc nằm ở [CHANGELOG](CHANGELOG.md); trạng thái hiện hành ở [docs/CURRENT_STATUS.md](docs/CURRENT_STATUS.md).
 
+> **Lưu ý:** Để nắm bắt chi tiết quy trình thiết lập môi trường và các bước thực thi dự án từ giai đoạn M1 đến M3, xin vui lòng xem tài liệu **[Hướng dẫn thực thi DELTA (M1 – M3)](docs/HUONG_DAN_THUC_THI_DELTA_M1_M3.md)**.
+
 ## Hướng chính thức (D-DIR-01, 26/10/2026)
 
 - **Phân cụm thị trường (A):** mô hình A của bundle web v4 — 9 đặc trưng, lọc thanh khoản nhẹ, log + cắt đuôi + z-score,
