@@ -2340,7 +2340,7 @@ availability hoặc Financial từ các field khác đã có trong source JSONL.
 1. Mở PowerShell:
 
    ```powershell
-   cd "C:\Users\HP\Downloads\Phân cụm động lượng TTCK"
+   cd <thư-mục-gốc-dự-án>
    ```
 
 2. Dùng Python >=3.11. Tạo virtualenv nếu chưa có, cài extra `dashboard` của

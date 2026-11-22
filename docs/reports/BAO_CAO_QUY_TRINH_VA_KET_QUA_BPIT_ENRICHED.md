@@ -4,10 +4,10 @@
 **Tác giả:** Đội ngũ Nghiên cứu & Phát triển DELTA  
 **Thời điểm hoàn thành & cập nhật chính thức:** Tháng 11/2026 (theo Quyết định D-DIR-01 và Kế hoạch B-PIT Enriched)  
 **Cơ sở dữ liệu & mã nguồn:** 100% đối chiếu từ kho mã nguồn, cấu hình thực nghiệm và artifact đã thực thi trong repository:
-* Dữ liệu làm giàu Stage C: `data/financial/indicators_enriched_v1/indicators_enriched_v1_run01` ([scripts/build_enriched_indicators.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/scripts/build_enriched_indicators.py))
-* Phân cụm B-PIT Enriched Stage D: `data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01` ([scripts/build_financial_pit_clusters_enriched.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/scripts/build_financial_pit_clusters_enriched.py))
-* Mô-đun lõi: [src/delta_t1/experiments/bpit_enriched.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/src/delta_t1/experiments/bpit_enriched.py) và [src/delta_t1/m3/bpit.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/src/delta_t1/m3/bpit.py)
-* Cấu hình thực nghiệm: [configs/experiments/bpit_enriched_v1.json](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/configs/experiments/bpit_enriched_v1.json) và [configs/experiments/m3_strategy_enriched_v1.json](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/configs/experiments/m3_strategy_enriched_v1.json).
+* Dữ liệu làm giàu Stage C: `data/financial/indicators_enriched_v1/indicators_enriched_v1_run01` ([scripts/build_enriched_indicators.py](../../scripts/build_enriched_indicators.py))
+* Phân cụm B-PIT Enriched Stage D: `data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01` ([scripts/build_financial_pit_clusters_enriched.py](../../scripts/build_financial_pit_clusters_enriched.py))
+* Mô-đun lõi: [src/delta_t1/experiments/bpit_enriched.py](../../src/delta_t1/experiments/bpit_enriched.py) và [src/delta_t1/m3/bpit.py](../../src/delta_t1/m3/bpit.py)
+* Cấu hình thực nghiệm: [configs/experiments/bpit_enriched_v1.json](../../configs/experiments/bpit_enriched_v1.json) và [configs/experiments/m3_strategy_enriched_v1.json](../../configs/experiments/m3_strategy_enriched_v1.json).
 
 ---
 
@@ -29,14 +29,14 @@ Trong phiên bản B-PIT ban đầu (dựa trên bộ dữ liệu `indicators_v1
   * Baseline B-PIT đối chứng: `data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec`.
 * **Nguyên tắc điền khuyết thiếu Point-in-Time nghiêm ngặt:**
   1. *Chỉ tính trung vị trên tập Fit chuẩn:* Giá trị trung vị điền khuyết thiếu $\text{median}(m, t)$ của chỉ số $m$ tại năm tài chính $t$ **chỉ được tính toán dựa trên các doanh nghiệp đã công bố BCTC trước hoặc đúng ngày Cutoff** của năm $t$. Tuyệt đối không sử dụng thông tin từ tương lai hoặc từ các mã nộp muộn để tính trung vị.
-  2. *Bảo toàn 100% dữ liệu gốc:* 0 ô dữ liệu đã quan sát nào bị thay đổi giá trị. Toàn bộ các ô được điền đều được gắn cờ truy vết nguồn gốc `imputed_flag = True` và ghi nhật ký kiểm toán độc lập tại [imputed_cells.csv](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/imputed_cells.csv).
+  2. *Bảo toàn 100% dữ liệu gốc:* 0 ô dữ liệu đã quan sát nào bị thay đổi giá trị. Toàn bộ các ô được điền đều được gắn cờ truy vết nguồn gốc `imputed_flag = True` và ghi nhật ký kiểm toán độc lập tại [imputed_cells.csv](../../data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/imputed_cells.csv).
   3. *Kết quả làm giàu:* Đã giải cứu thành công **1.111 ô khuyết thiếu** thuộc **1.045 dòng mã–năm** của **393 mã cổ phiếu** trong giai đoạn FY 2017 – FY 2024.
 
 ---
 
 ## 2. CÁC BƯỚC THỰC HIỆN TRONG MÃ NGUỒN (MACHINE LEARNING PIPELINE)
 
-Quy trình thực thi trong mã nguồn gồm 2 script chuyên trách: [scripts/build_enriched_indicators.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/scripts/build_enriched_indicators.py) (Stage C) và [scripts/build_financial_pit_clusters_enriched.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/scripts/build_financial_pit_clusters_enriched.py) (Stage D):
+Quy trình thực thi trong mã nguồn gồm 2 script chuyên trách: [scripts/build_enriched_indicators.py](../../scripts/build_enriched_indicators.py) (Stage C) và [scripts/build_financial_pit_clusters_enriched.py](../../scripts/build_financial_pit_clusters_enriched.py) (Stage D):
 
 ```
 [Stage C: Nạp CSDL Gốc & Bảng Ngày Q-Date]
@@ -61,7 +61,7 @@ Quy trình thực thi trong mã nguồn gồm 2 script chuyên trách: [scripts/
 ### Bước 1: Làm giàu dữ liệu chỉ số tài chính (Stage C)
 1. Truy vấn các bản ghi mã–năm bị khuyết từ 1 đến 3 chỉ số trong `indicators.sqlite`.
 2. Tính ma trận trung vị $[m, t]$ trên tập hợp các doanh nghiệp hợp lệ của năm tài chính $t$ tại mốc Cutoff.
-3. Điền giá trị trung vị vào 1.111 ô trống, xuất cơ sở dữ liệu hoàn chỉnh [indicators.sqlite](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/indicators.sqlite) (106 MB).
+3. Điền giá trị trung vị vào 1.111 ô trống, xuất cơ sở dữ liệu hoàn chỉnh [indicators.sqlite](../../data/financial/indicators_enriched_v1/indicators_enriched_v1_run01/indicators.sqlite) (106 MB).
 
 ### Bước 2: Quét lưới siêu tham số 24 Cấu hình (Stage D Grid Search)
 Để lựa chọn mô hình phân cụm tối ưu, mã nguồn tiến hành quét đồng thời không gian 2 chiều trên 6 năm tài chính giai đoạn Development (FY 2017 – FY 2022):
@@ -99,7 +99,7 @@ Mỗi cấu hình trong 24 cấu hình phải vượt qua 2 tiêu chuẩn kiểm
 ## 3. KẾT QUẢ THỰC NGHIỆM VÀ ĐỐI SÁNH KHOA HỌC
 
 ### 3.1. Bảng kết quả Quét lưới 24 cấu hình và Sàng lọc qua Cổng Admissibility Gate
-Kết quả thực nghiệm quét lưới 24 cấu hình trích xuất từ [audit.json](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/audit.json):
+Kết quả thực nghiệm quét lưới 24 cấu hình trích xuất từ [audit.json](../../data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01/audit.json):
 
 | Thuật toán | Số cụm $k$ | Median Silhouette | Median Davies-Bouldin | Độ ổn định mẫu con 90% (ARI) | Trạng thái Cổng Admissible | Đánh giá & Lý do loại / chọn |
 |---|:---:|:---:|:---:|:---:|:---:|---|
@@ -117,7 +117,7 @@ Kết quả thực nghiệm quét lưới 24 cấu hình trích xuất từ [aud
 ---
 
 ### 3.2. Bảng kết quả thực nghiệm chi tiết từng niên độ của B-PIT Enriched (FY 2017 – FY 2024)
-Số liệu trích xuất chính thức từ artifact [bpit_enriched_v1_run01](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01):
+Số liệu trích xuất chính thức từ artifact [bpit_enriched_v1_run01](../../data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01):
 
 | Niên độ (FY) | Ngưỡng Cutoff | Số mã FIT ($N_{fit}$) | Số mã Gán sau Cutoff | Phân bố kích thước 3 cụm $\{C_0, C_1, C_2\}$ | Thứ tự chất lượng (`cluster_order`) | Cụm Dẫn dắt (Leading) | Cụm Yếu nhất (Weakest) | Kiểm toán Rò rỉ (Fit-Leak) |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -167,7 +167,7 @@ Số liệu trích xuất chính thức từ artifact [bpit_enriched_v1_run01](f
 
 ### Slide 4: Giá trị thực tiễn đối với Backtest M3 và Vận hành Sản phẩm
 * **Giải quyết dứt điểm bài toán thanh khoản danh mục:** Loại bỏ hoàn toàn hiện tượng số ứng viên bị co hẹp dưới ngưỡng $N_{min} = 10$, tạo không gian lựa chọn danh mục Combined dồi dào và ổn định.
-* **Tích hợp chính thức:** Artifact [bpit_enriched_v1_run01](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01) được khóa cố định vào cấu hình chiến lược [configs/experiments/m3_strategy_enriched_v1.json](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/configs/experiments/m3_strategy_enriched_v1.json) cho toàn bộ hệ thống backtest và đánh giá đầu tư của DELTA.
+* **Tích hợp chính thức:** Artifact [bpit_enriched_v1_run01](../../data/financial/b_pit_enriched_v1/bpit_enriched_v1_run01) được khóa cố định vào cấu hình chiến lược [configs/experiments/m3_strategy_enriched_v1.json](../../configs/experiments/m3_strategy_enriched_v1.json) cho toàn bộ hệ thống backtest và đánh giá đầu tư của DELTA.
 
 ---
 *Báo cáo được trích xuất và xác thực 100% từ mã nguồn và dữ liệu thực nghiệm DELTA Intelligence (Artifacts `indicators_enriched_v1_run01` và `bpit_enriched_v1_run01`).*

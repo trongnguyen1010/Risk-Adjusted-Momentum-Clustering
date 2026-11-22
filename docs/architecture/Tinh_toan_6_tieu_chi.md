@@ -1,7 +1,7 @@
 # HƯỚNG DẪN CHI TIẾT TÍNH TOÁN 6 TIÊU CHÍ VÀ CHUẨN HÓA PHÂN VỊ (PERCENTILE)
 
-> **Tài liệu tham chiếu:** [`docs/KE_HOACH_M3_SCHEMA_GITHUB.md`](file:///c:/Users/HP/Downloads/Phân cụm động lượng TTCK/docs/KE_HOACH_M3_SCHEMA_GITHUB.md) (Mục 3.5, Q7, Q8, Q9)  
-> **Mã nguồn thực thi:** [`src/delta_t1/m3/ranking.py`](file:///c:/Users/HP/Downloads/Phân cụm động lượng TTCK/src/delta_t1/m3/ranking.py)
+> **Tài liệu tham chiếu:** [`docs/KE_HOACH_M3_SCHEMA_GITHUB.md`](../plans/KE_HOACH_M3_SCHEMA_GITHUB.md) (Mục 3.5, Q7, Q8, Q9)  
+> **Mã nguồn thực thi:** [`src/delta_t1/m3/ranking.py`](../../src/delta_t1/m3/ranking.py)
 
 ---
 

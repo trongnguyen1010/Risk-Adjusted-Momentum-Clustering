@@ -3,7 +3,7 @@
 **Dự án:** Phân cụm động lượng điều chỉnh rủi ro TTCK Việt Nam (DELTA)  
 **Tác giả:** Đội ngũ Nghiên cứu & Phát triển DELTA  
 **Thời điểm hoàn thành & cập nhật chính thức:** 04/11/2026 (theo Quyết định D-M3-01 và cập nhật D-DIR-01)  
-**Cơ sở dữ liệu & mã nguồn:** 100% đối chiếu từ kho mã nguồn, cấu hình thực nghiệm và artifact đã thực thi trong repository (`data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec`, [scripts/build_financial_pit_clusters.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/scripts/build_financial_pit_clusters.py), [src/delta_t1/m3/bpit.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/src/delta_t1/m3/bpit.py), [configs/experiments/m3_strategy_v1.json](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/configs/experiments/m3_strategy_v1.json)).
+**Cơ sở dữ liệu & mã nguồn:** 100% đối chiếu từ kho mã nguồn, cấu hình thực nghiệm và artifact đã thực thi trong repository (`data/financial/b_pit_v1/bpit-4a9d2e87f0de84ec`, [scripts/build_financial_pit_clusters.py](../../scripts/build_financial_pit_clusters.py), [src/delta_t1/m3/bpit.py](../../src/delta_t1/m3/bpit.py), [configs/experiments/m3_strategy_v1.json](../../configs/experiments/m3_strategy_v1.json)).
 
 ---
 
@@ -12,7 +12,7 @@
 ### 1.1. Mục tiêu của Hệ Dữ liệu Tài chính Point-In-Time (Hệ B-PIT)
 Trong kiến trúc phân tầng của DELTA, hệ dữ liệu tài chính phục vụ cho phân bổ danh mục tại Milestone M3. Ở các phiên bản trước (như B v4), việc huấn luyện mô hình K-Means trên toàn bộ doanh nghiệp của một năm tài chính sau khi năm đó đã kết thúc dẫn đến nguy cơ **rò rỉ thời gian (timing leakage / look-ahead bias)**: tâm cụm và phân vị chuẩn hóa bị ảnh hưởng bởi các báo cáo tài chính (BCTC) công bố rất muộn (thậm chí vào nửa cuối năm sau).
 
-Để giải quyết triệt để vấn đề này, **Mô hình Phân cụm Tài chính Point-In-Time (B-PIT)** được thiết kế và triển khai chính thức theo Quyết định **ADR D-M3-01** và Kế hoạch chuẩn M3 ([M3/KE_HOACH_M3_SCHEMA_GITHUB.md](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/M3/KE_HOACH_M3_SCHEMA_GITHUB.md) §3.1.5, §5.2.A):
+Để giải quyết triệt để vấn đề này, **Mô hình Phân cụm Tài chính Point-In-Time (B-PIT)** được thiết kế và triển khai chính thức theo Quyết định **ADR D-M3-01** và Kế hoạch chuẩn M3 ([M3/KE_HOACH_M3_SCHEMA_GITHUB.md](../../M3/KE_HOACH_M3_SCHEMA_GITHUB.md) §3.1.5, §5.2.A):
 1. **Triệt tiêu Look-Ahead Bias ở cấp độ mô hình:** Mỗi năm tài chính $t$, mô hình K-Means chỉ được huấn luyện (fit) trên các báo cáo thực sự có sẵn trước hoặc đúng thời điểm chốt sổ định kỳ (**Cutoff**).
 2. **Đóng băng không gian và tâm cụm (Frozen Space & Centroids):** Toàn bộ tham số tiền xử lý $T_1$ (ngưỡng Winsorize, trung bình, độ lệch chuẩn) và tọa độ tâm cụm được đóng băng vĩnh viễn tại Cutoff. Các báo cáo nộp muộn sau Cutoff được chuẩn hóa và gán ngoại mẫu (out-of-sample assignment) vào tâm cụm gần nhất mà không làm xê dịch cấu trúc cụm đã định hình.
 3. **Đóng băng thứ tự chất lượng cụm (Cluster Ordering):** Thứ tự ưu tiên chất lượng tài chính (sắp xếp theo trung vị ROE giảm dần, hòa điểm thì trung vị Nợ/VCSH tăng dần) được tính toán trên tập Fit tại Cutoff và lưu cố định vào artifact để runtime M3 đọc trực tiếp, không tính lại tại từng ngày quyết định.
@@ -33,7 +33,7 @@ Trong kiến trúc phân tầng của DELTA, hệ dữ liệu tài chính phục
 
 ## 2. CÁC BƯỚC THỰC HIỆN (QUY TRÌNH PHÂN CỤM TÀI CHÍNH B-PIT)
 
-Quy trình phân cụm tài chính Point-In-Time được tự động hóa hoàn toàn thông qua công cụ [scripts/build_financial_pit_clusters.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/scripts/build_financial_pit_clusters.py) kết hợp module lõi [src/delta_t1/m3/bpit.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/src/delta_t1/m3/bpit.py):
+Quy trình phân cụm tài chính Point-In-Time được tự động hóa hoàn toàn thông qua công cụ [scripts/build_financial_pit_clusters.py](../../scripts/build_financial_pit_clusters.py) kết hợp module lõi [src/delta_t1/m3/bpit.py](../../src/delta_t1/m3/bpit.py):
 
 ```
 [Bước 1: Nạp ma trận 9 chỉ số D-IND-01 & Bảng ngày công bố khả dụng (Q-date)]
@@ -114,7 +114,7 @@ Toàn bộ kết quả được đóng gói vào thư mục `data/financial/b_pi
 * `models.json`: Siêu dữ liệu mô hình qua từng năm (cutoff, n_fit, n_assigned, tham số T1, centroids, cluster_order, profile).
 * `audit.json`: Kết quả kiểm định fit_leaks, kích thước các cụm, chỉ số ARI so sánh với B v4.
 * `manifest.json`: Mã băm SHA256 của các tệp đầu vào, mã nguồn thực thi, git commit và mã băm `labels_sha256`.
-* Giá trị định danh artifact và `labels_sha256` được pin chính thức vào [configs/experiments/m3_strategy_v1.json](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/configs/experiments/m3_strategy_v1.json) với trạng thái `LOCKED`.
+* Giá trị định danh artifact và `labels_sha256` được pin chính thức vào [configs/experiments/m3_strategy_v1.json](../../configs/experiments/m3_strategy_v1.json) với trạng thái `LOCKED`.
 
 ---
 
@@ -139,7 +139,7 @@ Kết quả thực nghiệm chính thức trích xuất từ artifact `bpit-4a9d
 ### 3.2. Đánh giá tính toàn vẹn Point-In-Time và Kiểm soát Rò rỉ thông tin
 1. **Kết quả Fit-Leak Audit: PASS tuyệt đối.** Trường `fit_leaks` trong `audit.json` hoàn toàn rỗng trên cả 9 năm tài chính. Không có bất kỳ doanh nghiệp nào có ngày công bố sau Cutoff hoặc thiếu ngày công bố bị lọt vào quá trình huấn luyện K-Means.
 2. **Cơ chế Runtime Cutoff Gate tại Milestone M3:**
-   * Trong quá trình chạy chiến lược tại Milestone M3, thuật toán tại [src/delta_t1/m3/universe.py](file:///c:/Users/HP/Downloads/Phân%20cụm%20động%20lượng%20TTCK/src/delta_t1/m3/universe.py) thực thi kiểm tra nghiêm ngặt: nếu một quyết định đầu tư tại ngày `decision_date` cố tình yêu cầu dữ liệu của niên độ $t$ khi `decision_date < cutoff(t)`, hệ thống sẽ tạm loại mã với lý do kiểm toán `FINANCIAL_MODEL_BEFORE_CUTOFF`.
+   * Trong quá trình chạy chiến lược tại Milestone M3, thuật toán tại [src/delta_t1/m3/universe.py](../../src/delta_t1/m3/universe.py) thực thi kiểm tra nghiêm ngặt: nếu một quyết định đầu tư tại ngày `decision_date` cố tình yêu cầu dữ liệu của niên độ $t$ khi `decision_date < cutoff(t)`, hệ thống sẽ tạm loại mã với lý do kiểm toán `FINANCIAL_MODEL_BEFORE_CUTOFF`.
    * Nếu niên độ $t$ chưa có mô hình B-PIT hợp lệ (như FY 2025), hệ thống ghi nhận `FINANCIAL_MODEL_NOT_READY`.
    * Kiểm tra thực tế xác nhận tại snapshot `2024-03-29`, gate cutoff đã bảo vệ danh mục bằng cách tạm chặn 24 mã Combined và 178 mã Financial-only chưa đủ điều kiện công bố; đến snapshot `2024-05-31` (sau ngày cutoff 30/04/2024), 100% các mã hợp lệ được giải phóng và đưa vào rà soát.
 

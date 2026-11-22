@@ -8,7 +8,7 @@ Kiểm tra tính toàn vẹn của các đầu ra M2, đối chiếu checksum, x
 - Biên bản phán quyết kiểm toán (JSON): `M2/artifacts/m2-verify-v1/verification_summary.json`
 - Bảng bằng chứng đối chiếu chi tiết (CSV): `M2/artifacts/m2-verify-v1/audit_evidence.csv`
 - Notebook kiểm toán thực thi: `M2/notebooks/12_m2_verification_audit.ipynb`
-- Báo cáo kiểm toán chuyên đề: [Bao_cao_M2_Nhiem_vu_12_Verify_Audit.md](file:///c:/Users/HP/Downloads/Phân cụm động lượng TTCK/M2/reports/Bao_cao_M2_Nhiem_vu_12_Verify_Audit.md)
+- Báo cáo kiểm toán chuyên đề: [Bao_cao_M2_Nhiem_vu_12_Verify_Audit.md](Bao_cao_M2_Nhiem_vu_12_Verify_Audit.md)
 
 ## 3. Trạng thái kiểm toán
 **VERIFIED_PASS** (Đạt 8/8 tiêu chí rào chắn học thuật)
