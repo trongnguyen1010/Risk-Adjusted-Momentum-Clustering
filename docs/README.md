@@ -1,5 +1,9 @@
 # Documentation — START HERE
 
+## Cẩm nang thực thi toàn dự án (M1 → M3)
+
+[Hướng dẫn thực thi DELTA M1–M3](HUONG_DAN_THUC_THI_DELTA_M1_M3.md) là tài liệu hướng dẫn vận hành chi tiết từ giải nén dữ liệu `delta_data_tong_hop.zip`, thu thập M1, phân cụm M2 (A v4 và B-PIT Enriched), backtest M3 cho đến khởi chạy Web Terminal.
+
 ## Kế hoạch triển khai B-PIT và đánh giá đầu tư — bản nháp 16/11/2026
 
 [Kế hoạch triển khai B-PIT và hệ thống đánh giá đầu tư](plans/KE_HOACH_TRIEN_KHAI_B_PIT_VA_DANH_GIA_DAU_TU.md)
@@ -9,13 +13,13 @@ cho Người 1–4, có dependency, file, đầu ra và kiểm tra. Giữ nguyê
 
 ## DELTA Investment Assessment — hướng dẫn và hồ sơ nghiệm thu
 
-[Hướng dẫn sử dụng Assessment](HUONG_DAN_SU_DUNG_TOOL_DANH_GIA_DAU_TU.md) mô tả setup local, cách tra mã, verdict, history/Peers/provenance, API, release pins, giới hạn và rollback. Trạng thái Task 14 cùng bằng chứng tự động và checklist UAT nằm tại [hồ sơ Assessment UI](../tests/integration/evidence/assessment-uat/report.md). Production API/UAT thủ công chưa được xác nhận; xem trạng thái trong hồ sơ trước khi tuyên bố release hoàn tất.
+[Hướng dẫn sử dụng Assessment](architecture/HUONG_DAN_SU_DUNG_TOOL_DANH_GIA_DAU_TU.md) mô tả setup local, cách tra mã, verdict, history/Peers/provenance, API, release pins, giới hạn và rollback. Trạng thái Task 14 cùng bằng chứng tự động và checklist UAT nằm tại [hồ sơ Assessment UI](../tests/integration/evidence/assessment-uat/report.md). Production API/UAT thủ công chưa được xác nhận; xem trạng thái trong hồ sơ trước khi tuyên bố release hoàn tất.
 
 ## M3-C — tái lập Dev/Holdout và báo cáo kỹ thuật, 04/11/2026
 
 Hướng dẫn chạy notebook (đã gộp vào notebook, file riêng xóa 04/11),
 [báo cáo kỹ thuật](../M3/reports/BAO_CAO_KY_THUAT_M3.md) và
-[tiến độ thực hiện](REPORT_BACKTEST.md) dùng hai run M3-A đã seal.
+[tiến độ thực hiện](reports/REPORT_BACKTEST.md) dùng hai run M3-A đã seal.
 Notebook 01–03 tái lập dữ liệu/PIT, lựa chọn danh mục, backtest và VNINDEX bằng module chính thức.
 Mã điều phối nằm trực tiếp trong notebook: chọn kernel theo hướng dẫn rồi Run All, không cần helper `.py` trong `M3`.
 Notebook 04 chưa chạy vì Final thiếu dữ liệu 2026; M3-C tổng thể còn `PARTIAL`.
@@ -90,7 +94,7 @@ Các mục bên dưới là lịch sử theo thời gian; khi mâu thuẫn, mụ
 
 ## Kế hoạch nâng cấp DELTA Intelligence — 24/10/2026
 
-[Review và plan chi tiết: dữ liệu sáu chỉ số, phân cụm và UI/UX](DELTA_UPGRADE_PLAN.md).
+[Review và plan chi tiết: dữ liệu sáu chỉ số, phân cụm và UI/UX](plans/DELTA_UPGRADE_PLAN.md).
 Đã triển khai UI/data adapters local và execute R1 theo yêu cầu owner; xem **§11**
 trong plan để đọc trạng thái từng stage, evidence và giới hạn. Audit có 87 unique
 numeric observations/11 mã; R1 757 models được independent verifier PASS, chưa promote; 202 snapshots P1/P3 đã nối research preview.
